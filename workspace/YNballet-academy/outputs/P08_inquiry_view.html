@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[P08] 문의 상세 — YN발레아카데미</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+  .page-hero { background:#f5f5f5; padding:60px 0; border-bottom:1px solid #eee; }
+  .badge-unanswered { background:#dc3545; }
+  .badge-answered   { background:#198754; }
+  .badge-pending    { background:#ffc107; color:#333; }
+  .answer-box { background:#f8f9fa; border-left:3px solid #6c757d; padding:16px 20px; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [P08] 문의 상세 (사용자)
+  PATH   : /inquiry/view.php?id={id}
+  SPEC   : data/specs/P08.js
+  APIs   : [비밀번호 확인] POST /inquiry/check_password.php
+             body: { id, password }  → { ok: true/false }
+           [내용 조회] SELECT id, name, contact, course_interest,
+             content, answer, status, answered_at, created_at
+             FROM inquiry WHERE id=?
+  NOTE   : 비밀번호 게이트: password_verify(입력값, DB hash)
+           관리자 세션 보유 시 게이트 없이 바로 열람 가능.
+           answer 없으면 답변 영역 미표시.
+============================================================ -->
+
+<!-- [SECTION: GNB] -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="P01_landing.html">YN발레아카데미</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#gnb">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="gnb">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="P01_landing.html">홈</a></li>
+        <li class="nav-item"><a class="nav-link" href="P02_about.html">아카데미 소개</a></li>
+        <li class="nav-item"><a class="nav-link" href="P03_course.html">과정소개</a></li>
+        <li class="nav-item"><a class="nav-link" href="P04_notice_list.html">공지사항</a></li>
+        <li class="nav-item"><a class="nav-link active" href="P07_inquiry_list.html">수강 문의</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- [/SECTION: GNB] -->
+
+<!-- [SECTION: PAGE_HERO] -->
+<div class="page-hero text-center">
+  <div class="container">
+    <h1 class="h2 fw-light">문의 상세</h1>
+  </div>
+</div>
+<!-- [/SECTION: PAGE_HERO] -->
+
+<!-- [SECTION: PASSWORD_GATE] 비밀번호 확인 게이트
+  POST /inquiry/check_password.php { id, password }
+  → { ok: true } 시 게이트 숨김 + 본문 표시
+  관리자 세션($_SESSION['admin'])이면 게이트 없이 바로 본문 노출
+  틀린 경우: "비밀번호가 일치하지 않습니다." 인라인 오류 메시지
+──────────────────────────────────────── -->
+<section class="py-5" id="password-gate">
+  <div class="container" style="max-width:440px;">
+    <div class="card border">
+      <div class="card-body p-4 text-center">
+        <p class="mb-1 fw-medium">🔒 비밀글입니다</p>
+        <p class="text-muted small mb-4">문의 작성 시 설정한 비밀번호를 입력하세요.</p>
+
+        <!-- [FORM: password_gate]
+          action: POST /inquiry/check_password.php
+          fields:
+            id       — hidden, inquiry.id
+            password — 비밀번호, password, required
+          성공 → #password-gate 숨김, #inquiry-content 표시
+          실패 → "비밀번호가 일치하지 않습니다." 표시
+        -->
+        <form id="password_gate" novalidate>
+          <input type="hidden" name="id" value="10">
+          <div class="mb-3 text-start">
+            <input type="password" class="form-control" id="gate-password" name="password"
+              placeholder="비밀번호 입력" required>
+            <div class="invalid-feedback text-start">비밀번호가 일치하지 않습니다.</div>
+          </div>
+          <button type="submit" class="btn btn-dark w-100">확인</button>
+        </form>
+        <!-- [/FORM: password_gate] -->
+
+      </div>
+    </div>
+  </div>
+</section>
+<!-- [/SECTION: PASSWORD_GATE] -->
+
+<!-- [SECTION: INQUIRY_VIEW] 문의 본문 (비밀번호 인증 후 표시)
+  API-DATA: SELECT id, name, contact, course_interest, content,
+            answer, status, answered_at, created_at FROM inquiry WHERE id=?
+  초기 상태: display:none → 인증 후 표시
+──────────────────────────────────────── -->
+<section class="py-5" id="inquiry-content" style="display:none;">
+  <div class="container" style="max-width:720px;">
+
+    <!-- 문의 헤더 -->
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+      <div>
+        <span class="badge badge-answered me-2">답변완료</span>
+        <small class="text-muted">2026.04.18</small>
+      </div>
+    </div>
+
+    <!-- 문의 정보 -->
+    <div class="mb-4">
+      <table class="table table-borderless small">
+        <tr>
+          <th class="text-muted" style="width:100px;">작성자</th>
+          <td>[더미] 김**</td>
+        </tr>
+        <tr>
+          <th class="text-muted">연락처</th>
+          <td>[더미] 010-****-0000</td>
+        </tr>
+        <tr>
+          <th class="text-muted">관심 과정</th>
+          <td>[더미] 입문반</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 문의 내용 -->
+    <div class="mb-4 p-3 border rounded">
+      <p class="small text-muted mb-2 fw-medium">문의 내용</p>
+      <p class="mb-0">[더미] 입문반 수강을 희망합니다. 등록 절차와 준비물을 알고 싶습니다.</p>
+    </div>
+
+    <!-- 답변 영역 (answer 있을 때만 표시) -->
+    <!-- [API-DATA] answer != NULL → 표시, NULL → 미표시 -->
+    <div class="answer-box rounded mb-4">
+      <p class="small text-muted mb-2 fw-medium">답변 <small class="ms-1">2026.04.19</small></p>
+      <p class="mb-0">[더미] 안녕하세요. 입문반은 매월 1일 등록 가능합니다. 레오타드와 발레화를 준비해 주세요. 추가 문의는 전화로 주시면 안내드리겠습니다.</p>
+    </div>
+
+    <div class="text-center">
+      <a href="P07_inquiry_list.html" class="btn btn-outline-secondary">목록으로</a>
+    </div>
+
+  </div>
+</section>
+<!-- [/SECTION: INQUIRY_VIEW] -->
+
+<!-- [SECTION: FOOTER] -->
+<footer class="py-4 bg-light border-top">
+  <div class="container text-center text-muted small">
+    <p class="mb-1"><strong>YN발레아카데미</strong></p>
+    <p class="mb-1">[임시] 주소 | 전화: 000-0000-0000</p>
+    <p class="mb-0">© 2026 YN발레아카데미. All rights reserved.</p>
+  </div>
+</footer>
+<!-- [/SECTION: FOOTER] -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // 비밀번호 게이트 제출 (프로토타입: 아무 값이나 입력하면 통과)
+  document.getElementById('password_gate').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const pw = document.getElementById('gate-password').value;
+    if (!pw) {
+      document.getElementById('gate-password').classList.add('is-invalid');
+      return;
+    }
+    // 실제 구현: POST /inquiry/check_password.php → { ok: true/false }
+    document.getElementById('password-gate').style.display = 'none';
+    document.getElementById('inquiry-content').style.display = 'block';
+  });
+</script>
+</body>
+</html>

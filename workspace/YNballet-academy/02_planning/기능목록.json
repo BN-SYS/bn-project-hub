@@ -1,0 +1,116 @@
+{
+  "project": "YNballet-academy",
+  "version": "1.0",
+  "created_at": "2026-04-22",
+  "features": [
+    {
+      "id": "F01",
+      "category": "사용자",
+      "name": "랜딩페이지",
+      "desc": "히어로 배너, 과정 미리보기(DB), 공지 최신 5건(DB), 문의 CTA",
+      "db": ["course", "notice"],
+      "priority": 1
+    },
+    {
+      "id": "F02",
+      "category": "사용자",
+      "name": "아카데미 소개",
+      "desc": "인사말, 교육철학, 강사 소개, 시설, 오시는 길 (전체 정적)",
+      "db": [],
+      "priority": 2
+    },
+    {
+      "id": "F03",
+      "category": "사용자",
+      "name": "과정소개",
+      "desc": "카테고리 탭 전환(소매틱/성인발레/기타), 과정 카드(DB), 문의 CTA",
+      "db": ["course"],
+      "priority": 1
+    },
+    {
+      "id": "F04",
+      "category": "사용자",
+      "name": "공지 목록",
+      "desc": "썸네일+제목+날짜, 최신순, 10건 페이지네이션, 숨김 미노출",
+      "db": ["notice"],
+      "priority": 1
+    },
+    {
+      "id": "F05",
+      "category": "사용자",
+      "name": "공지 상세",
+      "desc": "제목+본문(Quill HTML)+날짜, 이전/다음 네비게이션",
+      "db": ["notice"],
+      "priority": 1
+    },
+    {
+      "id": "F06",
+      "category": "사용자",
+      "name": "문의 작성",
+      "desc": "이름·연락처·유형·과정·제목·내용·비번·개인정보동의. 비번 hash 저장",
+      "db": ["inquiry", "course"],
+      "priority": 1
+    },
+    {
+      "id": "F07",
+      "category": "사용자",
+      "name": "문의 목록",
+      "desc": "번호·유형·제목(비공개)·이름(마스킹)·상태배지·날짜. 비밀글 비번 검증",
+      "db": ["inquiry"],
+      "priority": 1
+    },
+    {
+      "id": "F08",
+      "category": "사용자",
+      "name": "문의 상세",
+      "desc": "비번 또는 관리자 세션 접근. 문의 내용 + 답변 출력",
+      "db": ["inquiry"],
+      "priority": 1
+    },
+    {
+      "id": "A01",
+      "category": "관리자",
+      "name": "관리자 로그인",
+      "desc": "하드코딩 단일 계정, 세션 인증, 미인증 시 전체 차단",
+      "db": [],
+      "priority": 1
+    },
+    {
+      "id": "A02",
+      "category": "관리자",
+      "name": "공지 CRUD",
+      "desc": "목록(숨김 포함)+Quill 등록+수정+is_active 토글(물리삭제 X)",
+      "db": ["notice"],
+      "priority": 1
+    },
+    {
+      "id": "A03",
+      "category": "관리자",
+      "name": "이미지 업로드",
+      "desc": "Quill 커스텀 핸들러 → AJAX → upload_image.php → /uploads/ 저장",
+      "db": [],
+      "priority": 1
+    },
+    {
+      "id": "A04",
+      "category": "관리자",
+      "name": "과정 CRUD",
+      "desc": "목록(카테고리 필터+sort_order)+등록+수정",
+      "db": ["course"],
+      "priority": 1
+    },
+    {
+      "id": "A05",
+      "category": "관리자",
+      "name": "문의 관리",
+      "desc": "목록(상태 필터)+상세+답변 작성+상태 수동 변경(0↔1↔2 모든 방향)",
+      "db": ["inquiry"],
+      "priority": 1
+    }
+  ],
+  "pending_features": [
+    { "id": "YT-01", "name": "유아반 상세 정보", "note": "연령 기준·수업 구성 확인 필요" },
+    { "id": "YT-02", "name": "청소년반 상세 정보", "note": "연령 기준·수업 구성 확인 필요" },
+    { "id": "PR-01", "name": "개인레슨 요금 표시", "note": "직접 표시 vs 문의 후 안내 결정 필요" }
+  ]
+}

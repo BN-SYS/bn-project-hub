@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[A03] 공지 등록 — YN발레아카데미 관리자</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+  .admin-sidebar { width:200px; min-height:100vh; background:#212529; }
+  .admin-sidebar .nav-link { color:#adb5bd; }
+  .admin-sidebar .nav-link.active, .admin-sidebar .nav-link:hover { color:#fff; }
+  .admin-main { flex:1; }
+  .admin-topbar { background:#fff; border-bottom:1px solid #dee2e6; padding:12px 24px; }
+  .quill-editor-area { height:320px; border:1px solid #dee2e6; border-radius:4px; background:#fff; }
+  .quill-toolbar { background:#f8f9fa; border:1px solid #dee2e6; border-radius:4px 4px 0 0; padding:8px; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [A03] 공지 등록
+  PATH   : /admin/notice_write.php
+  SPEC   : data/specs/A03.js
+  APIs   : POST /admin/notice_write.php
+           INSERT INTO notice (title, content, thumbnail, is_active, created_at)
+           이미지 업로드: POST /admin/upload_image.php (Quill imageHandler)
+             → { url: "/uploads/{uniqid}.{ext}" }
+           썸네일 추출: PHP preg_match, 본문 첫 번째 img src
+  NOTE   : 관리자 세션 없으면 redirect.
+           Quill.js CDN 로드. imageHandler: server-upload mode (Base64 금지).
+           is_active 기본값: 1(노출).
+           저장 성공 → /admin/notice_list.php redirect.
+============================================================ -->
+
+<div class="d-flex">
+
+  <!-- [SECTION: ADMIN_SIDEBAR] -->
+  <nav class="admin-sidebar d-flex flex-column p-3">
+    <a class="text-white fw-bold text-decoration-none mb-4" href="A02_admin_notice_list.html">YN 관리자</a>
+    <ul class="nav flex-column gap-1">
+      <li class="nav-item">
+        <span class="nav-link text-muted small px-0 mb-1">콘텐츠 관리</span>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active px-2 rounded" href="A02_admin_notice_list.html">공지사항</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link px-2 rounded" href="A05_admin_course_list.html">과정 관리</a>
+      </li>
+      <li class="nav-item mt-3">
+        <span class="nav-link text-muted small px-0 mb-1">문의 관리</span>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link px-2 rounded" href="A08_admin_inquiry_list.html">문의 목록</a>
+      </li>
+    </ul>
+    <div class="mt-auto">
+      <a href="/admin/logout.php" class="nav-link text-muted small px-2">로그아웃</a>
+    </div>
+  </nav>
+  <!-- [/SECTION: ADMIN_SIDEBAR] -->
+
+  <div class="admin-main">
+
+    <!-- [SECTION: ADMIN_TOPBAR] -->
+    <div class="admin-topbar d-flex align-items-center justify-content-between">
+      <h1 class="h6 mb-0 fw-bold">공지 등록</h1>
+      <a href="A02_admin_notice_list.html" class="btn btn-outline-secondary btn-sm">← 목록</a>
+    </div>
+    <!-- [/SECTION: ADMIN_TOPBAR] -->
+
+    <!-- [SECTION: NOTICE_WRITE_FORM] 공지 등록 폼
+      POST /admin/notice_write.php
+      이미지: Quill imageHandler → POST /admin/upload_image.php
+      썸네일: PHP preg_match 첫 번째 img src 자동 추출
+    ──────────────────────────────────────── -->
+    <div class="p-4">
+
+      <!-- [FORM: notice_write]
+        action: POST /admin/notice_write.php
+        fields:
+          title     — 제목, text, required, 1–200자
+          content   — 본문, Quill.js hidden input(#notice-content-hidden), required
+          is_active — 노출 여부, radio(1/0), 기본값: 1
+        CSRF: hidden _token
+        저장 성공 → /admin/notice_list.php redirect
+      -->
+      <form id="notice_write" action="/admin/notice_write.php" method="POST">
+        <input type="hidden" name="_token" value="[CSRF_TOKEN]">
+        <!-- Quill 본문 hidden input (JS로 갱신) -->
+        <input type="hidden" name="content" id="notice-content-hidden">
+
+        <div class="mb-3">
+          <label for="title" class="form-label fw-medium">제목 <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="title" name="title"
+            maxlength="200" placeholder="공지 제목을 입력하세요" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-medium">본문 <span class="text-danger">*</span></label>
+          <!-- [QUILL_EDITOR]
+            CDN: https://cdn.quilljs.com/1.3.7/quill.min.js
+            이미지 업로드: imageHandler → POST /admin/upload_image.php
+              request: FormData { file }
+              response: { url: "/uploads/{filename}" }
+            Base64 업로드 금지: 이미지 핸들러 override 필수
+          -->
+          <div class="quill-toolbar">[임시] Quill 툴바 영역 (Bold / Italic / 이미지 / 링크 등)</div>
+          <div class="quill-editor-area p-3">
+            <p class="text-muted small">[임시] Quill.js 에디터 영역. 본문을 입력하세요.</p>
+          </div>
+          <div class="form-text text-muted">이미지 업로드 시 서버 저장 방식 적용 (Base64 금지)</div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-medium">노출 여부</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="is_active" id="active-yes" value="1" checked>
+              <label class="form-check-label" for="active-yes">노출</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="is_active" id="active-no" value="0">
+              <label class="form-check-label" for="active-no">숨김</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-dark">저장</button>
+          <a href="A02_admin_notice_list.html" class="btn btn-outline-secondary">취소</a>
+        </div>
+
+      </form>
+      <!-- [/FORM: notice_write] -->
+
+    </div>
+    <!-- [/SECTION: NOTICE_WRITE_FORM] -->
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Quill CDN (실제 구현 시 사용)
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<script>
+  // imageHandler: server-upload mode
+  // const quill = new Quill('#editor', { theme: 'snow', modules: { toolbar: { handlers: { image: imageHandler } } } });
+  // form submit: document.getElementById('notice-content-hidden').value = quill.root.innerHTML;
+</script>
+-->
+</body>
+</html>

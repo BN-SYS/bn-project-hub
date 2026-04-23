@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[P02] 아카데미 소개 — YN발레아카데미</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+  .ph-img { background:#ccc; display:flex; align-items:center; justify-content:center; color:#666; font-size:.85rem; }
+  .page-hero { background:#f5f5f5; padding:60px 0; border-bottom:1px solid #eee; }
+  .teacher-photo { width:160px; height:200px; }
+  .facility-photo { height:200px; }
+  .map-area { height:300px; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [P02] 아카데미 소개
+  PATH   : /about.php
+  SPEC   : data/specs/P02.js
+  APIs   : 없음 (전체 정적)
+  NOTE   : 전체 정적 페이지. 콘텐츠 소재(사진·텍스트) 미정 → [임시] 처리.
+           실제 소재 수령 후 PHP 템플릿에 직접 삽입.
+============================================================ -->
+
+<!-- [SECTION: GNB] -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="P01_landing.html">YN발레아카데미</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#gnb">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="gnb">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="P01_landing.html">홈</a></li>
+        <li class="nav-item"><a class="nav-link active" href="P02_about.html">아카데미 소개</a></li>
+        <li class="nav-item"><a class="nav-link" href="P03_course.html">과정소개</a></li>
+        <li class="nav-item"><a class="nav-link" href="P04_notice_list.html">공지사항</a></li>
+        <li class="nav-item"><a class="nav-link" href="P06_inquiry_write.html">수강 문의</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- [/SECTION: GNB] -->
+
+<!-- [SECTION: PAGE_HERO] 페이지 타이틀 -->
+<div class="page-hero text-center">
+  <div class="container">
+    <h1 class="h2 fw-light">아카데미 소개</h1>
+    <p class="text-muted mb-0">YN발레아카데미를 소개합니다</p>
+  </div>
+</div>
+<!-- [/SECTION: PAGE_HERO] -->
+
+<!-- [SECTION: GREETING] 인사말 (정적) -->
+<section class="py-5 border-bottom">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-md-4 text-center">
+        <div class="ph-img rounded-circle mx-auto" style="width:180px;height:180px;">[임시]<br>원장 사진</div>
+      </div>
+      <div class="col-md-8">
+        <h2 class="h4 mb-3">원장 인사말</h2>
+        <p class="text-muted">[임시] 원장 인사말 내용이 들어갑니다. 약 3~5문장 분량의 텍스트 원고가 필요합니다.</p>
+        <p class="text-muted">[임시] 두 번째 단락 내용이 들어갑니다.</p>
+        <p class="mb-0 fw-medium">YN발레아카데미 원장 [임시] 이름</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- [/SECTION: GREETING] -->
+
+<!-- [SECTION: PHILOSOPHY] 교육 철학·강점 (정적) -->
+<section class="py-5 bg-light border-bottom">
+  <div class="container">
+    <h2 class="h4 text-center mb-5">교육 철학 &amp; 강점</h2>
+    <div class="row g-4 text-center">
+      <div class="col-md-3">
+        <div class="p-4 bg-white rounded border h-100">
+          <div class="display-6 mb-3">○</div>
+          <h5 class="h6 fw-bold">[임시] 강점 1</h5>
+          <p class="small text-muted mb-0">[임시] 강점 설명 문구가 들어갑니다.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-4 bg-white rounded border h-100">
+          <div class="display-6 mb-3">○</div>
+          <h5 class="h6 fw-bold">[임시] 강점 2</h5>
+          <p class="small text-muted mb-0">[임시] 강점 설명 문구가 들어갑니다.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-4 bg-white rounded border h-100">
+          <div class="display-6 mb-3">○</div>
+          <h5 class="h6 fw-bold">[임시] 강점 3</h5>
+          <p class="small text-muted mb-0">[임시] 강점 설명 문구가 들어갑니다.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-4 bg-white rounded border h-100">
+          <div class="display-6 mb-3">○</div>
+          <h5 class="h6 fw-bold">[임시] 강점 4</h5>
+          <p class="small text-muted mb-0">[임시] 강점 설명 문구가 들어갑니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- [/SECTION: PHILOSOPHY] -->
+
+<!-- [SECTION: TEACHER] 강사 소개 (정적, 소재 미정) -->
+<section class="py-5 border-bottom">
+  <div class="container">
+    <h2 class="h4 text-center mb-5">강사 소개</h2>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4 text-center">
+        <div class="ph-img teacher-photo mx-auto mb-3 rounded">[임시]<br>강사 사진</div>
+        <h5 class="h6 fw-bold">[임시] 강사명</h5>
+        <p class="small text-muted mb-1">[임시] 직함</p>
+        <ul class="list-unstyled small text-muted">
+          <li>[임시] 경력 1</li>
+          <li>[임시] 경력 2</li>
+          <li>[임시] 경력 3</li>
+        </ul>
+      </div>
+      <div class="col-md-4 text-center">
+        <div class="ph-img teacher-photo mx-auto mb-3 rounded">[임시]<br>강사 사진</div>
+        <h5 class="h6 fw-bold">[임시] 강사명</h5>
+        <p class="small text-muted mb-1">[임시] 직함</p>
+        <ul class="list-unstyled small text-muted">
+          <li>[임시] 경력 1</li>
+          <li>[임시] 경력 2</li>
+          <li>[임시] 경력 3</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- [/SECTION: TEACHER] -->
+
+<!-- [SECTION: FACILITY] 시설 안내 (정적, 이미지 미정) -->
+<section class="py-5 bg-light border-bottom">
+  <div class="container">
+    <h2 class="h4 text-center mb-5">시설 안내</h2>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="ph-img facility-photo w-100 rounded">[임시] 연습실 사진 1</div>
+      </div>
+      <div class="col-md-4">
+        <div class="ph-img facility-photo w-100 rounded">[임시] 연습실 사진 2</div>
+      </div>
+      <div class="col-md-4">
+        <div class="ph-img facility-photo w-100 rounded">[임시] 시설 사진 3</div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- [/SECTION: FACILITY] -->
+
+<!-- [SECTION: LOCATION] 오시는 길 (정적) -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="h4 text-center mb-4">오시는 길</h2>
+    <div class="row g-4 align-items-start">
+      <div class="col-md-5">
+        <ul class="list-unstyled text-muted">
+          <li class="mb-2"><strong>주소</strong>: [임시] 주소를 입력하세요</li>
+          <li class="mb-2"><strong>전화</strong>: 000-0000-0000</li>
+          <li class="mb-2"><strong>운영시간</strong>: [임시] 월~금 10:00–21:00</li>
+          <li><strong>주차</strong>: [임시] 주차 안내</li>
+        </ul>
+      </div>
+      <div class="col-md-7">
+        <div class="ph-img map-area w-100 rounded border">[임시] 지도 이미지<br>(소재 수령 후 교체)</div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- [/SECTION: LOCATION] -->
+
+<!-- [SECTION: FOOTER] -->
+<footer class="py-4 bg-light border-top">
+  <div class="container text-center text-muted small">
+    <p class="mb-1"><strong>YN발레아카데미</strong></p>
+    <p class="mb-1">[임시] 주소 | 전화: 000-0000-0000</p>
+    <p class="mb-0">© 2026 YN발레아카데미. All rights reserved.</p>
+  </div>
+</footer>
+<!-- [/SECTION: FOOTER] -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

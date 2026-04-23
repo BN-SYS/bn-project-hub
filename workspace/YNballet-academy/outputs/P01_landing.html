@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[P01] 랜딩페이지 — YN발레아카데미</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+  .ph-img { background:#ccc; display:flex; align-items:center; justify-content:center; color:#666; font-size:.85rem; }
+  .hero-slide { height:520px; }
+  .notice-thumb { width:72px; height:72px; object-fit:cover; }
+  .section-label { font-size:.7rem; color:#aaa; letter-spacing:.08em; text-transform:uppercase; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [P01] 랜딩페이지
+  PATH   : /index.php
+  SPEC   : data/specs/P01.js
+  APIs   : SELECT course (is_active=1, sort_order ASC, LIMIT 4)
+           SELECT notice (is_active=1, created_at DESC, LIMIT 5)
+  NOTE   : 이 HTML은 기획용 프로토타입입니다.
+           실제 구현 시 data/specs/P01.js 스펙을 반드시 참조하세요.
+           브랜드 컬러·반응형은 디자인 확정 후 적용합니다.
+           슬로건 확정: "몸이 기억하는 아름다움"
+============================================================ -->
+
+<!-- [SECTION: GNB] 글로벌 내비게이션 -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="P01_landing.html">YN발레아카데미</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#gnb">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="gnb">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link active" href="P01_landing.html">홈</a></li>
+        <li class="nav-item"><a class="nav-link" href="P02_about.html">아카데미 소개</a></li>
+        <li class="nav-item"><a class="nav-link" href="P03_course.html">과정소개</a></li>
+        <li class="nav-item"><a class="nav-link" href="P04_notice_list.html">공지사항</a></li>
+        <li class="nav-item"><a class="nav-link" href="P06_inquiry_write.html">수강 문의</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- [/SECTION: GNB] -->
+
+<!-- [SECTION: HERO] 히어로 배너 슬라이더
+  슬라이드 2개, Bootstrap Carousel
+  자동 전환 5000ms, 인디케이터+화살표
+  이미지: placeholder (실제 소재 미정 → [임시])
+  슬라이드1 CTA: /course.php
+  슬라이드2 CTA: /inquiry/write.php
+──────────────────────────────────────── -->
+<div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+  </div>
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <div class="ph-img hero-slide bg-secondary text-white" style="background:#555 !important;">
+        <div class="text-center">
+          <p class="section-label mb-2">SLIDE 1 — [임시] 배경 이미지</p>
+          <h1 class="display-5 fw-light text-white">몸이 기억하는 아름다움</h1>
+          <p class="text-white-50">[임시] 서브 문구가 들어갑니다</p>
+          <a href="P03_course.html" class="btn btn-light mt-3">과정 보기</a>
+        </div>
+      </div>
+    </div>
+    <div class="carousel-item">
+      <div class="ph-img hero-slide bg-dark text-white" style="background:#333 !important;">
+        <div class="text-center">
+          <p class="section-label mb-2">SLIDE 2 — [임시] 배경 이미지</p>
+          <h2 class="display-6 fw-light text-white">[임시] 슬라이드 2 문구</h2>
+          <p class="text-white-50">[임시] 서브 문구가 들어갑니다</p>
+          <a href="P06_inquiry_write.html" class="btn btn-outline-light mt-3">수강 문의하기</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon"></span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon"></span>
+  </button>
+</div>
+<!-- [/SECTION: HERO] -->
+
+<!-- [SECTION: INTRO] 아카데미 한줄 소개 (정적) -->
+<section class="py-4 bg-light text-center border-bottom">
+  <div class="container">
+    <p class="mb-0 text-muted">[임시] 아카데미 핵심 소개 문구가 한 줄로 들어갑니다.</p>
+  </div>
+</section>
+<!-- [/SECTION: INTRO] -->
+
+<!-- [SECTION: COURSE_PREVIEW] 과정 미리보기
+  API-DATA: SELECT id, title, category, target FROM course
+            WHERE is_active=1 ORDER BY sort_order ASC LIMIT 4
+  빈 상태: "등록된 과정이 없습니다." 표시
+  오류 시: "과정 정보를 불러올 수 없습니다." 표시
+──────────────────────────────────────────── -->
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="h4 mb-0">과정 미리보기</h2>
+      <a href="P03_course.html" class="btn btn-outline-secondary btn-sm">전체 과정 보기 →</a>
+    </div>
+    <!-- [API-DATA] course 테이블 4건 더미 -->
+    <div class="row g-3" id="course-preview">
+      <div class="col-md-3">
+        <div class="card h-100 border">
+          <div class="card-body">
+            <span class="badge bg-secondary mb-2">소매틱+발레</span>
+            <h6 class="card-title">소매틱+발레 스트레칭</h6>
+            <p class="card-text small text-muted">전 연령 성인, 조건 없음</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card h-100 border">
+          <div class="card-body">
+            <span class="badge bg-dark mb-2">성인 발레</span>
+            <h6 class="card-title">입문반</h6>
+            <p class="card-text small text-muted">발레 첫 시작</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card h-100 border">
+          <div class="card-body">
+            <span class="badge bg-dark mb-2">성인 발레</span>
+            <h6 class="card-title">기초반 <small class="text-muted">Lv.0.5</small></h6>
+            <p class="card-text small text-muted">기초 3개월 이상</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card h-100 border">
+          <div class="card-body">
+            <span class="badge bg-dark mb-2">성인 발레</span>
+            <h6 class="card-title">초급반 <small class="text-muted">Lv.1</small></h6>
+            <p class="card-text small text-muted">배운 경험 6개월 이상</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- [/SECTION: COURSE_PREVIEW] -->
+
+<!-- [SECTION: NOTICE_LIST] 공지사항 최신 5건
+  API-DATA: SELECT id, title, thumbnail, created_at FROM notice
+            WHERE is_active=1 ORDER BY created_at DESC LIMIT 5
+  썸네일 없으면 /assets/img/notice_default.jpg 대체
+  빈 상태: "등록된 공지가 없습니다." 표시
+──────────────────────────────────────────────── -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="h4 mb-0">공지사항</h2>
+      <a href="P04_notice_list.html" class="btn btn-outline-secondary btn-sm">전체 보기 →</a>
+    </div>
+    <!-- [API-DATA] notice 테이블 5건 더미 -->
+    <ul class="list-group" id="notice-list">
+      <li class="list-group-item d-flex align-items-center gap-3 py-3">
+        <div class="ph-img notice-thumb rounded flex-shrink-0">썸네일</div>
+        <div class="flex-grow-1">
+          <a href="P05_notice_view.html" class="text-dark text-decoration-none fw-medium">
+            [더미] 2024 하반기 수강 등록 안내
+          </a>
+        </div>
+        <small class="text-muted flex-shrink-0">2026.04.20</small>
+      </li>
+      <li class="list-group-item d-flex align-items-center gap-3 py-3">
+        <div class="ph-img notice-thumb rounded flex-shrink-0 bg-light">기본이미지</div>
+        <div class="flex-grow-1">
+          <a href="P05_notice_view.html" class="text-dark text-decoration-none fw-medium">
+            [더미] 5월 휴강 안내
+          </a>
+        </div>
+        <small class="text-muted flex-shrink-0">2026.04.15</small>
+      </li>
+      <li class="list-group-item d-flex align-items-center gap-3 py-3">
+        <div class="ph-img notice-thumb rounded flex-shrink-0">썸네일</div>
+        <div class="flex-grow-1">
+          <a href="P05_notice_view.html" class="text-dark text-decoration-none fw-medium">
+            [더미] 발표회 일정 공지
+          </a>
+        </div>
+        <small class="text-muted flex-shrink-0">2026.04.10</small>
+      </li>
+      <li class="list-group-item d-flex align-items-center gap-3 py-3">
+        <div class="ph-img notice-thumb rounded flex-shrink-0 bg-light">기본이미지</div>
+        <div class="flex-grow-1">
+          <a href="P05_notice_view.html" class="text-dark text-decoration-none fw-medium">
+            [더미] 신규 과정 개설 안내
+          </a>
+        </div>
+        <small class="text-muted flex-shrink-0">2026.04.01</small>
+      </li>
+      <li class="list-group-item d-flex align-items-center gap-3 py-3">
+        <div class="ph-img notice-thumb rounded flex-shrink-0">썸네일</div>
+        <div class="flex-grow-1">
+          <a href="P05_notice_view.html" class="text-dark text-decoration-none fw-medium">
+            [더미] 원장 인사말
+          </a>
+        </div>
+        <small class="text-muted flex-shrink-0">2026.03.20</small>
+      </li>
+    </ul>
+  </div>
+</section>
+<!-- [/SECTION: NOTICE_LIST] -->
+
+<!-- [SECTION: CTA] 수강 문의 유도 -->
+<section class="py-5 bg-dark text-white text-center">
+  <div class="container">
+    <h3 class="fw-light mb-3">발레를 시작하고 싶으신가요?</h3>
+    <p class="text-white-50 mb-4">궁금한 점은 언제든 문의해 주세요.</p>
+    <a href="P06_inquiry_write.html" class="btn btn-light btn-lg">수강 문의하기</a>
+  </div>
+</section>
+<!-- [/SECTION: CTA] -->
+
+<!-- [SECTION: FOOTER] -->
+<footer class="py-4 bg-light border-top">
+  <div class="container text-center text-muted small">
+    <p class="mb-1"><strong>YN발레아카데미</strong></p>
+    <p class="mb-1">[임시] 주소 | 전화: 000-0000-0000</p>
+    <p class="mb-0">© 2026 YN발레아카데미. All rights reserved.</p>
+  </div>
+</footer>
+<!-- [/SECTION: FOOTER] -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>홈 메인 — YN발레아카데미</title>
+<!-- SCREEN: 홈 메인 | PATH: / | SPEC: 홈 메인 화면 | APIs: GET /notice (active 3개), GET /course (active 전체) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Noto+Serif+KR:wght@400;600&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../dev/public/assets/css/main.css">
+</head>
+<body>
+
+<!-- ============================================================
+  SCREEN : [P01] 홈 메인
+  PATH   : /
+  SPEC   : 홈 메인 화면
+  APIs   : GET /notice (active 3개) | GET /course (active 전체)
+  NOTE   : 이 HTML은 기획용 프로토타입입니다.
+           실제 구현 시 스펙을 반드시 참조하세요.
+           브랜드 컬러·반응형은 디자인 확정 후 적용합니다.
+============================================================ -->
+
+<!-- [SECTION: GNB] 글로벌 내비게이션 ───────────────── -->
+<nav class="navbar navbar-expand-lg fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="/yn_ballet/">YN<span>발레아카데미</span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ms-auto gap-1">
+        <li class="nav-item"><a class="nav-link active" href="/yn_ballet/">홈</a></li>
+        <li class="nav-item"><a class="nav-link" href="/yn_ballet/about">아카데미 소개</a></li>
+        <li class="nav-item"><a class="nav-link" href="/yn_ballet/course">과정소개</a></li>
+        <li class="nav-item"><a class="nav-link" href="/yn_ballet/notice">공지사항</a></li>
+        <li class="nav-item"><a class="nav-link" href="/yn_ballet/inquiry/write">수강 문의</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- [/SECTION: GNB] -->
+
+<main>
+
+<!-- [SECTION: HERO] 히어로 배너
+  동작   : 배경 이미지 고정, 슬로건 텍스트 + CTA 버튼 2개
+  이미지 : assets/images/studio1.jpeg (opacity 0.18 오버레이)
+────────────────────────────────────────────────── -->
+<section class="hero-section" data-sb-anno="hero-banner">
+  <div class="hero-bg" style="background-image:url('../../dev/public/assets/images/studio1.jpeg');"></div>
+  <div class="hero-content">
+    <span class="hero-en">YN Ballet Academy</span>
+    <div class="hero-divider"></div>
+    <h1>몸이 기억하는<br>아름다움</h1>
+    <p class="hero-sub">발레의 우아함을 일상 속으로</p>
+    <a href="/yn_ballet/inquiry/write" class="btn btn-yn-outline me-2">수강 문의하기</a>
+    <a href="/yn_ballet/course" class="btn btn-yn-gold">과정 보기</a>
+  </div>
+</section>
+<!-- [/SECTION: HERO] -->
+
+<!-- [SECTION: COURSE-PREVIEW] 과정 소개 미리보기
+  API    : GET /course (active 전체, 최대 3개 표시)
+  Response: { courses: [{id, title, level_badge, target, description, fee}] }
+  동작   : array_slice 첫 3개 카드 표시, "전체 과정 보기" 링크
+────────────────────────────────────────────────── -->
+<section class="py-5" style="background: var(--ivory);" data-sb-anno="course-preview">
+  <div class="container">
+    <div class="section-header reveal visible">
+      <span class="en-label">Our Classes</span>
+      <h2>과정 소개</h2>
+      <div class="gold-divider"></div>
+    </div>
+    <!-- [API-DATA] GET /course
+      이 영역은 API 응답으로 동적 렌더링됩니다.
+      빈 상태: "등록된 과정이 없습니다." 메시지 표시
+      오류 시: "데이터를 불러올 수 없습니다." + 재시도 버튼 -->
+    <div class="row g-4">
+      <div class="col-md-4 reveal visible">
+        <div class="yn-card">
+          <span class="badge-level">입문</span>
+          <h5>성인발레 입문</h5>
+          <p style="font-size:.8rem;color:var(--gold);letter-spacing:.05em;margin-bottom:.6rem;">
+            대상: 성인 여성
+          </p>
+          <p>발레를 처음 시작하는 분을 위한 기초 과정</p>
+          <p class="card-fee">수강료: 월 120,000원</p>
+        </div>
+      </div>
+      <div class="col-md-4 reveal visible">
+        <div class="yn-card">
+          <span class="badge-level">주니어</span>
+          <h5>주니어발레</h5>
+          <p style="font-size:.8rem;color:var(--gold);letter-spacing:.05em;margin-bottom:.6rem;">
+            대상: 초등학생
+          </p>
+          <p>바른 자세와 유연성 향상</p>
+          <p class="card-fee">수강료: 월 100,000원</p>
+        </div>
+      </div>
+      <div class="col-md-4 reveal visible">
+        <div class="yn-card">
+          <span class="badge-level">심화</span>
+          <h5>성인발레 심화</h5>
+          <p style="font-size:.8rem;color:var(--gold);letter-spacing:.05em;margin-bottom:.6rem;">
+            대상: 기초 이상
+          </p>
+          <p>테크닉과 표현력 향상</p>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-5 reveal visible">
+      <a href="/yn_ballet/course" class="btn btn-yn-outline-navy">전체 과정 보기</a>
+    </div>
+  </div>
+</section>
+<!-- [/SECTION: COURSE-PREVIEW] -->
+
+<!-- [SECTION: INSTRUCTOR] 강사 소개
+  이미지 : assets/images/director.jpeg
+  동작   : 원장 사진 + 이름 + "자세히 보기" 링크 (/about)
+────────────────────────────────────────────────── -->
+<section class="py-5" style="background: var(--white);" data-sb-anno="instructor">
+  <div class="container">
+    <div class="section-header reveal visible">
+      <span class="en-label">Instructor</span>
+      <h2>원장 · 강사 소개</h2>
+      <div class="gold-divider"></div>
+    </div>
+    <div class="row justify-content-center text-center reveal visible">
+      <div class="col-md-5">
+        <div class="instructor-photo">
+          <img src="../../dev/public/assets/images/director.jpeg" alt="최유나 원장">
+        </div>
+        <h5 style="font-family:'Noto Serif KR',serif;color:var(--navy);margin-bottom:.25rem;">최유나 원장</h5>
+        <p style="font-size:.8rem;color:var(--gold);letter-spacing:.08em;margin-bottom:1rem;">YN Ballet Director &amp; Principal Instructor</p>
+        <a href="/yn_ballet/about" class="btn btn-yn-outline-navy mt-1">자세히 보기</a>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- [/SECTION: INSTRUCTOR] -->
+
+<!-- [SECTION: NOTICE] 최신 공지
+  API    : GET /notice (active, 최근 3개)
+  Response: { notices: [{id, title, created_at}] }
+  동작   : 공지 3개 리스트, "더보기" 링크 → /notice
+  빈 상태: 섹션 전체 미표시
+────────────────────────────────────────────────── -->
+<section class="py-5" style="background: var(--ivory);" data-sb-anno="notice-preview">
+  <div class="container" style="max-width:760px;">
+    <div class="d-flex justify-content-between align-items-center mb-4 reveal visible">
+      <div>
+        <span style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem;color:var(--gold);letter-spacing:.12em;display:block;margin-bottom:.25rem;">Notice</span>
+        <h2 style="font-size:1.4rem;color:var(--navy);margin:0;">공지사항</h2>
+      </div>
+      <a href="/yn_ballet/notice" class="btn btn-yn-outline-navy btn-sm">더보기</a>
+    </div>
+    <!-- [API-DATA] GET /notice?limit=3
+      이 영역은 API 응답으로 동적 렌더링됩니다.
+      빈 상태: 섹션 전체 미표시 -->
+    <div class="reveal visible">
+      <a href="/yn_ballet/notice/1" class="notice-list-item d-flex justify-content-between align-items-center">
+        <span class="notice-title">봄학기 수업 안내 (4월~6월)</span>
+        <span class="notice-date">2026-04-10</span>
+      </a>
+      <a href="/yn_ballet/notice/2" class="notice-list-item d-flex justify-content-between align-items-center">
+        <span class="notice-title">스튜디오 이전 안내</span>
+        <span class="notice-date">2026-03-15</span>
+      </a>
+      <a href="/yn_ballet/notice/3" class="notice-list-item d-flex justify-content-between align-items-center">
+        <span class="notice-title">2026년 발표회 일정 공지</span>
+        <span class="notice-date">2026-02-20</span>
+      </a>
+    </div>
+  </div>
+</section>
+<!-- [/SECTION: NOTICE] -->
+
+<!-- [SECTION: CTA] 수강 문의 CTA
+  동작   : 버튼 클릭 → /inquiry/write 이동
+────────────────────────────────────────────────── -->
+<section class="cta-section" data-sb-anno="cta">
+  <div class="container reveal visible">
+    <span class="en-label">Contact Us</span>
+    <h2>수강 문의</h2>
+    <p>수업에 대해 궁금하신 점이 있으시면 편하게 문의해 주세요.</p>
+    <a href="/yn_ballet/inquiry/write" class="btn btn-yn-gold btn-lg">문의하기</a>
+  </div>
+</section>
+<!-- [/SECTION: CTA] -->
+
+</main>
+
+<!-- [SECTION: FOOTER] ───────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <p class="footer-brand">YN발레아카데미</p>
+        <p class="footer-tagline">몸이 기억하는 아름다움</p>
+        <address><p>서울 강서구 허준로 121<br>대림경동아파트 상가 3층</p></address>
+      </div>
+      <div class="col-md-4">
+        <address>
+          <p>Tel. <a href="tel:0507-1379-2176">0507-1379-2176</a></p>
+          <p>원장: 최유나</p>
+          <p>운영 시간: 평일 10:00 – 20:00</p>
+        </address>
+      </div>
+      <div class="col-md-4 text-md-end d-flex flex-column justify-content-end">
+        <nav class="d-flex gap-3 justify-content-md-end mb-2">
+          <a href="/yn_ballet/about">소개</a>
+          <a href="/yn_ballet/course">과정</a>
+          <a href="/yn_ballet/notice">공지</a>
+          <a href="/yn_ballet/inquiry/write">문의</a>
+        </nav>
+      </div>
+    </div>
+    <hr class="footer-divider">
+    <p class="footer-copy">&copy; 2026 YN발레아카데미. All rights reserved.</p>
+  </div>
+</footer>
+<!-- [/SECTION: FOOTER] -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// reveal 즉시 표시
+document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+</script>
+</body>
+</html>

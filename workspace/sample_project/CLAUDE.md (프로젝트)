@@ -1,0 +1,27 @@
+# 프로젝트명 — PM 자동화 설정
+
+## 에이전트 버전
+- system-version: pm-automation-v2.0
+
+## 프로젝트 정보
+- 프로젝트명:
+- 클라이언트:
+- PM:
+- 작성일:
+
+## 기술 스택
+- 백엔드:
+- DB:
+- 프레임워크:
+
+## API 규칙
+- 사용자: /api/
+- 관리자: /admin/api/
+- 인증:
+
+## 공수 산정 오버라이드 (필요 시)
+# 기본값은 planning-agent 내장 기준
+
+## 환경
+- 스토리보드 캡처: Windows PowerShell 필수
+- Chrome: 자동 탐색

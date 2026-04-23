@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[A07] 과정 수정 — YN발레아카데미 관리자</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+  .admin-sidebar { width:200px; min-height:100vh; background:#212529; }
+  .admin-sidebar .nav-link { color:#adb5bd; }
+  .admin-sidebar .nav-link.active, .admin-sidebar .nav-link:hover { color:#fff; }
+  .admin-main { flex:1; }
+  .admin-topbar { background:#fff; border-bottom:1px solid #dee2e6; padding:12px 24px; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [A07] 과정 수정
+  PATH   : /admin/course_edit.php?id={id}
+  SPEC   : data/specs/A07.js
+  APIs   : [GET] SELECT id, title, category, level_badge, target,
+                  class_structure, fee, description, is_active
+                  FROM course WHERE id=?
+           [POST] UPDATE course SET title=?, category=?, level_badge=?,
+                  target=?, class_structure=?, fee=?, description=?,
+                  is_active=?, updated_at=NOW() WHERE id=?
+  NOTE   : A06과 동일 폼 구조. 기존 데이터 pre-fill.
+           관리자 세션 없으면 redirect.
+           저장 성공 → /admin/course_list.php redirect.
+============================================================ -->
+
+<div class="d-flex">
+
+  <!-- [SECTION: ADMIN_SIDEBAR] -->
+  <nav class="admin-sidebar d-flex flex-column p-3">
+    <a class="text-white fw-bold text-decoration-none mb-4" href="A02_admin_notice_list.html">YN 관리자</a>
+    <ul class="nav flex-column gap-1">
+      <li class="nav-item">
+        <span class="nav-link text-muted small px-0 mb-1">콘텐츠 관리</span>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link px-2 rounded" href="A02_admin_notice_list.html">공지사항</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active px-2 rounded" href="A05_admin_course_list.html">과정 관리</a>
+      </li>
+      <li class="nav-item mt-3">
+        <span class="nav-link text-muted small px-0 mb-1">문의 관리</span>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link px-2 rounded" href="A08_admin_inquiry_list.html">문의 목록</a>
+      </li>
+    </ul>
+    <div class="mt-auto">
+      <a href="/admin/logout.php" class="nav-link text-muted small px-2">로그아웃</a>
+    </div>
+  </nav>
+  <!-- [/SECTION: ADMIN_SIDEBAR] -->
+
+  <div class="admin-main">
+
+    <!-- [SECTION: ADMIN_TOPBAR] -->
+    <div class="admin-topbar d-flex align-items-center justify-content-between">
+      <h1 class="h6 mb-0 fw-bold">과정 수정</h1>
+      <a href="A05_admin_course_list.html" class="btn btn-outline-secondary btn-sm">← 목록</a>
+    </div>
+    <!-- [/SECTION: ADMIN_TOPBAR] -->
+
+    <!-- [SECTION: COURSE_EDIT_FORM] 과정 수정 폼
+      GET: SELECT ... FROM course WHERE id=? → pre-fill
+      POST: UPDATE course SET ... WHERE id=?
+    ──────────────────────────────────────── -->
+    <div class="p-4" style="max-width:680px;">
+
+      <!-- [FORM: course_edit]
+        action: POST /admin/course_edit.php?id={id}
+        fields: (A06 course_write와 동일, 기존 데이터 pre-fill)
+          id              — hidden, course.id
+          title, category, level_badge, target,
+          class_structure, fee, description, is_active
+        CSRF: hidden _token
+      -->
+      <form id="course_edit" action="/admin/course_edit.php" method="POST">
+        <input type="hidden" name="_token" value="[CSRF_TOKEN]">
+        <input type="hidden" name="id" value="2">
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-8">
+            <label for="title" class="form-label fw-medium">과정명 <span class="text-danger">*</span></label>
+            <!-- [API-DATA] pre-fill: course.title -->
+            <input type="text" class="form-control" id="title" name="title"
+              maxlength="100" value="입문반" required>
+          </div>
+          <div class="col-md-4">
+            <label for="category" class="form-label fw-medium">카테고리 <span class="text-danger">*</span></label>
+            <!-- [API-DATA] pre-fill: course.category -->
+            <select class="form-select" id="category" name="category" required>
+              <option value="somatic">소매틱+발레 스트레칭</option>
+              <option value="adult_ballet" selected>성인 발레</option>
+              <option value="etc">기타 과정</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label for="level_badge" class="form-label fw-medium">레벨 배지</label>
+            <!-- [API-DATA] pre-fill: course.level_badge -->
+            <input type="text" class="form-control" id="level_badge" name="level_badge"
+              maxlength="20" value="입문">
+          </div>
+          <div class="col-md-8">
+            <label for="target" class="form-label fw-medium">수강 조건</label>
+            <!-- [API-DATA] pre-fill: course.target -->
+            <input type="text" class="form-control" id="target" name="target"
+              maxlength="100" value="발레 첫 시작">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="class_structure" class="form-label fw-medium">수업 구성</label>
+          <!-- [API-DATA] pre-fill: course.class_structure -->
+          <input type="text" class="form-control" id="class_structure" name="class_structure"
+            maxlength="200" value="매트 · 손 허리바 · 기초 센터">
+        </div>
+
+        <div class="mb-3">
+          <label for="fee" class="form-label fw-medium">수강료</label>
+          <!-- [API-DATA] pre-fill: course.fee -->
+          <input type="text" class="form-control" id="fee" name="fee"
+            maxlength="100" value="[임시] 금액">
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label fw-medium">과정 설명</label>
+          <!-- [API-DATA] pre-fill: course.description -->
+          <textarea class="form-control" id="description" name="description"
+            rows="4" maxlength="500">[임시] 입문반 과정 설명이 들어갑니다.</textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-medium">노출 여부</label>
+          <div>
+            <!-- [API-DATA] pre-fill: is_active -->
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="is_active" id="active-yes" value="1" checked>
+              <label class="form-check-label" for="active-yes">노출</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="is_active" id="active-no" value="0">
+              <label class="form-check-label" for="active-no">숨김</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-dark">저장</button>
+          <a href="A05_admin_course_list.html" class="btn btn-outline-secondary">취소</a>
+        </div>
+
+      </form>
+      <!-- [/FORM: course_edit] -->
+
+    </div>
+    <!-- [/SECTION: COURSE_EDIT_FORM] -->
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

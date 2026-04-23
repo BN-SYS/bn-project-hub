@@ -1,0 +1,68 @@
+{
+  "project": "YNballet-academy",
+  "client": "YN발레아카데미",
+  "pm": "eunahp86@gmail.com",
+  "created_at": "2026-04-22",
+  "currentPhase": "05_dev_handoff",
+  "lastUpdated": "2026-04-22",
+  "overview": "발레아카데미 브랜드 소개 및 수강 문의 유도 웹사이트. PHP/MySQL/Bootstrap. 관리자 단일 계정 하드코딩. 공지·과정·문의 게시판 3개 주요 기능.",
+  "phases": {
+    "01_rfp": {
+      "status": "done",
+      "completedAt": "2026-04-22",
+      "summary": "기획문서 v1.0 확정. 사이트맵, 과정 체계, DB 설계, 보안 정책 확정."
+    },
+    "02_planning": {
+      "status": "done",
+      "completedAt": "2026-04-22",
+      "summary": "기획서 v1.0 작성 완료. 페이지 기능 정의, 관리자 기능, 문의 상태 정책 확정."
+    },
+    "03_requirements": {
+      "status": "done",
+      "completedAt": "2026-04-22",
+      "summary": "요구사항_정의서.md + pages_draft.json 작성 완료. 17개 페이지 전체 정의."
+    },
+    "04_storyboard": { "status": "done", "completedAt": "2026-04-22", "summary": "17개 프로토타입 HTML 완성. 개발자 주석(SCREEN/PATH/SPEC/APIs/SECTION/FORM/API-DATA) 전면 적용. outputs/ 폴더 저장." },
+    "05_dev_handoff": { "status": "done", "completedAt": "2026-04-22", "summary": "PHP+MySQL 백엔드 전체 구현. dev/ 폴더 35개 파일. schema.sql, includes 공통모듈, 사용자 5페이지, 관리자 15페이지, 업로드/CSRF/세션 포함." },
+    "06_qa": { "status": "pending" },
+    "07_delivery": { "status": "pending" },
+    "08_feedback": { "status": "pending" },
+    "09_comms": { "status": "pending" }
+  },
+  "pages": [
+    { "id": "P01", "name": "랜딩페이지", "path": "/index.php", "db": true },
+    { "id": "P02", "name": "아카데미 소개", "path": "/about.php", "db": false },
+    { "id": "P03", "name": "과정소개", "path": "/course.php", "db": true },
+    { "id": "P04", "name": "공지 목록", "path": "/notice/list.php", "db": true },
+    { "id": "P05", "name": "공지 상세", "path": "/notice/view.php", "db": true },
+    { "id": "P06", "name": "문의 작성", "path": "/inquiry/write.php", "db": true },
+    { "id": "P07", "name": "문의 목록", "path": "/inquiry/list.php", "db": true },
+    { "id": "P08", "name": "문의 상세", "path": "/inquiry/view.php", "db": true },
+    { "id": "A01", "name": "관리자 로그인", "path": "/admin/login.php", "db": false },
+    { "id": "A02", "name": "공지 목록(관리)", "path": "/admin/notice_list.php", "db": true },
+    { "id": "A03", "name": "공지 등록", "path": "/admin/notice_write.php", "db": true },
+    { "id": "A04", "name": "공지 수정", "path": "/admin/notice_edit.php", "db": true },
+    { "id": "A05", "name": "과정 목록(관리)", "path": "/admin/course_list.php", "db": true },
+    { "id": "A06", "name": "과정 등록", "path": "/admin/course_write.php", "db": true },
+    { "id": "A07", "name": "과정 수정", "path": "/admin/course_edit.php", "db": true },
+    { "id": "A08", "name": "문의 목록(관리)", "path": "/admin/inquiry_list.php", "db": true },
+    { "id": "A09", "name": "문의 상세/답변", "path": "/admin/inquiry_view.php", "db": true }
+  ],
+  "confirmed_items": {
+    "개인레슨_요금": "문의 후 안내 (금액 미표시)",
+    "히어로_배너": "슬라이드 2개. 이미지·문구는 임시 데이터로 표기",
+    "강사소개": "사진·텍스트 임시 데이터로 표기",
+    "슬로건": "몸이 기억하는 아름다움 ✅"
+  },
+  "pending_items": [
+    "유아반·청소년반 연령 기준·수업 구성·수강료 미정",
+    "아카데미 대표 슬로건 PM 최종 선택"
+  ],
+  "tech_stack": {
+    "backend": "PHP",
+    "db": "MySQL",
+    "server": "Apache/XAMPP",
+    "css": "Bootstrap",
+    "editor": "Quill.js"
+  }
+}

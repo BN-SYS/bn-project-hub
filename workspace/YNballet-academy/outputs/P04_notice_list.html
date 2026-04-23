@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[P04] 공지사항 — YN발레아카데미</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+  .page-hero { background:#f5f5f5; padding:60px 0; border-bottom:1px solid #eee; }
+  .notice-thumb { width:64px; height:64px; object-fit:cover; flex-shrink:0; }
+  .ph-img { background:#ccc; display:flex; align-items:center; justify-content:center; color:#666; font-size:.75rem; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [P04] 공지사항 목록
+  PATH   : /notice/list.php
+  SPEC   : data/specs/P04.js
+  APIs   : SELECT id, title, thumbnail, created_at FROM notice
+           WHERE is_active=1 ORDER BY created_at DESC
+           LIMIT 10 OFFSET {(page-1)*10}
+           COUNT(*) WHERE is_active=1  → 페이지네이션용
+  NOTE   : 페이지당 10건. 썸네일 없으면 notice_default.jpg 대체.
+           빈 상태: "등록된 공지가 없습니다."
+           오류 시: "공지를 불러올 수 없습니다."
+============================================================ -->
+
+<!-- [SECTION: GNB] -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="P01_landing.html">YN발레아카데미</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#gnb">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="gnb">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="P01_landing.html">홈</a></li>
+        <li class="nav-item"><a class="nav-link" href="P02_about.html">아카데미 소개</a></li>
+        <li class="nav-item"><a class="nav-link" href="P03_course.html">과정소개</a></li>
+        <li class="nav-item"><a class="nav-link active" href="P04_notice_list.html">공지사항</a></li>
+        <li class="nav-item"><a class="nav-link" href="P06_inquiry_write.html">수강 문의</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- [/SECTION: GNB] -->
+
+<!-- [SECTION: PAGE_HERO] -->
+<div class="page-hero text-center">
+  <div class="container">
+    <h1 class="h2 fw-light">공지사항</h1>
+    <p class="text-muted mb-0">YN발레아카데미의 새 소식을 전합니다</p>
+  </div>
+</div>
+<!-- [/SECTION: PAGE_HERO] -->
+
+<!-- [SECTION: NOTICE_LIST] 공지 목록
+  API-DATA: SELECT id, title, thumbnail, created_at FROM notice
+            WHERE is_active=1 ORDER BY created_at DESC
+            LIMIT 10 OFFSET {(page-1)*10}
+  썸네일 없으면 /assets/img/notice_default.jpg 대체
+  빈 상태: "등록된 공지가 없습니다." 카드 표시
+──────────────────────────────────────── -->
+<section class="py-5">
+  <div class="container">
+    <!-- [API-DATA] notice 목록 더미 10건 -->
+    <ul class="list-group" id="notice-list">
+
+      <li class="list-group-item">
+        <a href="P05_notice_view.html" class="d-flex align-items-center gap-3 text-decoration-none text-dark py-2">
+          <div class="ph-img notice-thumb rounded">[임시]<br>썸네일</div>
+          <div class="flex-grow-1">
+            <p class="mb-1 fw-medium">[더미] 2025년 하반기 수강 등록 안내</p>
+            <small class="text-muted">공지</small>
+          </div>
+          <small class="text-muted flex-shrink-0">2026.04.20</small>
+        </a>
+      </li>
+
+      <li class="list-group-item">
+        <a href="P05_notice_view.html" class="d-flex align-items-center gap-3 text-decoration-none text-dark py-2">
+          <div class="ph-img notice-thumb rounded bg-light">기본이미지</div>
+          <div class="flex-grow-1">
+            <p class="mb-1 fw-medium">[더미] 5월 휴강 안내</p>
+            <small class="text-muted">공지</small>
+          </div>
+          <small class="text-muted flex-shrink-0">2026.04.15</small>
+        </a>
+      </li>
+
+      <li class="list-group-item">
+        <a href="P05_notice_view.html" class="d-flex align-items-center gap-3 text-decoration-none text-dark py-2">
+          <div class="ph-img notice-thumb rounded">[임시]<br>썸네일</div>
+          <div class="flex-grow-1">
+            <p class="mb-1 fw-medium">[더미] 발표회 일정 공지</p>
+            <small class="text-muted">공지</small>
+          </div>
+          <small class="text-muted flex-shrink-0">2026.04.10</small>
+        </a>
+      </li>
+
+      <li class="list-group-item">
+        <a href="P05_notice_view.html" class="d-flex align-items-center gap-3 text-decoration-none text-dark py-2">
+          <div class="ph-img notice-thumb rounded bg-light">기본이미지</div>
+          <div class="flex-grow-1">
+            <p class="mb-1 fw-medium">[더미] 신규 과정 개설 안내</p>
+            <small class="text-muted">공지</small>
+          </div>
+          <small class="text-muted flex-shrink-0">2026.04.01</small>
+        </a>
+      </li>
+
+      <li class="list-group-item">
+        <a href="P05_notice_view.html" class="d-flex align-items-center gap-3 text-decoration-none text-dark py-2">
+          <div class="ph-img notice-thumb rounded">[임시]<br>썸네일</div>
+          <div class="flex-grow-1">
+            <p class="mb-1 fw-medium">[더미] 원장 인사말</p>
+            <small class="text-muted">공지</small>
+          </div>
+          <small class="text-muted flex-shrink-0">2026.03.20</small>
+        </a>
+      </li>
+
+      <li class="list-group-item">
+        <a href="P05_notice_view.html" class="d-flex align-items-center gap-3 text-decoration-none text-dark py-2">
+          <div class="ph-img notice-thumb rounded bg-light">기본이미지</div>
+          <div class="flex-grow-1">
+            <p class="mb-1 fw-medium">[더미] 봄 학기 수강생 모집 안내</p>
+            <small class="text-muted">공지</small>
+          </div>
+          <small class="text-muted flex-shrink-0">2026.03.10</small>
+        </a>
+      </li>
+
+      <li class="list-group-item">
+        <a href="P05_notice_view.html" class="d-flex align-items-center gap-3 text-decoration-none text-dark py-2">
+          <div class="ph-img notice-thumb rounded">[임시]<br>썸네일</div>
+          <div class="flex-grow-1">
+            <p class="mb-1 fw-medium">[더미] 시설 리모델링 완료 안내</p>
+            <small class="text-muted">공지</small>
+          </div>
+          <small class="text-muted flex-shrink-0">2026.02.28</small>
+        </a>
+      </li>
+
+      <li class="list-group-item">
+        <a href="P05_notice_view.html" class="d-flex align-items-center gap-3 text-decoration-none text-dark py-2">
+          <div class="ph-img notice-thumb rounded bg-light">기본이미지</div>
+          <div class="flex-grow-1">
+            <p class="mb-1 fw-medium">[더미] 설 연휴 휴강 안내</p>
+            <small class="text-muted">공지</small>
+          </div>
+          <small class="text-muted flex-shrink-0">2026.01.25</small>
+        </a>
+      </li>
+
+      <li class="list-group-item">
+        <a href="P05_notice_view.html" class="d-flex align-items-center gap-3 text-decoration-none text-dark py-2">
+          <div class="ph-img notice-thumb rounded">[임시]<br>썸네일</div>
+          <div class="flex-grow-1">
+            <p class="mb-1 fw-medium">[더미] 2026 신년 인사</p>
+            <small class="text-muted">공지</small>
+          </div>
+          <small class="text-muted flex-shrink-0">2026.01.01</small>
+        </a>
+      </li>
+
+      <li class="list-group-item">
+        <a href="P05_notice_view.html" class="d-flex align-items-center gap-3 text-decoration-none text-dark py-2">
+          <div class="ph-img notice-thumb rounded bg-light">기본이미지</div>
+          <div class="flex-grow-1">
+            <p class="mb-1 fw-medium">[더미] 겨울 특강 안내</p>
+            <small class="text-muted">공지</small>
+          </div>
+          <small class="text-muted flex-shrink-0">2025.12.15</small>
+        </a>
+      </li>
+
+    </ul>
+
+    <!-- [SECTION: PAGINATION] 페이지네이션
+      API-DATA: COUNT(*) FROM notice WHERE is_active=1
+      현재 페이지: ?page=1 (기본값 1)
+      총 페이지 = CEIL(total / 10)
+    ─────────────────────────────── -->
+    <nav class="mt-4" aria-label="공지 페이지네이션">
+      <ul class="pagination justify-content-center">
+        <li class="page-item disabled">
+          <a class="page-link" href="#">&laquo;</a>
+        </li>
+        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item">
+          <a class="page-link" href="#">&raquo;</a>
+        </li>
+      </ul>
+    </nav>
+    <!-- [/SECTION: PAGINATION] -->
+
+  </div>
+</section>
+<!-- [/SECTION: NOTICE_LIST] -->
+
+<!-- [SECTION: FOOTER] -->
+<footer class="py-4 bg-light border-top">
+  <div class="container text-center text-muted small">
+    <p class="mb-1"><strong>YN발레아카데미</strong></p>
+    <p class="mb-1">[임시] 주소 | 전화: 000-0000-0000</p>
+    <p class="mb-0">© 2026 YN발레아카데미. All rights reserved.</p>
+  </div>
+</footer>
+<!-- [/SECTION: FOOTER] -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

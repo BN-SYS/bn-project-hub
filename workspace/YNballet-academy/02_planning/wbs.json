@@ -1,0 +1,49 @@
+{
+  "project": "YNballet-academy",
+  "version": "1.0",
+  "created_at": "2026-04-22",
+  "phases": [
+    {
+      "phase": "1단계 — 기반",
+      "tasks": [
+        { "id": "T01", "name": "DB 생성 (notice, course, inquiry)", "est_h": 1 },
+        { "id": "T02", "name": "db.php 연결 공통 모듈", "est_h": 0.5 },
+        { "id": "T03", "name": "관리자 로그인 + 세션 인증 미들웨어", "est_h": 2 },
+        { "id": "T04", "name": "이미지 업로드 엔드포인트 (upload_image.php)", "est_h": 2 }
+      ]
+    },
+    {
+      "phase": "2단계 — 관리자 기능",
+      "tasks": [
+        { "id": "T05", "name": "공지 목록 (admin)", "est_h": 2 },
+        { "id": "T06", "name": "공지 등록/수정 (Quill.js)", "est_h": 4 },
+        { "id": "T07", "name": "공지 숨김 토글", "est_h": 0.5 },
+        { "id": "T08", "name": "과정 목록 + sort_order 조정", "est_h": 2 },
+        { "id": "T09", "name": "과정 등록/수정", "est_h": 2 },
+        { "id": "T10", "name": "문의 목록 + 상태 필터", "est_h": 2 },
+        { "id": "T11", "name": "문의 상세 + 답변 + 상태 변경", "est_h": 3 }
+      ]
+    },
+    {
+      "phase": "3단계 — 사용자 화면",
+      "tasks": [
+        { "id": "T12", "name": "랜딩페이지 (히어로+과정 카드+공지+CTA)", "est_h": 4 },
+        { "id": "T13", "name": "아카데미 소개 (정적)", "est_h": 2 },
+        { "id": "T14", "name": "과정소개 (탭+카드 DB 연동)", "est_h": 3 },
+        { "id": "T15", "name": "공지 목록/상세 + 페이지네이션", "est_h": 3 },
+        { "id": "T16", "name": "문의 작성/목록/상세 + 비번 검증", "est_h": 5 }
+      ]
+    },
+    {
+      "phase": "4단계 — 마무리",
+      "tasks": [
+        { "id": "T17", "name": "Bootstrap 반응형 점검", "est_h": 2 },
+        { "id": "T18", "name": "보안 전체 검토 (XSS, SQL 인젝션, 파일 업로드)", "est_h": 2 },
+        { "id": "T19", "name": "지도 이미지 삽입", "est_h": 0.5 },
+        { "id": "T20", "name": "브라우저 크로스체크", "est_h": 1 }
+      ]
+    }
+  ],
+  "total_est_h": 43.5,
+  "note": "유아반·청소년반 상세 데이터 입력은 별도 공수 미포함. 확인 후 추가 산정 필요."
+}

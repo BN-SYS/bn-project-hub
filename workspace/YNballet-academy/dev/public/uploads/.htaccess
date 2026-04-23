@@ -1,0 +1,8 @@
+# PHP 실행 차단 (업로드 디렉터리 보안)
+<FilesMatch "\.php$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# PHP 핸들러 무력화
+php_flag engine off

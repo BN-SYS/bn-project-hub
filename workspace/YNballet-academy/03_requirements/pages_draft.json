@@ -1,0 +1,285 @@
+{
+  "project": "YNballet-academy",
+  "version": "draft-1.0",
+  "created_at": "2026-04-22",
+  "status": "draft",
+  "pages": [
+    {
+      "id": "P01",
+      "name": "랜딩페이지",
+      "path": "/index.php",
+      "type": "user",
+      "db": ["course", "notice"],
+      "sections": [
+        "히어로 배너 (Carousel 슬라이드 2개, 슬로건: 몸이 기억하는 아름다움)",
+        "아카데미 한줄 소개 (정적, [임시])",
+        "과정 미리보기 (course DB, is_active=1, sort_order ASC, 최대 4개)",
+        "공지사항 최신 5건 (notice DB, 썸네일+제목+날짜)",
+        "문의 CTA 버튼"
+      ],
+      "apis": [
+        "SELECT id, title, category, target FROM course WHERE is_active=1 ORDER BY sort_order ASC LIMIT 4",
+        "SELECT id, title, thumbnail, created_at FROM notice WHERE is_active=1 ORDER BY created_at DESC LIMIT 5"
+      ]
+    },
+    {
+      "id": "P02",
+      "name": "아카데미 소개",
+      "path": "/about.php",
+      "type": "user",
+      "db": [],
+      "sections": [
+        "인사말 ([임시])",
+        "교육 철학·강점 아이콘 카드 3~4개 ([임시])",
+        "강사 소개 - 사진 placeholder + [임시] 경력",
+        "시설 안내 - placeholder 이미지",
+        "오시는 길 - [임시] 주소 + placeholder 지도 이미지"
+      ],
+      "apis": []
+    },
+    {
+      "id": "P03",
+      "name": "과정소개",
+      "path": "/course.php",
+      "type": "user",
+      "db": ["course"],
+      "sections": [
+        "카테고리 탭 3개 (소매틱+발레 스트레칭 / 성인 발레 / 기타 과정)",
+        "과정 카드 목록 (탭별 DB 조회, sort_order ASC)",
+        "개인레슨 수강료: '문의 후 안내' 고정",
+        "유아·청소년반: [임시] 내용 준비 중",
+        "등록 안내 정적 블록 ([임시])",
+        "수강 문의하기 CTA"
+      ],
+      "apis": [
+        "SELECT * FROM course WHERE category=? AND is_active=1 ORDER BY sort_order ASC"
+      ]
+    },
+    {
+      "id": "P04",
+      "name": "공지 목록",
+      "path": "/notice/list.php",
+      "type": "user",
+      "db": ["notice"],
+      "sections": [
+        "공지 목록 (썸네일 80×80 + 제목 + 등록일)",
+        "10건씩 페이지네이션"
+      ],
+      "apis": [
+        "SELECT id, title, thumbnail, created_at FROM notice WHERE is_active=1 ORDER BY created_at DESC LIMIT ?, ?"
+      ]
+    },
+    {
+      "id": "P05",
+      "name": "공지 상세",
+      "path": "/notice/view.php",
+      "type": "user",
+      "db": ["notice"],
+      "sections": [
+        "제목 + 등록일",
+        "본문 (Quill HTML 렌더링)",
+        "이전글/다음글 네비게이션",
+        "목록으로 버튼"
+      ],
+      "apis": [
+        "SELECT * FROM notice WHERE id=? AND is_active=1",
+        "SELECT id, title FROM notice WHERE is_active=1 AND id < ? ORDER BY id DESC LIMIT 1",
+        "SELECT id, title FROM notice WHERE is_active=1 AND id > ? ORDER BY id ASC LIMIT 1"
+      ]
+    },
+    {
+      "id": "P06",
+      "name": "문의 작성",
+      "path": "/inquiry/write.php",
+      "type": "user",
+      "db": ["inquiry", "course"],
+      "sections": [
+        "문의 폼: 이름·연락처·이메일·유형·관심과정·제목·내용·비밀번호·개인정보동의",
+        "관심과정 select: course DB에서 과정명 목록"
+      ],
+      "form_validation": {
+        "이름": "필수, 1자 이상",
+        "연락처": "필수, 숫자·하이픈 형식",
+        "이메일": "선택, 형식 검증",
+        "문의유형": "필수",
+        "제목": "필수, 2자 이상",
+        "내용": "필수, 10자 이상",
+        "비밀번호": "필수, 4~8자리 숫자",
+        "개인정보동의": "필수 체크"
+      },
+      "apis": [
+        "SELECT id, title FROM course WHERE is_active=1 ORDER BY category, sort_order ASC",
+        "INSERT INTO inquiry (...) VALUES (...)"
+      ]
+    },
+    {
+      "id": "P07",
+      "name": "문의 목록",
+      "path": "/inquiry/list.php",
+      "type": "user",
+      "db": ["inquiry"],
+      "sections": [
+        "목록 (번호·유형·'비밀글입니다'·이름마스킹·상태배지·등록일)",
+        "10건씩 페이지네이션"
+      ],
+      "apis": [
+        "SELECT id, inq_type, name, status, created_at FROM inquiry ORDER BY created_at DESC LIMIT ?, ?"
+      ]
+    },
+    {
+      "id": "P08",
+      "name": "문의 상세",
+      "path": "/inquiry/view.php",
+      "type": "user",
+      "db": ["inquiry"],
+      "sections": [
+        "비밀번호 입력 게이트 (관리자 세션 있으면 바이패스)",
+        "문의 전체 정보",
+        "관리자 답변 (없으면 '답변 준비 중입니다.')"
+      ],
+      "apis": [
+        "SELECT * FROM inquiry WHERE id=?"
+      ]
+    },
+    {
+      "id": "A01",
+      "name": "관리자 로그인",
+      "path": "/admin/login.php",
+      "type": "admin",
+      "db": [],
+      "sections": [
+        "ID/PW 로그인 폼",
+        "실패 메시지 (성공/실패 구분 없이 동일 메시지)"
+      ],
+      "apis": []
+    },
+    {
+      "id": "A02",
+      "name": "공지 목록(관리)",
+      "path": "/admin/notice_list.php",
+      "type": "admin",
+      "db": ["notice"],
+      "sections": [
+        "공지 전체 목록 (is_active 무관)",
+        "노출/숨김 토글 버튼",
+        "수정 버튼",
+        "공지 등록 버튼"
+      ],
+      "apis": [
+        "SELECT * FROM notice ORDER BY created_at DESC",
+        "UPDATE notice SET is_active=? WHERE id=?"
+      ]
+    },
+    {
+      "id": "A03",
+      "name": "공지 등록",
+      "path": "/admin/notice_write.php",
+      "type": "admin",
+      "db": ["notice"],
+      "sections": [
+        "제목 입력",
+        "Quill.js 에디터 (이미지 업로드 커스텀 핸들러)",
+        "저장 버튼"
+      ],
+      "apis": [
+        "POST /admin/upload_image.php",
+        "INSERT INTO notice (title, content, thumbnail) VALUES (?, ?, ?)"
+      ]
+    },
+    {
+      "id": "A04",
+      "name": "공지 수정",
+      "path": "/admin/notice_edit.php",
+      "type": "admin",
+      "db": ["notice"],
+      "sections": [
+        "기존 제목·본문 로드",
+        "Quill.js 에디터",
+        "저장 버튼"
+      ],
+      "apis": [
+        "SELECT * FROM notice WHERE id=?",
+        "POST /admin/upload_image.php",
+        "UPDATE notice SET title=?, content=?, thumbnail=?, updated_at=NOW() WHERE id=?"
+      ]
+    },
+    {
+      "id": "A05",
+      "name": "과정 목록(관리)",
+      "path": "/admin/course_list.php",
+      "type": "admin",
+      "db": ["course"],
+      "sections": [
+        "카테고리 필터 select",
+        "과정 목록 (번호·카테고리·과정명·레벨·노출상태·sort_order·액션)",
+        "sort_order 조정",
+        "과정 등록 버튼"
+      ],
+      "apis": [
+        "SELECT * FROM course WHERE category=? ORDER BY sort_order ASC",
+        "UPDATE course SET sort_order=? WHERE id=?",
+        "UPDATE course SET is_active=? WHERE id=?"
+      ]
+    },
+    {
+      "id": "A06",
+      "name": "과정 등록",
+      "path": "/admin/course_write.php",
+      "type": "admin",
+      "db": ["course"],
+      "sections": [
+        "카테고리·과정명·레벨·수강조건·수업구성·수강료·설명·sort_order·노출여부 입력폼"
+      ],
+      "apis": [
+        "INSERT INTO course (...) VALUES (...)"
+      ]
+    },
+    {
+      "id": "A07",
+      "name": "과정 수정",
+      "path": "/admin/course_edit.php",
+      "type": "admin",
+      "db": ["course"],
+      "sections": [
+        "기존값 로드 후 A06과 동일 폼"
+      ],
+      "apis": [
+        "SELECT * FROM course WHERE id=?",
+        "UPDATE course SET ... WHERE id=?"
+      ]
+    },
+    {
+      "id": "A08",
+      "name": "문의 목록(관리)",
+      "path": "/admin/inquiry_list.php",
+      "type": "admin",
+      "db": ["inquiry"],
+      "sections": [
+        "상태 필터 select (전체/미답변/답변완료/보류)",
+        "문의 목록 (번호·유형·실제제목·이름·상태배지·등록일)"
+      ],
+      "apis": [
+        "SELECT * FROM inquiry [WHERE status=?] ORDER BY created_at DESC"
+      ]
+    },
+    {
+      "id": "A09",
+      "name": "문의 상세/답변",
+      "path": "/admin/inquiry_view.php",
+      "type": "admin",
+      "db": ["inquiry"],
+      "sections": [
+        "문의 전체 정보 출력",
+        "답변 textarea (기존 답변 로드)",
+        "답변 저장 버튼 (status 자동 1 전환, answered_at 최초 1회)",
+        "상태 수동 변경 select (0/1/2 모든 방향)",
+        "목록으로 버튼"
+      ],
+      "apis": [
+        "SELECT * FROM inquiry WHERE id=?",
+        "UPDATE inquiry SET answer=?, status=?, answered_at=IF(answered_at IS NULL, NOW(), answered_at) WHERE id=?",
+        "UPDATE inquiry SET status=? WHERE id=?"
+      ]
+    }
+  ]
+}

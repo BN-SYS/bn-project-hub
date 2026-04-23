@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[P06] 수강 문의 — YN발레아카데미</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+  .page-hero { background:#f5f5f5; padding:60px 0; border-bottom:1px solid #eee; }
+  .required-mark { color:#dc3545; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [P06] 문의 작성
+  PATH   : /inquiry/write.php
+  SPEC   : data/specs/P06.js
+  APIs   : POST /inquiry/write.php
+           INSERT INTO inquiry (name, contact, course_interest,
+             content, password_hash, status, created_at)
+  NOTE   : 비밀번호는 password_hash() 후 DB 저장.
+           제출 성공 → 문의 목록(/inquiry/list.php) redirect.
+           클라이언트 유효성 검사 + 서버사이드 검사 이중 적용.
+           course_interest: SELECT id, title FROM course WHERE is_active=1 ORDER BY sort_order ASC
+============================================================ -->
+
+<!-- [SECTION: GNB] -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="P01_landing.html">YN발레아카데미</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#gnb">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="gnb">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="P01_landing.html">홈</a></li>
+        <li class="nav-item"><a class="nav-link" href="P02_about.html">아카데미 소개</a></li>
+        <li class="nav-item"><a class="nav-link" href="P03_course.html">과정소개</a></li>
+        <li class="nav-item"><a class="nav-link" href="P04_notice_list.html">공지사항</a></li>
+        <li class="nav-item"><a class="nav-link active" href="P06_inquiry_write.html">수강 문의</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- [/SECTION: GNB] -->
+
+<!-- [SECTION: PAGE_HERO] -->
+<div class="page-hero text-center">
+  <div class="container">
+    <h1 class="h2 fw-light">수강 문의</h1>
+    <p class="text-muted mb-0">궁금한 점을 남겨주시면 빠르게 답변드립니다</p>
+  </div>
+</div>
+<!-- [/SECTION: PAGE_HERO] -->
+
+<!-- [SECTION: INQUIRY_FORM] 문의 작성 폼
+  API-DATA (GET): SELECT id, title FROM course WHERE is_active=1 ORDER BY sort_order ASC
+                  → course_interest <select> 옵션 동적 생성
+  POST: /inquiry/write.php → INSERT INTO inquiry
+  성공 시: /inquiry/list.php redirect
+  실패 시: 폼 유지 + 오류 메시지 표시
+──────────────────────────────────────── -->
+<section class="py-5">
+  <div class="container" style="max-width:640px;">
+
+    <!-- [FORM: inquiry_write]
+      action: /inquiry/write.php  method: POST
+      fields:
+        name        — 이름, text, required, 2–20자
+        contact     — 연락처, text, required, 숫자·하이픈만, 10–13자
+        course_interest — 관심 과정, select, optional (기타/모름 포함)
+        content     — 문의 내용, textarea, required, 10–1000자
+        password    — 비밀번호, password, required, 4–20자
+        password_confirm — 비밀번호 확인, password, required, password와 일치
+      서버: password_hash() 저장, 나머지 prepared statement
+    -->
+    <form id="inquiry_write" action="/inquiry/write.php" method="POST" novalidate>
+
+      <div class="mb-3">
+        <label for="name" class="form-label fw-medium">
+          이름 <span class="required-mark">*</span>
+        </label>
+        <!-- 검증: required, 2–20자, HTML 특수문자 이스케이프 -->
+        <input type="text" class="form-control" id="name" name="name"
+          placeholder="이름을 입력하세요" maxlength="20" required>
+        <div class="invalid-feedback">이름은 2~20자로 입력해 주세요.</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="contact" class="form-label fw-medium">
+          연락처 <span class="required-mark">*</span>
+        </label>
+        <!-- 검증: required, 숫자·하이픈만, 10–13자 (예: 010-0000-0000) -->
+        <input type="text" class="form-control" id="contact" name="contact"
+          placeholder="010-0000-0000" maxlength="13" required>
+        <div class="form-text text-muted">숫자와 하이픈(-)만 입력하세요.</div>
+        <div class="invalid-feedback">연락처 형식이 올바르지 않습니다.</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="course_interest" class="form-label fw-medium">관심 과정</label>
+        <!-- [API-DATA] SELECT id, title FROM course WHERE is_active=1 ORDER BY sort_order ASC -->
+        <select class="form-select" id="course_interest" name="course_interest">
+          <option value="">-- 관심 과정을 선택하세요 (선택 사항) --</option>
+          <option value="somatic">소매틱+발레 스트레칭</option>
+          <option value="adult_beginner">입문반</option>
+          <option value="adult_basic">기초반</option>
+          <option value="adult_elem">초급반</option>
+          <option value="adult_inter">중급반</option>
+          <option value="private">개인레슨</option>
+          <option value="kids">유아반</option>
+          <option value="teen">청소년반</option>
+          <option value="etc">기타 / 모름</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="content" class="form-label fw-medium">
+          문의 내용 <span class="required-mark">*</span>
+        </label>
+        <!-- 검증: required, 10–1000자 -->
+        <textarea class="form-control" id="content" name="content"
+          rows="6" maxlength="1000"
+          placeholder="문의 내용을 입력해 주세요 (10자 이상)" required></textarea>
+        <div class="d-flex justify-content-between">
+          <div class="invalid-feedback">문의 내용은 10자 이상 입력해 주세요.</div>
+          <small class="text-muted ms-auto mt-1"><span id="content-count">0</span>/1000</small>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label fw-medium">
+          비밀번호 <span class="required-mark">*</span>
+        </label>
+        <!-- 검증: required, 4–20자 / 서버: password_hash() 저장 -->
+        <input type="password" class="form-control" id="password" name="password"
+          placeholder="4~20자로 설정하세요" minlength="4" maxlength="20" required>
+        <div class="form-text text-muted">내 문의 내용 조회 시 사용합니다.</div>
+        <div class="invalid-feedback">비밀번호는 4~20자로 입력해 주세요.</div>
+      </div>
+
+      <div class="mb-4">
+        <label for="password_confirm" class="form-label fw-medium">
+          비밀번호 확인 <span class="required-mark">*</span>
+        </label>
+        <!-- 검증: required, password 필드 값과 일치 -->
+        <input type="password" class="form-control" id="password_confirm" name="password_confirm"
+          placeholder="비밀번호를 다시 입력하세요" maxlength="20" required>
+        <div class="invalid-feedback">비밀번호가 일치하지 않습니다.</div>
+      </div>
+
+      <div class="d-grid">
+        <button type="submit" class="btn btn-dark btn-lg">문의 접수하기</button>
+      </div>
+
+    </form>
+    <!-- [/FORM: inquiry_write] -->
+
+    <p class="text-center text-muted small mt-3">
+      내 문의 내용을 확인하려면
+      <a href="P07_inquiry_list.html" class="text-muted">문의 목록</a>에서 조회하세요.
+    </p>
+
+  </div>
+</section>
+<!-- [/SECTION: INQUIRY_FORM] -->
+
+<!-- [SECTION: FOOTER] -->
+<footer class="py-4 bg-light border-top">
+  <div class="container text-center text-muted small">
+    <p class="mb-1"><strong>YN발레아카데미</strong></p>
+    <p class="mb-1">[임시] 주소 | 전화: 000-0000-0000</p>
+    <p class="mb-0">© 2026 YN발레아카데미. All rights reserved.</p>
+  </div>
+</footer>
+<!-- [/SECTION: FOOTER] -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // 글자수 카운터
+  document.getElementById('content').addEventListener('input', function() {
+    document.getElementById('content-count').textContent = this.value.length;
+  });
+
+  // 클라이언트 유효성 검사
+  document.getElementById('inquiry_write').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const pw = document.getElementById('password').value;
+    const pwc = document.getElementById('password_confirm').value;
+    if (pw !== pwc) {
+      document.getElementById('password_confirm').classList.add('is-invalid');
+      return;
+    }
+    if (!this.checkValidity()) {
+      this.classList.add('was-validated');
+      return;
+    }
+    this.submit();
+  });
+</script>
+</body>
+</html>

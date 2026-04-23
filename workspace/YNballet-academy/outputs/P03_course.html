@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[P03] 과정소개 — YN발레아카데미</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+  .page-hero { background:#f5f5f5; padding:60px 0; border-bottom:1px solid #eee; }
+  .course-card { border:1px solid #ddd; border-radius:8px; padding:20px; height:100%; }
+  .level-badge { font-size:.7rem; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [P03] 과정소개
+  PATH   : /course.php
+  SPEC   : data/specs/P03.js
+  APIs   : SELECT * FROM course WHERE category=? AND is_active=1 ORDER BY sort_order ASC
+  NOTE   : 카테고리 탭 JS 전환 (Bootstrap Tab).
+           URL 파라미터 ?tab=somatic|adult_ballet|etc 로 직접 진입 가능.
+           개인레슨(PR-01) 수강료: "문의 후 안내" 고정.
+           유아반·청소년반: [임시] 처리.
+============================================================ -->
+
+<!-- [SECTION: GNB] -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="P01_landing.html">YN발레아카데미</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#gnb">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="gnb">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="P01_landing.html">홈</a></li>
+        <li class="nav-item"><a class="nav-link" href="P02_about.html">아카데미 소개</a></li>
+        <li class="nav-item"><a class="nav-link active" href="P03_course.html">과정소개</a></li>
+        <li class="nav-item"><a class="nav-link" href="P04_notice_list.html">공지사항</a></li>
+        <li class="nav-item"><a class="nav-link" href="P06_inquiry_write.html">수강 문의</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- [/SECTION: GNB] -->
+
+<!-- [SECTION: PAGE_HERO] -->
+<div class="page-hero text-center">
+  <div class="container">
+    <h1 class="h2 fw-light">과정소개</h1>
+    <p class="text-muted mb-0">나에게 맞는 과정을 찾아보세요</p>
+  </div>
+</div>
+<!-- [/SECTION: PAGE_HERO] -->
+
+<!-- [SECTION: COURSE_TABS] 카테고리 탭 + 과정 목록
+  탭 전환: Bootstrap Tab (JS, 페이지 리로드 없음)
+  URL 파라미터 ?tab= 으로 초기 탭 제어
+  API-DATA: 탭별 course 테이블 조회
+    SELECT * FROM course WHERE category='{탭값}' AND is_active=1 ORDER BY sort_order ASC
+  category 값: somatic | adult_ballet | etc
+  빈 상태: "해당 카테고리에 과정이 없습니다." 표시
+──────────────────────────────────────────────── -->
+<section class="py-5">
+  <div class="container">
+    <!-- 카테고리 탭 -->
+    <ul class="nav nav-tabs mb-4" id="courseTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-somatic" data-bs-toggle="tab"
+          data-bs-target="#somatic" type="button" role="tab">
+          소매틱+발레 스트레칭
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-adult" data-bs-toggle="tab"
+          data-bs-target="#adult_ballet" type="button" role="tab">
+          성인 발레
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-etc" data-bs-toggle="tab"
+          data-bs-target="#etc" type="button" role="tab">
+          기타 과정
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="courseTabContent">
+
+      <!-- 탭1: 소매틱+발레 스트레칭 (category=somatic) -->
+      <!-- [API-DATA] SELECT * FROM course WHERE category='somatic' AND is_active=1 ORDER BY sort_order ASC -->
+      <div class="tab-pane fade show active" id="somatic" role="tabpanel">
+        <div class="row g-4">
+          <div class="col-md-6 col-lg-4">
+            <div class="course-card">
+              <span class="badge bg-secondary level-badge mb-2">전 연령 성인</span>
+              <h5 class="fw-bold mb-1">소매틱+발레 스트레칭</h5>
+              <p class="small text-muted mb-3">수강 조건: 전 연령 성인, 조건 없음</p>
+              <hr>
+              <p class="small mb-1"><strong>수업 구성</strong>: 매트 · 센터</p>
+              <p class="small mb-3"><strong>수강료</strong>: [임시] 금액</p>
+              <p class="small text-muted mb-0">소매틱 움직임과 발레 스트레칭을 결합하여 유연성과 바른 자세를 목적으로 합니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 탭2: 성인 발레 (category=adult_ballet) -->
+      <!-- [API-DATA] SELECT * FROM course WHERE category='adult_ballet' AND is_active=1 ORDER BY sort_order ASC -->
+      <div class="tab-pane fade" id="adult_ballet" role="tabpanel">
+        <div class="row g-4">
+          <div class="col-md-6 col-lg-4">
+            <div class="course-card">
+              <span class="badge bg-dark level-badge mb-2">입문</span>
+              <h5 class="fw-bold mb-1">입문반</h5>
+              <p class="small text-muted mb-3">수강 조건: 발레 첫 시작</p>
+              <hr>
+              <p class="small mb-1"><strong>수업 구성</strong>: 매트 · 손 허리바 · 기초 센터</p>
+              <p class="small mb-0"><strong>수강료</strong>: [임시] 금액</p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <div class="course-card">
+              <span class="badge bg-dark level-badge mb-2">Lv. 0.5</span>
+              <h5 class="fw-bold mb-1">기초반</h5>
+              <p class="small text-muted mb-3">수강 조건: 기초 3개월 이상</p>
+              <hr>
+              <p class="small mb-1"><strong>수업 구성</strong>: 매트 · 한 손바 · 센터</p>
+              <p class="small mb-0"><strong>수강료</strong>: [임시] 금액</p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <div class="course-card">
+              <span class="badge bg-dark level-badge mb-2">Lv. 1</span>
+              <h5 class="fw-bold mb-1">초급반</h5>
+              <p class="small text-muted mb-3">수강 조건: 배운 경험 6개월 이상</p>
+              <hr>
+              <p class="small mb-1"><strong>수업 구성</strong>: 매트 · 한 손바 · 센터(기본+테크닉) · 몸 방향 시작</p>
+              <p class="small mb-0"><strong>수강료</strong>: [임시] 금액</p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <div class="course-card">
+              <span class="badge bg-dark level-badge mb-2">Lv. 1.5</span>
+              <h5 class="fw-bold mb-1">중급반</h5>
+              <p class="small text-muted mb-3">수강 조건: 배운 경험 1년 이상</p>
+              <hr>
+              <p class="small mb-1"><strong>수업 구성</strong>: 한 손바 · 센터</p>
+              <p class="small mb-0"><strong>수강료</strong>: [임시] 금액</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 탭3: 기타 과정 (category=etc) -->
+      <!-- [API-DATA] SELECT * FROM course WHERE category='etc' AND is_active=1 ORDER BY sort_order ASC -->
+      <div class="tab-pane fade" id="etc" role="tabpanel">
+        <div class="row g-4">
+          <div class="col-md-6 col-lg-4">
+            <div class="course-card">
+              <span class="badge bg-secondary level-badge mb-2">성인 전 레벨</span>
+              <h5 class="fw-bold mb-1">개인레슨</h5>
+              <p class="small text-muted mb-3">수강 조건: 성인 전 레벨</p>
+              <hr>
+              <p class="small mb-1"><strong>수업 구성</strong>: 별도 상담 후 일정 조율</p>
+              <!-- 개인레슨 수강료: "문의 후 안내" 고정 (DB 값 무시) -->
+              <p class="small mb-0"><strong>수강료</strong>: <span class="text-muted">문의 후 안내</span></p>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <div class="course-card border-secondary">
+              <span class="badge bg-light text-dark level-badge mb-2">유아</span>
+              <h5 class="fw-bold mb-1">유아반</h5>
+              <!-- [임시] 유아반 상세 미정 -->
+              <p class="small text-muted">[임시] 내용 준비 중입니다.</p>
+              <a href="P06_inquiry_write.html" class="btn btn-sm btn-outline-secondary">문의하기</a>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <div class="course-card border-secondary">
+              <span class="badge bg-light text-dark level-badge mb-2">청소년</span>
+              <h5 class="fw-bold mb-1">청소년반</h5>
+              <!-- [임시] 청소년반 상세 미정 -->
+              <p class="small text-muted">[임시] 내용 준비 중입니다.</p>
+              <a href="P06_inquiry_write.html" class="btn btn-sm btn-outline-secondary">문의하기</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-content -->
+
+    <!-- [SECTION: REGISTER_INFO] 등록 안내 (정적) -->
+    <div class="mt-5 p-4 bg-light rounded border">
+      <h5 class="mb-3">등록 안내</h5>
+      <p class="small text-muted mb-1">[임시] 등록 절차 안내 내용이 들어갑니다.</p>
+      <p class="small text-muted mb-0">[임시] 준비물 안내 내용이 들어갑니다.</p>
+    </div>
+    <!-- [/SECTION: REGISTER_INFO] -->
+
+  </div>
+</section>
+<!-- [/SECTION: COURSE_TABS] -->
+
+<!-- [SECTION: CTA] -->
+<section class="py-5 bg-dark text-white text-center">
+  <div class="container">
+    <h3 class="fw-light mb-3">과정에 대해 더 궁금하신가요?</h3>
+    <a href="P06_inquiry_write.html" class="btn btn-light btn-lg">수강 문의하기</a>
+  </div>
+</section>
+<!-- [/SECTION: CTA] -->
+
+<!-- [SECTION: FOOTER] -->
+<footer class="py-4 bg-light border-top">
+  <div class="container text-center text-muted small">
+    <p class="mb-1"><strong>YN발레아카데미</strong></p>
+    <p class="mb-1">[임시] 주소 | 전화: 000-0000-0000</p>
+    <p class="mb-0">© 2026 YN발레아카데미. All rights reserved.</p>
+  </div>
+</footer>
+<!-- [/SECTION: FOOTER] -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // URL ?tab= 파라미터로 초기 탭 제어
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get('tab');
+  if (tab) {
+    const el = document.getElementById('tab-' + tab.replace('adult_ballet','adult'));
+    if (el) { el.click(); }
+  }
+</script>
+</body>
+</html>

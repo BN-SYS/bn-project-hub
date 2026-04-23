@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[A06] 과정 등록 — YN발레아카데미 관리자</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+  .admin-sidebar { width:200px; min-height:100vh; background:#212529; }
+  .admin-sidebar .nav-link { color:#adb5bd; }
+  .admin-sidebar .nav-link.active, .admin-sidebar .nav-link:hover { color:#fff; }
+  .admin-main { flex:1; }
+  .admin-topbar { background:#fff; border-bottom:1px solid #dee2e6; padding:12px 24px; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [A06] 과정 등록
+  PATH   : /admin/course_write.php
+  SPEC   : data/specs/A06.js
+  APIs   : POST /admin/course_write.php
+           INSERT INTO course (title, category, level_badge, target,
+             class_structure, fee, description, is_active, sort_order)
+           sort_order: 해당 카테고리 내 마지막 + 1
+  NOTE   : fee = "문의 후 안내" 고정 여부: 개인레슨(PR-01)만 해당.
+           나머지는 직접 입력. 관리자 세션 없으면 redirect.
+           저장 성공 → /admin/course_list.php redirect.
+============================================================ -->
+
+<div class="d-flex">
+
+  <!-- [SECTION: ADMIN_SIDEBAR] -->
+  <nav class="admin-sidebar d-flex flex-column p-3">
+    <a class="text-white fw-bold text-decoration-none mb-4" href="A02_admin_notice_list.html">YN 관리자</a>
+    <ul class="nav flex-column gap-1">
+      <li class="nav-item">
+        <span class="nav-link text-muted small px-0 mb-1">콘텐츠 관리</span>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link px-2 rounded" href="A02_admin_notice_list.html">공지사항</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active px-2 rounded" href="A05_admin_course_list.html">과정 관리</a>
+      </li>
+      <li class="nav-item mt-3">
+        <span class="nav-link text-muted small px-0 mb-1">문의 관리</span>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link px-2 rounded" href="A08_admin_inquiry_list.html">문의 목록</a>
+      </li>
+    </ul>
+    <div class="mt-auto">
+      <a href="/admin/logout.php" class="nav-link text-muted small px-2">로그아웃</a>
+    </div>
+  </nav>
+  <!-- [/SECTION: ADMIN_SIDEBAR] -->
+
+  <div class="admin-main">
+
+    <!-- [SECTION: ADMIN_TOPBAR] -->
+    <div class="admin-topbar d-flex align-items-center justify-content-between">
+      <h1 class="h6 mb-0 fw-bold">과정 등록</h1>
+      <a href="A05_admin_course_list.html" class="btn btn-outline-secondary btn-sm">← 목록</a>
+    </div>
+    <!-- [/SECTION: ADMIN_TOPBAR] -->
+
+    <!-- [SECTION: COURSE_WRITE_FORM] 과정 등록 폼
+      POST /admin/course_write.php
+      INSERT INTO course (title, category, level_badge, target,
+        class_structure, fee, description, is_active, sort_order)
+    ──────────────────────────────────────── -->
+    <div class="p-4" style="max-width:680px;">
+
+      <!-- [FORM: course_write]
+        action: POST /admin/course_write.php
+        fields:
+          title           — 과정명, text, required, 1–100자
+          category        — 카테고리, select, required (somatic/adult_ballet/etc)
+          level_badge     — 레벨 배지, text, optional (입문/Lv.0.5/Lv.1/Lv.1.5/전 연령 성인 등)
+          target          — 수강 조건, text, optional
+          class_structure — 수업 구성, text, optional
+          fee             — 수강료, text, optional (개인레슨: "문의 후 안내" 고정 안내)
+          description     — 과정 설명, textarea, optional, 500자 이내
+          is_active       — 노출 여부, radio(1/0), 기본값:1
+        sort_order: 해당 category 내 마지막 + 1 (서버 자동 처리)
+        CSRF: hidden _token
+      -->
+      <form id="course_write" action="/admin/course_write.php" method="POST">
+        <input type="hidden" name="_token" value="[CSRF_TOKEN]">
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-8">
+            <label for="title" class="form-label fw-medium">과정명 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="title" name="title"
+              maxlength="100" placeholder="과정명을 입력하세요" required>
+          </div>
+          <div class="col-md-4">
+            <label for="category" class="form-label fw-medium">카테고리 <span class="text-danger">*</span></label>
+            <select class="form-select" id="category" name="category" required>
+              <option value="">선택</option>
+              <option value="somatic">소매틱+발레 스트레칭</option>
+              <option value="adult_ballet">성인 발레</option>
+              <option value="etc">기타 과정</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label for="level_badge" class="form-label fw-medium">레벨 배지</label>
+            <input type="text" class="form-control" id="level_badge" name="level_badge"
+              maxlength="20" placeholder="예: 입문 / Lv.1 / 전 연령">
+          </div>
+          <div class="col-md-8">
+            <label for="target" class="form-label fw-medium">수강 조건</label>
+            <input type="text" class="form-control" id="target" name="target"
+              maxlength="100" placeholder="예: 발레 첫 시작 / 배운 경험 6개월 이상">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="class_structure" class="form-label fw-medium">수업 구성</label>
+          <input type="text" class="form-control" id="class_structure" name="class_structure"
+            maxlength="200" placeholder="예: 매트 · 한 손바 · 센터">
+        </div>
+
+        <div class="mb-3">
+          <label for="fee" class="form-label fw-medium">수강료</label>
+          <input type="text" class="form-control" id="fee" name="fee"
+            maxlength="100" placeholder="예: 월 OOO,000원 (개인레슨은 &quot;문의 후 안내&quot; 입력)">
+          <div class="form-text text-muted">개인레슨(PR-01)은 "문의 후 안내"를 입력하세요. 프론트에서 고정 표시됩니다.</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label fw-medium">과정 설명</label>
+          <textarea class="form-control" id="description" name="description"
+            rows="4" maxlength="500"
+            placeholder="과정 소개 문구를 입력하세요 (500자 이내)"></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-medium">노출 여부</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="is_active" id="active-yes" value="1" checked>
+              <label class="form-check-label" for="active-yes">노출</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="is_active" id="active-no" value="0">
+              <label class="form-check-label" for="active-no">숨김</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-dark">저장</button>
+          <a href="A05_admin_course_list.html" class="btn btn-outline-secondary">취소</a>
+        </div>
+
+      </form>
+      <!-- [/FORM: course_write] -->
+
+    </div>
+    <!-- [/SECTION: COURSE_WRITE_FORM] -->
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

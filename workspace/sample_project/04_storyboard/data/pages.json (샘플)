@@ -1,0 +1,32 @@
+[
+  {
+    "id": "DOC-01",
+    "section": "doc",
+    "group": "Documents",
+    "name": "Document History",
+    "path": "#",
+    "img": "doc-history.png",
+    "tags": [],
+    "desc": "문서 버전 이력"
+  },
+  {
+    "id": "U01",
+    "section": "user",
+    "group": "메인",
+    "name": "홈 메인",
+    "path": "../outputs/index.html",
+    "img": "U01_홈_메인.png",
+    "tags": [],
+    "desc": "사이트 진입점"
+  },
+  {
+    "id": "A01",
+    "section": "admin",
+    "group": "회원관리",
+    "name": "회원 목록",
+    "path": "../outputs/admin/members.html",
+    "img": "A01_회원_목록.png",
+    "tags": [],
+    "desc": "전체 회원 목록"
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp \"/c/Users/BN659/Desktop/BN_SYS/_agents/pm-assistant.md\" \"/c/Users/BN659/Desktop/BN_SYS/workspace/YNballet-academy/.claude/agents/\")",
+      "Bash(cp \"/c/Users/BN659/Desktop/BN_SYS/_agents/planning-agent.md\" \"/c/Users/BN659/Desktop/BN_SYS/workspace/YNballet-academy/.claude/agents/\")",
+      "Bash(cp \"/c/Users/BN659/Desktop/BN_SYS/_agents/storyboard-agent.md\" \"/c/Users/BN659/Desktop/BN_SYS/workspace/YNballet-academy/.claude/agents/\")",
+      "Bash(cp \"/c/Users/BN659/Desktop/BN_SYS/_agents/dev-qa-agent.md\" \"/c/Users/BN659/Desktop/BN_SYS/workspace/YNballet-academy/.claude/agents/\")",
+      "Bash(cp \"/c/Users/BN659/Desktop/BN_SYS/_agents/delivery-agent.md\" \"/c/Users/BN659/Desktop/BN_SYS/workspace/YNballet-academy/.claude/agents/\")",
+      "PowerShell(& \"C:\\\\xampp\\\\apache\\\\bin\\\\httpd.exe\" -k restart 2>&1)",
+      "Bash(tasklist)"
+    ]
+  }
+}

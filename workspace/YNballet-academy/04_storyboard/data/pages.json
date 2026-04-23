@@ -1,0 +1,19 @@
+[
+  { "id": "P01", "name": "랜딩페이지",       "path": "P01_landing.html",          "section": "user",  "img": "P01.png", "tags": [] },
+  { "id": "P02", "name": "아카데미 소개",     "path": "P02_about.html",            "section": "user",  "img": "P02.png", "tags": [] },
+  { "id": "P03", "name": "과정소개",          "path": "P03_course.html",           "section": "user",  "img": "P03.png", "tags": [] },
+  { "id": "P04", "name": "공지 목록",         "path": "P04_notice_list.html",      "section": "user",  "img": "P04.png", "tags": [] },
+  { "id": "P05", "name": "공지 상세",         "path": "P05_notice_view.html",      "section": "user",  "img": "P05.png", "tags": [] },
+  { "id": "P06", "name": "문의 작성",         "path": "P06_inquiry_write.html",    "section": "user",  "img": "P06.png", "tags": [] },
+  { "id": "P07", "name": "문의 목록",         "path": "P07_inquiry_list.html",     "section": "user",  "img": "P07.png", "tags": [] },
+  { "id": "P08", "name": "문의 상세",         "path": "P08_inquiry_view.html",     "section": "user",  "img": "P08.png", "tags": [] },
+  { "id": "A01", "name": "관리자 로그인",     "path": "A01_admin_login.html",      "section": "admin", "img": "A01.png", "tags": [] },
+  { "id": "A02", "name": "공지 목록(관리)",   "path": "A02_admin_notice_list.html","section": "admin", "img": "A02.png", "tags": [] },
+  { "id": "A03", "name": "공지 등록",         "path": "A03_admin_notice_write.html","section": "admin","img": "A03.png", "tags": [] },
+  { "id": "A04", "name": "공지 수정",         "path": "A04_admin_notice_edit.html","section": "admin", "img": "A04.png", "tags": [] },
+  { "id": "A05", "name": "과정 목록(관리)",   "path": "A05_admin_course_list.html","section": "admin", "img": "A05.png", "tags": [] },
+  { "id": "A06", "name": "과정 등록",         "path": "A06_admin_course_write.html","section": "admin","img": "A06.png", "tags": [] },
+  { "id": "A07", "name": "과정 수정",         "path": "A07_admin_course_edit.html","section": "admin", "img": "A07.png", "tags": [] },
+  { "id": "A08", "name": "문의 목록(관리)",   "path": "A08_admin_inquiry_list.html","section": "admin","img": "A08.png", "tags": [] },
+  { "id": "A09", "name": "문의 상세/답변",    "path": "A09_admin_inquiry_view.html","section": "admin","img": "A09.png", "tags": [] }
+]
