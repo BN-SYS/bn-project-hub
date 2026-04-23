@@ -61,4 +61,16 @@ const PROJECTS = [
     ],
   },
   */
+  {
+    manager:    'EunAh',
+    id:         '-',
+    client:     '-',
+    title:      '기존 프로젝트 경로',
+    type:       '링크연결',
+    status:     ['complete'],
+    updated:    '2026-04-23',
+     docs: [
+      { name: '링크', url: 'https://bn-sys.github.io/pm-workspace/?token=bn2026' },
+    ],
+  },
 ];
