@@ -374,13 +374,13 @@ textarea#memoInput:focus {
         <td class="amount">0</td>
       </tr>
       <tr>
-        <td>프론트엔드</td>
+        <td>퍼블리싱</td>
         <td><input type="number" value="239748" oninput="calculate(this)" tabindex="-1"></td>
         <td><input type="number" value="0" tabindex="4" onfocus="clearZero(this)" onblur="restoreZero(this)" oninput="calculate(this)"></td>
         <td class="amount">0</td>
       </tr>
       <tr>
-        <td>백엔드</td>
+        <td>개발</td>
         <td><input type="number" value="305433" oninput="calculate(this)" tabindex="-1"></td>
         <td><input type="number" value="0" tabindex="5" onfocus="clearZero(this)" onblur="restoreZero(this)" oninput="calculate(this)"></td>
         <td class="amount">0</td>
@@ -424,16 +424,16 @@ textarea#memoInput:focus {
       <span class="summary-label">제경비</span>
       <span class="summary-value"><span id="s-expense">0</span><span class="unit">원</span></span>
     </div>
-    <div class="summary-row subtotal" style="border-top: 1px solid var(--border);">
+    <!-- <div class="summary-row subtotal" style="border-top: 1px solid var(--border);">
       <span class="summary-label">공급가액</span>
       <span class="summary-value"><span id="s-supply">0</span><span class="unit">원</span></span>
-    </div>
-    <div class="summary-row vat">
+    </div> -->
+    <!-- <div class="summary-row vat">
       <span class="summary-label">부가가치세 (10%)</span>
       <span class="summary-value"><span id="s-vat">0</span><span class="unit">원</span></span>
-    </div>
+    </div> -->
     <div class="summary-row grand">
-      <span class="summary-label">합 계 (총액)</span>
+      <span class="summary-label">총 합계 (공급가액, 부가가치세 별도)</span>
       <span class="summary-value"><span id="s-total">0</span><span class="unit">원</span></span>
     </div>
   </div>
@@ -504,13 +504,13 @@ function updateAll() {
   const expense = Math.round(labor * rate / 100);
 
   // 공급가액 = 인건비 + 제경비
-  const supply  = labor + expense;
+//   const supply  = labor + expense;
 
   // 부가가치세
-  const vat     = Math.round(supply * 0.1);
+//   const vat     = Math.round(supply * 0.1);
 
   // 합계
-  const total   = supply + vat;
+  const total   = labor + expense; // supply + vat;
 
   // 테이블 내 표시
   document.getElementById('laborSubtotal').innerText = labor.toLocaleString('ko-KR');
@@ -519,8 +519,8 @@ function updateAll() {
   // 합계 박스
   document.getElementById('s-labor').innerText   = labor.toLocaleString('ko-KR');
   document.getElementById('s-expense').innerText = expense.toLocaleString('ko-KR');
-  document.getElementById('s-supply').innerText  = supply.toLocaleString('ko-KR');
-  document.getElementById('s-vat').innerText     = vat.toLocaleString('ko-KR');
+//   document.getElementById('s-supply').innerText  = supply.toLocaleString('ko-KR');
+//   document.getElementById('s-vat').innerText     = vat.toLocaleString('ko-KR');
   document.getElementById('s-total').innerText   = total.toLocaleString('ko-KR');
 }
 
