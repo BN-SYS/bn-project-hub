@@ -2,231 +2,460 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>견적서</title>
-
+<title>비엔시스템_견적서</title>
 <style>
+/* ══════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:    #1B3A6B;
+  --blue:    #2563EB;
+  --blue-lt: #EFF4FF;
+  --gray1:   #F8FAFC;
+  --gray2:   #E9EEF5;
+  --gray3:   #94A3B8;
+  --gray4:   #475569;
+  --dark:    #1E293B;
+  --white:   #FFFFFF;
+  --accent:  #2563EB;
+  --border:  #D1D9E6;
+  --radius:  10px;
+  --shadow:  0 4px 24px rgba(27,58,107,.10);
+}
+
 body {
-    font-family: 'Noto Sans KR', Arial;
-    padding: 40px;
-    color: #333;
+  font-family: 'Noto Sans KR', 'Malgun Gothic', Arial, sans-serif;
+  background: #EEF2F9;
+  color: var(--dark);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 16px;
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 30px;
+/* ══════════════════════════════════════════
+   CARD WRAPPER
+══════════════════════════════════════════ */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 760px;
+  padding: 48px 52px 40px;
 }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+/* ══════════════════════════════════════════
+   DOCUMENT HEADER
+══════════════════════════════════════════ */
+.doc-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--navy);
+  padding-bottom: 20px;
+  margin-bottom: 32px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
+.doc-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--navy);
+  letter-spacing: .04em;
 }
 
-th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
+.doc-meta {
+  text-align: right;
+  font-size: 13px;
+  color: var(--gray4);
+  line-height: 1.8;
 }
 
-th {
-    background: #f8f8f8;
+.doc-meta strong {
+  color: var(--dark);
+  font-weight: 600;
 }
 
-input {
-    width: 90%;
-    border: none;
-    text-align: right;
+.doc-meta .date-value {
+  display: inline-block;
+  background: var(--blue-lt);
+  color: var(--blue);
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  margin-left: 4px;
 }
 
-.total-box {
-    text-align: right;
-    margin-top: 20px;
-    font-size: 18px;
-    font-weight: bold;
+/* ══════════════════════════════════════════
+   TABLE
+══════════════════════════════════════════ */
+.estimate-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
 }
 
-textarea {
-    width: 100%;
-    height: 120px;
-    margin-top: 10px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    resize: none;
+.estimate-table thead tr {
+  background: var(--navy);
+  color: var(--white);
 }
 
-/* PDF 출력용 메모 */
+.estimate-table thead th {
+  padding: 13px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-align: center;
+  border: none;
+}
+
+.estimate-table thead th:first-child { border-radius: 6px 0 0 6px; }
+.estimate-table thead th:last-child  { border-radius: 0 6px 6px 0; }
+
+.estimate-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+
+/* zebra */
+.estimate-table tbody tr:nth-child(even) {
+  background: var(--gray1);
+}
+
+.estimate-table tbody tr:hover {
+  background: var(--blue-lt);
+}
+
+.estimate-table tbody td {
+  padding: 11px 16px;
+  font-size: 14px;
+  text-align: center;
+  border: none;
+}
+
+.estimate-table tbody td:first-child {
+  font-weight: 600;
+  color: var(--navy);
+  text-align: left;
+  padding-left: 20px;
+}
+
+/* ── inputs ── */
+.estimate-table input[type="number"] {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: right;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--dark);
+  outline: none;
+  padding: 4px 2px;
+  border-bottom: 1px dashed transparent;
+  transition: border-color .2s;
+}
+
+.estimate-table input[type="number"]:focus {
+  border-bottom-color: var(--blue);
+  background: rgba(37,99,235,.04);
+  border-radius: 3px;
+}
+
+/* 금액 td */
+.amount {
+  font-weight: 700;
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══════════════════════════════════════════
+   TOTAL ROW
+══════════════════════════════════════════ */
+.total-section {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 18px 20px;
+  background: var(--blue-lt);
+  border-radius: 8px;
+  border: 1px solid rgba(37,99,235,.18);
+}
+
+.total-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray4);
+}
+
+.total-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
+}
+
+.total-unit {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray4);
+}
+
+.rounding-note {
+  text-align: right;
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--gray3);
+}
+
+/* ══════════════════════════════════════════
+   MEMO SECTION
+══════════════════════════════════════════ */
+.section-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gray4);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin: 28px 0 8px;
+}
+
+textarea#memoInput {
+  width: 100%;
+  height: 100px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13.5px;
+  color: var(--dark);
+  resize: vertical;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  background: var(--gray1);
+}
+
+textarea#memoInput:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+  background: var(--white);
+}
+
 #printMemo {
-    display: none;
-    white-space: pre-wrap;
-    border: 1px solid #ccc;
-    padding: 10px;
-    min-height: 120px;
+  display: none;
+  white-space: pre-wrap;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  min-height: 80px;
+  font-size: 13.5px;
+  background: var(--gray1);
 }
 
-.buttons {
-    margin-top: 20px;
+/* ══════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════ */
+.btn-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 28px;
 }
 
-button {
-    padding: 8px 14px;
-    margin-right: 5px;
+.btn {
+  padding: 10px 24px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .18s, transform .1s, box-shadow .18s;
 }
 
-/* 📄 출력 최적화 */
+.btn:active { transform: translateY(1px); }
+
+.btn-reset {
+  background: var(--gray2);
+  color: var(--gray4);
+}
+.btn-reset:hover { background: #D1D9E6; }
+
+.btn-pdf {
+  background: var(--navy);
+  color: var(--white);
+  box-shadow: 0 2px 8px rgba(27,58,107,.25);
+}
+.btn-pdf:hover {
+  background: #142d56;
+  box-shadow: 0 4px 14px rgba(27,58,107,.35);
+}
+
+/* ══════════════════════════════════════════
+   PRINT
+══════════════════════════════════════════ */
 @media print {
-    button {
-        display: none;
-    }
-    textarea {
-        display: none;
-    }
-    #printMemo {
-        display: block !important;
-    }
+  body { background: white; padding: 0; }
+  .card { box-shadow: none; border-radius: 0; padding: 30px 36px; max-width: 100%; }
+  .btn-row { display: none; }
+  textarea { display: none; }
+  #printMemo { display: block !important; }
+  .rounding-note { display: block; }
+  .estimate-table tbody tr:hover { background: transparent; }
+  .estimate-table tbody tr:nth-child(even) { background: #F8FAFC; }
+  .total-section { border: 1px solid #D1D9E6; background: #F0F4FF; }
 }
 </style>
-
 </head>
 <body>
 
-<h1>견적서</h1>
+<div class="card">
 
-<div class="header">
-    <div>업체명: 비엔시스템</div>
-    <div>날짜: <input type="text" id="today" readonly></div>
-</div>
+  <!-- 문서 헤더 -->
+  <div class="doc-header">
+    <div class="doc-title">견 적 서</div>
+    <div class="doc-meta">
+      <div><strong>업체명</strong>&nbsp;&nbsp;비엔시스템</div>
+      <div><strong>작성일</strong>&nbsp;&nbsp;<span class="date-value" id="today"></span></div>
+    </div>
+  </div>
 
-<table id="estimateTable">
-<thead>
-<tr>
-    <th>직무</th>
-    <th>단가</th>
-    <th>일수</th>
-    <th>금액</th>
-</tr>
-</thead>
+  <!-- 견적 테이블 -->
+  <table class="estimate-table" id="estimateTable">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding-left:20px;">직 무</th>
+        <th>단 가 (원)</th>
+        <th>일 수</th>
+        <th>금 액 (원)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>PM</td>
+        <td><input type="number" value="239748" oninput="calculate(this)" tabindex="-1"></td>
+        <td><input type="number" value="0" tabindex="1" onfocus="clearZero(this)" onblur="restoreZero(this)" oninput="calculate(this)"></td>
+        <td class="amount">0</td>
+      </tr>
+      <tr>
+        <td>기획</td>
+        <td><input type="number" value="239748" oninput="calculate(this)" tabindex="-1"></td>
+        <td><input type="number" value="0" tabindex="2" onfocus="clearZero(this)" onblur="restoreZero(this)" oninput="calculate(this)"></td>
+        <td class="amount">0</td>
+      </tr>
+      <tr>
+        <td>디자인</td>
+        <td><input type="number" value="239748" oninput="calculate(this)" tabindex="-1"></td>
+        <td><input type="number" value="0" tabindex="3" onfocus="clearZero(this)" onblur="restoreZero(this)" oninput="calculate(this)"></td>
+        <td class="amount">0</td>
+      </tr>
+      <tr>
+        <td>프론트엔드</td>
+        <td><input type="number" value="239748" oninput="calculate(this)" tabindex="-1"></td>
+        <td><input type="number" value="0" tabindex="4" onfocus="clearZero(this)" onblur="restoreZero(this)" oninput="calculate(this)"></td>
+        <td class="amount">0</td>
+      </tr>
+      <tr>
+        <td>백엔드</td>
+        <td><input type="number" value="305433" oninput="calculate(this)" tabindex="-1"></td>
+        <td><input type="number" value="0" tabindex="5" onfocus="clearZero(this)" onblur="restoreZero(this)" oninput="calculate(this)"></td>
+        <td class="amount">0</td>
+      </tr>
+      <tr>
+        <td>검수</td>
+        <td><input type="number" value="239748" oninput="calculate(this)" tabindex="-1"></td>
+        <td><input type="number" value="0" tabindex="6" onfocus="clearZero(this)" onblur="restoreZero(this)" oninput="calculate(this)"></td>
+        <td class="amount">0</td>
+      </tr>
+    </tbody>
+  </table>
 
-<tbody>
+  <!-- 합계 -->
+  <div class="total-section">
+    <span class="total-label">총 합계</span>
+    <span class="total-value" id="total">0</span>
+    <span class="total-unit">원</span>
+  </div>
+  <div class="rounding-note">※ 금액은 소수점 첫째 자리에서 반올림하여 표시됩니다.</div>
 
-<tr>
-    <td>PM</td>
-    <td><input type="number" value="300000" oninput="calculate(this)"></td>
-    <td><input type="number" value="0" oninput="calculate(this)"></td>
-    <td class="amount">0</td>
-</tr>
+  <!-- 비고 -->
+  <div class="section-label">비 고</div>
+  <textarea id="memoInput" placeholder="추가 설명, 조건 등을 입력하세요"></textarea>
+  <div id="printMemo"></div>
 
-<tr>
-    <td>기획</td>
-    <td><input type="number" value="250000" oninput="calculate(this)"></td>
-    <td><input type="number" value="0" oninput="calculate(this)"></td>
-    <td class="amount">0</td>
-</tr>
+  <!-- 버튼 -->
+  <div class="btn-row">
+    <button class="btn btn-reset" onclick="resetTable()">초기화</button>
+    <button class="btn btn-pdf"   onclick="savePDF()">PDF 저장</button>
+  </div>
 
-<tr>
-    <td>디자인</td>
-    <td><input type="number" value="280000" oninput="calculate(this)"></td>
-    <td><input type="number" value="0" oninput="calculate(this)"></td>
-    <td class="amount">0</td>
-</tr>
-
-<tr>
-    <td>프론트엔드</td>
-    <td><input type="number" value="350000" oninput="calculate(this)"></td>
-    <td><input type="number" value="0" oninput="calculate(this)"></td>
-    <td class="amount">0</td>
-</tr>
-
-<tr>
-    <td>백엔드</td>
-    <td><input type="number" value="380000" oninput="calculate(this)"></td>
-    <td><input type="number" value="0" oninput="calculate(this)"></td>
-    <td class="amount">0</td>
-</tr>
-
-</tbody>
-</table>
-
-<div class="total-box">
-    총 합계: <span id="total">0</span> 원
-</div>
-
-<h3>비고</h3>
-
-<textarea id="memoInput" placeholder="추가 설명, 조건 등을 입력하세요"></textarea>
-
-<div id="printMemo"></div>
-
-<div class="buttons">
-    <button onclick="resetTable()">초기화</button>
-    <button onclick="savePDF()">PDF 저장</button>
 </div>
 
 <script>
-// 날짜 자동 입력
 window.onload = function() {
-    const d = new Date();
-    document.getElementById('today').value =
-        d.getFullYear() + '-' +
-        String(d.getMonth()+1).padStart(2,'0') + '-' +
-        String(d.getDate()).padStart(2,'0');
-
-    updateTotal();
+  const d = new Date();
+  document.getElementById('today').textContent =
+    d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+  updateTotal();
 };
 
-// 금액 계산
+function clearZero(el) {
+  if (el.value === '0') el.value = '';
+}
+
+function restoreZero(el) {
+  if (el.value === '' || el.value === null) {
+    el.value = 0;
+    calculate(el);
+  }
+}
+
 function calculate(el) {
-    const row = el.closest('tr');
-    const price = row.children[1].querySelector('input').value || 0;
-    const days = row.children[2].querySelector('input').value || 0;
-    const amount = price * days;
-
-    row.children[3].innerText = Number(amount).toLocaleString();
-    updateTotal();
+  const row   = el.closest('tr');
+  const price = parseFloat(row.children[1].querySelector('input').value) || 0;
+  const days  = parseFloat(row.children[2].querySelector('input').value) || 0;
+  const amount = Math.round(price * days * 10) / 10;
+  row.children[3].innerText = amount.toLocaleString('ko-KR', {
+    minimumFractionDigits: 0, maximumFractionDigits: 1
+  });
+  updateTotal();
 }
 
-// 총합 계산
 function updateTotal() {
-    let total = 0;
-    document.querySelectorAll('.amount').forEach(td => {
-        total += Number(td.innerText.replace(/,/g,'')) || 0;
-    });
-    document.getElementById('total').innerText = total.toLocaleString();
+  let total = 0;
+  document.querySelectorAll('.amount').forEach(td => {
+    total += parseFloat(td.innerText.replace(/,/g,'')) || 0;
+  });
+  total = Math.round(total);
+  document.getElementById('total').innerText = total.toLocaleString('ko-KR');
 }
 
-// 초기화
 function resetTable() {
-    if (!confirm("초기화 하시겠습니까?")) return;
-
-    document.querySelectorAll('#estimateTable tbody tr').forEach(row => {
-        row.children[2].querySelector('input').value = 0;
-        row.children[3].innerText = 0;
-    });
-
-    document.getElementById('memoInput').value = '';
-    updateTotal();
+  if (!confirm('초기화 하시겠습니까?')) return;
+  document.querySelectorAll('#estimateTable tbody tr').forEach(row => {
+    row.children[2].querySelector('input').value = 0;
+    row.children[3].innerText = 0;
+  });
+  document.getElementById('memoInput').value = '';
+  updateTotal();
 }
 
-// PDF 저장 (메모 변환 포함)
 function savePDF() {
-    const memoInput = document.getElementById('memoInput');
-    const printMemo = document.getElementById('printMemo');
-
-    // textarea → div 변환
-    printMemo.innerText = memoInput.value;
-
-    memoInput.style.display = 'none';
-    printMemo.style.display = 'block';
-
-    window.print();
-
-    // 복구
-    memoInput.style.display = 'block';
-    printMemo.style.display = 'none';
+  const memoInput = document.getElementById('memoInput');
+  const printMemo = document.getElementById('printMemo');
+  printMemo.innerText = memoInput.value;
+  memoInput.style.display = 'none';
+  printMemo.style.display = 'block';
+  window.print();
+  memoInput.style.display = 'block';
+  printMemo.style.display = 'none';
 }
 </script>
 
