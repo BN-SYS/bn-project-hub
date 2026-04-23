@@ -12,8 +12,8 @@
 const MANAGERS = [
   {
     id:    'JuHan',
-    name:  '',
-    role:  'PM',
+    name:  '신주한',
+    role:  'PM팀장',
     color: '#4f7fff',
   },
   {
