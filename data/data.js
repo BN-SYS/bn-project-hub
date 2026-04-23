@@ -11,10 +11,16 @@
 ─────────────────────────────────────────────────────── */
 const MANAGERS = [
   {
+    id:    'JuHan',
+    name:  '',
+    role:  'PM',
+    color: '#4f7fff',
+  },
+  {
     id:    'EunAh',
     name:  '배은아',
     role:  'PM',
-    color: '#4f7fff',
+    color: '#e24f14',
   },
   /* 담당자 추가 예시
   {
