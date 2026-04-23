@@ -22,19 +22,23 @@
       <thead class="table-light">
         <tr>
           <th class="text-center" style="width:56px;">No.</th>
-          <th style="width:120px;">이름</th>
-          <th>관심 과정</th>
+          <th style="width:100px;">이름</th>
+          <th style="width:130px;">연락처</th>
+          <th style="width:110px;">관심 과정</th>
+          <th>관리자메모</th>
           <th class="text-center" style="width:100px;">상태</th>
-          <th class="text-center" style="width:120px;">작성일</th>
+          <th class="text-center" style="width:110px;">작성일</th>
         </tr>
       </thead>
       <tbody>
         <?php foreach ($items as $i => $item): ?>
-        <tr style="cursor:pointer;"
+        <tr style="cursor:pointer;<?= (int)$item['status'] === 0 ? 'background:#FFF2F4;' : '' ?>"
           onclick="location.href='<?= BASE_PATH ?>/admin/inquiry/<?= (int)$item['id'] ?>'">
           <td class="text-center text-muted small"><?= $total - ($page - 1) * $perPage - $i ?></td>
-          <td class="col-name fw-medium"><?= e($item['name']) ?></td>
-          <td class="col-content small text-muted"><?= e($item['course_interest'] ?: '—') ?></td>
+          <td class="fw-medium"><?= e($item['name']) ?></td>
+          <td class="small text-muted" style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= e($item['contact'] ?: '—') ?></td>
+          <td class="small text-muted" style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= e($item['course_interest'] ?: '—') ?></td>
+          <td class="small text-muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= e($item['admin_memo'] ?: '—') ?></td>
           <td class="text-center"><?= inquiryBadge((int)$item['status']) ?></td>
           <td class="text-center small text-muted"><?= fmtDate($item['created_at']) ?></td>
         </tr>

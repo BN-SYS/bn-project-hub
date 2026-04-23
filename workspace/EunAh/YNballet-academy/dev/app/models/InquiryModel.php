@@ -10,7 +10,7 @@ class InquiryModel {
     public function paginate(int $page, int $perPage): array {
         $offset = ($page - 1) * $perPage;
         $stmt = $this->db->prepare(
-            'SELECT id, name, course_interest, status, created_at FROM inquiry ORDER BY created_at DESC LIMIT ? OFFSET ?'
+            'SELECT id, name, contact, course_interest, admin_memo, status, created_at FROM inquiry ORDER BY created_at DESC LIMIT ? OFFSET ?'
         );
         $stmt->execute([$perPage, $offset]);
         return $stmt->fetchAll();

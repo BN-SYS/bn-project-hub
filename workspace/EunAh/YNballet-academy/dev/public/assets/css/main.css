@@ -454,6 +454,11 @@ textarea.form-control {
   line-height: 1.8;
 }
 
+.notice-content .ql-align-center  { text-align: center; }
+.notice-content .ql-align-right   { text-align: right; }
+.notice-content .ql-align-justify { text-align: justify; }
+.notice-content .ql-align-center img { display: block; margin: 0 auto; }
+
 /* ─── 페이지네이션 ────────────────────────────────── */
 .pagination .page-link {
   color: var(--navy);

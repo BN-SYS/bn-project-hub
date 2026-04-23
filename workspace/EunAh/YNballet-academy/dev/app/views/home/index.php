@@ -77,7 +77,7 @@
 <!-- [SECTION: NOTICE] 최신 공지 -->
 <?php if ($notices): ?>
 <section class="py-5" style="background: var(--ivory);">
-  <div class="container" style="max-width:760px;">
+  <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4 reveal">
       <div>
         <span style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem;color:var(--gold);letter-spacing:.12em;display:block;margin-bottom:.25rem;">Notice</span>
@@ -85,11 +85,25 @@
       </div>
       <a href="<?= BASE_PATH ?>/notice" class="btn btn-yn-outline-navy btn-sm">더보기</a>
     </div>
-    <div class="reveal">
+    <div class="notice-grid reveal">
       <?php foreach ($notices as $n): ?>
-      <a href="<?= BASE_PATH ?>/notice/<?= (int)$n['id'] ?>" class="notice-list-item d-flex justify-content-between align-items-center">
-        <span class="notice-title"><?= e($n['title']) ?></span>
-        <span class="notice-date"><?= fmtDate($n['created_at']) ?></span>
+      <a href="<?= BASE_PATH ?>/notice/<?= (int)$n['id'] ?>" class="notice-card-link">
+        <div class="notice-card">
+          <?php if (!empty($n['is_pinned'])): ?>
+          <span class="notice-pin-badge">공지</span>
+          <?php endif; ?>
+          <?php if (!empty($n['thumbnail'])): ?>
+          <img class="notice-card-img" src="<?= e($n['thumbnail']) ?>" alt="<?= e($n['title']) ?>">
+          <?php else: ?>
+          <div class="notice-card-placeholder">
+            <span class="notice-card-placeholder-text"><?= e(mbTruncate($n['title'], 30)) ?></span>
+          </div>
+          <?php endif; ?>
+          <div class="notice-card-info">
+            <p class="notice-card-title"><?= e($n['title']) ?></p>
+            <p class="notice-card-date"><?= fmtDate($n['created_at']) ?></p>
+          </div>
+        </div>
       </a>
       <?php endforeach; ?>
     </div>

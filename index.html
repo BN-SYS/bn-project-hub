@@ -1,12 +1,915 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Innovation Team</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BN System · PM Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="common_assets/favicon.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #f0f3fa;
+      --bg2:     #ffffff;
+      --bg3:     #e8ecf5;
+      --border:  rgba(0,0,0,0.08);
+      --border2: rgba(0,0,0,0.15);
+      --text:    #1a1d2e;
+      --text2:   #3a3f5c;
+      --text3:   #7b85b0;
+      --accent:  #4f7fff;
+      --accent2: #7c5cff;
+      --green:   #16a865;
+      --amber:   #d48a10;
+      --red:     #e03e3e;
+      --teal:    #0ea5c9;
+      --radius:  12px;
+      --radius-sm: 6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Pretendard', -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(79,127,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,127,255,0.06) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; top: -200px; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 400px;
+      background: radial-gradient(ellipse, rgba(79,127,255,0.08) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrap {
+      position: relative; z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── 공통 헤더 ── */
+    header {
+      padding: 40px 0 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+
+    .logo-area { display: flex; flex-direction: column; gap: 6px; }
+
+    .logo-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; color: var(--accent);
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 26px; font-weight: 700;
+      letter-spacing: -0.02em; color: var(--text);
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-meta {
+      font-size: 12px; color: var(--text3);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ── 뒤로가기 버튼 ── */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      color: var(--text2); font-size: 12px;
+      font-family: inherit; cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .back-btn:hover { border-color: var(--border2); color: var(--text); }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       홈 화면 — 담당자 선택
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    #view-home { display: block; }
+
+    /* 공통 도구 섹션 */
+    .tools-section {
+      padding: 24px 0 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+    }
+
+    .section-label {
+      font-size: 11px; color: var(--text3);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      font-family: 'DM Mono', monospace;
+      margin-bottom: 12px;
+    }
+
+    .tool-cards {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+
+    .tool-card {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      text-decoration: none;
+      transition: all 0.2s;
+      min-width: 200px;
+    }
+
+    .tool-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    .tool-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .tool-info { display: flex; flex-direction: column; gap: 2px; }
+
+    .tool-name {
+      font-size: 13px; font-weight: 600; color: var(--text);
+    }
+
+    .tool-desc {
+      font-size: 11px; color: var(--text3);
+    }
+
+    /* 담당자 섹션 */
+    .managers-section { padding: 24px 0 60px; }
+
+    .manager-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .manager-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .manager-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+
+    .manager-card-bar { height: 3px; width: 100%; }
+
+    .manager-card-body {
+      padding: 20px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+
+    .manager-top {
+      display: flex; align-items: center; gap: 14px;
+    }
+
+    .manager-avatar {
+      height: 40px; width: auto;
+      padding: 0 14px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 700;
+      letter-spacing: -0.02em;
+      flex-shrink: 0; white-space: nowrap;
+    }
+
+    .manager-role {
+      font-size: 11px; color: var(--text3);
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+
+    .manager-stats {
+      display: flex; gap: 8px;
+    }
+
+    .mstat {
+      flex: 1;
+      background: var(--bg3);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      display: flex; flex-direction: column; gap: 2px;
+    }
+
+    .mstat-value {
+      font-size: 16px; font-weight: 700;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .mstat-label { font-size: 10px; color: var(--text3); }
+
+    .manager-enter {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px; color: var(--text3);
+      padding-top: 4px;
+    }
+
+    .manager-enter svg { transition: transform 0.15s; }
+    .manager-card:hover .manager-enter svg { transform: translateX(3px); }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       프로젝트 화면
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    #view-projects { display: none; }
+
+    .stats-bar {
+      display: flex; gap: 8px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 7px 14px;
+      transition: border-color 0.2s;
+    }
+
+    .stat-pill:hover { border-color: var(--border2); }
+
+    .stat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .stat-pill .label { color: var(--text2); font-size: 12px; }
+    .stat-pill .value {
+      color: var(--text); font-weight: 600;
+      font-size: 13px; font-family: 'DM Mono', monospace;
+    }
+
+    .toolbar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 20px 0 16px; flex-wrap: wrap;
+    }
+
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      flex: 1; min-width: 200px;
+      transition: border-color 0.2s;
+    }
+
+    .search-box:focus-within { border-color: var(--accent); }
+    .search-box svg { color: var(--text3); flex-shrink: 0; }
+
+    .search-box input {
+      background: none; border: none; outline: none;
+      color: var(--text); font-size: 13px; font-family: inherit; width: 100%;
+    }
+
+    .search-box input::placeholder { color: var(--text3); }
+
+    .filter-group { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .filter-btn {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 13px;
+      color: var(--text2); font-size: 12px;
+      font-family: inherit; cursor: pointer;
+      transition: all 0.15s; white-space: nowrap;
+    }
+
+    .filter-btn:hover { border-color: var(--border2); color: var(--text); }
+
+    .filter-btn.active {
+      background: rgba(79,127,255,0.12);
+      border-color: rgba(79,127,255,0.4);
+      color: var(--accent);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 14px; padding-bottom: 60px;
+    }
+
+    /* ── 프로젝트 카드 ── */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      cursor: default; position: relative;
+      display: flex; flex-direction: column;
+    }
+
+    .card:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+
+    .card-bar { height: 3px; width: 100%; }
+
+    .card-body {
+      padding: 18px 20px 16px;
+      display: flex; flex-direction: column; flex: 1;
+    }
+
+    .card-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px; margin-bottom: 10px;
+    }
+
+    .card-client {
+      font-size: 11px; font-weight: 500; color: var(--text3);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .card-title {
+      font-size: 15px; font-weight: 600; color: var(--text);
+      margin-top: 3px; letter-spacing: -0.01em; line-height: 1.4;
+    }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 500;
+      padding: 4px 9px; border-radius: 100px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+
+    .status-badge::before {
+      content: ''; width: 5px; height: 5px;
+      border-radius: 50%; background: currentColor;
+    }
+
+    .s-planning { background: rgba(79,127,255,0.12);  color: var(--accent);  }
+    .s-design   { background: rgba(124,92,255,0.12);  color: var(--accent2); }
+    .s-dev      { background: rgba(245,166,35,0.12);  color: var(--amber);   }
+    .s-complete { background: rgba(46,204,138,0.12);  color: var(--green);   }
+    .s-hold     { background: rgba(255,95,95,0.10);   color: var(--red);     }
+
+    .type-tag {
+      display: inline-block; font-size: 11px;
+      padding: 2px 8px; border-radius: var(--radius-sm);
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text3); margin-top: 8px;
+    }
+
+    .card-divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+    .proto-list { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+
+    .proto-item {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 8px;
+    }
+
+    .proto-name {
+      font-size: 12px; color: var(--text2); flex: 1;
+      min-width: 0; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    .proto-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--accent); text-decoration: none;
+      padding: 4px 10px;
+      border: 1px solid rgba(79,127,255,0.25);
+      border-radius: var(--radius-sm);
+      transition: all 0.15s; white-space: nowrap;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .proto-link:hover {
+      background: rgba(79,127,255,0.1);
+      border-color: rgba(79,127,255,0.5);
+    }
+
+    .proto-link svg { flex-shrink: 0; }
+
+    .doc-section-label {
+      font-size: 10px; color: var(--text3);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      font-family: 'DM Mono', monospace;
+      margin-top: 10px; margin-bottom: 6px;
+    }
+
+    .doc-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--text2); text-decoration: none;
+      padding: 4px 10px;
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-sm);
+      transition: all 0.15s; white-space: nowrap;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .doc-link:hover { background: var(--bg3); border-color: var(--text3); color: var(--text); }
+    .doc-link svg { flex-shrink: 0; }
+
+    .card-footer {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-top: auto; padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .update-date { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+    .proto-count { font-size: 11px; color: var(--text3); }
+
+    .empty { text-align: center; padding: 60px 20px; color: var(--text3); display: none; }
+    .empty.show { display: block; }
+
+    /* ── URL 버튼 그룹 ── */
+    .url-btn-group {
+      display: flex; align-items: stretch;
+      gap: 6px; margin-top: 12px;
+    }
+
+    .url-btn-group a {
+      display: flex; align-items: center; gap: 5px;
+      flex: 1; justify-content: center;
+      padding: 8px 10px; border-radius: var(--radius-sm);
+      font-size: 11px; font-weight: 500;
+      text-decoration: none; transition: all 0.15s;
+      font-family: inherit; letter-spacing: 0.01em;
+      white-space: nowrap; box-sizing: border-box;
+    }
+
+    .dev-btn {
+      background: rgba(245,166,35,0.08);
+      border: 1px solid rgba(245,166,35,0.3);
+      color: var(--amber) !important;
+    }
+
+    .dev-btn:hover {
+      background: rgba(245,166,35,0.15) !important;
+      border-color: rgba(245,166,35,0.5) !important;
+    }
+
+    .live-btn {
+      background: rgba(46,204,138,0.08);
+      border: 1px solid rgba(46,204,138,0.3);
+      color: var(--green) !important;
+    }
+
+    .live-btn:hover {
+      background: rgba(46,204,138,0.15) !important;
+      border-color: rgba(46,204,138,0.5) !important;
+    }
+
+    /* 스크롤바 */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 20px; }
+      .grid, .manager-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-    <h1>준비중</h1>
-    <a href="bns_estimate.html">견적서</a>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     홈 화면 — 담당자 선택
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div id="view-home">
+  <div class="wrap">
+    <header>
+      <div class="header-inner">
+        <div class="logo-area">
+          <span class="logo-tag">BN System · PM Workspace</span>
+          <h1>프로젝트 <span>대시보드</span></h1>
+        </div>
+        <div class="header-meta" id="home-date">—</div>
+      </div>
+    </header>
+
+    <!-- 공통 도구 -->
+    <div class="tools-section">
+      <div class="section-label">공통 도구</div>
+      <div class="tool-cards">
+        <a class="tool-card" href="bns_estimate.html" target="_blank">
+          <div class="tool-icon" style="background:rgba(79,127,255,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f7fff" stroke-width="1.6">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <path d="M8 12h8M8 8h5M8 16h4"/>
+            </svg>
+          </div>
+          <div class="tool-info">
+            <span class="tool-name">견적 산정</span>
+            <span class="tool-desc">프로젝트 견적 계산 도구</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 담당자 목록 -->
+    <div class="managers-section">
+      <div class="section-label">담당자 선택</div>
+      <div class="manager-grid" id="manager-grid">
+        <!-- JS로 채움 -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     프로젝트 화면
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<div id="view-projects">
+  <div class="wrap">
+    <header>
+      <div class="header-inner">
+        <div class="logo-area">
+          <span class="logo-tag" id="proj-manager-tag">—</span>
+          <h1 id="proj-title">프로젝트 <span>목록</span></h1>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="header-meta" id="proj-date">—</span>
+          <button class="back-btn" onclick="showHome()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M8 2L4 6L8 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            담당자 선택
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="stats-bar" id="stats-bar"></div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input type="text" id="search" placeholder="프로젝트 검색...">
+      </div>
+      <div class="filter-group" id="filter-group">
+        <button class="filter-btn active" data-filter="all">전체</button>
+        <button class="filter-btn" data-filter="planning">기획중</button>
+        <button class="filter-btn" data-filter="design">디자인</button>
+        <button class="filter-btn" data-filter="dev">개발중</button>
+        <button class="filter-btn" data-filter="complete">완료</button>
+      </div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty">검색 결과가 없습니다.</div>
+  </div>
+</div>
+
+<script src="data/data.js"></script>
+<script>
+  /* ── 인증 ── */
+  (function () {
+    const VALID_TOKENS = ['pm2026', 'bn2026'];
+    const fromUrl = new URLSearchParams(location.search).get('token');
+    const fromSession = sessionStorage.getItem('ws_token');
+    if (fromUrl && VALID_TOKENS.includes(fromUrl)) {
+      sessionStorage.setItem('ws_token', fromUrl); return;
+    }
+    if (fromSession && VALID_TOKENS.includes(fromSession)) return;
+    document.body.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  height:100vh;gap:16px;background:#0d0f14;font-family:sans-serif;">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="1.5">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <p style="margin:0;color:#555;font-size:13px;letter-spacing:0.05em;">접근 권한이 없습니다.</p>
+      </div>`;
+    throw new Error('Unauthorized');
+  })();
+
+  /* MANAGERS, PROJECTS — data/data.js 에서 로드 */
+
+  /* ━━━━━━━━━━ 상수 ━━━━━━━━━━ */
+  const STATUS_MAP = {
+    planning: { label: '기획중', cls: 's-planning' },
+    design:   { label: '디자인', cls: 's-design'   },
+    dev:      { label: '개발중', cls: 's-dev'      },
+    complete: { label: '완료',   cls: 's-complete' },
+    hold:     { label: '보류',   cls: 's-hold'     },
+  };
+
+  const COLOR_MAP = {
+    planning: '#4f7fff',
+    design:   '#FF0EF9',
+    dev:      '#f5a623',
+    complete: '#2ecc8a',
+    hold:     '#ff5f5f',
+  };
+
+  /* ━━━━━━━━━━ 뷰 전환 ━━━━━━━━━━ */
+  let currentManager = null;
+
+  function showHome() {
+    document.getElementById('view-home').style.display = 'block';
+    document.getElementById('view-projects').style.display = 'none';
+    currentManager = null;
+    activeFilter = 'all';
+    searchQuery = '';
+    document.querySelectorAll('.filter-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.filter === 'all'));
+  }
+
+  function showProjects(managerId) {
+    const m = MANAGERS.find(x => x.id === managerId);
+    if (!m) return;
+    currentManager = managerId;
+
+    document.getElementById('view-home').style.display = 'none';
+    document.getElementById('view-projects').style.display = 'block';
+
+    document.getElementById('proj-manager-tag').textContent =
+      `BN System · ${m.name} PM Workspace`;
+    document.getElementById('proj-title').innerHTML =
+      `${m.name} <span>프로젝트</span>`;
+
+    const myProjects = PROJECTS.filter(p => p.manager === managerId);
+    const latestDate = myProjects.map(p => p.updated).sort().reverse()[0] || '—';
+    document.getElementById('proj-date').textContent = `최근 업데이트 ${latestDate}`;
+
+    // 검색 초기화
+    document.getElementById('search').value = '';
+    searchQuery = '';
+    activeFilter = 'all';
+    document.querySelectorAll('.filter-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.filter === 'all'));
+
+    renderStats();
+    applyFilter();
+  }
+
+  /* ━━━━━━━━━━ 홈 렌더링 ━━━━━━━━━━ */
+  function renderManagers() {
+    const grid = document.getElementById('manager-grid');
+
+    grid.innerHTML = MANAGERS.map(m => {
+      const myProjects = PROJECTS.filter(p => p.manager === m.id);
+      const total = myProjects.length;
+      const active = myProjects.filter(p => {
+        const ss = Array.isArray(p.status) ? p.status : [p.status];
+        return ss.some(s => s !== 'complete' && s !== 'hold');
+      }).length;
+      const complete = myProjects.filter(p => {
+        const ss = Array.isArray(p.status) ? p.status : [p.status];
+        return ss.includes('complete');
+      }).length;
+
+      return `
+      <div class="manager-card" onclick="showProjects('${m.id}')">
+        <div class="manager-card-bar" style="background:${m.color}"></div>
+        <div class="manager-card-body">
+          <div class="manager-top">
+            <div class="manager-avatar" style="background:${m.color}22;color:${m.color};">
+              ${m.name}
+            </div>
+            <div>
+              <span class="manager-role">${m.role}</span>
+            </div>
+          </div>
+          <div class="manager-stats">
+            <div class="mstat">
+              <span class="mstat-value">${total}</span>
+              <span class="mstat-label">전체 프로젝트</span>
+            </div>
+            <div class="mstat">
+              <span class="mstat-value" style="color:#4f7fff">${active}</span>
+              <span class="mstat-label">진행 중</span>
+            </div>
+            <div class="mstat">
+              <span class="mstat-value" style="color:#2ecc8a">${complete}</span>
+              <span class="mstat-label">완료</span>
+            </div>
+          </div>
+          <div class="manager-enter">
+            <span>프로젝트 보기</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M4 7h6M7 4l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  /* ━━━━━━━━━━ 프로젝트 카드 렌더링 ━━━━━━━━━━ */
+  function renderCard(p) {
+    const statuses = Array.isArray(p.status) ? p.status : [p.status];
+    const colors = statuses.map(s => COLOR_MAP[s] || COLOR_MAP.planning);
+    const color = colors.length > 1
+      ? `linear-gradient(90deg, ${colors.join(', ')})`
+      : colors[0];
+
+    const protoHTML = `<div class="doc-section-label">프로토타입</div>` +
+      (p.prototypes.length
+        ? p.prototypes.map(pt => `
+        <div class="proto-item">
+          <span class="proto-name">${pt.name}</span>
+          <a class="proto-link" href="${pt.path}" target="_blank">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            열기
+          </a>
+        </div>`).join('')
+        : `<div style="font-size:12px;color:var(--text3);padding-bottom:4px;">준비 중</div>`);
+
+    const docsHTML = (p.docs && p.docs.length)
+      ? `<div class="doc-section-label">기획문서</div>` +
+        p.docs.map(d => `
+        <div class="proto-item">
+          <span class="proto-name">${d.name}</span>
+          <a class="doc-link" href="${d.url}" target="_blank">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <path d="M3 1.5h4.5L9.5 4V10.5H3V1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+              <path d="M7 1.5V4h2.5" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            </svg>
+            열기
+          </a>
+        </div>`).join('')
+      : '';
+
+    return `
+    <div class="card" data-status="${statuses.join(',')}" data-id="${p.id}"
+         data-search="${p.client} ${p.title}">
+      <div class="card-bar" style="background:${color}"></div>
+      <div class="card-body">
+        <div class="card-header">
+          <div>
+            <div class="card-client">${p.client}</div>
+            <div class="card-title">${p.title}</div>
+            <span class="type-tag">${p.type}</span>
+          </div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0;">
+            ${statuses.map(s => {
+              const si = STATUS_MAP[s] || STATUS_MAP.planning;
+              return `<span class="status-badge ${si.cls}">${si.label}</span>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="proto-list">${docsHTML}${protoHTML}</div>
+        ${(p.devUrl || p.liveUrl) ? `
+        <div class="url-btn-group">
+          ${p.devUrl ? `
+          <a class="dev-btn" href="${p.devUrl}" target="_blank">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <rect x="1" y="2" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M4 5.5L6 7.5L8 5.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            개발서버
+            <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+              <path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>` : ''}
+          ${p.liveUrl ? `
+          <a class="live-btn" href="${p.liveUrl}" target="_blank">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/>
+              <circle cx="6" cy="6" r="1.8" fill="currentColor"/>
+            </svg>
+            운영 사이트
+            <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+              <path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>` : ''}
+        </div>` : ''}
+        <div class="card-footer">
+          <span class="update-date">업데이트 ${p.updated}</span>
+          <span class="proto-count">프로토타입 ${p.prototypes.length}개</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  /* ━━━━━━━━━━ 통계 바 ━━━━━━━━━━ */
+  function renderStats() {
+    const myProjects = PROJECTS.filter(p => p.manager === currentManager);
+    const total = myProjects.length;
+    const counts = Object.fromEntries(Object.keys(STATUS_MAP).map(k => [k, 0]));
+    myProjects.forEach(p => {
+      const ss = Array.isArray(p.status) ? p.status : [p.status];
+      ss.forEach(s => { if (counts[s] !== undefined) counts[s]++; });
+    });
+
+    document.getElementById('stats-bar').innerHTML = [
+      { label: '전체', value: total,            color: '#8b90a0' },
+      { label: '기획중', value: counts.planning, color: COLOR_MAP.planning },
+      { label: '디자인', value: counts.design,   color: COLOR_MAP.design },
+      { label: '개발중', value: counts.dev,      color: COLOR_MAP.dev },
+      { label: '완료',   value: counts.complete, color: COLOR_MAP.complete },
+    ].map(i => `
+    <div class="stat-pill">
+      <span class="stat-dot" style="background:${i.color}"></span>
+      <span class="label">${i.label}</span>
+      <span class="value">${i.value}</span>
+    </div>`).join('');
+  }
+
+  /* ━━━━━━━━━━ 필터 & 검색 ━━━━━━━━━━ */
+  let activeFilter = 'all';
+  let searchQuery = '';
+
+  function applyFilter() {
+    let list = PROJECTS.filter(p => p.manager === currentManager);
+    if (activeFilter !== 'all') list = list.filter(p => {
+      const ss = Array.isArray(p.status) ? p.status : [p.status];
+      return ss.includes(activeFilter);
+    });
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(p =>
+        p.client.toLowerCase().includes(q) ||
+        p.title.toLowerCase().includes(q)
+      );
+    }
+    list.sort((a, b) => b.updated.localeCompare(a.updated));
+
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('empty');
+    if (!list.length) {
+      grid.innerHTML = '';
+      empty.classList.add('show');
+    } else {
+      grid.innerHTML = list.map(renderCard).join('');
+      empty.classList.remove('show');
+    }
+  }
+
+  document.getElementById('filter-group').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.filter;
+    applyFilter();
+  });
+
+  document.getElementById('search').addEventListener('input', e => {
+    searchQuery = e.target.value.trim();
+    applyFilter();
+  });
+
+  /* ━━━━━━━━━━ 초기화 ━━━━━━━━━━ */
+  const allDates = PROJECTS.map(p => p.updated).sort().reverse();
+  document.getElementById('home-date').textContent =
+    allDates[0] ? `최근 업데이트 ${allDates[0]}` : '—';
+
+  renderManagers();
+</script>
 </body>
 </html>

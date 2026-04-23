@@ -81,9 +81,9 @@
         value="<?= (int)($course['sort_order'] ?? 0) ?>">
     </div>
 
-    <div class="d-flex gap-2">
-      <button type="submit" class="btn btn-dark">저장</button>
+    <div class="d-flex justify-content-end gap-2">
       <a href="<?= BASE_PATH ?>/admin/course" class="btn btn-outline-secondary">취소</a>
+      <button type="submit" class="btn btn-dark">저장</button>
     </div>
   </form>
 </div>

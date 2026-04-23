@@ -7,7 +7,9 @@
       "Bash(cp \"/c/Users/BN659/Desktop/BN_SYS/_agents/dev-qa-agent.md\" \"/c/Users/BN659/Desktop/BN_SYS/workspace/YNballet-academy/.claude/agents/\")",
       "Bash(cp \"/c/Users/BN659/Desktop/BN_SYS/_agents/delivery-agent.md\" \"/c/Users/BN659/Desktop/BN_SYS/workspace/YNballet-academy/.claude/agents/\")",
       "PowerShell(& \"C:\\\\xampp\\\\apache\\\\bin\\\\httpd.exe\" -k restart 2>&1)",
-      "Bash(tasklist)"
+      "Bash(tasklist)",
+      "PowerShell(robocopy \"C:\\\\Users\\\\BN659\\\\Desktop\\\\BN_SYS\\\\workspace\\\\YNballet-academy\" \"C:\\\\Users\\\\BN659\\\\Desktop\\\\BN_SYS\\\\workspace\\\\EunAh\\\\YNballet-academy\" /E 2>&1 | Select-String \"ERROR|error\" | Select-Object -First 10)",
+      "Bash(git add *)"
     ]
   }
 }

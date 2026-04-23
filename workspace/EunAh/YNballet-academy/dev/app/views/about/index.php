@@ -59,11 +59,11 @@
       <div class="gold-divider" style="margin:0;"></div>
     </div>
     <div class="studio-gallery">
-      <img src="<?= BASE_PATH ?>/assets/images/studio1.jpeg" alt="스튜디오 1">
-      <img src="<?= BASE_PATH ?>/assets/images/studio2.jpeg" alt="스튜디오 2">
-      <img src="<?= BASE_PATH ?>/assets/images/studio3.jpeg" alt="스튜디오 3">
-      <img src="<?= BASE_PATH ?>/assets/images/studio4.jpeg" alt="스튜디오 4">
-      <img src="<?= BASE_PATH ?>/assets/images/studio5.jpeg" alt="스튜디오 5">
+      <img src="<?= BASE_PATH ?>/assets/images/studio1.jpeg" alt="스튜디오 1" class="studio-lightbox" style="cursor:pointer;" data-src="<?= BASE_PATH ?>/assets/images/studio1.jpeg">
+      <img src="<?= BASE_PATH ?>/assets/images/studio2.jpeg" alt="스튜디오 2" class="studio-lightbox" style="cursor:pointer;" data-src="<?= BASE_PATH ?>/assets/images/studio2.jpeg">
+      <img src="<?= BASE_PATH ?>/assets/images/studio3.jpeg" alt="스튜디오 3" class="studio-lightbox" style="cursor:pointer;" data-src="<?= BASE_PATH ?>/assets/images/studio3.jpeg">
+      <img src="<?= BASE_PATH ?>/assets/images/studio4.jpeg" alt="스튜디오 4" class="studio-lightbox" style="cursor:pointer;" data-src="<?= BASE_PATH ?>/assets/images/studio4.jpeg">
+      <img src="<?= BASE_PATH ?>/assets/images/studio5.jpeg" alt="스튜디오 5" class="studio-lightbox" style="cursor:pointer;" data-src="<?= BASE_PATH ?>/assets/images/studio5.jpeg">
     </div>
   </section>
   <!-- [/SECTION: ABOUT-STUDIO] -->
@@ -105,3 +105,28 @@
   <!-- [/SECTION: ABOUT-LOCATION] -->
 
 </div>
+
+<!-- 시설 이미지 라이트박스 — transform stacking context 밖에 위치해야 모달이 정상 동작 -->
+<div class="modal fade" id="studioModal" tabindex="-1" aria-label="시설 이미지">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content bg-transparent border-0 shadow-none">
+      <div class="modal-body p-0 text-center">
+        <img id="studioModalImg" src="" alt="시설 사진" style="max-width:100%;max-height:88vh;border-radius:4px;">
+      </div>
+    </div>
+  </div>
+</div>
+<?php $extraJs = '<script>
+(function () {
+  var modal = new bootstrap.Modal(document.getElementById("studioModal"));
+  document.querySelectorAll(".studio-lightbox").forEach(function (img) {
+    img.addEventListener("click", function () {
+      document.getElementById("studioModalImg").src = this.dataset.src;
+      modal.show();
+    });
+  });
+  document.getElementById("studioModal").addEventListener("click", function () {
+    modal.hide();
+  });
+})();
+</script>'; ?>

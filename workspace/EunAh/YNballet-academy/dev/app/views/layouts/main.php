@@ -95,11 +95,13 @@
 <?php if (!empty($extraJs)) echo $extraJs; ?>
 
 <?php
-// ─── 팝업 노출 ──────────────────────────────────────────
-require_once APP_ROOT . '/app/models/PopupModel.php';
-$__popups = (new PopupModel())->getActivePopups();
-if (!empty($__popups)) {
-    require APP_ROOT . '/app/views/partials/popups.php';
+// ─── 팝업 노출 (메인 홈 전용) ───────────────────────────
+if (($activePage ?? '') === 'home') {
+    require_once APP_ROOT . '/app/models/PopupModel.php';
+    $__popups = (new PopupModel())->getActivePopups();
+    if (!empty($__popups)) {
+        require APP_ROOT . '/app/views/partials/popups.php';
+    }
 }
 ?>
 </body>
