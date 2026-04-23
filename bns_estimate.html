@@ -78,7 +78,13 @@ body {
 .estimate-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
+.estimate-table colgroup col:nth-child(1) { width: auto; }
+.estimate-table colgroup col:nth-child(2) { width: 170px; }
+.estimate-table colgroup col:nth-child(3) { width: 90px; }
+.estimate-table colgroup col:nth-child(4) { width: 160px; }
+
 .estimate-table thead tr {
   background: var(--navy);
   color: var(--white);
@@ -88,8 +94,10 @@ body {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: .06em;
-  text-align: center;
+  text-align: right;
+  white-space: nowrap;
 }
+.estimate-table thead th:first-child { text-align: left; }
 .estimate-table thead th:first-child { border-radius: 6px 0 0 6px; }
 .estimate-table thead th:last-child  { border-radius: 0 6px 6px 0; }
 
@@ -103,7 +111,10 @@ body {
 .estimate-table tbody td {
   padding: 11px 16px;
   font-size: 14px;
-  text-align: center;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .estimate-table tbody td:first-child {
   font-weight: 600;
@@ -112,7 +123,7 @@ body {
   padding-left: 20px;
 }
 
-.estimate-table input[type="number"] {
+.estimate-table input {
   width: 100%;
   border: none;
   background: transparent;
@@ -124,11 +135,15 @@ body {
   padding: 4px 2px;
   border-bottom: 1px dashed transparent;
 }
-.estimate-table input[type="number"]:focus {
+.estimate-table input:focus {
   border-bottom-color: var(--blue);
   background: rgba(37,99,235,.04);
   border-radius: 3px;
 }
+/* 숫자 스피너 제거 */
+.estimate-table input[type="number"]::-webkit-outer-spin-button,
+.estimate-table input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+.estimate-table input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
 .amount {
   font-weight: 700;
@@ -148,16 +163,7 @@ body {
 
 /* ── 제경비 행 ── */
 .expense-row td:first-child { color: var(--gray4) !important; font-weight: 500 !important; }
-.expense-input-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-.expense-input-wrap input {
-  width: 120px !important;
-  font-weight: 700;
-  color: var(--navy) !important;
-}
+.expense-row #expenseAmountInput { font-weight: 700; color: var(--navy) !important; }
 
 /* ── 합계 박스 ── */
 .summary-box {
@@ -225,6 +231,9 @@ textarea#memoInput {
   </div>
 
   <table class="estimate-table" id="estimateTable">
+    <colgroup>
+      <col><col><col><col>
+    </colgroup>
     <thead>
       <tr>
         <th style="text-align:left; padding-left:20px;">직 무</th>
@@ -237,7 +246,7 @@ textarea#memoInput {
       <tr>
         <td>기획·PM</td>
         <td>
-          <input type="number" value="239748" readonly tabindex="-1">
+          <input type="text" class="price-input" value="239,748" data-default="239748" oninput="formatCommaInput(this); calculate(this)">
           <span class="print-only">239,748</span>
         </td>
         <td>
@@ -249,7 +258,7 @@ textarea#memoInput {
       <tr>
         <td>디자인·퍼블리싱</td>
         <td>
-          <input type="number" value="239748" readonly tabindex="-1">
+          <input type="text" class="price-input" value="239,748" data-default="239748" oninput="formatCommaInput(this); calculate(this)">
           <span class="print-only">239,748</span>
         </td>
         <td>
@@ -261,7 +270,7 @@ textarea#memoInput {
       <tr>
         <td>개발</td>
         <td>
-          <input type="number" value="305433" readonly tabindex="-1">
+          <input type="text" class="price-input" value="305,433" data-default="305433" oninput="formatCommaInput(this); calculate(this)">
           <span class="print-only">305,433</span>
         </td>
         <td>
@@ -273,7 +282,7 @@ textarea#memoInput {
       <tr>
         <td>검수</td>
         <td>
-          <input type="number" value="239748" readonly tabindex="-1">
+          <input type="text" class="price-input" value="239,748" data-default="239748" oninput="formatCommaInput(this); calculate(this)">
           <span class="print-only">239,748</span>
         </td>
         <td>
@@ -284,18 +293,18 @@ textarea#memoInput {
       </tr>
 
       <tr class="subtotal-row">
-        <td colspan="3" style="text-align:right; padding-right:20px;">인건비 소계</td>
+        <td colspan="2" style="text-align:right; padding-right:12px;">일수·인건비 소계</td>
+        <td id="laborDays">0</td>
         <td id="laborSubtotal">0</td>
       </tr>
 
       <tr class="expense-row">
         <td>제경비</td>
-        <td colspan="2"></td>
+        <td></td>
+        <td></td>
         <td>
-          <div class="expense-input-wrap">
-            <input type="number" id="expenseAmountInput" tabindex="5" oninput="manualExpense()" onfocus="this.select()">
-            <span class="print-only" id="printExpense">0</span>
-          </div>
+          <input type="text" id="expenseAmountInput" tabindex="5" oninput="formatCommaInput(this); manualExpense()" onfocus="this.select()">
+          <span class="print-only" id="printExpense">0</span>
         </td>
       </tr>
     </tbody>
@@ -336,18 +345,27 @@ window.onload = function() {
   updateAll();
 };
 
+function formatCommaInput(el) {
+  const raw = el.value.replace(/[^0-9]/g, '');
+  el.value = raw ? Number(raw).toLocaleString() : '';
+}
+
 function clearZero(el) { if (el.value === '0') el.value = ''; }
 function restoreZero(el) { if (el.value === '') el.value = 0; calculate(el); }
 
+function parseComma(val) {
+  return parseFloat((val || '').replace(/,/g, '')) || 0;
+}
+
 function calculate(el) {
   const row = el.closest('tr');
-  const price = parseFloat(row.cells[1].querySelector('input').value) || 0;
-  const days = parseFloat(row.cells[2].querySelector('input').value) || 0;
+  const price = parseComma(row.cells[1].querySelector('input').value);
+  const days  = parseFloat(row.cells[2].querySelector('input').value) || 0;
   const amount = Math.round(price * days);
-  
+
   row.cells[3].innerText = amount.toLocaleString();
-  row.cells[2].querySelector('.print-only').innerText = days; // 인쇄용 값 업데이트
-  
+  row.cells[2].querySelector('.print-only').innerText = days;
+
   updateAll();
 }
 
@@ -358,18 +376,21 @@ function manualExpense() {
 
 function updateAll() {
   let labor = 0;
-  document.querySelectorAll('.amount').forEach(td => {
-    labor += parseFloat(td.innerText.replace(/,/g,'')) || 0;
+  let totalDays = 0;
+  document.querySelectorAll('#estimateTable tbody tr:not(.subtotal-row):not(.expense-row)').forEach(row => {
+    labor += parseComma(row.cells[3].innerText);
+    totalDays += parseFloat(row.cells[2].querySelector('input').value) || 0;
   });
+  document.getElementById('laborDays').innerText = totalDays;
 
   const expenseInput = document.getElementById('expenseAmountInput');
   let expense = 0;
 
   if (!isManualExpense) {
     expense = Math.round(labor * 0.1);
-    expenseInput.value = expense;
+    expenseInput.value = expense.toLocaleString();
   } else {
-    expense = parseFloat(expenseInput.value) || 0;
+    expense = parseComma(expenseInput.value);
   }
 
   const total = labor + expense;
@@ -385,6 +406,8 @@ function resetTable() {
   if (!confirm('초기화 하시겠습니까?')) return;
   isManualExpense = false;
   document.querySelectorAll('#estimateTable tbody tr:not(.subtotal-row):not(.expense-row)').forEach(row => {
+    const priceInput = row.cells[1].querySelector('input');
+    priceInput.value = Number(priceInput.dataset.default).toLocaleString();
     row.cells[2].querySelector('input').value = 0;
     row.cells[3].innerText = 0;
     row.cells[2].querySelector('.print-only').innerText = 0;
@@ -394,19 +417,15 @@ function resetTable() {
 }
 
 function savePDF() {
-  // 인쇄 전 메모 및 모든 스팬 업데이트
-  const memoInput = document.getElementById('memoInput');
-  const printMemo = document.getElementById('printMemo');
-  printMemo.innerText = memoInput.value;
+  document.getElementById('printMemo').innerText = document.getElementById('memoInput').value;
 
-  // 인력 항목의 단가/일수 출력용 텍스트 최종 확인
-  document.querySelectorAll('#estimateTable tbody tr').forEach(row => {
-    const inputs = row.querySelectorAll('input');
-    const spans = row.querySelectorAll('.print-only');
-    if(inputs.length > 1 && spans.length > 1) {
-        spans[0].innerText = parseFloat(inputs[0].value).toLocaleString();
-        spans[1].innerText = inputs[1].value;
-    }
+  document.querySelectorAll('#estimateTable tbody tr:not(.subtotal-row):not(.expense-row)').forEach(row => {
+    const priceInput = row.cells[1].querySelector('input');
+    const daysInput  = row.cells[2].querySelector('input');
+    const priceSpan  = row.cells[1].querySelector('.print-only');
+    const daysSpan   = row.cells[2].querySelector('.print-only');
+    if (priceSpan) priceSpan.innerText = parseComma(priceInput.value).toLocaleString();
+    if (daysSpan)  daysSpan.innerText  = daysInput.value;
   });
 
   window.print();
