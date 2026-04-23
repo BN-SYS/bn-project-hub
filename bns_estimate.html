@@ -2,11 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>비엔시스템_견적서</title>
+<title>견적서 — 비엔시스템</title>
 <style>
-/* ══════════════════════════════════════════
-   RESET & BASE
-══════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -19,7 +16,6 @@
   --gray4:   #475569;
   --dark:    #1E293B;
   --white:   #FFFFFF;
-  --accent:  #2563EB;
   --border:  #D1D9E6;
   --radius:  10px;
   --shadow:  0 4px 24px rgba(27,58,107,.10);
@@ -36,9 +32,6 @@ body {
   padding: 48px 16px;
 }
 
-/* ══════════════════════════════════════════
-   CARD WRAPPER
-══════════════════════════════════════════ */
 .card {
   background: var(--white);
   border-radius: var(--radius);
@@ -48,9 +41,7 @@ body {
   padding: 48px 52px 40px;
 }
 
-/* ══════════════════════════════════════════
-   DOCUMENT HEADER
-══════════════════════════════════════════ */
+/* ── 문서 헤더 ── */
 .doc-header {
   display: flex;
   align-items: flex-end;
@@ -59,26 +50,19 @@ body {
   padding-bottom: 20px;
   margin-bottom: 32px;
 }
-
 .doc-title {
   font-size: 28px;
   font-weight: 800;
   color: var(--navy);
   letter-spacing: .04em;
 }
-
 .doc-meta {
   text-align: right;
   font-size: 13px;
   color: var(--gray4);
   line-height: 1.8;
 }
-
-.doc-meta strong {
-  color: var(--dark);
-  font-weight: 600;
-}
-
+.doc-meta strong { color: var(--dark); font-weight: 600; }
 .doc-meta .date-value {
   display: inline-block;
   background: var(--blue-lt);
@@ -90,20 +74,15 @@ body {
   margin-left: 4px;
 }
 
-/* ══════════════════════════════════════════
-   TABLE
-══════════════════════════════════════════ */
+/* ── 테이블 ── */
 .estimate-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 0;
 }
-
 .estimate-table thead tr {
   background: var(--navy);
   color: var(--white);
 }
-
 .estimate-table thead th {
   padding: 13px 16px;
   font-size: 13px;
@@ -112,7 +91,6 @@ body {
   text-align: center;
   border: none;
 }
-
 .estimate-table thead th:first-child { border-radius: 6px 0 0 6px; }
 .estimate-table thead th:last-child  { border-radius: 0 6px 6px 0; }
 
@@ -120,15 +98,8 @@ body {
   border-bottom: 1px solid var(--border);
   transition: background .15s;
 }
-
-/* zebra */
-.estimate-table tbody tr:nth-child(even) {
-  background: var(--gray1);
-}
-
-.estimate-table tbody tr:hover {
-  background: var(--blue-lt);
-}
+.estimate-table tbody tr:nth-child(even) { background: var(--gray1); }
+.estimate-table tbody tr:hover { background: var(--blue-lt); }
 
 .estimate-table tbody td {
   padding: 11px 16px;
@@ -136,7 +107,6 @@ body {
   text-align: center;
   border: none;
 }
-
 .estimate-table tbody td:first-child {
   font-weight: 600;
   color: var(--navy);
@@ -144,7 +114,6 @@ body {
   padding-left: 20px;
 }
 
-/* ── inputs ── */
 .estimate-table input[type="number"] {
   width: 100%;
   border: none;
@@ -158,52 +127,115 @@ body {
   border-bottom: 1px dashed transparent;
   transition: border-color .2s;
 }
-
 .estimate-table input[type="number"]:focus {
   border-bottom-color: var(--blue);
   background: rgba(37,99,235,.04);
   border-radius: 3px;
 }
 
-/* 금액 td */
 .amount {
   font-weight: 700;
   color: var(--navy);
   font-variant-numeric: tabular-nums;
 }
 
-/* ══════════════════════════════════════════
-   TOTAL ROW
-══════════════════════════════════════════ */
-.total-section {
+/* ── 인건비 소계 행 ── */
+.subtotal-row {
+  background: var(--gray2) !important;
+  border-top: 2px solid var(--border) !important;
+}
+.subtotal-row td {
+  font-weight: 700 !important;
+  color: var(--dark) !important;
+  font-size: 13.5px !important;
+}
+.subtotal-row td:first-child {
+  color: var(--navy) !important;
+}
+.subtotal-row:hover { background: var(--gray2) !important; }
+
+/* ── 제경비 행 ── */
+.expense-row { background: var(--white) !important; }
+.expense-row:hover { background: var(--blue-lt) !important; }
+.expense-row td:first-child { color: var(--gray4) !important; font-weight: 500 !important; }
+
+.rate-wrap {
   display: flex;
-  justify-content: flex-end;
-  align-items: baseline;
-  gap: 12px;
-  margin-top: 20px;
-  padding: 18px 20px;
-  background: var(--blue-lt);
-  border-radius: 8px;
-  border: 1px solid rgba(37,99,235,.18);
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.rate-wrap input {
+  width: 52px !important;
+  text-align: center !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 4px !important;
+  padding: 3px 6px !important;
+  font-size: 13px !important;
+  background: var(--white) !important;
+}
+.rate-wrap input:focus {
+  border-color: var(--blue) !important;
+  background: var(--white) !important;
+}
+.rate-label {
+  font-size: 12px;
+  color: var(--gray3);
 }
 
-.total-label {
-  font-size: 15px;
+/* ── 합계 박스 ── */
+.summary-box {
+  margin-top: 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.summary-row:last-child { border-bottom: none; }
+
+.summary-row.subtotal  { background: var(--gray1); }
+.summary-row.vat       { background: var(--gray1); }
+.summary-row.grand     {
+  background: var(--navy);
+  padding: 16px 20px;
+}
+
+.summary-label {
   font-weight: 600;
   color: var(--gray4);
 }
+.summary-row.grand .summary-label {
+  color: rgba(255,255,255,.8);
+  font-size: 15px;
+}
 
-.total-value {
-  font-size: 24px;
-  font-weight: 800;
+.summary-value {
+  font-weight: 700;
   color: var(--navy);
+  font-size: 16px;
   font-variant-numeric: tabular-nums;
 }
-
-.total-unit {
-  font-size: 15px;
-  font-weight: 600;
+.summary-value .unit {
+  font-size: 13px;
+  font-weight: 500;
+  margin-left: 3px;
   color: var(--gray4);
+}
+
+.summary-row.grand .summary-value {
+  color: var(--white);
+  font-size: 22px;
+}
+.summary-row.grand .summary-value .unit {
+  color: rgba(255,255,255,.7);
 }
 
 .rounding-note {
@@ -213,15 +245,12 @@ body {
   color: var(--gray3);
 }
 
-/* ══════════════════════════════════════════
-   MEMO SECTION
-══════════════════════════════════════════ */
+/* ── 비고 ── */
 .section-label {
   font-size: 13px;
   font-weight: 700;
   color: var(--gray4);
   letter-spacing: .08em;
-  text-transform: uppercase;
   margin: 28px 0 8px;
 }
 
@@ -239,7 +268,6 @@ textarea#memoInput {
   transition: border-color .2s, box-shadow .2s;
   background: var(--gray1);
 }
-
 textarea#memoInput:focus {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px rgba(37,99,235,.12);
@@ -257,16 +285,13 @@ textarea#memoInput:focus {
   background: var(--gray1);
 }
 
-/* ══════════════════════════════════════════
-   BUTTONS
-══════════════════════════════════════════ */
+/* ── 버튼 ── */
 .btn-row {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 28px;
 }
-
 .btn {
   padding: 10px 24px;
   font-size: 13.5px;
@@ -277,15 +302,9 @@ textarea#memoInput:focus {
   cursor: pointer;
   transition: background .18s, transform .1s, box-shadow .18s;
 }
-
 .btn:active { transform: translateY(1px); }
-
-.btn-reset {
-  background: var(--gray2);
-  color: var(--gray4);
-}
+.btn-reset { background: var(--gray2); color: var(--gray4); }
 .btn-reset:hover { background: #D1D9E6; }
-
 .btn-pdf {
   background: var(--navy);
   color: var(--white);
@@ -296,9 +315,7 @@ textarea#memoInput:focus {
   box-shadow: 0 4px 14px rgba(27,58,107,.35);
 }
 
-/* ══════════════════════════════════════════
-   PRINT
-══════════════════════════════════════════ */
+/* ── 인쇄 ── */
 @media print {
   body { background: white; padding: 0; }
   .card { box-shadow: none; border-radius: 0; padding: 30px 36px; max-width: 100%; }
@@ -308,7 +325,9 @@ textarea#memoInput:focus {
   .rounding-note { display: block; }
   .estimate-table tbody tr:hover { background: transparent; }
   .estimate-table tbody tr:nth-child(even) { background: #F8FAFC; }
-  .total-section { border: 1px solid #D1D9E6; background: #F0F4FF; }
+  .subtotal-row:hover { background: var(--gray2) !important; }
+  .summary-row.grand { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .estimate-table thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
 </head>
@@ -372,16 +391,53 @@ textarea#memoInput:focus {
         <td><input type="number" value="0" tabindex="6" onfocus="clearZero(this)" onblur="restoreZero(this)" oninput="calculate(this)"></td>
         <td class="amount">0</td>
       </tr>
+
+      <!-- 인건비 소계 -->
+      <tr class="subtotal-row">
+        <td colspan="3" style="text-align:right; padding-right:20px; letter-spacing:.04em;">인건비 소계</td>
+        <td id="laborSubtotal">0</td>
+      </tr>
+
+      <!-- 제경비 -->
+      <tr class="expense-row">
+        <td>제경비</td>
+        <td colspan="1" style="text-align:center;">
+          <div class="rate-wrap">
+            <input type="number" id="expenseRate" value="10" min="0" max="100"
+              tabindex="7" oninput="updateExpense()" onfocus="this.select()">
+            <span class="rate-label">% (인건비 대비)</span>
+          </div>
+        </td>
+        <td></td>
+        <td id="expenseAmount">0</td>
+      </tr>
     </tbody>
   </table>
 
-  <!-- 합계 -->
-  <div class="total-section">
-    <span class="total-label">총 합계</span>
-    <span class="total-value" id="total">0</span>
-    <span class="total-unit">원</span>
+  <!-- 합계 박스 -->
+  <div class="summary-box">
+    <div class="summary-row subtotal">
+      <span class="summary-label">인건비 소계</span>
+      <span class="summary-value"><span id="s-labor">0</span><span class="unit">원</span></span>
+    </div>
+    <div class="summary-row subtotal">
+      <span class="summary-label">제경비</span>
+      <span class="summary-value"><span id="s-expense">0</span><span class="unit">원</span></span>
+    </div>
+    <div class="summary-row subtotal" style="border-top: 1px solid var(--border);">
+      <span class="summary-label">공급가액</span>
+      <span class="summary-value"><span id="s-supply">0</span><span class="unit">원</span></span>
+    </div>
+    <div class="summary-row vat">
+      <span class="summary-label">부가가치세 (10%)</span>
+      <span class="summary-value"><span id="s-vat">0</span><span class="unit">원</span></span>
+    </div>
+    <div class="summary-row grand">
+      <span class="summary-label">합 계 (총액)</span>
+      <span class="summary-value"><span id="s-total">0</span><span class="unit">원</span></span>
+    </div>
   </div>
-  <div class="rounding-note">※ 금액은 소수점 첫째 자리에서 반올림하여 표시됩니다.</div>
+  <div class="rounding-note">※ 각 항목 금액은 소수점 첫째 자리에서 반올림 · 합계는 원 단위 정수 표시</div>
 
   <!-- 비고 -->
   <div class="section-label">비 고</div>
@@ -403,13 +459,12 @@ window.onload = function() {
     d.getFullYear() + '-' +
     String(d.getMonth()+1).padStart(2,'0') + '-' +
     String(d.getDate()).padStart(2,'0');
-  updateTotal();
+  updateAll();
 };
 
 function clearZero(el) {
   if (el.value === '0') el.value = '';
 }
-
 function restoreZero(el) {
   if (el.value === '' || el.value === null) {
     el.value = 0;
@@ -425,26 +480,59 @@ function calculate(el) {
   row.children[3].innerText = amount.toLocaleString('ko-KR', {
     minimumFractionDigits: 0, maximumFractionDigits: 1
   });
-  updateTotal();
+  updateAll();
 }
 
-function updateTotal() {
-  let total = 0;
+function updateExpense() {
+  updateAll();
+}
+
+function fmt(n) {
+  return Math.round(n).toLocaleString('ko-KR');
+}
+
+function updateAll() {
+  // 인건비 소계
+  let labor = 0;
   document.querySelectorAll('.amount').forEach(td => {
-    total += parseFloat(td.innerText.replace(/,/g,'')) || 0;
+    labor += parseFloat(td.innerText.replace(/,/g,'')) || 0;
   });
-  total = Math.round(total);
-  document.getElementById('total').innerText = total.toLocaleString('ko-KR');
+  labor = Math.round(labor);
+
+  // 제경비
+  const rate    = parseFloat(document.getElementById('expenseRate').value) || 0;
+  const expense = Math.round(labor * rate / 100);
+
+  // 공급가액 = 인건비 + 제경비
+  const supply  = labor + expense;
+
+  // 부가가치세
+  const vat     = Math.round(supply * 0.1);
+
+  // 합계
+  const total   = supply + vat;
+
+  // 테이블 내 표시
+  document.getElementById('laborSubtotal').innerText = labor.toLocaleString('ko-KR');
+  document.getElementById('expenseAmount').innerText = expense.toLocaleString('ko-KR');
+
+  // 합계 박스
+  document.getElementById('s-labor').innerText   = labor.toLocaleString('ko-KR');
+  document.getElementById('s-expense').innerText = expense.toLocaleString('ko-KR');
+  document.getElementById('s-supply').innerText  = supply.toLocaleString('ko-KR');
+  document.getElementById('s-vat').innerText     = vat.toLocaleString('ko-KR');
+  document.getElementById('s-total').innerText   = total.toLocaleString('ko-KR');
 }
 
 function resetTable() {
   if (!confirm('초기화 하시겠습니까?')) return;
-  document.querySelectorAll('#estimateTable tbody tr').forEach(row => {
+  document.querySelectorAll('#estimateTable tbody tr:not(.subtotal-row):not(.expense-row)').forEach(row => {
     row.children[2].querySelector('input').value = 0;
     row.children[3].innerText = 0;
   });
+  document.getElementById('expenseRate').value = 10;
   document.getElementById('memoInput').value = '';
-  updateTotal();
+  updateAll();
 }
 
 function savePDF() {
