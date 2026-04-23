@@ -100,6 +100,56 @@ Copy-Item "$editorSrc/qeditor.js"  $editorDst -Force
 }
 ```
 
+### Step 3-b: task_queue.json 초기화 (파이프라인 상태판)
+`03_requirements/pages_draft.json` PM 승인 후 생성. 초기값은 모든 화면 `pending`.
+```json
+[
+  {
+    "id": "U01",
+    "name": "홈 메인",
+    "group": "A",
+    "status": "pending",
+    "lockedBy": null,
+    "reviewResult": null,
+    "flags": [],
+    "history": []
+  }
+]
+```
+
+**status 전이:**
+```
+pending → planning_done → sb_ready → sb_done → dev_ready → dev_done → qa_done → done
+```
+
+- `lockedBy`: 현재 작업 중인 에이전트명 기록 (동시 접근 방지)
+- `flags`: 리뷰 실패 사유 누적
+- `history`: `[{ "status": "sb_ready", "at": "ISO8601" }]` 상태 변경 이력
+
+### Step 3-c: agent_messages.json 초기화
+에이전트 간 리뷰 결과·수정 요청을 주고받는 메시지 큐. 빈 배열로 시작.
+```json
+[]
+```
+
+메시지 스키마:
+```json
+{
+  "id": "MSG-001",
+  "from": "storyboard-agent",
+  "to": "planning-agent",
+  "screen": "U03",
+  "type": "review_fail | clarification | correction | escalate",
+  "message": "구체적 수정 요청 내용",
+  "status": "open | resolved",
+  "retryCount": 0,
+  "resolvedAt": null,
+  "resolution": ""
+}
+```
+
+- `retryCount` 2 이상 → pm-assistant가 인간PM에게 에스컬레이션
+
 ### Step 4: CLAUDE.md 생성
 ```markdown
 # <프로젝트명> — PM 자동화 설정
@@ -217,9 +267,11 @@ PM 개입 없이 자동 승인할 수 있는 조건:
 
 ---
 
-## 4. 자동 진행 체인 (--auto)
+## 4. 파이프라인 오케스트레이션 (--auto)
 
-PM이 "--auto"를 명시하면 활성화.
+PM이 "--auto"를 명시하면 활성화. 화면 그룹 단위 병렬 파이프라인으로 동작한다.
+
+### 4-a. 초기 체인 (기획 완료까지 — 순차 필수)
 
 ```
 RFP 투입
@@ -227,22 +279,55 @@ RFP 투입
    ├→ [bg] @client-comms "[01_rfp 완료] 확인 필요 사항 공유 메일"
    └→ @planning-agent "모듈2: 기획서·WBS 작성해줘"
       ├→ [bg] @client-comms "[02_planning 완료] 착수 보고 메일"
-      └→ [STOP ✋] PM: WBS 공수 검토 후 "계속해줘" 입력
-         └→ @planning-agent "모듈3: 요구사항 정의서 써줘"
+      └→ [STOP ✋] 인간PM: WBS 공수 검토 후 "계속해줘"
+         └→ @planning-agent "모듈3: 요구사항 정의서 써줘 (그룹 태그 포함)"
             ├→ [bg] @client-comms "[03_requirements 완료] 요구사항 검토 요청 메일"
-            └→ [STOP ✋] PM: pages_draft 검토 후 "페이지 승격해줘" 입력
-               └→ @storyboard-agent "프로토타입 생성해줘"
-                  └→ [STOP ✋] PM: 고객 피드백 전달 또는 "최종 컨펌"
-                     └→ [자동 승인 확인] build_state failCount==0 ?
-                        ├→ YES: @dev-qa-agent "개발전달+QA 전체 진행해줘"
-                        │       [bg] @client-comms "[04 완료] 개발착수 안내"
-                        └→ NO:  [STOP ✋] PM에게 실패 화면 목록 보고
-                           └→ @delivery-agent "납품 준비해줘"
-                              [bg] @client-comms "[05+06 완료] QA 완료 안내"
-                              └→ [STOP ✋] PM: 실제 납품 행위
+            └→ [STOP ✋] 인간PM: pages_draft 검토 후 "페이지 승격해줘"
+               └→ task_queue.json 초기화 (전체 화면 → planning_done)
 ```
 
-[bg] = background 실행 (메인 체인 블로킹 없음)
+### 4-b. 파이프라인 루프 (PM 승인 후 자동)
+
+pages.json 생성 즉시 아래 루프 시작. 그룹 단위로 병렬 진행.
+
+```
+[루프 — 그룹 단위 반복]
+
+task_queue에서 planning_done 그룹 감지
+  └→ 해당 그룹 → sb_ready 갱신
+      ├→ [bg] @storyboard-agent "그룹{X} 화면 {ID목록} 프로토타입 생성해줘"
+      └→ 다음 그룹 있으면 즉시 반복 (복수 그룹 병렬 가능)
+
+storyboard-agent 완료 보고 수신
+  └→ reviewResult 확인
+      ├→ PASS: 해당 화면 → dev_ready 갱신
+      │   [bg] @dev-qa-agent "화면 {ID목록} 개발전달+QA 진행해줘"
+      │   [bg] @client-comms "[그룹{X} SB 완료] 진행 보고"
+      └→ FAIL: agent_messages 확인 → planning-agent 수정 지시
+               수정 완료 → sb_ready 재투입
+
+dev-qa-agent 완료 보고 수신
+  └→ reviewResult 확인
+      ├→ PASS: 해당 화면 → qa_done 갱신
+      │   [bg] @client-comms "[그룹{X} 개발전달 완료] 개발착수 안내"
+      └→ FAIL: agent_messages 확인 → storyboard-agent 수정 지시
+
+전체 화면 qa_done 확인
+  └→ [STOP ✋] 인간PM: 최종 컨펌
+      └→ @delivery-agent "납품 준비해줘"
+         [bg] @client-comms "[전체 완료] QA 완료 안내"
+         └→ [STOP ✋] 인간PM: 실제 납품
+```
+
+[bg] = background 실행 (메인 루프 블로킹 없음)
+
+### 4-c. 그룹 투입 기준
+
+| 조건 | 동작 |
+|---|---|
+| 그룹 내 모든 화면 `planning_done` | 해당 그룹 storyboard 투입 |
+| 복수 그룹 동시 `sb_ready` | 병렬 스폰 가능 (최대 2그룹 동시) |
+| 특정 화면 `lockedBy` 있음 | 해당 화면 건너뛰고 나머지 진행 |
 
 ---
 
@@ -261,7 +346,38 @@ RFP 투입
 
 ---
 
-## 6. cascade 업데이트 규칙
+## 6. 메타 리뷰 & 에스컬레이션
+
+### agent_messages 모니터링 규칙
+
+각 에이전트 완료 보고를 받을 때마다 `agent_messages.json` 스캔.
+
+| 조건 | 처리 |
+|---|---|
+| MSG `retryCount` >= 2 | 인간PM에게 에스컬레이션 + 내용 요약 보고 후 대기 |
+| 동일 화면이 48h 이상 같은 status | 인간PM에게 블로킹 알림 |
+| `open` MSG가 3건 이상 동시 존재 | 인간PM에게 품질 경고 보고 |
+| `escalate` 타입 MSG 수신 | 즉시 인간PM 보고 — 자동 처리 불가 |
+
+### 에스컬레이션 보고 형식
+```
+⚠️ 에스컬레이션 알림
+화면: {screenId} — {screenName}
+발신: {from} → 수신: {to}
+내용: {message}
+재시도: {retryCount}회
+→ PM 판단 필요: 직접 내용 확인 후 "해결됐어" 또는 "건너뛰어" 입력
+```
+
+### task_queue 이상 감지
+pm-assistant가 "--pipeline-check" 요청을 받으면:
+1. task_queue.json 전체 읽기
+2. status별 화면 수 집계
+3. 48h 초과 화면 플래그
+4. agent_messages open 건수 합산
+5. 전체 현황 표 출력
+
+## 7. cascade 업데이트 규칙
 
 pm-assistant가 project_state.json을 갱신할 때:
 - phase status 변경 → lastUpdated, currentPhase 동시 갱신

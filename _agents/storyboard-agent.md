@@ -11,6 +11,59 @@ tools: Read, Write, Edit, Bash
 
 ---
 
+## 0. 사전 루틴 (매 실행 시작 시 필수)
+
+### 0-a. MSG 수신함 확인
+`agent_messages.json`에서 `to: "storyboard-agent"` AND `status: "open"` 항목 스캔.
+
+| 수신 MSG 타입 | 처리 |
+|---|---|
+| `review_fail` (from dev-qa) | 해당 화면 HTML·스펙·meta.json 수정 → resolved |
+| `clarification` (from dev-qa) | 스펙 해당 항목 명확화 → resolved |
+| `correction` | 단순 오류 수정 → resolved |
+
+수정 완료 후:
+1. MSG `status → "resolved"`, `resolution` 기록
+2. task_queue 해당 화면 → `sb_done` 재설정
+3. pm-assistant에 "SB 수정 완료: {screenId}" 보고
+
+### 0-b. task_queue 확인
+`task_queue.json`에서 `status: "sb_ready"` AND `lockedBy: null` 화면 목록 확인.
+pm-assistant가 투입한 그룹의 화면들만 처리. `lockedBy: "storyboard-agent"` 로 설정 후 시작.
+
+---
+
+## 0-c. planning 산출물 사전 리뷰 (sb_ready 화면 대상)
+
+HTML 생성 **전** 반드시 실행. 리뷰 실패 시 HTML 생성 시작 금지.
+
+**리뷰 체크리스트:**
+| 항목 | 확인 내용 | 실패 기준 |
+|---|---|---|
+| R1 | pages.json 화면 ↔ 요구사항_정의서 REQ 항목 1:1 매칭 | REQ 없는 화면 존재 |
+| R2 | 폼이 있는 화면에 validationField 명시 여부 | 빈 항목 |
+| R3 | 인증·권한 화면에 API endpoint 언급 여부 | 누락 |
+| R4 | 화면 ID 채번 중복 없음 | 중복 존재 |
+| R5 | group 태그 존재 여부 | 없는 화면 |
+
+**리뷰 PASS** → 즉시 HTML 생성 진행
+**리뷰 FAIL** → 아래 MSG 발행 후 해당 화면 처리 중단:
+```json
+{
+  "from": "storyboard-agent",
+  "to": "planning-agent",
+  "screen": "{screenId}",
+  "type": "review_fail",
+  "message": "R{번호}: {구체적 결함 내용}",
+  "status": "open",
+  "retryCount": 0
+}
+```
+task_queue 해당 화면 → `planning_done` 되돌림, `lockedBy: null`, `flags`에 결함 기록.
+pm-assistant에 "planning 리뷰 FAIL: {screenId} — {사유}" 보고.
+
+---
+
 ## 1. 프로토타입 HTML 생성
 
 ### 실행 조건
@@ -219,6 +272,13 @@ PM이 "최종 컨펌" 요청 시:
 3. 모든 PNG 존재 확인
 4. "최종 컨펌 완료. PDF 출력 준비됨." 보고
 
-### 완료 보고
-"스토리보드 완료: 화면 X개, 프로토타입 N차 수정, FAIL 0개"
+### 완료 보고 (그룹 단위)
+"스토리보드 완료: 그룹{X} 화면 {ID목록} — HTML X개, 스펙 X개, FAIL 0개"
+
+완료 후 task_queue 갱신:
+1. 완료 화면 → `sb_done`, `lockedBy: null`, `reviewResult: "pass"`
+2. history에 `{ "status": "sb_done", "at": "ISO8601" }` 추가
+3. pm-assistant에 보고 → pm-assistant가 dev-qa-agent 투입 판단
+
+전체 화면 완료 시에만:
 → `@client-comms [04_storyboard 완료] 스토리보드 전달 및 개발 착수 안내 메일 써줘`

@@ -132,12 +132,41 @@ pm-assistant --auto 모드에서 이 보고를 받으면:
 }]
 ```
 
+### pages_draft 그룹 태그 규칙
+pages_draft.json 작성 시 각 화면에 `group` 필드를 반드시 포함한다.
+그룹은 기능 연관성 기준으로 묶음 (인증, 게시판, 마이페이지, 관리자 등).
+그룹당 화면 수: 2~5개 권장 (너무 크면 파이프라인 효과 감소).
+
+```json
+{ "id": "U01", "group": "A_인증", "name": "로그인", ... }
+{ "id": "U02", "group": "A_인증", "name": "회원가입", ... }
+{ "id": "U03", "group": "B_게시판", "name": "게시판 목록", ... }
+```
+
 ### pages_draft → pages.json 승격
 PM이 "스토리보드 시작해줘" 또는 "pages.json 만들어줘" 요청 시:
-1. pages_draft.json 유효성 검사 (JSON 파싱, user 섹션 존재, id 중복 없음)
-2. PM에게 변경 사항 요약 표시
+1. pages_draft.json 유효성 검사 (JSON 파싱, user 섹션 존재, id 중복 없음, group 필드 존재)
+2. PM에게 변경 사항 요약 + 그룹별 화면 목록 표시
 3. PM 승인 → 04_storyboard/story_board/data/pages.json Write
-4. project_state.json 04_storyboard.status → "ready"
+4. **task_queue.json 초기화**: 전체 화면 `planning_done` status로 생성
+5. project_state.json 04_storyboard.status → "ready"
+
+### MSG 수신 처리 (storyboard-agent로부터)
+모듈3 실행 시작 전, 또는 pm-assistant로부터 수정 지시를 받을 때:
+`agent_messages.json`에서 `to: "planning-agent"` AND `status: "open"` 항목 확인.
+
+발견 시 처리 절차:
+1. 해당 화면의 요구사항_정의서.md, pages_draft.json 수정
+2. task_queue.json 해당 화면 → `planning_done` 재설정 (sb_ready였다면 되돌림)
+3. agent_messages.json 해당 MSG: `status → "resolved"`, `resolution` 기록
+4. pm-assistant에 "수정 완료: {screenId} — {수정 내용}" 보고
+
+수신 MSG 타입별 처리:
+| 타입 | 처리 |
+|---|---|
+| `review_fail` | 지적된 요구사항·화면 누락 보완 후 해결 |
+| `clarification` | 요구사항_정의서 해당 항목 명확화 후 해결 |
+| `correction` | 단순 오류 수정 후 해결 |
 
 ### cascade 업데이트
 pages_draft.json 항목 추가/삭제/수정 시:
@@ -145,8 +174,9 @@ pages_draft.json 항목 추가/삭제/수정 시:
 - 삭제 시 → 요구사항_정의서.md에서 해당 REQ 항목 제거
 
 ### 완료 보고 + background comms
-"요구사항 완료: 사용자 X개, 관리자 X개, 총 기능 X개"
+"요구사항 완료: 사용자 X개, 관리자 X개, 총 기능 X개 / 그룹: {A_인증 2개, B_게시판 3개, ...}"
 
 pm-assistant --auto 모드에서 이 보고를 받으면:
 - [background] `@client-comms [03_requirements 완료] 요구사항 검토 요청 메일 써줘` 즉시 스폰
-- 메인 체인은 [STOP ✋] PM pages_draft 검토 대기 (자동 진행 불가)
+- 메인 체인은 [STOP ✋] 인간PM pages_draft 검토 대기 (자동 진행 불가)
+- PM 승인 후 → task_queue.json 생성 → 파이프라인 루프 시작

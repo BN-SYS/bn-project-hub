@@ -11,6 +11,59 @@ tools: Read, Write, Edit
 
 ---
 
+## 0. 사전 루틴 (매 실행 시작 시 필수)
+
+### 0-a. MSG 수신함 확인
+`agent_messages.json`에서 `to: "delivery-agent"` AND `status: "open"` 항목 스캔.
+
+| 수신 MSG 타입 | 처리 |
+|---|---|
+| `review_fail` (from 외부) | 납품_체크리스트 해당 항목 수정 → resolved |
+| `clarification` | 해당 산출물 명확화 후 재검토 → resolved |
+| `correction` | 단순 오류 수정 → resolved |
+
+수정 완료 후:
+1. MSG `status → "resolved"`, `resolution` 기록
+2. task_queue 해당 화면 → `qa_done` 재설정 (필요 시)
+3. pm-assistant에 "DELIVERY 수정 완료: {screenId}" 보고
+
+### 0-b. task_queue 확인
+`task_queue.json`에서 `status: "qa_done"` AND `lockedBy: null` 화면 목록 확인.
+`lockedBy: "delivery-agent"` 설정 후 처리 시작.
+
+---
+
+## 0-c. dev-qa 산출물 사전 리뷰 (qa_done 화면 대상)
+
+납품 패키징 **전** 반드시 실행. 리뷰 실패 시 해당 화면 납품 중단.
+
+**리뷰 체크리스트:**
+| 항목 | 확인 내용 | 실패 기준 |
+|---|---|---|
+| R1 | qa_checklist.json에 해당 화면 TC 존재 | 화면 항목 없음 |
+| R2 | 해당 화면 TC 중 `result: "pending"` 이 0개 | pending TC 존재 |
+| R3 | api_spec.md에 해당 화면 endpoint 존재 | 화면 섹션 없음 |
+| R4 | 05_dev_handoff/개발전달서.md에 해당 화면 기능 정의 존재 | 화면 누락 |
+| R5 | feedback_log.json 해당 화면 `status: "open"` 항목 0개 | 미결 피드백 존재 |
+
+**리뷰 PASS** → 즉시 납품 패키징 진행
+**리뷰 FAIL** → MSG 발행 후 해당 화면 납품 중단:
+```json
+{
+  "from": "delivery-agent",
+  "to": "dev-qa-agent",
+  "screen": "{screenId}",
+  "type": "review_fail",
+  "message": "R{번호}: {구체적 결함 내용}",
+  "status": "open",
+  "retryCount": 0
+}
+```
+task_queue 해당 화면 → `dev_done` 되돌림, `lockedBy: null`, `flags`에 결함 기록.
+pm-assistant에 "DEV-QA 리뷰 FAIL: {screenId} — {사유}" 보고.
+
+---
+
 ## 모듈 7: 납품 패키징
 
 ### 입력
@@ -33,6 +86,12 @@ tools: Read, Write, Edit
 - project_state.json 07_delivery.status → "done"
 - project_state.json currentPhase → "07_delivery"
 - QA 단계에서 미결(result:"pending") TC가 있으면 납품_체크리스트.md 미비 사항에 명시
+
+### cascade 완료 처리
+납품 패키징 완료 후:
+- task_queue 대상 화면 전체 → `done`, `lockedBy: null`
+- history에 `{ "status": "done", "at": "ISO8601" }` 추가
+- pm-assistant에 보고
 
 ### 완료 보고
 "납품 패키징 완료: 산출물 X개 확인, 미비 X개"

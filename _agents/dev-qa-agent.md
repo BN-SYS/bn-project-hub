@@ -13,6 +13,58 @@ PM이 "개발 전달 문서 만들어줘", "QA 체크리스트 만들어줘"로 
 
 ---
 
+## 0. 사전 루틴 (매 실행 시작 시 필수)
+
+### 0-a. MSG 수신함 확인
+`agent_messages.json`에서 `to: "dev-qa-agent"` AND `status: "open"` 항목 스캔.
+
+| 수신 MSG 타입 | 처리 |
+|---|---|
+| `review_fail` (from delivery) | api_spec·qa_checklist 해당 항목 수정 → resolved |
+| `clarification` | 해당 API 스펙 명확화 → resolved |
+
+수정 완료 후:
+1. MSG `status → "resolved"`, `resolution` 기록
+2. task_queue 해당 화면 → `dev_done` 재설정
+3. pm-assistant에 "DEV-QA 수정 완료: {screenId}" 보고
+
+### 0-b. task_queue 확인
+`task_queue.json`에서 `status: "dev_ready"` AND `lockedBy: null` 화면 목록 확인.
+`lockedBy: "dev-qa-agent"` 설정 후 처리 시작.
+
+---
+
+## 0-c. storyboard 산출물 사전 리뷰 (dev_ready 화면 대상)
+
+api_spec 작성 **전** 반드시 실행. 리뷰 실패 시 해당 화면 처리 중단.
+
+**리뷰 체크리스트:**
+| 항목 | 확인 내용 | 실패 기준 |
+|---|---|---|
+| R1 | HTML 주석의 API endpoint ↔ meta.json apis 일치 | 불일치 |
+| R2 | 폼 화면 meta.json `validationFields` 존재 | 빈 배열 |
+| R3 | meta.json `errorCases` 1개 이상 존재 | 빈 배열 |
+| R4 | specs/{ID}.meta.json 파일 존재 | 파일 없음 |
+| R5 | HTML 내 [API-DATA] 주석 ↔ meta.json endpoint 매칭 | 미매칭 |
+
+**리뷰 PASS** → 즉시 api_spec 작성 진행
+**리뷰 FAIL** → MSG 발행 후 해당 화면 처리 중단:
+```json
+{
+  "from": "dev-qa-agent",
+  "to": "storyboard-agent",
+  "screen": "{screenId}",
+  "type": "review_fail",
+  "message": "R{번호}: {구체적 결함 내용}",
+  "status": "open",
+  "retryCount": 0
+}
+```
+task_queue 해당 화면 → `sb_done` 되돌림, `lockedBy: null`, `flags`에 결함 기록.
+pm-assistant에 "SB 리뷰 FAIL: {screenId} — {사유}" 보고.
+
+---
+
 ## 모듈 5: 개발 전달
 
 ### 입력
