@@ -122,6 +122,48 @@ CREATE TABLE IF NOT EXISTS popup (
   KEY idx_active_date (is_active, display_start, display_end)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ─────────────────────────────────────
+-- 수업 일정 (캘린더 카드 + 인스타 추출용)
+-- ─────────────────────────────────────
+CREATE TABLE IF NOT EXISTS schedule (
+  id          INT          NOT NULL AUTO_INCREMENT,
+  event_date  DATE         NOT NULL COMMENT '일정 날짜',
+  title       VARCHAR(50)  NOT NULL COMMENT '일정명 (캘린더 셀에 표시)',
+  color       VARCHAR(7)   NOT NULL DEFAULT '#e8915b' COMMENT '텍스트 색상 HEX',
+  is_holiday  TINYINT(1)   NOT NULL DEFAULT 0 COMMENT '공휴일 여부 (날짜 숫자 빨간색)',
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_date (event_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 기존 schedule 테이블에 컬럼 추가 (이미 생성된 경우)
+ALTER TABLE schedule
+  ADD COLUMN IF NOT EXISTS is_holiday TINYINT(1) NOT NULL DEFAULT 0 COMMENT '공휴일 여부'
+  AFTER color;
+
+-- ─────────────────────────────────────
+-- 배너 (메인 히어로 슬라이드)
+-- ─────────────────────────────────────
+CREATE TABLE IF NOT EXISTS banner (
+  id          INT          NOT NULL AUTO_INCREMENT,
+  title       TEXT         NULL COMMENT '배너 제목 (줄바꿈 포함)',
+  subtitle    VARCHAR(300) NULL COMMENT '배너 부제목',
+  image       VARCHAR(500) NULL COMMENT '배너 이미지 경로',
+  overlay     ENUM('dark','light') NOT NULL DEFAULT 'dark',
+  btn1_text   VARCHAR(30)  NULL,
+  btn1_url    VARCHAR(500) NULL,
+  btn1_style  VARCHAR(20)  NOT NULL DEFAULT 'outline',
+  btn2_text   VARCHAR(30)  NULL,
+  btn2_url    VARCHAR(500) NULL,
+  btn2_style  VARCHAR(20)  NOT NULL DEFAULT 'gold',
+  is_active   TINYINT(1)   NOT NULL DEFAULT 1,
+  sort_order  INT          NOT NULL DEFAULT 0,
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_active_sort (is_active, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- course_category 테이블이 없는 경우 생성
 CREATE TABLE IF NOT EXISTS course_category (
   id         INT         NOT NULL AUTO_INCREMENT,
@@ -131,4 +173,57 @@ CREATE TABLE IF NOT EXISTS course_category (
   PRIMARY KEY (id),
   UNIQUE KEY uq_name (name),
   KEY idx_sort (sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ─── 회원/원비 관리 ─────────────────────────────────────────
+
+-- 클래스 그룹 (내부 수업반)
+CREATE TABLE IF NOT EXISTS class_group (
+  id          INT          NOT NULL AUTO_INCREMENT,
+  name        VARCHAR(50)  NOT NULL COMMENT '클래스명',
+  fee         INT          NOT NULL DEFAULT 0 COMMENT '월 원비(원)',
+  description VARCHAR(200) NULL,
+  is_active   TINYINT(1)   NOT NULL DEFAULT 1,
+  sort_order  INT          NOT NULL DEFAULT 0,
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_active_sort (is_active, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 회원 (오프라인 등록 회원)
+CREATE TABLE IF NOT EXISTS member (
+  id           INT          NOT NULL AUTO_INCREMENT,
+  name         VARCHAR(50)  NOT NULL,
+  phone        VARCHAR(20)  NULL,
+  email        VARCHAR(100) NULL,
+  birth_date   DATE         NULL COMMENT '생년월일',
+  gender       CHAR(1)      NULL COMMENT 'M:남 F:여',
+  class_id     INT          NULL COMMENT 'FK → class_group',
+  joined_at    DATE         NULL COMMENT '등록일',
+  suspended_at DATE         NULL COMMENT '휴원일',
+  memo         TEXT         NULL COMMENT '관리자 메모',
+  is_active    TINYINT(1)   NOT NULL DEFAULT 1,
+  created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_active (is_active),
+  KEY idx_class (class_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 원비 납부 기록
+CREATE TABLE IF NOT EXISTS tuition (
+  id          INT          NOT NULL AUTO_INCREMENT,
+  member_id   INT          NOT NULL COMMENT 'FK → member',
+  class_id    INT          NULL COMMENT '납부 시점 클래스(스냅샷)',
+  year        SMALLINT     NOT NULL,
+  month       TINYINT      NOT NULL,
+  base_fee    INT          NOT NULL DEFAULT 0 COMMENT '클래스 기본 원비',
+  actual_fee  INT          NOT NULL DEFAULT 0 COMMENT '실납부 금액',
+  status      TINYINT(1)   NOT NULL DEFAULT 0 COMMENT '0:미납 1:납부 2:유예',
+  paid_at     DATE         NULL COMMENT '납부일',
+  memo        VARCHAR(200) NULL,
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_member_ym (member_id, year, month),
+  KEY idx_ym (year, month),
+  KEY idx_member (member_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

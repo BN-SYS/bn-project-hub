@@ -23,13 +23,15 @@
         <?php if (!empty($n['is_pinned'])): ?>
         <span class="notice-pin-badge">공지</span>
         <?php endif; ?>
-        <?php if (!empty($n['thumbnail'])): ?>
-        <img class="notice-card-img" src="<?= e($n['thumbnail']) ?>" alt="<?= e($n['title']) ?>">
-        <?php else: ?>
-        <div class="notice-card-placeholder">
-          <span class="notice-card-placeholder-text"><?= e(mbTruncate($n['title'], 30)) ?></span>
+        <div class="notice-card-img-wrap">
+          <?php if (!empty($n['thumbnail'])): ?>
+          <img class="notice-card-img" src="<?= e($n['thumbnail']) ?>" alt="<?= e($n['title']) ?>">
+          <?php else: ?>
+          <div class="notice-card-placeholder">
+            <span class="notice-card-placeholder-text"><?= e(mbTruncate($n['title'], 30)) ?></span>
+          </div>
+          <?php endif; ?>
         </div>
-        <?php endif; ?>
         <div class="notice-card-info">
           <p class="notice-card-title"><?= e($n['title']) ?></p>
           <p class="notice-card-date"><?= fmtDate($n['created_at']) ?></p>

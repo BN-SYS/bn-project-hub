@@ -16,10 +16,15 @@ class AdminInquiryController extends Controller {
         if (!in_array($perPage, self::VALID_PER_PAGES, true)) {
             $perPage = self::DEFAULT_PER_PAGE;
         }
-        $page  = max(1, (int)$this->get('page', 1));
+        $page = max(1, (int)$this->get('page', 1));
+
+        $statusRaw    = $this->get('status', '');
+        $statusFilter = ($statusRaw !== '' && in_array((int)$statusRaw, [0, 1, 2], true))
+            ? (int)$statusRaw : null;
+
         $model = new InquiryModel();
-        $items = $model->paginate($page, $perPage);
-        $total = $model->countAll();
+        $items = $model->paginate($page, $perPage, $statusFilter);
+        $total = $model->countAll($statusFilter);
 
         $this->render('layouts/admin', [
             'pageTitle'     => '문의 목록',
@@ -30,6 +35,7 @@ class AdminInquiryController extends Controller {
             'page'          => $page,
             'perPage'       => $perPage,
             'validPerPages' => self::VALID_PER_PAGES,
+            'statusFilter'  => $statusFilter,
         ]);
     }
 

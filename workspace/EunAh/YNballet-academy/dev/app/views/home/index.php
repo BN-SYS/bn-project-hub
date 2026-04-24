@@ -1,6 +1,70 @@
 <!-- SCREEN: 홈 메인 | PATH: / | APIs: GET /notice (active 3개), GET /course (active 전체) -->
 
 <!-- [SECTION: HERO] 히어로 배너 -->
+<?php if (!empty($banners)): ?>
+<section class="hero-section hero-carousel-wrap">
+  <div id="heroCarousel" class="carousel slide h-100"
+    data-bs-ride="<?= count($banners) > 1 ? 'carousel' : 'false' ?>"
+    data-bs-interval="2000">
+
+    <?php if (count($banners) > 1): ?>
+    <div class="carousel-indicators">
+      <?php foreach ($banners as $i => $b): ?>
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="<?= $i ?>"
+        <?= $i === 0 ? 'class="active"' : '' ?>></button>
+      <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
+    <div class="carousel-inner h-100">
+      <?php foreach ($banners as $i => $b): ?>
+      <div class="carousel-item<?= $i === 0 ? ' active' : '' ?> h-100">
+        <div class="hero-slide <?= ($b['overlay'] ?? 'dark') === 'light' ? 'overlay-light' : '' ?>">
+          <?php if ($b['image']): ?>
+          <div class="hero-bg" style="background-image:url('<?= e($b['image']) ?>');"></div>
+          <?php endif; ?>
+          <div class="hero-content">
+            <span class="hero-en">YN Ballet Academy</span>
+            <div class="hero-divider"></div>
+            <?php if ($b['title']): ?>
+            <h1><?= nl2br(e($b['title'])) ?></h1>
+            <?php endif; ?>
+            <?php if ($b['subtitle']): ?>
+            <p class="hero-sub"><?= e($b['subtitle']) ?></p>
+            <?php endif; ?>
+            <?php
+            $styleMap = ['outline' => 'btn-yn-outline', 'gold' => 'btn-yn-gold', 'white' => 'btn-banner-white'];
+            $btns = [];
+            if (!empty($b['btn1_url']) && !empty($b['btn1_text']))
+                $btns[] = ['text' => $b['btn1_text'], 'url' => $b['btn1_url'], 'cls' => $styleMap[$b['btn1_style']] ?? 'btn-yn-outline'];
+            if (!empty($b['btn2_url']) && !empty($b['btn2_text']))
+                $btns[] = ['text' => $b['btn2_text'], 'url' => $b['btn2_url'], 'cls' => $styleMap[$b['btn2_style']] ?? 'btn-yn-gold'];
+            ?>
+            <?php if (!empty($btns)): ?>
+            <div class="d-flex gap-2 flex-wrap justify-content-center">
+              <?php foreach ($btns as $btn): ?>
+              <a href="<?= e($btn['url']) ?>" class="btn <?= $btn['cls'] ?>"><?= e($btn['text']) ?></a>
+              <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+          </div>
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+
+    <?php if (count($banners) > 1): ?>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+    <?php endif; ?>
+
+  </div>
+</section>
+<?php else: ?>
 <section class="hero-section">
   <div class="hero-bg" style="background-image:url('<?= BASE_PATH ?>/assets/images/studio1.jpeg');"></div>
   <div class="hero-content">
@@ -12,6 +76,7 @@
     <a href="<?= BASE_PATH ?>/course" class="btn btn-yn-gold">과정 보기</a>
   </div>
 </section>
+<?php endif; ?>
 <!-- [/SECTION: HERO] -->
 
 <!-- [SECTION: COURSE-PREVIEW] 과정 소개 미리보기 -->
@@ -92,13 +157,15 @@
           <?php if (!empty($n['is_pinned'])): ?>
           <span class="notice-pin-badge">공지</span>
           <?php endif; ?>
-          <?php if (!empty($n['thumbnail'])): ?>
-          <img class="notice-card-img" src="<?= e($n['thumbnail']) ?>" alt="<?= e($n['title']) ?>">
-          <?php else: ?>
-          <div class="notice-card-placeholder">
-            <span class="notice-card-placeholder-text"><?= e(mbTruncate($n['title'], 30)) ?></span>
+          <div class="notice-card-img-wrap">
+            <?php if (!empty($n['thumbnail'])): ?>
+            <img class="notice-card-img" src="<?= e($n['thumbnail']) ?>" alt="<?= e($n['title']) ?>">
+            <?php else: ?>
+            <div class="notice-card-placeholder">
+              <span class="notice-card-placeholder-text"><?= e(mbTruncate($n['title'], 30)) ?></span>
+            </div>
+            <?php endif; ?>
           </div>
-          <?php endif; ?>
           <div class="notice-card-info">
             <p class="notice-card-title"><?= e($n['title']) ?></p>
             <p class="notice-card-date"><?= fmtDate($n['created_at']) ?></p>

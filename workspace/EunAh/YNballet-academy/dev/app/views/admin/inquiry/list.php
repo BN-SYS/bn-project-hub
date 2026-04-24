@@ -1,17 +1,40 @@
 <!-- SCREEN: 문의 목록 (관리자) | PATH: /admin/inquiry -->
+<?php
+$statusParam = $statusFilter !== null ? '&status=' . $statusFilter : '';
+$baseUrl     = BASE_PATH . '/admin/inquiry?per_page=' . $perPage . $statusParam;
+$filterBase  = BASE_PATH . '/admin/inquiry?per_page=' . $perPage . '&page=1';
+$filterTabs  = [
+    null => '전체',
+    0    => '미답변',
+    1    => '답변완료',
+    2    => '보류',
+];
+?>
 
 <div class="p-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h4 fw-bold mb-0">문의 목록</h1>
     <div class="d-flex align-items-center gap-2">
       <label class="text-muted small mb-0 text-nowrap">페이지당</label>
       <select class="form-select form-select-sm" style="width:auto;"
-        onchange="location.href='<?= BASE_PATH ?>/admin/inquiry?per_page='+this.value+'&page=1'">
+        onchange="location.href='<?= BASE_PATH ?>/admin/inquiry?per_page='+this.value+'&page=1<?= $statusParam ?>'">
         <?php foreach ($validPerPages as $n): ?>
         <option value="<?= $n ?>" <?= $perPage === $n ? 'selected' : '' ?>><?= $n ?>개</option>
         <?php endforeach; ?>
       </select>
     </div>
+  </div>
+
+  <!-- 답변 상태 필터 -->
+  <div class="d-flex gap-2 mb-4">
+    <?php foreach ($filterTabs as $val => $label): ?>
+    <?php
+    $isActive = $statusFilter === $val;
+    $href = $val === null ? $filterBase : $filterBase . '&status=' . $val;
+    $cls  = $isActive ? 'btn btn-sm btn-dark' : 'btn btn-sm btn-outline-secondary';
+    ?>
+    <a href="<?= $href ?>" class="<?= $cls ?>"><?= $label ?></a>
+    <?php endforeach; ?>
   </div>
 
   <?php if (empty($items)): ?>
@@ -46,6 +69,6 @@
       </tbody>
     </table>
   </div>
-  <?= pagination($total, $page, $perPage, BASE_PATH . '/admin/inquiry?per_page=' . $perPage) ?>
+  <?= pagination($total, $page, $perPage, $baseUrl) ?>
   <?php endif; ?>
 </div>

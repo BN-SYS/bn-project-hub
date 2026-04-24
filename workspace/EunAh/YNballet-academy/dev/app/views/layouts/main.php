@@ -31,6 +31,9 @@
           <a class="nav-link<?= ($activePage ?? '') === 'course'  ? ' active' : '' ?>" href="<?= BASE_PATH ?>/course">과정소개</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link<?= ($activePage ?? '') === 'schedule' ? ' active' : '' ?>" href="<?= BASE_PATH ?>/schedule">수업 일정</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link<?= ($activePage ?? '') === 'notice'  ? ' active' : '' ?>" href="<?= BASE_PATH ?>/notice">공지사항</a>
         </li>
         <li class="nav-item">

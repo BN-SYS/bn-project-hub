@@ -15,6 +15,8 @@ $router->get('/inquiry/check',  'InquiryController@showCheck');   // 비밀번�
 $router->post('/inquiry/check', 'InquiryController@checkPassword');
 $router->get('/inquiry/:id',    'InquiryController@show');
 
+$router->get('/schedule',           'ScheduleController@index');
+
 // ─── 관리자 라우트 ────────────────────────────────────────
 $router->get('/admin/login',    'AdminAuthController@showLogin');
 $router->post('/admin/login',   'AdminAuthController@login');
@@ -61,6 +63,54 @@ $router->get('/admin/inquiry/:id',             'AdminInquiryController@show');
 $router->post('/admin/inquiry/:id/status',     'AdminInquiryController@updateStatus');
 $router->post('/admin/inquiry/:id/memo',       'AdminInquiryController@saveMemo');
 $router->post('/admin/inquiry/:id/answer',     'AdminInquiryController@saveAnswer');
+
+// 수업 일정
+$router->get('/admin/schedule',                   'AdminScheduleController@index');
+$router->get('/admin/schedule/preview',           'AdminScheduleController@preview');
+$router->get('/admin/schedule/write',             'AdminScheduleController@create');
+$router->post('/admin/schedule/write',            'AdminScheduleController@store');
+$router->get('/admin/schedule/:id/edit',          'AdminScheduleController@edit');
+$router->post('/admin/schedule/:id/edit',         'AdminScheduleController@update');
+$router->post('/admin/schedule/:id/delete',       'AdminScheduleController@delete');
+
+// 배너
+$router->get('/admin/banner',                 'AdminBannerController@index');
+$router->get('/admin/banner/write',           'AdminBannerController@create');
+$router->post('/admin/banner/write',          'AdminBannerController@store');
+$router->get('/admin/banner/sort',            'AdminBannerController@sort');
+$router->post('/admin/banner/sort',           'AdminBannerController@updateSort');
+$router->get('/admin/banner/:id/edit',        'AdminBannerController@edit');
+$router->post('/admin/banner/:id/edit',       'AdminBannerController@update');
+$router->post('/admin/banner/:id/toggle',     'AdminBannerController@toggle');
+$router->post('/admin/banner/:id/delete',     'AdminBannerController@delete');
+
+// 클래스 관리
+$router->get('/admin/class-group',                  'AdminClassGroupController@index');
+$router->get('/admin/class-group/write',            'AdminClassGroupController@create');
+$router->post('/admin/class-group/write',           'AdminClassGroupController@store');
+$router->get('/admin/class-group/:id/edit',         'AdminClassGroupController@edit');
+$router->post('/admin/class-group/:id/edit',        'AdminClassGroupController@update');
+$router->post('/admin/class-group/:id/delete',      'AdminClassGroupController@delete');
+
+// 회원 관리
+$router->get('/admin/member',                       'AdminMemberController@index');
+$router->get('/admin/member/write',                 'AdminMemberController@create');
+$router->post('/admin/member/write',                'AdminMemberController@store');
+$router->get('/admin/member/:id/edit',              'AdminMemberController@edit');
+$router->post('/admin/member/:id/edit',             'AdminMemberController@update');
+$router->post('/admin/member/:id/delete',           'AdminMemberController@delete');
+
+// 원비 관리
+$router->get('/admin/tuition',                      'AdminTuitionController@index');
+$router->get('/admin/tuition/stats',                'AdminTuitionController@stats');
+$router->post('/admin/tuition/generate',            'AdminTuitionController@generate');
+$router->get('/admin/tuition/:id/edit',             'AdminTuitionController@edit');
+$router->post('/admin/tuition/:id/edit',            'AdminTuitionController@update');
+$router->post('/admin/tuition/:id/paid',            'AdminTuitionController@markPaid');
+
+// 계정 설정
+$router->get('/admin/settings/profile',  'AdminSettingsController@showProfile');
+$router->post('/admin/settings/profile', 'AdminSettingsController@updateProfile');
 
 // 이미지 업로드
 $router->post('/admin/upload-image',    'AdminUploadController@store');

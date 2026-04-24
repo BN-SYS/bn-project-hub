@@ -7,16 +7,24 @@ class InquiryModel {
         $this->db = Database::getInstance();
     }
 
-    public function paginate(int $page, int $perPage): array {
+    public function paginate(int $page, int $perPage, ?int $status = null): array {
         $offset = ($page - 1) * $perPage;
-        $stmt = $this->db->prepare(
-            'SELECT id, name, contact, course_interest, admin_memo, status, created_at FROM inquiry ORDER BY created_at DESC LIMIT ? OFFSET ?'
+        $where  = $status !== null ? 'WHERE status = ?' : '';
+        $params = $status !== null ? [$status, $perPage, $offset] : [$perPage, $offset];
+        $stmt   = $this->db->prepare(
+            "SELECT id, name, contact, course_interest, admin_memo, status, created_at
+             FROM inquiry $where ORDER BY created_at DESC LIMIT ? OFFSET ?"
         );
-        $stmt->execute([$perPage, $offset]);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function countAll(): int {
+    public function countAll(?int $status = null): int {
+        if ($status !== null) {
+            $stmt = $this->db->prepare('SELECT COUNT(*) FROM inquiry WHERE status = ?');
+            $stmt->execute([$status]);
+            return (int) $stmt->fetchColumn();
+        }
         return (int) $this->db->query('SELECT COUNT(*) FROM inquiry')->fetchColumn();
     }
 

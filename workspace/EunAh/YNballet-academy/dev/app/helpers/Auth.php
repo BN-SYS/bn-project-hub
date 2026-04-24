@@ -21,12 +21,34 @@ class Auth {
 
     public static function login(string $id, string $pass): bool {
         self::startSession();
-        if ($id === ADMIN_ID && password_verify($pass, ADMIN_PASS_HASH)) {
+        $profile = self::getProfile();
+        if ($id === $profile['id'] && password_verify($pass, $profile['pass_hash'])) {
             session_regenerate_id(true);
             $_SESSION['admin'] = true;
             return true;
         }
         return false;
+    }
+
+    public static function getProfile(): array {
+        $file = APP_ROOT . '/config/admin_profile.json';
+        if (file_exists($file)) {
+            $data = json_decode(file_get_contents($file), true);
+            if (is_array($data) && isset($data['id'], $data['pass_hash'])) {
+                return $data;
+            }
+        }
+        return [
+            'id'        => ADMIN_ID,
+            'pass_hash' => ADMIN_PASS_HASH,
+            'name'      => '관리자',
+            'contact'   => '',
+        ];
+    }
+
+    public static function saveProfile(array $data): void {
+        $file = APP_ROOT . '/config/admin_profile.json';
+        file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
     }
 
     public static function logout(): void {
