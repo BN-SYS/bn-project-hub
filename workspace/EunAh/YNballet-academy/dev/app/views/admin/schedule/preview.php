@@ -15,7 +15,8 @@ $prevMonth = $month === 1 ? 12 : $month - 1;
 $nextYear  = $month === 12 ? $year + 1 : $year;
 $nextMonth = $month === 12 ? 1 : $month + 1;
 
-$gridH = 540 - 42 - 52 - 10 - 22 - 4; // 410px
+// 기존 540에서 675로 기준 변경
+$gridH = 675 - 42 - 52 - 10 - 22 - 4; // 약 545px로 자동 계산됨
 
 // 공휴일 날짜 집합
 $holidayDates = [];
@@ -32,8 +33,11 @@ foreach ($events as $dateKey => $evList) {
   /* 카드 스타일 — html2canvas 캡처 대상 */
   #calendar-card {
     width: 540px;
-    height: 540px;
+    height: 675px;
+    /* 540에서 675로 수정 */
     min-width: 540px;
+    min-height: 675px;
+    /* 추가 */
     background: #fffcf1;
     border: 1px solid #d0d0d0;
     padding: 22px 22px 20px;
@@ -250,33 +254,38 @@ foreach ($events as $dateKey => $evList) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
 <script>
   (function() {
-    const btn = document.getElementById('btn-export');
-    const card = document.getElementById('calendar-card');
+      const btn = document.getElementById('btn-export');
+      const card = document.getElementById('calendar-card');
 
-    btn.addEventListener('click', function() {
-      btn.disabled = true;
-      btn.textContent = '생성 중…';
+      btn.addEventListener('click', function() {
+          btn.disabled = true;
+          btn.textContent = '생성 중…';
 
-      html2canvas(card, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#ffffff',
-        width: 540,
-        height: 540,
-        scrollX: 0,
-        scrollY: 0,
-      }).then(function(canvas) {
-        const link = document.createElement('a');
-        link.download = 'yn-ballet-<?= $year ?>-<?= sprintf('%02d', $month) ?>.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      }).catch(function() {
-        alert('이미지 생성 중 오류가 발생했습니다.');
-      }).finally(function() {
-        btn.disabled = false;
-        btn.textContent = '↓ 인스타 카드 추출 (1080×1080)';
+          html2canvas(card, {
+              scale: 2, 
+              useCORS: true,
+              allowTaint: false,
+              backgroundColor: '#ffffff',
+              width: 540, 
+              height: 675, 
+              scrollX: 0,
+              scrollY: 0,
+              onclone: function(clonedDoc) {
+                  // 캡처 시점에 높이를 확실히 고정
+                  clonedDoc.getElementById('calendar-card').style.height = '675px';
+              } // 이 부분의 닫는 괄호가 누락되었었습니다.
+          }).then(function(canvas) {
+              const link = document.createElement('a');
+              link.download = 'yn-ballet-<?= $year ?>-<?= sprintf('%02d', $month) ?>.png';
+              link.href = canvas.toDataURL('image/png');
+              link.click();
+          }).catch(function(err) {
+              console.error(err);
+              alert('이미지 생성 중 오류가 발생했습니다.');
+          }).finally(function() {
+              btn.disabled = false;
+              btn.textContent = '↓ 인스타 카드 추출 (1080×1350)'; // 비율에 맞게 텍스트 수정
+          });
       });
-    });
   })();
 </script>
