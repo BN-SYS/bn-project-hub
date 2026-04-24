@@ -76,7 +76,7 @@ foreach ($events as $dateKey => $evList) {
 
   .cal-month-display {
     font-family: 'Noto Serif KR', serif;
-    font-size: 30px;
+    font-size: 40px;
     font-weight: 600;
     color: #2c3d50;
     letter-spacing: .02em;
@@ -209,7 +209,7 @@ foreach ($events as $dateKey => $evList) {
           <div class="cal-logo-text">와이엔발레</div>
           <div class="cal-logo-sub">YN BALLET STUDIO</div>
         </div>
-        <img src="<?= BASE_PATH ?>/assets/images/YN.png" alt="와이엔발레 로고" style="height:60px; margin-bottom: 20px; margin-right: 45px; object-fit:contain;">
+        <img src="<?= BASE_PATH ?>/assets/images/YN.png" alt="와이엔발레 로고" style="height:60px; margin-bottom: 20px; margin-right: 30px; object-fit:contain;">
         <div class="cal-month-display"><?= $monthKo[$month] ?></div>
       </div>
 
