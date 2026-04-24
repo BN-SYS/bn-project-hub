@@ -33,11 +33,8 @@ foreach ($events as $dateKey => $evList) {
   /* 카드 스타일 — html2canvas 캡처 대상 */
   #calendar-card {
     width: 540px;
-    height: 675px;
-    /* 540에서 675로 수정 */
+    /* height: 675px; <- 이 줄은 삭제하거나 주석 처리하세요 */
     min-width: 540px;
-    min-height: 675px;
-    /* 추가 */
     background: #fffcf1;
     border: 1px solid #d0d0d0;
     padding: 22px 22px 20px;
@@ -165,7 +162,7 @@ foreach ($events as $dateKey => $evList) {
   }
 
   /* 추출 버튼 */
-  #btn-export {
+  .btn-export {
     background: #2c3d50;
     color: #fff;
     border: none;
@@ -246,7 +243,10 @@ foreach ($events as $dateKey => $evList) {
   </div>
 
   <!-- 추출 버튼 -->
-  <button id="btn-export">↓ 인스타 카드 추출 (1080×1350)</button>
+  <div class="d-flex gap-2">
+    <button class="btn-export" data-ratio="1:1">↓ 인스타 피드용 (1080×1080)</button>
+    <button class="btn-export" data-ratio="4:5" style="background:#4a69bd;">↓ 인스타 세로형 (1080×1350)</button>
+  </div>
   <p class="text-muted small mt-2">PNG 파일로 자동 다운로드됩니다.</p>
 
 </div>
@@ -254,38 +254,55 @@ foreach ($events as $dateKey => $evList) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
 <script>
   (function() {
-      const btn = document.getElementById('btn-export');
-      const card = document.getElementById('calendar-card');
+    const card = document.getElementById('calendar-card');
+    const grid = card.querySelector('.cal-grid');
 
+    document.querySelectorAll('.btn-export').forEach(btn => {
       btn.addEventListener('click', function() {
-          btn.disabled = true;
-          btn.textContent = '생성 중…';
+        const ratio = this.getAttribute('data-ratio');
+        const originalText = this.textContent;
 
-          html2canvas(card, {
-              scale: 2, 
-              useCORS: true,
-              allowTaint: false,
-              backgroundColor: '#ffffff',
-              width: 540, 
-              height: 675, 
-              scrollX: 0,
-              scrollY: 0,
-              onclone: function(clonedDoc) {
-                  // 캡처 시점에 높이를 확실히 고정
-                  clonedDoc.getElementById('calendar-card').style.height = '675px';
-              } // 이 부분의 닫는 괄호가 누락되었었습니다.
-          }).then(function(canvas) {
-              const link = document.createElement('a');
-              link.download = 'yn-ballet-<?= $year ?>-<?= sprintf('%02d', $month) ?>.png';
-              link.href = canvas.toDataURL('image/png');
-              link.click();
-          }).catch(function(err) {
-              console.error(err);
-              alert('이미지 생성 중 오류가 발생했습니다.');
-          }).finally(function() {
-              btn.disabled = false;
-              btn.textContent = '↓ 인스타 카드 추출 (1080×1350)'; // 비율에 맞게 텍스트 수정
-          });
+        // 버튼 비활성화
+        this.disabled = true;
+        this.textContent = '생성 중…';
+
+        // 1. 비율에 따른 설정값 정의
+        let targetH = 540; // 기본 1:1
+        if (ratio === '4:5') {
+          targetH = 675;
+        }
+
+        // 2. 캡처를 위해 실제 카드의 높이와 그리드 높이를 일시적으로 변경
+        const headerH = 52 + 10 + 22 + 4 + 42; // 헤더, 여백 등 고정 높이 합계
+        const newGridH = targetH - headerH;
+
+        card.style.height = targetH + 'px';
+        grid.style.height = newGridH + 'px';
+
+        // 3. html2canvas 실행
+        html2canvas(card, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          width: 540,
+          height: targetH,
+          scrollX: 0,
+          scrollY: 0
+        }).then(function(canvas) {
+          const link = document.createElement('a');
+          const suffix = ratio.replace(':', '_');
+          link.download = `yn-ballet-<?= $year ?>-<?= sprintf('%02d', $month) ?>_${suffix}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        }).catch(function(err) {
+          console.error(err);
+          alert('이미지 생성 중 오류가 발생했습니다.');
+        }).finally(function() {
+          // 원래 상태로 복구 (필요시)
+          btn.disabled = false;
+          btn.textContent = originalText;
+        });
       });
+    });
   })();
 </script>
