@@ -81,7 +81,7 @@ foreach ($events as $dateKey => $evList) {
   width: 540px;
   height: 540px;
   min-width: 540px;
-  background: #ffffff;
+  background: #fffcf1;
   border: 1px solid #d0d0d0;
   padding: 22px 22px 20px;
   box-sizing: border-box;
@@ -168,7 +168,7 @@ foreach ($events as $dateKey => $evList) {
 .cal-cell:nth-child(7n+1) { border-left: 0.5px solid #e4e4e4; }
 .cal-grid .cal-cell:nth-child(-n+7) { border-top: 0.5px solid #e4e4e4; }
 
-.cal-cell-empty { background: #fafafa; }
+.cal-cell-empty { background: #fcfaf1; }
 
 .cal-date-num {
   font-size: 13px;
@@ -222,6 +222,7 @@ foreach ($events as $dateKey => $evList) {
             <div class="cal-logo-text">와이엔발레</div>
             <div class="cal-logo-sub">YN BALLET STUDIO</div>
           </div>
+          <img src="<?= BASE_PATH ?>/assets/images/YN.png" alt="와이엔발레 로고" style="height:60px; margin-bottom: 20px; margin-right: 45px; object-fit:contain;">
           <div class="cal-month-display"><?= $monthKo[$month] ?></div>
         </div>
 
