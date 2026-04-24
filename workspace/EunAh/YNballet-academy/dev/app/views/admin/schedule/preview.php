@@ -246,7 +246,7 @@ foreach ($events as $dateKey => $evList) {
   </div>
 
   <!-- 추출 버튼 -->
-  <button id="btn-export">↓ 인스타 카드 추출 (1080×1080)</button>
+  <button id="btn-export">↓ 인스타 카드 추출 (1080×1350)</button>
   <p class="text-muted small mt-2">PNG 파일로 자동 다운로드됩니다.</p>
 
 </div>
