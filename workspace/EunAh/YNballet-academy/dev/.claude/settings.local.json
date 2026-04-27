@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost/YNballet-academy/admin/login\")",
+      "Bash(curl *)",
+      "Bash(start *)",
+      "Bash(php -l \"C:\\\\Users\\\\BN659\\\\Desktop\\\\BN_SYS\\\\workspace\\\\EunAh\\\\YNballet-academy\\\\dev\\\\app\\\\controllers\\\\admin\\\\AdminImageExportController.php\")",
+      "Bash(php -l \"C:\\\\Users\\\\BN659\\\\Desktop\\\\BN_SYS\\\\workspace\\\\EunAh\\\\YNballet-academy\\\\dev\\\\app\\\\controllers\\\\admin\\\\AdminMemberController.php\")",
+      "Bash(php -l \"C:\\\\Users\\\\BN659\\\\Desktop\\\\BN_SYS\\\\workspace\\\\EunAh\\\\YNballet-academy\\\\dev\\\\app\\\\controllers\\\\admin\\\\AdminTuitionController.php\")",
+      "Bash(php -l \"C:\\\\Users\\\\BN659\\\\Desktop\\\\BN_SYS\\\\workspace\\\\EunAh\\\\YNballet-academy\\\\dev\\\\app\\\\models\\\\MemberModel.php\")",
+      "Bash(php -l \"C:\\\\Users\\\\BN659\\\\Desktop\\\\BN_SYS\\\\workspace\\\\EunAh\\\\YNballet-academy\\\\dev\\\\config\\\\config.php\")",
+      "PowerShell(Start-Process \"chrome.exe\" \"http://localhost/YNballet-academy/\")",
+      "PowerShell(& \"C:\\\\xampp\\\\php\\\\php.exe\" -l \"C:\\\\Users\\\\BN659\\\\Desktop\\\\BN_SYS\\\\workspace\\\\EunAh\\\\YNballet-academy\\\\dev\\\\app\\\\controllers\\\\admin\\\\AdminImageExportController.php\")",
+      "Bash(cp -r public/assets .)",
+      "Bash(cp public/uploads/* uploads/)",
+      "Bash(\"C:/xampp/apache/bin/httpd.exe\" -k restart)",
+      "Bash(net stop *)",
+      "Bash(net start *)"
+    ]
+  }
+}

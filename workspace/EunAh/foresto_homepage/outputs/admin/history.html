@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>연혁관리 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .admin-table tbody td.td-history-content {
+      text-align: left; white-space: normal;
+      overflow: visible; text-overflow: clip;
+      padding: 10px 12px; vertical-align: top;
+    }
+    .history-item-line { font-size: 13px; color: var(--gray-dark); line-height: 1.7; }
+    .admin-table tbody td.td-thumb { white-space: normal; overflow: visible; text-overflow: clip; }
+    .history-thumb {
+      width: 64px; height: 48px; object-fit: cover;
+      border-radius: 5px; display: block; margin: 0 auto;
+      border: 1px solid #e3eadd;
+    }
+    .thumb-placeholder {
+      display: block; width: 64px; height: 48px;
+      background: #d4e8d0; border-radius: 5px; margin: 0 auto;
+    }
+    .thumb-none { font-size: 11px; color: #bbb; }
+  </style>
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-head">
+        <span class="adm-sb-title">MENU</span>
+        <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+      </div>
+      <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <h1 class="admin-page-title">연혁관리</h1>
+        <div class="admin-topbar-actions">
+          <button class="btn-refresh" onclick="HistoryList.load()" title="새로고침">
+            <img src="../assets/icons/refresh.png" alt="새로고침">
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="location.href='history-edit.html'">+ 연도 추가</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width:50px"  class="center">NO</th>
+              <th style="width:150px" class="center">등록일시</th>
+              <th style="width:70px"  class="center">연도</th>
+              <th style="width:300px" class="center">이미지</th>
+              <th class="left">내용</th>
+              <th style="width:200px" class="center">관리</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="pagination" id="pagination" style="margin-top:16px;"></div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/admin.js"></script>
+  <script>
+  'use strict';
+
+  /* ──────────────────────────────────────────
+     샘플 데이터
+     [개발자] AdminHttp.get(ADMIN_API.history, params) 응답으로 교체
+  ────────────────────────────────────────── */
+  const SAMPLE_DATA = {
+    total: 3,
+    items: [
+      {
+        no: 3, year: 2026, regDate: '2026-03-09 14:22:00', imgUrl: null,
+        items: [
+          '03.30 제55기 숲해설가 전문가과정 모집 시작',
+          '03.30 2026년도 정기 이사회 개최, 사업계획 확정',
+        ],
+      },
+      {
+        no: 2, year: 2025, regDate: '2026-02-15 09:10:00', imgUrl: 'placeholder',
+        items: [
+          '03.30 제54기 전문가과정 수료식, 수료생 42명 배출',
+          '03.30 전국 지역 숲해설가 연합 워크숍 개최 (전주)',
+          '03.30 협회 홈페이지 전면 개편 오픈',
+        ],
+      },
+      {
+        no: 1, year: 2023, regDate: '2026-01-20 16:05:00', imgUrl: 'placeholder',
+        items: [
+          '03.30 창립 25주년 기념행사 및 심포지엄 개최',
+          '03.30 사회공헌단 확대 개편, 전국 12개 권역 운영 체계 구축',
+          '03.30 숲 동아리단 공식 출범, 전국 15개 동아리 등록',
+        ],
+      },
+    ],
+  };
+
+  const HistoryList = {
+    currentPage: 1,
+    pageSize: 10,
+
+    async load() {
+      AdminUI.showLoading('tableBody', 6);
+      try {
+        /*
+         * [개발자 연동]
+         * const data = await AdminHttp.get(ADMIN_API.history, {
+         *   page: this.currentPage, size: this.pageSize
+         * });
+         * this.render(data.items, data.total);
+         */
+        await new Promise(r => setTimeout(r, 150));
+        this.render(SAMPLE_DATA.items, SAMPLE_DATA.total);
+      } catch (e) {
+        AdminUI.showError('tableBody', e.message, 6);
+      }
+    },
+
+    render(items, total) {
+      const totalPages = Math.ceil(total / this.pageSize) || 1;
+      AdminUI.renderPagination('pagination', this.currentPage, totalPages, p => {
+        this.currentPage = p; this.load();
+      });
+
+      if (!items.length) {
+        AdminUI.showEmpty('tableBody', '등록된 연혁이 없습니다.', 6);
+        return;
+      }
+
+      document.getElementById('tableBody').innerHTML = items.map(d => `
+        <tr style="cursor:pointer" onclick="location.href='history-edit.html?year=${d.year}'" title="${d.year}년 수정">
+          <td class="center">${d.no}</td>
+          <td class="center cell-mono">${d.regDate}</td>
+          <td class="center" style="font-weight:700;font-size:15px">${d.year}</td>
+          <td class="center td-thumb">
+            ${d.imgUrl && d.imgUrl !== 'placeholder'
+              ? `<img class="history-thumb" src="${d.imgUrl}" alt="${d.year}년 이미지">`
+              : d.imgUrl === 'placeholder'
+                ? `<span class="thumb-placeholder"></span>`
+                : `<span class="thumb-none">-</span>`
+            }
+          </td>
+          <td class="td-history-content">
+            ${d.items.map(line => `<div class="history-item-line">${line}</div>`).join('')}
+          </td>
+          <td class="center" onclick="event.stopPropagation()">
+            <div style="display:flex;gap:4px;justify-content:center">
+              <button class="btn btn-outline btn-xs"
+                onclick="event.stopPropagation();location.href='history-edit.html?year=${d.year}'">수정</button>
+              <button class="btn btn-danger btn-xs"
+                onclick="event.stopPropagation();HistoryList.remove(${d.year})">삭제</button>
+            </div>
+          </td>
+        </tr>`).join('');
+    },
+
+    async remove(year) {
+      if (!confirm(`${year}년 연혁을 삭제하시겠습니까?`)) return;
+      try {
+        /*
+         * [개발자 연동]
+         * await AdminHttp.del(ADMIN_API.url('history', year));
+         */
+        App.toast(`${year}년 연혁이 삭제되었습니다.`, 'success');
+        this.load();
+      } catch (e) {
+        App.toast(e.message, 'error');
+      }
+    },
+  };
+
+  AdminSidebar.mount('history');
+  HistoryList.load();
+  </script>
+</body>
+</html>

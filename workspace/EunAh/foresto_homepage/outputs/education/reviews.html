@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>수료생 후기 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/education.css">
+</head>
+
+<body>
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>자격취득 과정</h1>
+    </div>
+  </div>
+
+  <div id="bc"></div>
+  <div class="sub-layout">
+    <div id="lnb"></div>
+    <main class="sub-content">
+      <div class="content-wrap">
+
+        <h2 class="list-section-title">수료생 후기</h2>
+
+        <!-- 필터 박스 -->
+        <div class="list-filter-box">
+          <div class="list-filter-row">
+            <div class="list-filter-item" style="flex:0 0 300px;">
+              <span class="list-filter-label">과정</span>
+              <select class="list-filter-select" id="filterCourse">
+                <option value="">전체</option>
+              </select>
+            </div>
+            <div class="list-filter-item" style="flex:1;">
+              <span class="list-filter-label">검색어</span>
+              <input type="text" class="list-filter-input" id="filterKeyword" placeholder="제목 또는 내용 검색">
+            </div>
+            <button class="list-filter-btn" onclick="doSearch()">검색하기</button>
+          </div>
+        </div>
+
+        <!-- 목록 상단 -->
+        <div class="list-top" style="margin-top:20px;">
+          <span class="list-count">목록 <strong id="totalCount">0</strong>건</span>
+        </div>
+
+        <!-- 카드 그리드 -->
+        <div class="review-grid" id="reviewGrid"></div>
+        <div class="pagination" id="reviewPagination"></div>
+
+      </div>
+    </main>
+  </div>
+
+  <div id="ftr"></div>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('숲해설가교육', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+    document.getElementById('bc').innerHTML = LNB.breadcrumb('../', 'education/reviews.html');
+    document.getElementById('lnb').innerHTML = LNB.render('../', 'education/reviews.html');
+  </script>
+  <script>
+    /* ── 더미 수료생 후기 데이터 (content는 에디터 HTML) */
+    const REVIEWS_DATA = [
+      { id:1,  courseTitle:'[전문과정] 55기 숲해설가 전문가과정',
+        title:'숲과 함께한 소중한 시간들',
+        content:'<p>이 과정을 통해 숲의 언어를 배웠습니다. 전문 강사진의 열정적인 수업 덕분에 나무 한 그루, 풀 한 포기가 새롭게 보이기 시작했습니다.</p><p>처음 입문할 때는 식물 이름 하나도 몰랐는데, 과정을 마친 지금은 주변 자연을 완전히 다른 눈으로 바라보게 되었습니다. 앞으로 숲해설가로서 더 많은 사람들에게 자연의 아름다움을 전하고 싶습니다.</p>',
+        author:'홍길동', date:'2026-03-15' },
+      { id:2,  courseTitle:'[전문과정] 54기 숲해설가 전문가과정',
+        title:'자연과 사람을 잇는 다리가 되다',
+        content:'<p>54기 과정은 제 인생의 전환점이었습니다. 단순히 나무 이름을 외우는 교육이 아니라 숲을 바라보는 관점 자체가 달라지는 경험을 했습니다.</p><p>5개월의 긴 여정이었지만 한 번도 포기하고 싶다는 생각을 하지 않았습니다. 함께한 동기들과의 유대감도 특별했고, 지금도 종종 모임을 이어가고 있습니다.</p>',
+        author:'이수진', date:'2026-02-28' },
+      { id:3,  courseTitle:'[전문과정] 53기 숲해설가 전문가과정',
+        title:'생태 감수성이 깊어진 5개월',
+        content:'<p>처음에는 막연히 자연을 좋아해서 신청했는데, 과정을 마치고 나니 숲해설가로서의 책임감과 사명감이 생겼습니다. 함께한 동기들과의 교류도 큰 자산이 되었습니다.</p><p>특히 생태계의 연결성을 배우는 수업이 인상 깊었습니다. 한 그루의 나무가 얼마나 많은 생명과 연결되어 있는지 이해하게 된 후로 숲을 걸을 때마다 전혀 다른 감동이 느껴집니다.</p>',
+        author:'박민준', date:'2025-12-10' },
+    ];
+
+    /* 에디터 본문에서 첫 번째 <img> src 추출 */
+    function extractThumb(html) {
+      if (!html) return null;
+      const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+      return m ? m[1] : null;
+    }
+
+    /* HTML 태그 제거 (excerpt용) */
+    function stripHtml(html) {
+      return html.replace(/<[^>]*>/g, '');
+    }
+
+    let _filtered = [...REVIEWS_DATA];
+    const PAGE_SIZE = 9;
+    let _page = 1;
+
+    /* 과정 select 옵션 */
+    (function() {
+      const courses = [...new Set(REVIEWS_DATA.map(r => r.courseTitle))].sort();
+      const sel = document.getElementById('filterCourse');
+      courses.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = c;
+        sel.appendChild(opt);
+      });
+    })();
+
+    function doSearch() {
+      const course  = document.getElementById('filterCourse').value;
+      const keyword = document.getElementById('filterKeyword').value.trim().toLowerCase();
+      _filtered = REVIEWS_DATA.filter(r => {
+        if (course  && r.courseTitle !== course) return false;
+        if (keyword && !r.title.toLowerCase().includes(keyword) &&
+            !stripHtml(r.content).toLowerCase().includes(keyword)) return false;
+        return true;
+      });
+      _page = 1;
+      renderCards();
+    }
+
+    function renderCards() {
+      const total = _filtered.length;
+      document.getElementById('totalCount').textContent = total.toLocaleString();
+      const slice = _filtered.slice((_page - 1) * PAGE_SIZE, _page * PAGE_SIZE);
+      const grid  = document.getElementById('reviewGrid');
+
+      /* 썸네일: 에디터 첫 이미지 → 없으면 기본 이미지(SVG 플레이스홀더) */
+      function thumbHtml(r) {
+        const src = extractThumb(r.content);
+        if (src) {
+          return `<div class="review-thumb" style="background-image:url('${src}')"></div>`;
+        }
+        return `<div class="review-thumb review-thumb-default">
+          <svg viewBox="0 0 80 60" fill="none" width="60" opacity=".4">
+            <circle cx="20" cy="34" r="14" fill="#4a9e6b"/>
+            <circle cx="40" cy="26" r="18" fill="#3a8a5a"/>
+            <circle cx="60" cy="34" r="14" fill="#4a9e6b"/>
+            <rect x="14" y="44" width="52" height="6" rx="2" fill="#2d6a4f"/>
+          </svg>
+        </div>`;
+      }
+
+      grid.innerHTML = slice.length
+        ? slice.map(r => `
+          <div class="review-card" onclick="location.href='review-detail.html?id=${r.id}'" style="cursor:pointer;">
+            ${thumbHtml(r)}
+            <div class="review-body">
+              <span class="review-badge">${r.courseTitle}</span>
+              <h3 class="review-title">${r.title}</h3>
+              <p class="review-excerpt">${stripHtml(r.content)}</p>
+              <div class="review-meta">
+                <span class="review-author">${r.author}</span>
+                <span class="review-date">${r.date.replace(/-/g, '.')}</span>
+              </div>
+            </div>
+          </div>`).join('')
+        : `<div class="review-empty">등록된 후기가 없습니다.</div>`;
+
+      App.renderPagination('reviewPagination', _page, Math.ceil(total / PAGE_SIZE) || 1, p => {
+        _page = p; renderCards();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    renderCards();
+  </script>
+</body>
+
+</html>

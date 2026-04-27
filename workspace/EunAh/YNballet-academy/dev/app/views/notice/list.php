@@ -16,7 +16,7 @@
     이 영역은 공지사항 카드 그리드입니다.
     빈 상태: "등록된 공지사항이 없습니다." 메시지 표시
     썸네일: 본문 첫 번째 이미지 자동 추출 (없으면 네이비 플레이스홀더) -->
-  <div class="notice-grid reveal">
+  <div class="notice-grid notice-grid--list reveal">
     <?php foreach ($notices as $n): ?>
     <a href="<?= BASE_PATH ?>/notice/<?= (int)$n['id'] ?>" class="notice-card-link">
       <div class="notice-card">

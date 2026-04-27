@@ -36,10 +36,11 @@ class InquiryModel {
 
     public function create(array $data): int {
         $stmt = $this->db->prepare(
-            'INSERT INTO inquiry (name, contact, course_interest, content, password)
-             VALUES (:name, :contact, :course_interest, :content, :password)'
+            'INSERT INTO inquiry (user_id, name, contact, course_interest, content, password)
+             VALUES (:user_id, :name, :contact, :course_interest, :content, :password)'
         );
         $stmt->execute([
+            ':user_id'         => $data['user_id'] ?? null,
             ':name'            => $data['name'],
             ':contact'         => $data['contact'],
             ':course_interest' => $data['course_interest'],

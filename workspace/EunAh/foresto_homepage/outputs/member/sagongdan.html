@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사회공헌사업단 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/about.css">
+  <link rel="stylesheet" href="../assets/css/pages/community.css">
+</head>
+
+<body data-page="sagongdan">
+
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>사회공헌사업단</h1>
+    </div>
+  </div>
+
+  <div id="bc"></div>
+  <div class="sub-layout">
+    <div id="lnb"></div>
+    <main class="sub-content">
+      <div class="content-wrap">
+
+        <!-- ===== 사공단 소개 탭 ===== -->
+        <div id="tab-intro" style="display:none">
+          <div id="sagongdanIntroDesc"></div>
+          <div class="gallery-grid" id="sagongdanIntroGrid"></div>
+        </div>
+
+        <!-- ===== 사공단 소식 탭 ===== -->
+        <div id="tab-news" style="display:none">
+
+          <div class="list-filter-box">
+            <div class="list-filter-row">
+              <div class="list-filter-item">
+                <span class="list-filter-label">팀</span>
+                <select class="list-filter-select" id="sagongdanNewsTeamFilter">
+                  <option value="">전체 팀</option>
+                </select>
+              </div>
+              <div class="list-filter-item">
+                <span class="list-filter-label">키워드</span>
+                <input type="text" class="list-filter-input" id="sagongdanNewsKeyword"
+                  placeholder="제목 검색"
+                  onkeydown="if(event.key==='Enter') SagongdanCtrl.searchNews()">
+              </div>
+              <button class="list-filter-btn" onclick="SagongdanCtrl.searchNews()">검색하기</button>
+            </div>
+          </div>
+
+          <div class="list-top" style="margin-top:16px">
+            <span class="list-count">Total <strong id="sagongdanNewsCount">0</strong>건</span>
+          </div>
+          <div class="table-wrap">
+            <table class="board-table">
+              <thead>
+                <tr>
+                  <th style="width:60px">번호</th>
+                  <th style="width:120px">팀</th>
+                  <th>제목</th>
+                  <th style="width:90px">작성자</th>
+                  <th style="width:110px">작성일</th>
+                </tr>
+              </thead>
+              <tbody id="sagongdanNewsTableBody"></tbody>
+            </table>
+          </div>
+          <div class="list-write-area" id="sagongdanNewsWriteBtn"></div>
+        </div>
+
+        <!-- ===== 사공단 일지 탭 ===== -->
+        <div id="tab-log" style="display:none">
+
+          <div class="list-filter-box">
+            <div class="list-filter-row">
+              <div class="list-filter-item">
+                <span class="list-filter-label">팀</span>
+                <select class="list-filter-select" id="sagongdanLogTeamFilter">
+                  <option value="">전체 팀</option>
+                </select>
+              </div>
+              <div class="list-filter-item">
+                <span class="list-filter-label">키워드</span>
+                <input type="text" class="list-filter-input" id="sagongdanLogKeyword"
+                  placeholder="제목 검색"
+                  onkeydown="if(event.key==='Enter') SagongdanCtrl.searchLog()">
+              </div>
+              <button class="list-filter-btn" onclick="SagongdanCtrl.searchLog()">검색하기</button>
+            </div>
+          </div>
+
+          <div class="list-top" style="margin-top:16px">
+            <span class="list-count">Total <strong id="sagongdanLogCount">0</strong>건</span>
+          </div>
+          <div class="table-wrap">
+            <table class="board-table">
+              <thead>
+                <tr>
+                  <th style="width:60px">번호</th>
+                  <th style="width:120px">팀</th>
+                  <th>제목</th>
+                  <th style="width:90px">작성자</th>
+                  <th style="width:110px">작성일</th>
+                </tr>
+              </thead>
+              <tbody id="sagongdanLogTableBody"></tbody>
+            </table>
+          </div>
+          <div class="list-write-area" id="sagongdanLogWriteBtn"></div>
+        </div>
+
+        <!-- 상세 영역 -->
+        <div id="sagongdanDetailWrap" style="display:none">
+          <div id="sagongdanDetail"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <div id="ftr"></div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/member.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('회원활동', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+
+    const _lnbTab  = new URLSearchParams(location.search).get('tab') || 'intro';
+    const _lnbPath = _lnbTab === 'intro' ? 'member/sagongdan.html' : `member/sagongdan.html?tab=${_lnbTab}`;
+    document.getElementById('bc').innerHTML  = LNB.breadcrumb('../', _lnbPath);
+    document.getElementById('lnb').innerHTML = LNB.render('../', _lnbPath);
+
+    SagongdanCtrl.init();
+  </script>
+</body>
+
+</html>

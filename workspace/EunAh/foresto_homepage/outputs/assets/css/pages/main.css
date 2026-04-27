@@ -1,0 +1,752 @@
+/* =============================================
+   main.css | 메인 페이지 전용
+   ============================================= */
+
+/* ── 메인 페이지 헤더 — rounded-bottom (Figma 시안) */
+.site-header .header-inner {
+  border-radius: 0 0 24px 24px;
+}
+
+
+/* ── ① 히어로 슬라이더 */
+.hero-slider {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  display: flex;
+  align-items: center;
+}
+
+.hero-slide.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.hero-slide::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* 텍스트 블록 — 헤더(.header-inner)와 동일한 정렬 기준 */
+.hero-slide-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.hero-slide-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.4;
+}
+
+.hero-slide-tag {
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: #fff;
+}
+
+.hero-slide-title {
+  font-family: 'Nanum Pen Script', cursive;
+  font-size: var(--text-hero);
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.hero-slide-desc {
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: #fff;
+}
+
+/* glassmorphism 더보기 버튼 */
+.hero-slide-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 160px;
+  height: 36px;
+  padding: 0 10px 0 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: var(--text-base);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.hero-slide-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.hero-slide-btn .btn-arrow {
+  font-size: var(--text-lg);
+  line-height: 1;
+  opacity: 0.85;
+}
+
+/* bar 형 슬라이더 인디케이터 */
+.hero-dots {
+  position: absolute;
+  /* container와 동일한 좌측 정렬 — 헤더 로고 기준선과 일치 */
+  left: calc(max((100% - var(--container-max)) / 2, 0px) + 24px);
+  bottom: 40px;
+  top: auto;
+  transform: none;
+  z-index: 10;
+  display: flex;
+  gap: 4px;
+  pointer-events: auto;
+}
+
+.hero-dot {
+  width: 60px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+  padding: 0;
+}
+
+.hero-dot.active {
+  background: #fff;
+  width: 60px;   /* bar 너비 동일, 색상으로 구분 */
+}
+
+
+/* ── 화살표 버튼 */
+.hero-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: var(--text-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  backdrop-filter: blur(2px);
+}
+
+.hero-arrow:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.hero-prev { left: 32px; }
+.hero-next { right: 32px; }
+
+
+/* ── ② 협회 소개 + 콘텐츠 래퍼 */
+.main-content-wrap {
+  background: #fff;
+}
+
+.assoc-intro {
+  background: #fff;
+  padding: 20px 0 0;
+}
+
+.assoc-intro-box {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 24px 32px;
+}
+
+.assoc-intro p {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: #111;
+  line-height: 1.4;
+}
+
+.assoc-intro em {
+  font-style: normal;
+  color: #508829;
+}
+
+
+/* ── ③ 메인 콘텐츠 3열 레이아웃 */
+.content-main-grid {
+  display: flex;
+  gap: 30px;
+  height: 560px;
+  padding: 20px 0 64px;
+  box-sizing: content-box;
+}
+
+
+/* ── 강좌카드 세로 배치 (좌측 480px) */
+.course-cards-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 480px;
+  height: 560px;
+  flex-shrink: 0;
+}
+
+.course-card {
+  flex: 1;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  text-decoration: none;
+  transition: transform 0.22s ease;
+  min-height: 0;
+}
+
+.course-card:hover {
+  transform: scale(1.015);
+  z-index: 2;
+}
+
+.course-card-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.7) 100%);
+  transition: background 0.2s;
+}
+
+.course-card:hover .course-card-overlay {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.82) 100%);
+}
+
+.course-card-body {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.course-card-title {
+  font-size: var(--text-24);
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.course-card-arrow {
+  font-size: var(--text-lg);
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 400;
+  flex-shrink: 0;
+}
+
+
+/* ── ④ 공지사항 / 협회일정 패널 */
+.home-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 560px;
+}
+
+.home-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  flex-shrink: 0;
+}
+
+.home-panel-title {
+  font-size: var(--text-24);
+  font-weight: 700;
+  color: #20281a;
+}
+
+.panel-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: var(--text-2xl);
+  color: #555;
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 400;
+}
+
+.panel-more:hover {
+  color: #508829;
+}
+
+/* 공지사항 리스트 박스 */
+.notice-box {
+  flex: 1;
+  min-height: 0;
+  background: #f1f5ee;
+  border-radius: 12px;
+  padding: 20px 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* ── 게시판 리스트 공통 */
+.board-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  flex: 1;
+}
+
+.board-title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: #111;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+  line-height: 1.4;
+}
+
+.board-title:hover { color: #508829; }
+
+.board-date {
+  font-size: var(--text-xs);
+  color: #999;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.notice-divider {
+  height: 1px;
+  background: #ddd;
+  flex-shrink: 0;
+}
+
+
+/* ── 미니 캘린더 래퍼 */
+.mini-cal-wrap {
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.cal-nav {
+  background: #20281a;
+  color: #fff;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: var(--text-md);
+}
+
+.cal-nav button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: var(--text-base);
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  border-radius: 50%;
+}
+
+.cal-nav button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: #f6f8f5;
+}
+
+.cal-dh {
+  text-align: center;
+  font-size: var(--text-md);
+  font-weight: 500;
+  padding: 6px 2px;
+  background: #e1e3e0;
+  color: #111;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.cal-dh:first-child { color: #ed4d42; }
+.cal-dh:last-child  { color: #3b6dbd; }
+
+.cal-cell {
+  position: relative;
+  text-align: center;
+  padding: 8px 2px;
+  font-size: var(--text-base);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: #f6f8f5;
+  line-height: 1.2;
+  /* 빈 셀도 날짜 셀과 동일 높이 — 달마다 캘린더 높이 달라지는 현상 방지 */
+  min-height: 40px;
+}
+
+.cal-cell:hover { background: #e8efdf; }
+
+.cal-cell.today {
+  background: #20281a;
+  color: #f6f8f5;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.cal-cell.sun  { color: #ed4d42; }
+.cal-cell.sat  { color: #3b6dbd; }
+.cal-cell.today.sun,
+.cal-cell.today.sat { color: #f6f8f5; }
+
+/* 선택된 날짜 (today 제외) */
+.cal-cell.selected:not(.today) {
+  background: #d8eddf;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* 이벤트 dot — 모든 셀에 공간 예약, 이벤트 없으면 투명 */
+.cal-cell::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: transparent;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.cal-cell.has-event::after {
+  background: #508829;
+}
+
+/* 달력 하단 일정 목록 */
+.cal-schedule-box {
+  flex: 1;
+  min-height: 120px;
+  background: #f1f5ee;
+  border-radius: 12px;
+  padding: 20px 24px;
+  overflow: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.cal-schedule-item {
+  font-size: 18px; /* 글자 크기 조절 영향 없이 고정 */
+  font-weight: 500;
+  color: #111;
+  word-break: keep-all;
+  overflow: hidden;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1.4;
+}
+
+.cal-schedule-item:hover { color: #508829; }
+
+.cal-link-icon {
+  display: inline-block;
+  width: 13px; height: 13px;
+  vertical-align: middle;
+  margin-left: 5px;
+  color: var(--green-main);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.cal-schedule-empty {
+  font-size: var(--text-base);
+  line-height: 1.4;
+  cursor: default;
+  pointer-events: none;
+}
+
+
+/* ── 팝업 */
+.popup-wrap {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  z-index: 200;
+  width: 290px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  border-top: 4px solid #508829;
+  overflow: hidden;
+}
+
+.popup-head {
+  background: #508829;
+  color: #fff;
+  padding: 11px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-15);
+  font-weight: 700;
+}
+
+.popup-head button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: var(--text-base);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.popup-body {
+  padding: 14px 16px;
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: #333;
+}
+
+.popup-foot {
+  padding: 9px 16px;
+  background: #f5f5f5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popup-nosh-label {
+  font-size: var(--text-xs);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+
+/* ─── 반응형 ─────────────────────────────────── */
+
+/* ── 태블릿 가로 (≤ 1200px): 카드 가로 1행 + 패널 세로 배치 */
+@media (max-width: 1200px) {
+  .content-main-grid {
+    flex-wrap: wrap;
+    height: auto;
+  }
+
+  /* 강좌카드: 전체폭, 1열 5행 유지 */
+  .course-cards-col {
+    width: 100%;
+    height: 400px;
+    flex-direction: column;
+    gap: 8px;
+    overflow: visible;
+  }
+  .course-card { flex: 1; }
+
+  .home-panel {
+    flex: 1 1 45%;
+    height: 460px;
+  }
+}
+
+
+/* ── 태블릿 세로 (≤ 900px): 패널 단열 + 높이 축소 */
+@media (max-width: 900px) {
+  .hero-slider { height: 380px; }
+  .hero-slide-title { font-size: var(--text-42); }
+  .hero-slide-inner { padding: 0 24px; }
+
+  .course-cards-col {
+    height: 440px;
+    gap: 6px;
+  }
+  .course-card { flex: 1; }
+  .course-card-title { font-size: var(--text-md); }
+  .course-card-body { padding: 12px; }
+
+  .content-main-grid {
+    gap: 16px;
+    flex-direction: column;
+    padding: 16px 0 40px;
+  }
+  .home-panel {
+    flex: unset;
+    width: 100%;
+    height: auto;
+    min-height: 360px;
+  }
+
+  /* 공지사항: space-between → gap 기반으로 전환 (height: auto일 때 간격 보장) */
+  .notice-box {
+    justify-content: flex-start;
+    gap: 0;
+  }
+  .board-row {
+    flex: none;
+    min-height: 44px;
+    padding: 4px 0;
+  }
+
+  /* 협회일정: space-around → gap 기반 */
+  .cal-schedule-box {
+    justify-content: flex-start;
+    gap: 4px;
+  }
+  .cal-schedule-item {
+    padding: 8px 0;
+  }
+}
+
+
+/* ── 모바일 태블릿 경계 (≤ 768px): 패널 폰트 축소 */
+@media (max-width: 768px) {
+  /* 협회 소개 */
+  .assoc-intro-box {
+    padding: 16px 20px;
+  }
+  .assoc-intro p {
+    font-size: var(--text-md);
+  }
+
+  /* 공통 패널 */
+  .home-panel-title { font-size: var(--text-base); }
+  .panel-more { font-size: var(--text-md); }
+
+  /* 공지사항 */
+  .notice-box { padding: 16px 18px; }
+  .board-title { font-size: var(--text-15); }
+  .board-date { font-size: var(--text-12); }
+
+  /* 협회일정 */
+  .cal-schedule-box { padding: 14px 18px; }
+  .cal-schedule-item { font-size: var(--text-15); }
+  .cal-nav { font-size: var(--text-15); padding: 8px 14px; }
+  .cal-dh, .cal-cell { font-size: var(--text-xs); }
+}
+
+
+/* ── 모바일 (≤ 600px): 히어로 + 카드 축소 */
+@media (max-width: 600px) {
+  /* 히어로 */
+  .hero-slider { height: 260px; }
+  .hero-slide-title { font-size: var(--text-2xl); }
+  .hero-slide-tag { font-size: var(--text-xs); }
+  .hero-slide-desc { display: none; }
+  .hero-slide-inner { gap: 16px; padding: 0 60px; }
+  .hero-slide-btn { height: 38px; font-size: var(--text-sm); width: 110px; }
+  .hero-dots { width: 170px; bottom: 16px; padding: 0 40px; }
+  .hero-arrow { width: 34px; height: 34px; font-size: var(--text-15); }
+  .hero-prev { left: 8px; }
+  .hero-next { right: 8px; }
+
+  /* 강좌카드 */
+  .course-card { flex: 1; border-radius: 10px; }
+  .course-card-title { font-size: var(--text-sm); }
+  .course-card-body { padding: 10px 12px; }
+
+  /* 팝업: 상단 고정 (헤더 아래) */
+  .popup-wrap {
+    top: calc(var(--header-h, 54px) + 8px);
+    bottom: auto;
+    left: 8px;
+    right: 8px;
+    width: auto;
+  }
+}
+
+
+/* ── 소형 모바일 (≤ 480px) */
+@media (max-width: 480px) {
+  .hero-slider { height: 220px; }
+  .hero-slide-title { font-size: var(--text-xl); line-height: 1.3; }
+  .hero-slide-tag { font-size: var(--text-12); }
+  .hero-slide-inner { gap: 12px; padding: 0 48px; }
+  .hero-slide-btn { height: 32px; font-size: var(--text-xs); width: 96px; }
+
+  /* 협회 소개 */
+  .assoc-intro { padding: 12px 0 0; }
+  .assoc-intro-box { padding: 14px 16px; border-radius: 8px; }
+  .assoc-intro p { font-size: var(--text-sm); }
+
+  /* 메인 그리드 여백 */
+  .content-main-grid { padding: 12px 0 32px; gap: 12px; }
+
+  /* 강좌카드 */
+  .course-card { flex: 1; border-radius: 8px; }
+  .course-card-title { font-size: var(--text-sm); }
+  .course-card-body { padding: 8px 10px; }
+  .course-card-arrow { font-size: var(--text-md); }
+
+  /* 패널 */
+  .home-panel-title { font-size: var(--text-md); }
+  .board-title { font-size: var(--text-sm); }
+  .notice-box { padding: 14px 14px; border-radius: 10px; }
+  .cal-schedule-box { padding: 12px 14px; border-radius: 10px; }
+  .cal-schedule-item { font-size: var(--text-sm); }
+  .cal-dh, .cal-cell { font-size: var(--text-12); padding: 6px 1px; }
+}

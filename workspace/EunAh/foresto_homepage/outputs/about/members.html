@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>조직도·임원진 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/pages/about.css">
+</head>
+<body>
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>조직 안내</h1>
+    </div>
+  </div>
+
+  <div id="bc"></div>
+  <div class="sub-layout">
+    <div id="lnb"></div>
+    <main class="sub-content">
+      <div class="content-wrap">
+
+        <!-- 조직도 -->
+        <h2 class="section-heading">조직도</h2>
+        <div id="orgChartSection">
+          <!-- 관리자에서 이미지 등록 시 표시 -->
+          <div class="org-img-empty">
+            관리자 페이지에서 조직도 이미지를 등록하면 이 영역에 표시됩니다.
+          </div>
+        </div>
+
+        <!-- 임원진 -->
+        <h2 class="section-heading section-heading--mt">임원진</h2>
+        <div class="og-list" id="officerList"></div>
+
+
+      </div>
+    </main>
+  </div>
+
+  <div id="ftr"></div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('협회소개', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+    document.getElementById('bc').innerHTML  = LNB.breadcrumb('../', 'about/members.html');
+    document.getElementById('lnb').innerHTML = LNB.render('../', 'about/members.html');
+  </script>
+
+  <script>
+    /* ── 임원진 데이터 (관리자 organization.html과 동일 구조) */
+    const OFFICER_DATA = [
+      {
+        gid: 1, name: '함께하는 사람들',
+        officers: [
+          { oid: 1,  title: '상임 대표', name: '김국희',          detail: '',                               img: 'https://picsum.photos/seed/k1/270/360' },
+          { oid: 2,  title: '고문',      name: '김성혁',          detail: '전 농림부 장관',                 img: 'https://picsum.photos/seed/k2/270/360' },
+          { oid: 3,  title: '고문',      name: '김동근',          detail: '전 산림청장, 전 농림부장관급',   img: 'https://picsum.photos/seed/k3/270/360' },
+          { oid: 4,  title: '고문',      name: '조연환',          detail: '전 산림청장',                    img: null },
+          { oid: 5,  title: '공동 대표', name: '최병암',          detail: '전 산림청장',                    img: 'https://picsum.photos/seed/k5/270/360' },
+          { oid: 6,  title: '공동 대표', name: '임진석',          detail: '법무법인 린 대표변호사',         img: 'https://picsum.photos/seed/k6/270/360' },
+          { oid: 7,  title: '감사',      name: '석락준, 마철노',  detail: '',                               img: null },
+          { oid: 8,  title: '이사',      name: '이수원 외 다수',  detail: '숲해설가 이하 통일',             img: null },
+          { oid: 9,  title: '사무처',    name: '양동회',          detail: '사무처장',                       img: null },
+        ],
+      },
+      {
+        gid: 2, name: '지역 대표자 명단',
+        officers: [
+          { oid: 10, title: '강원협회',     name: '김론수', detail: '상임대표 / 사무처장: 서세정', img: null },
+          { oid: 11, title: '경북협회',     name: '김영삼', detail: '상임대표 / 사무국장: 원지환', img: null },
+          { oid: 12, title: '광주전남협회', name: '이미영', detail: '상임대표 / 사무처장: 김미성', img: null },
+        ],
+      },
+      {
+        gid: 3, name: '지회 대표자 명단',
+        officers: [
+          { oid: 13, title: '경기남부지회', name: '정필묵', detail: '회장 / 부회장: 경재일, 김기정, 박원근, 장관진', img: null },
+          { oid: 14, title: '경기북부지회', name: '김관홍', detail: '회장 / 부회장: 이상전',                         img: null },
+          { oid: 15, title: '경기서부지회', name: '김경대', detail: '회장 / 부회장: 최태영',                         img: null },
+        ],
+      },
+      {
+        gid: 4, name: '협회 전문위원 명단',
+        officers: [
+          { oid: 16, title: '전문위원', name: '김해경', detail: '한국숲해설가협회 / 세밀화 강사',   img: null },
+          { oid: 17, title: '전문위원', name: '박병권', detail: '원광 디지털대 교수 / 생물학 박사', img: null },
+          { oid: 18, title: '전문위원', name: '박정호', detail: '한국수서생태연구소 소장 / 이학 박사', img: null },
+        ],
+      },
+    ];
+
+    /* ── 렌더링 */
+    function renderOfficers() {
+      const container = document.getElementById('officerList');
+      if (!container) return;
+
+      container.innerHTML = OFFICER_DATA.map(group => {
+        const body = `<div class="og-card-grid">` + group.officers.map(o => {
+          const avatarInner = o.img
+            ? `<img src="${o.img}" alt="${o.name}">`
+            : `<span class="og-card-avatar-ph"></span>`;
+          const detailSpan = o.detail ? `<span class="og-card-sep">·</span><span class="og-card-detail">${o.detail}</span>` : '';
+          const photoTip = o.img ? `<span class="og-photo-tip"><img src="${o.img}" alt="${o.name}"></span>` : '';
+          return `
+            <div class="og-card${o.img ? ' has-photo' : ''}">
+              ${photoTip}
+              <div class="og-card-avatar">${avatarInner}</div>
+              <div class="og-card-info">
+                <div class="og-card-header">
+                  <span class="og-card-role">${o.title}</span>
+                  <span class="og-card-name">${o.name}</span>
+                  ${detailSpan}
+                </div>
+              </div>
+            </div>`;
+        }).join('') + `</div>`;
+
+        return `
+          <div class="og-section">
+            <h3 class="og-section-title">${group.name}</h3>
+            ${body}
+          </div>`;
+      }).join('');
+    }
+
+    renderOfficers();
+  </script>
+</body>
+</html>

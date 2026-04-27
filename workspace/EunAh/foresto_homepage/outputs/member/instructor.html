@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>강사 신청 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/education.css">
+</head>
+
+<body>
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>강사 신청</h1>
+    </div>
+  </div>
+
+  <div id="bc"></div>
+  <div class="sub-layout">
+    <div id="lnb"></div>
+    <main class="sub-content">
+      <div class="content-wrap">
+
+        <h2 class="list-section-title">강사 활동 신청</h2>
+
+        <!-- 회원 전용 안내 -->
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;margin-bottom:20px;background:#f0f8f0;border:1px solid #c8e0c8;border-radius:8px;font-size:14px;color:#2e5c2e">
+          <span style="font-size:18px">🔒</span>
+          <span>강사 활동 신청은 <strong>회원 전용 서비스</strong>입니다. 로그인 후 이용해주세요.</span>
+        </div>
+
+        <!-- 필터 박스 -->
+        <div class="list-filter-box">
+          <div class="list-filter-row">
+            <div class="list-filter-item">
+              <span class="list-filter-label">접수상태</span>
+              <select class="list-filter-select" id="searchStatus">
+                <option value="">선택해주세요</option>
+                <option value="open">접수중</option>
+                <option value="ready">준비중</option>
+                <option value="closed">접수마감</option>
+              </select>
+            </div>
+            <div class="list-filter-item">
+              <span class="list-filter-label">활동일자</span>
+              <div class="list-filter-date-inputs">
+                <input type="date" class="list-filter-input" id="dateFrom">
+                <span class="list-filter-sep">~</span>
+                <input type="date" class="list-filter-input" id="dateTo">
+              </div>
+            </div>
+            <button class="list-filter-btn" onclick="doSearch()">검색하기</button>
+          </div>
+        </div>
+
+        <!-- 목록 상단 -->
+        <div class="list-top" style="margin-top:20px;">
+          <span class="list-count">목록 <strong id="totalCount">0</strong>건</span>
+          <select class="list-pagesize-select"
+            onchange="window._ctrl && window._ctrl.changePageSize(+this.value)">
+            <option value="10">10개씩 보기</option>
+            <option value="20">20개씩 보기</option>
+            <option value="50">50개씩 보기</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table class="board-table">
+            <thead>
+              <tr>
+                <th style="width:6%">NO.</th>
+                <th class="td-title">활동명</th>
+                <th style="width:10%">활동일자</th>
+                <th style="width:20%">접수 기간</th>
+                <th style="width:10%">접수상태</th>
+              </tr>
+            </thead>
+            <tbody id="courseBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="coursePagination"></div>
+
+      </div>
+    </main>
+  </div>
+
+  <div id="ftr"></div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/education.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('회원활동', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+    document.getElementById('bc').innerHTML  = LNB.breadcrumb('../', 'member/instructor.html');
+    document.getElementById('lnb').innerHTML = LNB.render('../', 'member/instructor.html');
+
+    window._ctrl = new CourseListController('강사활동', 'courseBody', 'coursePagination', '', 'instructor-detail.html');
+    window._ctrl.render();
+
+    /* 비회원 클릭 차단: 테이블 내 링크 클릭 시 로그인 여부 확인 */
+    document.getElementById('courseBody').addEventListener('click', function(e) {
+      if (App.user.isLoggedIn) return;
+      const a = e.target.closest('a');
+      if (!a) return;
+      e.preventDefault();
+      App.toast('강사 활동 신청은 회원 전용 서비스입니다. 로그인 후 이용해주세요.', 'warning');
+    }, true);
+
+    function doSearch() {
+      const status = document.getElementById('searchStatus').value;
+      const from   = document.getElementById('dateFrom').value;
+      const to     = document.getElementById('dateTo').value;
+      window._ctrl.courses = ALL_COURSES_RAW.filter(c => c.type === '강사활동').sort((a, b) => b.date.localeCompare(a.date));
+      window._ctrl.filter(status, from, to);
+    }
+  </script>
+</body>
+
+</html>

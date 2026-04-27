@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>일정관리 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .cat-badge { display:inline-flex; align-items:center; padding:2px 10px; border-radius:99px; font-size:12px; font-weight:600; white-space:nowrap; }
+    .cat-edu    { background:#e8f5e9; color:#2e7d32; }
+    .cat-event  { background:#e3f2fd; color:#1565c0; }
+    .cat-club   { background:#fff3e0; color:#e65100; }
+    .cat-public { background:#f3e5f5; color:#6a1b9a; }
+    .cat-etc    { background:#f5f5f5; color:#616161; }
+    .link-cell a { display:inline-flex; align-items:center; gap:3px; font-size:12px; color:#1565c0; text-decoration:none; padding:2px 8px; border:1px solid #90caf9; border-radius:4px; background:#e3f2fd; white-space:nowrap; }
+    .link-cell a:hover { background:#bbdefb; }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title">일정관리</h1>
+      <div class="admin-topbar-actions">
+        <button class="btn-refresh" onclick="CalList.load()" title="새로고침">
+          <img src="../assets/icons/refresh.png" alt="새로고침">
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="CalModal.open()">+ 일정 등록</button>
+      </div>
+    </div>
+
+    <!-- 검색 필터 -->
+    <div class="filter-card">
+      <div class="filter-body">
+        <div class="filter-row">
+          <span class="filter-label">기간</span>
+          <div class="filter-content">
+            <div class="date-pair">
+              <input type="date" id="filterDateFrom">
+              <span class="date-sep">—</span>
+              <input type="date" id="filterDateTo">
+            </div>
+            <div class="date-preset-group">
+              <button class="date-preset-btn" onclick="setDatePreset('today')">오늘</button>
+              <button class="date-preset-btn" onclick="setDatePreset(7)">7일</button>
+              <button class="date-preset-btn" onclick="setDatePreset(30)">30일</button>
+              <button class="date-preset-btn" onclick="setDatePreset(90)">3개월</button>
+              <button class="date-preset-btn" onclick="setDatePreset(180)">6개월</button>
+            </div>
+          </div>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">카테고리</span>
+          <div class="filter-content">
+            <div class="chip-group">
+              <label class="chip"><input type="radio" name="filterCat" value="" checked><span>전체</span></label>
+              <label class="chip"><input type="radio" name="filterCat" value="edu"><span>교육/강좌</span></label>
+              <label class="chip"><input type="radio" name="filterCat" value="event"><span>협회행사</span></label>
+              <label class="chip"><input type="radio" name="filterCat" value="club"><span>동아리</span></label>
+              <label class="chip"><input type="radio" name="filterCat" value="public"><span>사공단</span></label>
+              <label class="chip"><input type="radio" name="filterCat" value="etc"><span>기타</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">키워드</span>
+          <div class="filter-content">
+            <div class="kw-wrap">
+              <div class="kw-input-wrap">
+                <input type="text" id="filterKeyword" placeholder="일정명을 입력하세요"
+                  onkeydown="if(event.key==='Enter') CalList.search()">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="filter-footer">
+        <button class="btn btn-gray btn-sm" onclick="CalList.reset()">초기화</button>
+        <button class="btn btn-primary btn-sm" onclick="CalList.search()">검색</button>
+      </div>
+    </div>
+
+    <!-- 목록 상단 -->
+    <div class="list-top">
+      <div class="list-count" id="listCount">총 <strong>0</strong>건</div>
+      <select class="form-control" style="width:130px;height:36px;font-size:13px"
+        onchange="CalList.changePageSize(this.value)">
+        <option value="10">10개씩 보기</option>
+        <option value="30">30개씩 보기</option>
+        <option value="50">50개씩 보기</option>
+      </select>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-wrap">
+      <table class="admin-table" style="table-layout:fixed;width:100%">
+        <colgroup>
+          <col style="width:34px">
+          <col style="width:38px">
+          <col style="width:8%">
+          <col>
+          <col style="width:8%">
+          <col style="width:7%">
+          <col style="width:8%">
+          <col style="width:13%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="col-chk">
+              <input type="checkbox" id="chkAll"
+                onchange="CalList.toggleAll(this.checked)">
+            </th>
+            <th>No</th>
+            <th>카테고리</th>
+            <th style="text-align:center">일정명</th>
+            <th>일정일</th>
+            <th>링크</th>
+            <th>작성자</th>
+            <th>등록일시</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <div class="table-bottom-bar">
+      <button class="btn btn-danger btn-danger-filled btn-sm"
+        id="btnDelete" disabled onclick="CalList.deleteSelected()">선택 삭제</button>
+    </div>
+  </main>
+</div>
+
+<!-- 등록/수정 모달 -->
+<div class="modal-overlay" id="calModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <h3 id="calModalTitle">일정 등록</h3>
+      <button class="modal-close" onclick="App.closeModal('calModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">카테고리 <span class="req">*</span></label>
+        <select class="form-control" id="evtCat">
+          <option value="">선택해주세요</option>
+          <option value="edu">교육/강좌</option>
+          <option value="event">협회행사</option>
+          <option value="club">동아리</option>
+          <option value="public">사공단</option>
+          <option value="etc">기타</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">일정명 <span class="req">*</span></label>
+        <input type="text" class="form-control" id="evtTitle" placeholder="일정명을 입력하세요">
+      </div>
+      <div class="form-group">
+        <label class="form-label">일정일 <span class="req">*</span></label>
+        <input type="date" class="form-control" id="evtDate">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">링크 주소 <span style="color:var(--gray-mid);font-size:12px">(선택)</span></label>
+        <input type="url" class="form-control" id="evtLink" placeholder="https://...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="App.closeModal('calModal')">취소</button>
+      <button class="btn btn-primary" onclick="CalModal.save()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+const CAT_MAP = {
+  edu: { label: '교육/강좌', cls: 'cat-edu' },
+  event: { label: '협회행사', cls: 'cat-event' },
+  club:  { label: '동아리',   cls: 'cat-club'  },
+  public:{ label: '사공단',   cls: 'cat-public'},
+  etc:   { label: '기타',     cls: 'cat-etc'   },
+};
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] AdminHttp.get(ADMIN_API.calendar, params) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_DATA = {
+  total: 3,
+  items: [
+    { id: 3001, no: 3, catKey: 'edu',   title: '2026 숲해설가 기초과정 개강', date: '2026-04-15', link: '#',  author: '관리자A', regDate: '2026-03-10 09:00:00' },
+    { id: 3002, no: 2, catKey: 'event', title: '봄 정기 협회 총회',           date: '2026-05-20', link: '',   author: '관리자B', regDate: '2026-03-15 14:20:00' },
+    { id: 3003, no: 1, catKey: 'club',  title: '동아리 3월 정기모임',          date: '2026-03-28', link: '',   author: '관리자A', regDate: '2026-03-01 10:05:00' },
+  ],
+};
+
+const CalList = {
+  currentPage: 1,
+  pageSize:    10,
+
+  getParams() {
+    return {
+      date_from: document.getElementById('filterDateFrom').value,
+      date_to:   document.getElementById('filterDateTo').value,
+      cat:       document.querySelector('input[name="filterCat"]:checked')?.value || '',
+      kw:        document.getElementById('filterKeyword').value.trim(),
+      page:      this.currentPage,
+      size:      this.pageSize,
+    };
+  },
+
+  search() { this.currentPage = 1; this.load(); },
+
+  async load() {
+    AdminUI.showLoading('tableBody', 8);
+    try {
+      /*
+       * [개발자 연동]
+       * const data = await AdminHttp.get(ADMIN_API.calendar, this.getParams());
+       * this.render(data.items, data.total);
+       */
+      await new Promise(r => setTimeout(r, 200));
+      const p = this.getParams();
+      let items = SAMPLE_DATA.items.filter(d => {
+        if (p.date_from && d.date < p.date_from) return false;
+        if (p.date_to   && d.date > p.date_to)   return false;
+        if (p.cat && d.catKey !== p.cat) return false;
+        if (p.kw && !d.title.toLowerCase().includes(p.kw.toLowerCase())) return false;
+        return true;
+      });
+      const total = items.length;
+      const start = (this.currentPage - 1) * this.pageSize;
+      this.render(items.slice(start, start + this.pageSize), total);
+    } catch (e) {
+      AdminUI.showError('tableBody', e.message, 8);
+    }
+  },
+
+  render(items, total) {
+    AdminUI.updateCount('listCount', total);
+    const totalPages = Math.ceil(total / this.pageSize) || 1;
+    AdminUI.renderPagination('pagination', this.currentPage, totalPages, p => {
+      this.currentPage = p; this.load();
+    });
+
+    const tbody = document.getElementById('tableBody');
+    if (!items.length) {
+      AdminUI.showEmpty('tableBody', '등록된 일정이 없습니다.', 8); return;
+    }
+    tbody.innerHTML = items.map(d => {
+      const cat = CAT_MAP[d.catKey] || { label: d.catKey, cls: 'cat-etc' };
+      return `<tr>
+        <td class="col-chk">
+          <input type="checkbox" class="row-chk" data-id="${d.id}"
+            onchange="CalList.syncDeleteBtn()">
+        </td>
+        <td>${d.no}</td>
+        <td><span class="cat-badge ${cat.cls}">${cat.label}</span></td>
+        <td style="text-align:center;font-weight:500;cursor:pointer"
+          onclick="CalModal.open(${d.id})">${d.title}</td>
+        <td class="cell-mono">${d.date}</td>
+        <td class="link-cell">
+          ${d.link ? `<a href="#" onclick="event.preventDefault();event.stopPropagation()">링크</a>`
+                   : '<span style="color:#ccc">—</span>'}
+        </td>
+        <td>${d.author}</td>
+        <td class="cell-mono">${d.regDate}</td>
+      </tr>`;
+    }).join('');
+  },
+
+  toggleAll(checked) {
+    document.querySelectorAll('.row-chk').forEach(cb => cb.checked = checked);
+    this.syncDeleteBtn();
+  },
+
+  syncDeleteBtn() {
+    document.getElementById('btnDelete').disabled =
+      document.querySelectorAll('.row-chk:checked').length === 0;
+  },
+
+  async deleteSelected() {
+    const ids = [...document.querySelectorAll('.row-chk:checked')].map(cb => cb.dataset.id);
+    if (!ids.length) return;
+    if (!confirm(`선택한 ${ids.length}건의 일정을 삭제하시겠습니까?`)) return;
+    try {
+      /*
+       * [개발자 연동]
+       * await AdminHttp.post(ADMIN_API.calendar + '/bulk-delete', { ids });
+       */
+      App.toast(`${ids.length}건이 삭제되었습니다.`, 'success');
+      this.load();
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  changePageSize(size) {
+    this.pageSize = parseInt(size); this.currentPage = 1; this.load();
+  },
+
+  reset() {
+    document.getElementById('filterDateFrom').value = '';
+    document.getElementById('filterDateTo').value   = '';
+    document.querySelector('input[name="filterCat"][value=""]').checked = true;
+    document.getElementById('filterKeyword').value = '';
+    this.currentPage = 1;
+    this.load();
+  },
+};
+
+/* 모달 컨트롤러 */
+const CalModal = {
+  editId: null,
+
+  open(id = null) {
+    this.editId = id;
+    document.getElementById('calModalTitle').textContent = id ? '일정 수정' : '일정 등록';
+    document.getElementById('evtCat').value   = '';
+    document.getElementById('evtTitle').value = '';
+    document.getElementById('evtDate').value  = '';
+    document.getElementById('evtLink').value  = '';
+
+    /* 수정 모드: 기존 데이터 채우기
+       [개발자] AdminHttp.get(ADMIN_API.url('calendar', id)) 응답으로 교체 */
+    if (id) {
+      const item = SAMPLE_DATA.items.find(d => d.id === id);
+      if (item) {
+        document.getElementById('evtCat').value   = item.catKey;
+        document.getElementById('evtTitle').value = item.title;
+        document.getElementById('evtDate').value  = item.date;
+        document.getElementById('evtLink').value  = item.link || '';
+      }
+    }
+    App.openModal('calModal');
+  },
+
+  async save() {
+    const cat   = document.getElementById('evtCat').value.trim();
+    const title = document.getElementById('evtTitle').value.trim();
+    const date  = document.getElementById('evtDate').value;
+    const link  = document.getElementById('evtLink').value.trim();
+
+    if (!cat)   { alert('카테고리를 선택해주세요.'); return; }
+    if (!title) { alert('일정명을 입력해주세요.'); return; }
+    if (!date)  { alert('일정일을 선택해주세요.'); return; }
+
+    const payload = { cat, title, date, link };
+
+    try {
+      /*
+       * [개발자 연동]
+       * if (this.editId) {
+       *   await AdminHttp.put(ADMIN_API.url('calendar', this.editId), payload);
+       * } else {
+       *   await AdminHttp.post(ADMIN_API.calendar, payload);
+       * }
+       */
+      App.toast(this.editId ? '일정이 수정되었습니다.' : '일정이 등록되었습니다.', 'success');
+      App.closeModal('calModal');
+      CalList.load();
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+};
+
+AdminSidebar.mount('calendar');
+CalList.load();
+</script>
+</body>
+</html>

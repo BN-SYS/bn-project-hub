@@ -1,0 +1,597 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>조직도/임원진 관리 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    /* ── 조직도 이미지 영역 */
+    .org-img-box {
+      border: 2px dashed #c8dfa6;
+      border-radius: 10px;
+      background: #f8faf6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 160px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .org-img-box:hover { border-color: #508829; }
+    .org-img-box img { width: 100%; max-height: 320px; object-fit: contain; display: none; }
+    .org-img-placeholder { text-align: center; color: #8a9e84; pointer-events: none; }
+    .org-img-placeholder .ico { width: 32px; height: 32px; opacity: .4; display: block; margin: 0 auto 8px; }
+    .org-img-placeholder p { font-size: 13px; }
+    .org-img-box input[type=file] { display: none; }
+
+    /* ── 임원 그룹 카드 */
+    .og-card {
+      background: #fff;
+      border: 1px solid #e3eadd;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      overflow: visible;
+    }
+    .og-card-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 18px;
+      background: #f8faf6;
+      border-bottom: 1px solid #e8efe3;
+      border-radius: 10px 10px 0 0;
+    }
+    .og-group-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a2718;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: transparent;
+      padding: 2px 6px;
+      min-width: 80px;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .og-group-name:focus {
+      outline: none;
+      border-color: #508829;
+      background: #fff;
+    }
+    .og-order-btn {
+      width: 26px; height: 26px;
+      border: 1px solid #d5e0ce;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #4a5545;
+      flex-shrink: 0;
+    }
+    .og-order-btn:hover { background: #f0f7e8; border-color: #508829; }
+    .og-order-btn:disabled { opacity: 0.3; cursor: default; }
+
+    /* ── 임원 테이블 */
+    .og-table { width: 100%; border-collapse: collapse; }
+    .og-table thead th {
+      font-size: 12px; font-weight: 700; color: #7a8e74;
+      text-transform: uppercase; letter-spacing: .04em;
+      padding: 10px 12px; border-bottom: 1px solid #e8efe3;
+      background: #fafcf9; text-align: left;
+      white-space: nowrap;
+    }
+    .og-table tbody td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f0f4ee;
+      vertical-align: middle;
+      font-size: 14px;
+      color: #2a3a26;
+    }
+    .og-table tbody tr:last-child td { border-bottom: none; }
+    .og-table tbody tr:hover td { background: #fafcf9; }
+
+    /* 열 너비 */
+    .og-col-order { width: 52px; }
+    .og-col-photo { width: 56px; }
+    .og-col-title { width: 200px; white-space: normal; }
+    .og-col-name  { width: 130px; }
+    .og-col-detail{ }
+    .og-col-action{ width: 88px; white-space: nowrap; }
+
+    /* ── 사진 셀 — hover 시 툴팁 */
+    .og-photo-cell {
+      position: relative;
+      display: inline-block;
+    }
+    .og-thumb {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid #d5e0ce;
+      display: block;
+    }
+    .og-thumb-ph {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: #edf2ea;
+      border: 1px dashed #c8dfa6;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .og-thumb-ph img { width: 18px; height: 18px; opacity: .4; }
+
+    /* hover 툴팁 */
+    .og-photo-tooltip {
+      display: none;
+      position: absolute;
+      z-index: 300;
+      left: 48px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 120px;
+      height: 160px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid #fff;
+      box-shadow: 0 6px 20px rgba(0,0,0,.22);
+      pointer-events: none;
+    }
+    .og-photo-tooltip img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .og-photo-cell:hover .og-photo-tooltip { display: block; }
+
+    /* 테이블 하단 빈 상태 */
+    .og-empty {
+      text-align: center;
+      padding: 22px;
+      color: #8a9e84;
+      font-size: 13px;
+    }
+
+    /* ── 순서 버튼 쌍 */
+    .og-order-pair { display: flex; gap: 3px; }
+
+    /* ── 모달 */
+    .og-modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.38);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .og-modal-overlay.open { display: flex; }
+    .og-modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 480px;
+      max-width: 94vw;
+      box-shadow: 0 8px 32px rgba(0,0,0,.18);
+      overflow: hidden;
+    }
+    .og-modal-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 22px;
+      border-bottom: 1px solid #e8efe3;
+    }
+    .og-modal-title { font-size: 16px; font-weight: 700; color: #1a2718; }
+    .og-modal-close {
+      width: 30px; height: 30px; border: none; background: none;
+      font-size: 18px; color: #8a9e84; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; border-radius: 4px;
+    }
+    .og-modal-close:hover { background: #f0f4ee; color: #2a3a26; }
+    .og-modal-body { padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+    .og-modal-foot {
+      display: flex; justify-content: flex-end; gap: 8px;
+      padding: 14px 22px;
+      border-top: 1px solid #e8efe3;
+      background: #f8faf6;
+    }
+
+    /* 이미지 업로드 영역 */
+    .og-img-upload {
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .og-img-preview-wrap {
+      width: 90px; height: 120px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px dashed #c8dfa6;
+      background: #f0f7e8;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: border-color .15s;
+    }
+    .og-img-preview-wrap:hover { border-color: #508829; }
+    .og-img-preview-wrap img.og-preview-img {
+      width: 100%; height: 100%; object-fit: cover; display: none;
+    }
+    .og-img-preview-ph {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; text-align: center;
+    }
+    .og-img-preview-ph img { width: 24px; opacity: .45; }
+    .og-img-preview-ph span { font-size: 11px; color: #8a9e84; }
+    .og-img-upload-info { flex: 1; }
+    .og-img-upload-info .hint { font-size: 12px; color: #8a9e84; margin-top: 6px; line-height: 1.6; }
+  </style>
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-head">
+        <span class="adm-sb-title">MENU</span>
+        <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+      </div>
+      <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <h1 class="admin-page-title">조직도 / 임원진 관리</h1>
+        <div class="admin-topbar-actions">
+          <button class="btn-refresh" onclick="location.reload()" title="새로고침"><img src="../assets/icons/refresh.png" alt="새로고침"></button>
+          <button class="btn btn-primary btn-sm" onclick="OrgAdmin.saveAll()">전체 저장</button>
+        </div>
+      </div>
+
+      <!-- ① 조직도 이미지 -->
+      <div class="card" style="margin-bottom:20px" data-sb-anno="1:조직도 이미지 업로드 카드">
+        <div class="card-header">
+          <span class="card-title">조직도 이미지</span>
+          <span style="font-size:12px;color:#8a9e84">사용자 페이지(조직도 메뉴)에 그대로 표시됩니다</span>
+        </div>
+        <div style="padding:20px">
+          <label class="org-img-box" id="orgImgBox" onclick="document.getElementById('orgImgFile').click()">
+            <img id="orgImgPreview" alt="조직도 미리보기">
+            <div class="org-img-placeholder" id="orgImgPlaceholder">
+              <img class="ico" src="../assets/icons/photograph.png" alt="">
+              <p>클릭하여 이미지 선택<br><span style="font-size:11px">JPG · PNG · SVG | 권장: 1200×800px 이상</span></p>
+            </div>
+            <input type="file" id="orgImgFile" accept="image/*" onchange="OrgAdmin.previewOrgImg(this)">
+          </label>
+          <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('orgImgFile').click()">이미지 교체</button>
+            <button class="btn btn-gray btn-sm" onclick="OrgAdmin.removeOrgImg()">이미지 삭제</button>
+            <span id="orgImgName" style="font-size:12px;color:#8a9e84"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② 임원진 관리 -->
+      <div class="card" data-sb-anno="2:임원진 명단 관리 카드 (그룹별 테이블)">
+        <div class="card-header">
+          <span class="card-title">임원진 명단 관리</span>
+          <button class="btn btn-outline btn-sm" onclick="OrgAdmin.addGroup()">+ 그룹 추가</button>
+        </div>
+        <div style="padding:20px">
+          <p style="font-size:12px;color:#8a9e84;margin-bottom:16px">
+            그룹 순서는 ▲▼로 조정합니다. 이미지 등록 시 사용자 페이지에서 마우스를 올리면 사진(120×160px)이 표시됩니다.
+          </p>
+          <div id="groupList">
+
+            <!-- 그룹 1: 함께하는 사람들 -->
+            <div class="og-card" id="group-1" data-sb-anno="3:임원 그룹 카드 — 함께하는 사람들">
+              <div class="og-card-head">
+                <div style="display:flex;gap:3px;flex-shrink:0">
+                  <button class="og-order-btn" title="위로" disabled>▲</button>
+                  <button class="og-order-btn" title="아래로" onclick="alert('순서가 변경되었습니다. (실제 구현 시 서버 API와 연동됩니다.)', \'info\')">▼</button>
+                </div>
+                <input class="og-group-name" type="text" value="함께하는 사람들" placeholder="그룹명 입력">
+                <div style="display:flex;gap:6px;margin-left:auto">
+                  <button class="btn btn-outline btn-xs" onclick="OrgAdmin.openModal(1)">+ 임원 추가</button>
+                  <button class="btn btn-danger btn-xs" onclick="alert('그룹을 삭제하시겠습니까? (실제 구현 시 서버 API와 연동됩니다.)', \'warning\')">그룹 삭제</button>
+                </div>
+              </div>
+              <div style="overflow-x:auto">
+                <table class="og-table">
+                  <thead>
+                    <tr>
+                      <th class="og-col-order">순서</th>
+                      <th class="og-col-photo">사진</th>
+                      <th class="og-col-title">직책</th>
+                      <th class="og-col-name">이름</th>
+                      <th class="og-col-detail">설명</th>
+                      <th class="og-col-action">관리</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="og-col-order"><div class="og-order-pair"><button class="og-order-btn" disabled>▲</button><button class="og-order-btn">▼</button></div></td>
+                      <td class="og-col-photo"><div class="og-photo-cell"><div class="og-thumb-ph"><img src="../assets/icons/user.png" alt=""></div></div></td>
+                      <td class="og-col-title" style="color:#4a5545">상임 대표</td>
+                      <td class="og-col-name" style="font-weight:600">김국희</td>
+                      <td class="og-col-detail" style="color:#636e72;font-size:13px"></td>
+                      <td class="og-col-action"><button class="btn btn-outline btn-xs" onclick="OrgAdmin.openModal(1,1)">수정</button> <button class="btn btn-danger btn-xs" onclick="alert('임원을 삭제하시겠습니까? (실제 구현 시 서버 API와 연동됩니다.)', \'warning\')">삭제</button></td>
+                    </tr>
+                    <tr>
+                      <td class="og-col-order"><div class="og-order-pair"><button class="og-order-btn">▲</button><button class="og-order-btn">▼</button></div></td>
+                      <td class="og-col-photo"><div class="og-photo-cell"><div class="og-thumb-ph"><img src="../assets/icons/user.png" alt=""></div></div></td>
+                      <td class="og-col-title" style="color:#4a5545">고문</td>
+                      <td class="og-col-name" style="font-weight:600">김성혁</td>
+                      <td class="og-col-detail" style="color:#636e72;font-size:13px">전 농림부 장관</td>
+                      <td class="og-col-action"><button class="btn btn-outline btn-xs" onclick="OrgAdmin.openModal(1,2)">수정</button> <button class="btn btn-danger btn-xs" onclick="alert('임원을 삭제하시겠습니까? (실제 구현 시 서버 API와 연동됩니다.)', \'warning\')">삭제</button></td>
+                    </tr>
+                    <tr>
+                      <td class="og-col-order"><div class="og-order-pair"><button class="og-order-btn">▲</button><button class="og-order-btn" disabled>▼</button></div></td>
+                      <td class="og-col-photo"><div class="og-photo-cell"><div class="og-thumb-ph"><img src="../assets/icons/user.png" alt=""></div></div></td>
+                      <td class="og-col-title" style="color:#4a5545">사무처</td>
+                      <td class="og-col-name" style="font-weight:600">양동회</td>
+                      <td class="og-col-detail" style="color:#636e72;font-size:13px">사무처장</td>
+                      <td class="og-col-action"><button class="btn btn-outline btn-xs" onclick="OrgAdmin.openModal(1,9)">수정</button> <button class="btn btn-danger btn-xs" onclick="alert('임원을 삭제하시겠습니까? (실제 구현 시 서버 API와 연동됩니다.)', \'warning\')">삭제</button></td>
+                    </tr>
+                    <!-- 데이터 없을 때: <tr><td colspan="6" class="og-empty">등록된 임원이 없습니다.</td></tr> -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 그룹 2: 지역 대표자 명단 -->
+            <div class="og-card" id="group-2" data-sb-anno="4:임원 그룹 카드 — 지역 대표자 명단">
+              <div class="og-card-head">
+                <div style="display:flex;gap:3px;flex-shrink:0">
+                  <button class="og-order-btn" title="위로" onclick="alert('순서가 변경되었습니다. (실제 구현 시 서버 API와 연동됩니다.)', \'info\')">▲</button>
+                  <button class="og-order-btn" title="아래로" disabled>▼</button>
+                </div>
+                <input class="og-group-name" type="text" value="지역 대표자 명단" placeholder="그룹명 입력">
+                <div style="display:flex;gap:6px;margin-left:auto">
+                  <button class="btn btn-outline btn-xs" onclick="OrgAdmin.openModal(2)">+ 임원 추가</button>
+                  <button class="btn btn-danger btn-xs" onclick="alert('그룹을 삭제하시겠습니까? (실제 구현 시 서버 API와 연동됩니다.)', \'warning\')">그룹 삭제</button>
+                </div>
+              </div>
+              <div style="overflow-x:auto">
+                <table class="og-table">
+                  <thead>
+                    <tr>
+                      <th class="og-col-order">순서</th>
+                      <th class="og-col-photo">사진</th>
+                      <th class="og-col-title">직책</th>
+                      <th class="og-col-name">이름</th>
+                      <th class="og-col-detail">설명</th>
+                      <th class="og-col-action">관리</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="og-col-order"><div class="og-order-pair"><button class="og-order-btn" disabled>▲</button><button class="og-order-btn">▼</button></div></td>
+                      <td class="og-col-photo"><div class="og-photo-cell"><div class="og-thumb-ph"><img src="../assets/icons/user.png" alt=""></div></div></td>
+                      <td class="og-col-title" style="color:#4a5545">강원협회</td>
+                      <td class="og-col-name" style="font-weight:600">김론수</td>
+                      <td class="og-col-detail" style="color:#636e72;font-size:13px">상임대표 / 사무처장: 서세정</td>
+                      <td class="og-col-action"><button class="btn btn-outline btn-xs" onclick="OrgAdmin.openModal(2,10)">수정</button> <button class="btn btn-danger btn-xs" onclick="alert('임원을 삭제하시겠습니까? (실제 구현 시 서버 API와 연동됩니다.)', \'warning\')">삭제</button></td>
+                    </tr>
+                    <tr>
+                      <td class="og-col-order"><div class="og-order-pair"><button class="og-order-btn">▲</button><button class="og-order-btn">▼</button></div></td>
+                      <td class="og-col-photo"><div class="og-photo-cell"><div class="og-thumb-ph"><img src="../assets/icons/user.png" alt=""></div></div></td>
+                      <td class="og-col-title" style="color:#4a5545">경북협회</td>
+                      <td class="og-col-name" style="font-weight:600">김영삼</td>
+                      <td class="og-col-detail" style="color:#636e72;font-size:13px">상임대표 / 사무국장: 원지환</td>
+                      <td class="og-col-action"><button class="btn btn-outline btn-xs" onclick="OrgAdmin.openModal(2,11)">수정</button> <button class="btn btn-danger btn-xs" onclick="alert('임원을 삭제하시겠습니까? (실제 구현 시 서버 API와 연동됩니다.)', \'warning\')">삭제</button></td>
+                    </tr>
+                    <tr>
+                      <td class="og-col-order"><div class="og-order-pair"><button class="og-order-btn">▲</button><button class="og-order-btn" disabled>▼</button></div></td>
+                      <td class="og-col-photo"><div class="og-photo-cell"><div class="og-thumb-ph"><img src="../assets/icons/user.png" alt=""></div></div></td>
+                      <td class="og-col-title" style="color:#4a5545">광주전남협회</td>
+                      <td class="og-col-name" style="font-weight:600">이미영</td>
+                      <td class="og-col-detail" style="color:#636e72;font-size:13px">상임대표 / 사무처장: 김미성</td>
+                      <td class="og-col-action"><button class="btn btn-outline btn-xs" onclick="OrgAdmin.openModal(2,12)">수정</button> <button class="btn btn-danger btn-xs" onclick="alert('임원을 삭제하시겠습니까? (실제 구현 시 서버 API와 연동됩니다.)', \'warning\')">삭제</button></td>
+                    </tr>
+                    <!-- 데이터 없을 때: <tr><td colspan="6" class="og-empty">등록된 임원이 없습니다.</td></tr> -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+          <div id="groupEmpty" style="text-align:center;padding:40px;color:#8a9e84;font-size:14px;display:none">
+            그룹이 없습니다. [+ 그룹 추가] 버튼을 눌러 추가하세요.
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:16px">
+        <button class="btn btn-primary" onclick="OrgAdmin.saveAll()">전체 저장</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- ③ 임원 등록/수정 모달 -->
+  <div class="og-modal-overlay" id="ogModal" data-sb-anno="5:임원 등록/수정 모달">
+    <div class="og-modal">
+      <div class="og-modal-head">
+        <span class="og-modal-title" id="ogModalTitle">임원 등록</span>
+        <button class="og-modal-close" onclick="OrgAdmin.closeModal()">×</button>
+      </div>
+      <div class="og-modal-body">
+        <input type="hidden" id="ogModalGid">
+        <input type="hidden" id="ogModalOid">
+
+        <!-- 이미지 -->
+        <div>
+          <label class="form-label" style="font-size:12px">사진 <span style="color:#8a9e84;font-weight:400">(선택 — 등록 시 hover 시 표시)</span></label>
+          <div class="og-img-upload">
+            <div class="og-img-preview-wrap" id="ogImgWrap" onclick="document.getElementById('ogImgFile').click()">
+              <img class="og-preview-img" id="ogImgPreviewModal" alt="">
+              <div class="og-img-preview-ph" id="ogImgPh">
+                <img src="../assets/icons/user-circle.png" alt="">
+                <span>사진 선택</span>
+              </div>
+            </div>
+            <div class="og-img-upload-info">
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('ogImgFile').click()" type="button">파일 선택</button>
+              <button class="btn btn-gray btn-sm" onclick="OrgAdmin.clearModalImg()" type="button" style="margin-left:6px">삭제</button>
+              <input type="file" id="ogImgFile" accept="image/*" style="display:none" onchange="OrgAdmin.previewModalImg(this)">
+              <p class="hint">JPG · PNG 권장<br>표시 크기: 120×160px (고정)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 직책 -->
+        <div>
+          <label class="form-label" for="ogTitleInput">직책 <span class="req">*</span></label>
+          <input type="text" class="form-control" id="ogTitleInput" placeholder="예: 상임 대표, 고문, 강원협회 상임대표">
+        </div>
+
+        <!-- 이름 -->
+        <div>
+          <label class="form-label" for="ogNameInput">이름 <span class="req">*</span></label>
+          <input type="text" class="form-control" id="ogNameInput" placeholder="이름을 입력하세요">
+        </div>
+
+        <!-- 설명 -->
+        <div>
+          <label class="form-label" for="ogDetailInput">설명 <span style="color:#8a9e84;font-weight:400">(선택)</span></label>
+          <input type="text" class="form-control" id="ogDetailInput"
+            placeholder="예: 전 농림부 장관 / 숲해설가 1급 강사">
+        </div>
+      </div>
+      <div class="og-modal-foot">
+        <button class="btn btn-gray btn-sm" onclick="OrgAdmin.closeModal()">취소</button>
+        <button class="btn btn-primary btn-sm" onclick="OrgAdmin.saveModal()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/admin.js"></script>
+  <script>
+    AdminSidebar.mount('organization');
+
+    let _modalImgDataUrl = null;
+
+    const OrgAdmin = {
+
+      /* ════════════════════════════
+         조직도 이미지
+         ════════════════════════════ */
+      previewOrgImg(input) {
+        if (!input.files?.[0]) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          const preview = document.getElementById('orgImgPreview');
+          const ph      = document.getElementById('orgImgPlaceholder');
+          const name    = document.getElementById('orgImgName');
+          if (preview) { preview.src = e.target.result; preview.style.display = 'block'; }
+          if (ph)      ph.style.display = 'none';
+          if (name)    name.textContent = input.files[0].name;
+        };
+        reader.readAsDataURL(input.files[0]);
+      },
+
+      removeOrgImg() {
+        const preview = document.getElementById('orgImgPreview');
+        const ph      = document.getElementById('orgImgPlaceholder');
+        const name    = document.getElementById('orgImgName');
+        const file    = document.getElementById('orgImgFile');
+        if (preview) { preview.src = ''; preview.style.display = 'none'; }
+        if (ph)   ph.style.display = '';
+        if (name) name.textContent = '';
+        if (file) file.value = '';
+      },
+
+      /* ════════════════════════════
+         모달
+         ════════════════════════════ */
+      openModal(gid, oid) {
+        _modalImgDataUrl = null;
+        const modalGid   = document.getElementById('ogModalGid');
+        const modalOid   = document.getElementById('ogModalOid');
+        const modalTitle = document.getElementById('ogModalTitle');
+        const titleInput = document.getElementById('ogTitleInput');
+        const nameInput  = document.getElementById('ogNameInput');
+        const detailInput= document.getElementById('ogDetailInput');
+        const previewImg = document.getElementById('ogImgPreviewModal');
+        const ph         = document.getElementById('ogImgPh');
+        const imgFile    = document.getElementById('ogImgFile');
+
+        if (modalGid) modalGid.value = gid || '';
+        if (modalOid) modalOid.value = oid || '';
+        if (imgFile)  imgFile.value  = '';
+
+        if (oid) {
+          if (modalTitle) modalTitle.textContent = '임원 수정';
+          /* 실제 구현 시 서버에서 데이터 불러옴 */
+          if (previewImg) previewImg.style.display = 'none';
+          if (ph) ph.style.display = '';
+        } else {
+          if (modalTitle) modalTitle.textContent = '임원 등록';
+          if (titleInput)  titleInput.value  = '';
+          if (nameInput)   nameInput.value   = '';
+          if (detailInput) detailInput.value = '';
+          if (previewImg)  previewImg.style.display = 'none';
+          if (ph) ph.style.display = '';
+        }
+
+        const modal = document.getElementById('ogModal');
+        if (modal) modal.classList.add('open');
+        setTimeout(() => { if (titleInput) titleInput.focus(); }, 80);
+      },
+
+      closeModal() {
+        const modal = document.getElementById('ogModal');
+        if (modal) modal.classList.remove('open');
+      },
+
+      previewModalImg(input) {
+        if (!input.files?.[0]) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          _modalImgDataUrl = e.target.result;
+          const previewImg = document.getElementById('ogImgPreviewModal');
+          const ph         = document.getElementById('ogImgPh');
+          if (previewImg) { previewImg.src = _modalImgDataUrl; previewImg.style.display = 'block'; }
+          if (ph) ph.style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
+      },
+
+      clearModalImg() {
+        _modalImgDataUrl = null;
+        const previewImg = document.getElementById('ogImgPreviewModal');
+        const ph         = document.getElementById('ogImgPh');
+        const file       = document.getElementById('ogImgFile');
+        if (previewImg) previewImg.style.display = 'none';
+        if (ph)   ph.style.display = '';
+        if (file) file.value = '';
+      },
+
+      saveModal() {
+        const title = document.getElementById('ogTitleInput')?.value.trim();
+        const name  = document.getElementById('ogNameInput')?.value.trim();
+        if (!title) { alert('직책을 입력해주세요.'); document.getElementById('ogTitleInput')?.focus(); return; }
+        if (!name)  { alert('이름을 입력해주세요.'); document.getElementById('ogNameInput')?.focus();  return; }
+        this.closeModal();
+        alert('저장되었습니다. (실제 구현 시 서버 API와 연동됩니다.)');
+      },
+
+      addGroup() {
+        alert('그룹 추가 기능은 실제 구현 시 서버 API와 연동됩니다.');
+      },
+
+      saveAll() {
+        alert('조직도 및 임원진 정보가 저장되었습니다. (실제 구현 시 서버 API와 연동됩니다.)');
+      },
+    };
+
+    /* 모달 외부 클릭 시 닫기 */
+    const ogModal = document.getElementById('ogModal');
+    if (ogModal) {
+      ogModal.addEventListener('click', function(e) {
+        if (e.target === this) OrgAdmin.closeModal();
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>에디터 샘플</title>
+
+  <!-- 외부 리소스
+       Quill v2.0.3 : WYSIWYG 에디터 라이브러리
+       Google Fonts : 나눔고딕, Noto Sans KR
+
+       CDN 사용 시 주의사항
+       - 현재 버전(@2.0.3)이 고정되어 있으므로 CDN 그대로 사용해도 무방
+       - 단, React / Vue / Next.js 등 프레임워크 기반 프로젝트로 전환 시
+         npm 패키지로 교체 권장 (버전 통제 및 번들 최적화 목적)
+       - 버전 번호를 반드시 고정할 것. 미고정 시 CDN 업데이트로 에디터 깨질 수 있음
+         권장 : cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js
+         비권장: cdn.jsdelivr.net/npm/quill/dist/quill.js -->
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&family=Noto+Sans+KR&display=swap" rel="stylesheet">
+
+  <style>
+    /* ---------------------------------------------------------------
+       페이지 공통 레이아웃
+       실 프로젝트에서는 에디터 관련 스타일(.qe-*, .ql-*, .cp-*)만
+       별도 CSS 파일로 분리하여 관리 권장
+    --------------------------------------------------------------- */
+    body {
+      background: #eee;
+      font-family: Arial;
+    }
+
+    .wrap {
+      max-width: 900px;
+      width: 100%;
+      margin: 50px auto;
+      background: #fff;
+      padding: 30px;
+      box-sizing: border-box;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      height: 40px;
+      margin-bottom: 15px;
+      padding: 0 10px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    button[type="submit"] {
+      margin-top: 15px;
+      padding: 10px 30px;
+      background: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+
+    /* ---------------------------------------------------------------
+       에디터 래퍼 .qe-wrap
+       에디터 전체를 감싸는 컨테이너
+       position:relative 는 업로드 오버레이 기준점으로 사용
+    --------------------------------------------------------------- */
+    .qe-wrap {
+      position: relative;
+    }
+
+    /* 이미지 업로드 중 화면 전체를 덮는 오버레이 */
+    .qe-uploading {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, .75);
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #333;
+      z-index: 100;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .qe-wrap.is-uploading .qe-uploading {
+      display: flex;
+    }
+
+
+    /* ---------------------------------------------------------------
+       Quill 기본 스타일 커스터마이징
+       Quill이 생성하는 DOM(.ql-toolbar, .ql-container, .ql-editor)의
+       기본 스타일을 프로젝트 디자인에 맞게 덮어씀
+    --------------------------------------------------------------- */
+    .ql-toolbar.ql-snow {
+      border: 1px solid #c8c8c8;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      font-family: 'Noto Sans KR', sans-serif;
+      padding: 6px 8px;
+      /* 기본(모바일): 개행 허용 */
+    }
+
+    /* 그룹 구분선 — 각 ql-formats 오른쪽에 | 선 + 여백 */
+    .ql-snow .ql-formats {
+      border-right: 1px solid #d0d0d0;
+      padding-right: 10px;
+      margin-right: 10px !important;
+      vertical-align: middle;
+    }
+
+    .ql-snow .ql-formats:last-child {
+      border-right: none;
+      padding-right: 0;
+      margin-right: 0 !important;
+    }
+
+    /* 버튼 크기 — 아이콘 버튼 19개 × 26px = 494px */
+    .ql-snow.ql-toolbar button {
+      padding: 3px 3px;
+      width: 26px;
+    }
+
+    /* 드롭다운 피커 너비 — 합계 211px */
+    .ql-snow .ql-picker.ql-font   { width: 85px; }
+    .ql-snow .ql-picker.ql-size   { width: 58px; }
+    .ql-snow .ql-picker.ql-header { width: 82px; }
+
+    /* PC(860px 이상): 툴바 한 줄 고정
+       전체 너비 계산: 버튼 494 + 피커 211 + 컬러피커 60 + 그룹마진 35 ≈ 800px → 840px 여유 */
+    @media (min-width: 860px) {
+      .ql-toolbar.ql-snow {
+        white-space: nowrap;
+      }
+    }
+
+    /* 모바일(600px 이하): 여백 축소 */
+    @media (max-width: 600px) {
+      .wrap {
+        padding: 16px;
+        margin: 16px auto;
+      }
+    }
+
+    .ql-container.ql-snow {
+      border: 1px solid #c8c8c8;
+      border-top: none;
+      border-radius: 0;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+    }
+
+    .ql-editor {
+      min-height: 450px;
+      line-height: 1.8;
+      color: #222;
+      overflow-wrap: break-word; /* URL 등 긴 연속 문자열 줄바꿈 */
+    }
+
+    .ql-editor.ql-blank::before {
+      color: #aaa;
+      font-style: normal;
+    }
+
+    .ql-editor img {
+      max-width: 100%;
+      height: auto;
+    }
+
+
+    /* ---------------------------------------------------------------
+       폰트 패밀리 CSS 클래스
+       Quill font attributor가 생성하는 클래스명(ql-font-xxx)에
+       실제 font-family를 연결
+
+       ★ 뷰(출력) 페이지에도 이 CSS 블록을 동일하게 포함해야 함
+          폰트는 class="ql-font-xxx" 방식으로 HTML에 저장되므로
+          에디터 페이지에만 있으면 게시글 출력 시 폰트가 깨져 보임
+
+       새 폰트 추가 시 반드시 아래 3곳을 동시에 수정해야 함
+       1) 이 CSS 클래스 정의
+       2) FontAttributor.whitelist 배열 (JS)
+       3) 드롭다운 라벨 CSS (::before content)
+    --------------------------------------------------------------- */
+    .ql-font-malgun {
+      font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+    }
+
+    .ql-font-nanum {
+      font-family: 'Nanum Gothic', sans-serif;
+    }
+
+    .ql-font-noto {
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .ql-font-gulim {
+      font-family: 'Gulim', '굴림', sans-serif;
+    }
+
+    .ql-font-dotum {
+      font-family: 'Dotum', '돋움', sans-serif;
+    }
+
+    .ql-font-batang {
+      font-family: 'Batang', '바탕', serif;
+    }
+
+    .ql-font-georgia {
+      font-family: 'Georgia', serif;
+    }
+
+    .ql-font-arial {
+      font-family: 'Arial', sans-serif;
+    }
+
+    /* 폰트 드롭다운 표시 텍스트 */
+    .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="malgun"]::before,
+    .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="malgun"]::before {
+      content: '맑은 고딕';
+    }
+
+    .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="nanum"]::before,
+    .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="nanum"]::before {
+      content: '나눔고딕';
+    }
+
+    .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="noto"]::before,
+    .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="noto"]::before {
+      content: 'Noto Sans';
+    }
+
+    .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="gulim"]::before,
+    .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="gulim"]::before {
+      content: '굴림';
+    }
+
+    .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="dotum"]::before,
+    .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="dotum"]::before {
+      content: '돋움';
+    }
+
+    .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="batang"]::before,
+    .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="batang"]::before {
+      content: '바탕';
+    }
+
+    .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="georgia"]::before,
+    .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="georgia"]::before {
+      content: 'Georgia';
+    }
+
+    .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="arial"]::before,
+    .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="arial"]::before {
+      content: 'Arial';
+    }
+
+    .ql-snow .ql-picker.ql-font .ql-picker-label:not([data-value])::before,
+    .ql-snow .ql-picker.ql-font .ql-picker-item:not([data-value])::before {
+      content: '기본 폰트';
+    }
+
+    /* 글자 크기 드롭다운 표시 텍스트 */
+    .ql-snow .ql-picker.ql-size .ql-picker-label::before,
+    .ql-snow .ql-picker.ql-size .ql-picker-item::before {
+      content: attr(data-value) !important;
+    }
+
+    .ql-snow .ql-picker.ql-size .ql-picker-label:not([data-value])::before,
+    .ql-snow .ql-picker.ql-size .ql-picker-item:not([data-value])::before {
+      content: '14px' !important;
+    }
+
+
+    /* ---------------------------------------------------------------
+       탭 UI (EDITOR / HTML / TEXT) - 우측 하단 배치
+       탭 전환 시 Quill DOM(툴바+컨테이너)은 항상 렌더링 유지
+       HTML/TEXT textarea를 .ql-container 위에 absolute로 겹쳐
+       is-visible 클래스 토글로 표시/숨김 처리
+    --------------------------------------------------------------- */
+    .qe-tabs {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+      padding-right: 6px;
+      background: #f5f5f5;
+      border: 1px solid #c8c8c8;
+      border-top: none;
+      border-bottom: none;
+      gap: 2px;
+    }
+
+    .qe-tab-btn {
+      padding: 3px 10px;
+      font-size: 11px;
+      font-family: 'Noto Sans KR', sans-serif;
+      border: 1px solid transparent;
+      border-bottom: none;
+      background: transparent;
+      color: #999;
+      cursor: pointer;
+      border-radius: 4px 4px 0 0;
+      margin-top: 4px;
+      transition: background .15s, color .15s;
+      user-select: none;
+      outline: none;
+      letter-spacing: 0.3px;
+    }
+
+    .qe-tab-btn:hover {
+      background: #e8e8e8;
+      color: #555;
+    }
+
+    .qe-tab-btn.is-active {
+      background: #f5f5f5;
+      color: #222;
+      font-weight: bold;
+      border-color: #c8c8c8;
+      border-bottom-color: #f5f5f5;
+    }
+
+
+    /* ---------------------------------------------------------------
+       에디터 영역 래퍼 (.qe-editor-area)
+       Quill이 생성하는 .ql-toolbar + .ql-container 를 감싸는 컨테이너
+       HTML/TEXT textarea가 이 안에 absolute로 겹쳐지므로
+       position:relative 필수
+    --------------------------------------------------------------- */
+    .qe-editor-area {
+      position: relative;
+    }
+
+    /* HTML / TEXT 탭 textarea
+       .ql-container 위에 absolute로 겹쳐서 배치
+       기본 숨김 상태, is-visible 클래스 추가 시 표시
+       좌우 테두리를 직접 명시하지 않으면 .ql-container 테두리가 가려짐 */
+    .qe-raw-textarea {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 14px;
+      border: none;
+      border-left: 1px solid #c8c8c8;
+      border-right: 1px solid #c8c8c8;
+      border-top: 1px solid #c8c8c8;
+      box-sizing: border-box;
+      font-size: 13px;
+      font-family: 'Courier New', Courier, monospace;
+      line-height: 1.7;
+      color: #222;
+      background: #fafafa;
+      resize: none;
+      outline: none;
+      z-index: 10;
+      display: none;
+    }
+
+    .qe-raw-textarea:focus {
+      background: #fff;
+    }
+
+    /* TEXT 탭: 읽기 전용 (편집 불가) */
+    .qe-raw-textarea.is-text-mode {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #f9f9f9;
+      /* 읽기 전용임을 시각적으로 표시 */
+      color: #555;
+      cursor: default;
+    }
+
+    .qe-raw-textarea.is-visible {
+      display: block;
+    }
+
+
+    /* ---------------------------------------------------------------
+       상태바
+       좌측: 글자수 카운터 / 우측: 현재 탭 모드 표시
+    --------------------------------------------------------------- */
+    .qe-statusbar {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 10px;
+      background: #f5f5f5;
+      border: 1px solid #c8c8c8;
+      border-top: none;
+      font-size: 11px;
+      color: #888;
+    }
+
+
+    /* ---------------------------------------------------------------
+       리사이즈 핸들
+       드래그로 에디터 높이 조절 (최소 200px / 최대 1200px)
+       마우스 및 터치 이벤트 모두 지원
+    --------------------------------------------------------------- */
+    .qe-resize-handle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 16px;
+      background: #efefef;
+      border: 1px solid #c8c8c8;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      cursor: ns-resize;
+      user-select: none;
+      color: #bbb;
+      font-size: 10px;
+      font-family: 'Noto Sans KR', sans-serif;
+      transition: background .15s;
+    }
+
+    .qe-resize-handle:hover {
+      background: #e0e0e0;
+      color: #888;
+    }
+
+    .qe-resize-handle.is-dragging {
+      background: #d0d8f0;
+      color: #446;
+    }
+
+    .qe-wrap.is-resizing {
+      user-select: none;
+    }
+
+    .qe-wrap.is-resizing * {
+      pointer-events: none;
+    }
+
+    .qe-wrap.is-resizing .qe-resize-handle {
+      pointer-events: all;
+    }
+
+
+    /* ---------------------------------------------------------------
+       커스텀 컬러피커
+       Quill 기본 color / background 버튼을 숨기고 커스텀 드롭다운으로 교체
+
+       구성 요소
+       .cp-trigger   : 툴바에 표시되는 색상 아이콘 버튼
+       .cp-panel     : 드롭다운 패널 (팔레트 + HEX 입력 + 색상 제거)
+       .cp-palette   : 색상 스와치 그리드 (6열 x 8행 = 48색)
+       .cp-preview   : 미리보기 박스 (클릭 시 네이티브 컬러피커 열림)
+       .cp-hex-input : HEX 코드 직접 입력창
+    --------------------------------------------------------------- */
+
+    /* Quill 기본 버튼 숨김 (커스텀으로 대체) */
+    .ql-toolbar .ql-color,
+    .ql-toolbar .ql-background {
+      display: none !important;
+    }
+
+    .ql-toolbar .cp-trigger {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 24px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      background: none;
+      padding: 2px 3px;
+      gap: 1px;
+      position: relative;
+    }
+
+    .ql-toolbar .cp-trigger:hover {
+      background: #e0e0e0;
+      border-color: #bbb;
+    }
+
+    .cp-color-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+    }
+
+    /* 글자색 아이콘: "A" + 하단 색상 바 */
+    .cp-label {
+      font-size: 13px;
+      font-weight: bold;
+      font-family: Arial, sans-serif;
+      color: #222;
+      line-height: 1;
+      display: block;
+    }
+
+    .cp-color-bar {
+      width: 16px;
+      height: 4px;
+      border-radius: 1px;
+      display: block;
+    }
+
+    /* 배경색 아이콘: 체커보드 패턴 박스 안에 "A"
+       투명(미선택) 상태를 체커 패턴으로 시각화 */
+    .cp-bg-icon-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border: 1px solid #bbb;
+      border-radius: 2px;
+      background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-size: 6px 6px;
+      background-position: 0 0, 0 3px, 3px -3px, -3px 0;
+      background-color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cp-bg-color-fill {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* 배경색에 따라 JS에서 흰색/검정 자동 전환 */
+    .cp-bg-icon-label {
+      position: relative;
+      font-size: 11px;
+      font-weight: bold;
+      font-family: Arial, sans-serif;
+      color: #222;
+      z-index: 1;
+      line-height: 1;
+    }
+
+    .cp-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 9999;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .18);
+      padding: 8px;
+      width: 150px;
+      min-width: 150px;
+      box-sizing: border-box;
+      font-family: 'Noto Sans KR', sans-serif;
+      white-space: nowrap;
+    }
+
+    .cp-panel.is-open {
+      display: block;
+    }
+
+    /* 팔레트 그리드: 6열 고정
+       패널 너비 변경 시 공식: (스와치 크기 + gap) x 열수 + (padding x 2) */
+    .cp-palette {
+      display: grid;
+      grid-template-columns: repeat(6, 20px);
+      gap: 2px;
+      margin-bottom: 8px;
+      white-space: normal;
+    }
+
+    .cp-swatch {
+      width: 15px;
+      height: 15px;
+      border-radius: 2px;
+      cursor: pointer;
+      border: 1px solid rgba(0, 0, 0, .12);
+      transition: transform .1s, box-shadow .1s;
+      box-sizing: border-box;
+      display: block;
+    }
+
+    .cp-swatch:hover {
+      transform: scale(1.2);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
+      z-index: 1;
+      position: relative;
+    }
+
+    .cp-swatch.is-selected {
+      outline: 2px solid #333;
+      outline-offset: 1px;
+    }
+
+    .cp-divider {
+      border: none;
+      border-top: 1px solid #eee;
+      margin: 8px 0;
+    }
+
+    .cp-input-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* 미리보기 박스
+       클릭 시 숨겨진 input[type=color]가 열림 */
+    .cp-preview {
+      width: 24px;
+      height: 22px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cp-preview::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-size: 8px 8px;
+      background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+    }
+
+    .cp-preview-inner {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* 네이티브 컬러피커: 투명하게 미리보기 위에 겹쳐 클릭 가능하게 처리 */
+    .cp-native {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .cp-hex-input {
+      flex: 1;
+      min-width: 0;
+      width: 0;
+      height: 22px;
+      padding: 0 4px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 11px;
+      font-family: monospace;
+      text-transform: uppercase;
+      box-sizing: border-box;
+    }
+
+    .cp-hex-input:focus {
+      outline: none;
+      border-color: #888;
+    }
+
+    /* Quill 툴바 안 버튼에는 .ql-toolbar button 스타일이 자동 적용되어
+       background가 transparent로 강제됨. !important로 덮어써야 정상 표시됨 */
+    .cp-apply-btn {
+      flex-shrink: 0;
+      height: 22px;
+      padding: 0 6px;
+      background: #555 !important;
+      color: #fff !important;
+      border: 1px solid #444 !important;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: 'Noto Sans KR', sans-serif;
+      line-height: 1;
+      opacity: 1 !important;
+    }
+
+    .cp-apply-btn:hover {
+      background: #222 !important;
+    }
+
+    .cp-clear-btn {
+      display: block;
+      width: 100%;
+      margin-top: 6px;
+      padding: 4px 0;
+      font-size: 11px;
+      color: #999;
+      background: none;
+      border: 1px solid #e0e0e0;
+      border-radius: 3px;
+      cursor: pointer;
+      text-align: center;
+      box-sizing: border-box;
+      white-space: nowrap;
+    }
+
+    .cp-clear-btn:hover {
+      background: #f9f9f9;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 페이지 마크업
+
+       에디터 사용법
+       1) <div id="에디터ID"></div> 를 원하는 위치에 배치
+       2) QEditor.init('에디터ID', { ...옵션 }) 으로 초기화
+       3) QEditor.getValue('에디터ID') 로 HTML 내용 수집 (저장 시)
+       4) QEditor.setValue('에디터ID', html) 로 내용 주입 (수정 페이지)
+       5) QEditor.isEmpty('에디터ID') 로 빈 값 여부 확인 -->
+  <div class="wrap">
+    <h2>게시글 작성</h2>
+    <form id="postForm">
+      <label>제목</label>
+      <input type="text" name="title" placeholder="제목을 입력하세요">
+
+      <label>내용</label>
+
+      <!-- 에디터 마운트 포인트
+           QEditor.init() 이 이 div를 Quill 에디터로 변환
+           id는 페이지 내에서 유일해야 함 -->
+      <div id="editor"></div>
+
+      <button type="submit">저장</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+  <script>
+    /*
+    ==================================================================
+      QEditor — Quill 기반 표준 에디터 컴포넌트
+    ==================================================================
+
+      ■ 사용 방법
+
+        // 기본 초기화
+        QEditor.init('editor');
+
+        // 옵션 지정 초기화
+        QEditor.init('editor', {
+          uploadUrl : '/board/upload',   // 이미지 업로드 API URL
+          mockUpload: false,             // 실서버 연동 시 false
+          minHeight : '300px',           // 에디터 최소 높이
+          maxLength : 5000,              // 최대 글자수 (0 = 무제한)
+          features  : { video: false, codeBlock: false }, // 기능 끄기
+        });
+
+        const html    = QEditor.getValue('editor');   // 저장 시 HTML 수집
+        QEditor.setValue('editor', savedHtml);         // 수정 페이지 내용 로드
+        if (QEditor.isEmpty('editor')) { ... }         // 빈 값 체크
+
+
+      ■ 탭 전환 동작 원리
+
+        EDITOR → HTML  : quill.root.innerHTML      → textarea
+        EDITOR → TEXT  : quill.getText()           → textarea (읽기 전용)
+        HTML   → 다른 탭: textarea.value            → dangerouslyPasteHTML()
+        Quill DOM은 탭 전환 시에도 항상 렌더링 유지 (opacity 토글)
+
+
+      ■ 이미지 업로드 API
+
+        Method   : POST
+        Endpoint : uploadUrl 옵션에 지정한 경로
+        Request  : multipart/form-data  { image: File }
+        Response : { "url": "https://cdn.example.com/img/abc.jpg" }
+        제한     : 최대 5MB / jpg, png, gif, webp
+
+        mockUpload: true  — Base64로 에디터에 직접 삽입 (서버 불필요, 개발·시연용)
+                           ※ Base64 이미지는 DB에 원본 그대로 저장되어 용량이 수십 배
+                              실서버에서는 반드시 false + 파일 업로드 API 구현
+        mockUpload: false — 서버로 POST 후 응답 URL을 에디터에 삽입
+
+
+      ■ 서버 연동 전환 체크리스트
+
+        [ ] mockUpload: true  →  false
+        [ ] uploadUrl를 실제 이미지 업로드 API 경로로 교체
+        [ ] 저장 엔드포인트(/save-post)를 실제 PHP 처리 경로로 교체
+        [ ] DB 컬럼 타입: TEXT 또는 LONGTEXT / 인코딩: utf8mb4 (이모지 대응)
+        [ ] 서버에서 HTML Sanitize 처리 필수 (아래 PHP 예시 참고)
+
+
+      ■ PHP XSS 처리 (HTMLPurifier 권장)
+
+        composer require ezyang/htmlpurifier
+
+        $config = HTMLPurifier_Config::createDefault();
+        $config->set('HTML.Allowed',
+            'p,br,strong,em,u,s,span[style|class],a[href|target|rel],' .
+            'ul,ol,li,blockquote,pre,img[src|alt|style],h1,h2,h3,h4,h5,h6'
+        );
+        $config->set('CSS.AllowedProperties', 'font-size,color,background-color,text-align');
+        $purifier = new HTMLPurifier($config);
+        $clean    = $purifier->purify($_POST['content']);
+        // $clean 을 DB에 INSERT/UPDATE
+
+        ※ PHP fetch 수신 (JSON 방식):
+           $body    = file_get_contents('php://input');
+           $data    = json_decode($body, true);
+           $title   = $data['title']   ?? '';
+           $content = $data['content'] ?? '';
+
+
+      ■ 뷰(출력) 페이지 필수 항목
+
+        게시글을 출력하는 뷰 페이지에 아래 CSS가 없으면 폰트가 깨져 보임.
+        공통 CSS 파일(common.css 등)에 포함하거나 별도 editor-view.css로 분리 관리.
+
+        .ql-font-malgun  { font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; }
+        .ql-font-nanum   { font-family: 'Nanum Gothic', sans-serif; }
+        .ql-font-noto    { font-family: 'Noto Sans KR', sans-serif; }
+        .ql-font-gulim   { font-family: 'Gulim', '굴림', sans-serif; }
+        .ql-font-dotum   { font-family: 'Dotum', '돋움', sans-serif; }
+        .ql-font-batang  { font-family: 'Batang', '바탕', serif; }
+        .ql-font-georgia { font-family: 'Georgia', serif; }
+        .ql-font-arial   { font-family: 'Arial', sans-serif; }
+        .view-content img        { max-width: 100%; height: auto; }
+        .view-content blockquote { border-left: 4px solid #ccc; margin: 0; padding-left: 16px; color: #555; }
+        .view-content pre        { background: #23241f; color: #f8f8f2; padding: 12px; border-radius: 4px; overflow-x: auto; }
+
+        ※ 글자 크기(size)는 style="font-size: Npx" 인라인 스타일로 저장 → CSS 불필요
+        ※ 폰트(font)는 class="ql-font-xxx" 로 저장             → 위 CSS 필수
+
+
+      ■ HTML 출력 구조 예시 (getValue() 반환값)
+
+        <p><span style="font-size: 24px; color: rgb(255,0,0);">빨간 24px 텍스트</span></p>
+        <p><span class="ql-font-malgun">맑은 고딕 텍스트</span></p>
+        <p><strong>굵게</strong> 일반 <u>밑줄</u></p>
+        <p><img src="/upload/abc.jpg" alt=""></p>
+        <h2>제목 2</h2>
+        <blockquote>인용구</blockquote>
+
+
+      ■ 폰트 추가 시 수정 위치 3곳
+
+        [ ] CSS .ql-font-xxx 클래스 정의 (에디터 페이지 + 뷰 페이지)
+        [ ] FontAttributor.whitelist 배열에 키 추가
+        [ ] 드롭다운 라벨 CSS ::before content 추가
+
+    ==================================================================
+    */
+
+    'use strict';
+
+    const QEditor = (function () {
+
+      /* --------------------------------------------------------------
+         기본 설정값 (DEFAULTS)
+         QEditor.init() 두 번째 인자로 항목별 덮어쓰기 가능
+      -------------------------------------------------------------- */
+      const DEFAULTS = {
+        uploadUrl: '/api/upload/image',
+        mockUpload: true,
+        minHeight: '450px',
+        placeholder: '내용을 입력하세요...',
+        maxLength: 0,
+
+        image: {
+          maxSizeMB: 5,
+          allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+        },
+
+        /* 툴바 기능 토글
+           false 설정 시 해당 버튼이 툴바에서 완전히 제거됨 */
+        features: {
+          font: true,
+          size: true,
+          header: true,
+          bold: true,
+          italic: true,
+          underline: true,
+          strike: true,
+          color: true,
+          background: true,
+          align: true,
+          indent: true,
+          list: true,
+          script: true,
+          link: true,
+          image: true,
+          video: true,
+          blockquote: true,
+          codeBlock: true,
+          clean: true,
+        },
+
+        /* 색상 팔레트 (6열 x 8행 = 48색)
+           HEX 코드로 자유롭게 추가/수정 가능 */
+        colorsAll: [
+          '#000000', '#434343', '#666666', '#999999', '#b7b7b7', '#ffffff',
+          '#ff0000', '#e53935', '#c62828', '#b71c1c', '#ff5252', '#ff8a80',
+          '#e91e63', '#d81b60', '#ad1457', '#880e4f', '#ff4081', '#f48fb1',
+          '#9c27b0', '#8e24aa', '#6a1b9a', '#4a148c', '#e040fb', '#ce93d8',
+          '#2196f3', '#1e88e5', '#1565c0', '#0d47a1', '#448aff', '#90caf9',
+          '#009688', '#00897b', '#00695c', '#004d40', '#1de9b6', '#80cbc4',
+          '#4caf50', '#43a047', '#388e3c', '#2e7d32', '#00e676', '#a5d6a7',
+          '#ff9800', '#fb8c00', '#f57c00', '#e65100', '#ffcc02', '#ffe082',
+        ],
+      };
+
+      const _instances = {};
+      let _formatsRegistered = false;
+
+
+      /* --------------------------------------------------------------
+         Quill 포맷 등록
+         폰트/사이즈 whitelist 미등록 시 드롭다운 동작 안함
+         최초 1회만 실행
+      -------------------------------------------------------------- */
+      function _registerFormats() {
+        const FontAttributor = Quill.import('attributors/class/font');
+        FontAttributor.whitelist = ['malgun', 'nanum', 'noto', 'gulim', 'dotum', 'batang', 'georgia', 'arial'];
+        Quill.register({ 'attributors/class/font': FontAttributor }, true);
+        Quill.register({ 'formats/font': FontAttributor }, true);
+
+        const SizeAttributor = Quill.import('attributors/style/size');
+        SizeAttributor.whitelist = [
+          '10px', '12px', '14px', '16px', '18px', '20px',
+          '24px', '28px', '32px', '36px', '48px', '72px',
+        ];
+        Quill.register({ 'attributors/style/size': SizeAttributor }, true);
+        Quill.register({ 'formats/size': SizeAttributor }, true);
+      }
+
+
+      /* --------------------------------------------------------------
+         툴바 배열 생성
+         features 값에 따라 동적으로 구성
+         false 항목은 툴바에서 완전히 제거됨
+      -------------------------------------------------------------- */
+      function _buildToolbar(f) {
+        const tb = [];
+
+        /* 그룹 1: 폰트·크기·헤더 + 글자 꾸밈 (색상 전까지 한 그룹) */
+        const r1 = [];
+        if (f.font) r1.push({ font: ['malgun', 'nanum', 'noto', 'gulim', 'dotum', 'batang', 'georgia', 'arial'] });
+        if (f.size) r1.push({ size: ['10px', '12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px', '36px', '48px', '72px'] });
+        if (f.header) r1.push({ header: [1, 2, 3, 4, 5, 6, false] });
+        if (f.bold) r1.push('bold');
+        if (f.italic) r1.push('italic');
+        if (f.underline) r1.push('underline');
+        if (f.strike) r1.push('strike');
+        if (r1.length) tb.push(r1);
+
+        /* 그룹 2: 글자색 + 배경색 (커스텀 피커로 교체, 자리 확보용) */
+        const r3 = [];
+        if (f.color) r3.push({ color: [] });
+        if (f.background) r3.push({ background: [] });
+        if (r3.length) tb.push(r3);
+
+        /* 그룹 3: 정렬·들여쓰기·목록·위첨자 (링크 전까지) */
+        const r4 = [];
+        if (f.align) r4.push({ align: [] });
+        if (f.indent) r4.push({ indent: '-1' }, { indent: '+1' });
+        if (f.list) r4.push({ list: 'ordered' }, { list: 'bullet' });
+        if (f.script) r4.push({ script: 'sub' }, { script: 'super' });
+        if (r4.length) tb.push(r4);
+
+        /* 그룹 4: 링크·이미지·영상·인용·코드·초기화 */
+        const r5 = [];
+        if (f.link) r5.push('link');
+        if (f.image) r5.push('image');
+        if (f.video) r5.push('video');
+        if (f.blockquote) r5.push('blockquote');
+        if (f.codeBlock) r5.push('code-block');
+        if (f.clean) r5.push('clean');
+        if (r5.length) tb.push(r5);
+
+        return tb;
+      }
+
+
+      /* --------------------------------------------------------------
+         DOM 골격 생성
+
+         구조
+           .qe-wrap
+             .qe-uploading        : 이미지 업로드 중 오버레이
+             .qe-editor-area      : Quill 툴바 + 컨테이너 래퍼
+               #editor            : Quill 마운트 포인트
+               textarea (HTML탭)  : absolute로 에디터 위에 겹침
+               textarea (TEXT탭)  : absolute로 에디터 위에 겹침
+             .qe-tabs             : 탭 버튼 (우측 하단)
+             .qe-statusbar        : 글자수 + 모드 표시
+             .qe-resize-handle    : 드래그 리사이즈 핸들
+      -------------------------------------------------------------- */
+      function _buildDOM(targetId) {
+        const mountEl = document.getElementById(targetId);
+        if (!mountEl) {
+          console.error('[QEditor] #' + targetId + ' 를 찾을 수 없습니다.');
+          return null;
+        }
+
+        const wrap = document.createElement('div');
+        wrap.className = 'qe-wrap';
+        mountEl.parentNode.insertBefore(wrap, mountEl);
+
+        const uploading = document.createElement('div');
+        uploading.className = 'qe-uploading';
+        uploading.textContent = '이미지 업로드 중...';
+
+        const editorArea = document.createElement('div');
+        editorArea.className = 'qe-editor-area';
+        editorArea.appendChild(mountEl);
+
+        const htmlTA = document.createElement('textarea');
+        htmlTA.id = targetId + '_htmlTA';
+        htmlTA.className = 'qe-raw-textarea';
+        htmlTA.placeholder = 'HTML 코드를 직접 입력하거나 수정할 수 있습니다.';
+        htmlTA.spellcheck = false;
+        editorArea.appendChild(htmlTA);
+
+        const textTA = document.createElement('textarea');
+        textTA.id = targetId + '_textTA';
+        textTA.className = 'qe-raw-textarea is-text-mode';
+        textTA.placeholder = '순수 텍스트를 입력하거나 수정할 수 있습니다.';
+        textTA.readOnly = true;   /* 추가 */
+        editorArea.appendChild(textTA);
+
+        const tabs = document.createElement('div');
+        tabs.className = 'qe-tabs';
+
+        ['EDITOR', 'HTML', 'TEXT'].forEach(function (label, i) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'qe-tab-btn' + (i === 0 ? ' is-active' : '');
+          btn.dataset.tab = label.toLowerCase();
+          btn.textContent = label;
+          tabs.appendChild(btn);
+        });
+
+        const statusbar = document.createElement('div');
+        statusbar.className = 'qe-statusbar';
+
+        const charCount = document.createElement('span');
+        charCount.className = 'qe-char-count';
+        charCount.textContent = '0자';
+
+        const modeLabel = document.createElement('span');
+        modeLabel.className = 'qe-mode-label';
+        modeLabel.textContent = 'EDITOR 모드';
+
+        statusbar.appendChild(charCount);
+        statusbar.appendChild(modeLabel);
+
+        const resizeHandle = document.createElement('div');
+        resizeHandle.className = 'qe-resize-handle';
+        resizeHandle.innerHTML = '<span>입력창 크기 조절</span>';
+
+        wrap.appendChild(uploading);
+        wrap.appendChild(editorArea);
+        wrap.appendChild(tabs);
+        wrap.appendChild(statusbar);
+        wrap.appendChild(resizeHandle);
+
+        return { wrap, uploading, editorArea, htmlTA, textTA, tabs, charCount, modeLabel, resizeHandle };
+      }
+
+
+      /* --------------------------------------------------------------
+         탭 전환 로직
+
+         나갈 때  : 현재 탭 내용을 Quill에 반영
+         들어올 때: 목적 탭에 최신 내용을 채움
+
+         HTML 입력 반영 시 innerHTML 직접 할당 대신
+         dangerouslyPasteHTML() 사용
+         이유: innerHTML 직접 할당은 Quill 내부 Delta와 불일치하여
+               글자수 카운트, 포맷 적용 등이 오동작할 수 있음
+      -------------------------------------------------------------- */
+      function _initTabs(inst) {
+        const { tabs, htmlTA, textTA, charCount, modeLabel, editorArea } = inst.dom;
+        const { quill } = inst;
+        let currentTab = 'editor';
+
+        const labelMap = {
+          editor: 'EDITOR 모드',
+          html: 'HTML 모드',
+          text: 'TEXT 모드',
+        };
+
+        function setHeight(px) {
+          const editorEl = editorArea.querySelector('.ql-editor');
+          if (editorEl) {
+            editorEl.style.minHeight = px + 'px';
+            editorEl.style.height = px + 'px';
+          }
+          const container = editorArea.querySelector('.ql-container');
+          if (container) {
+            htmlTA.style.height = container.offsetHeight + 'px';
+            textTA.style.height = container.offsetHeight + 'px';
+          }
+        }
+
+        function switchTab(targetTab) {
+          if (targetTab === currentTab) return;
+
+          /* 나갈 때: 현재 탭 내용을 Quill에 반영 */
+          if (currentTab === 'html') {
+            try {
+              quill.clipboard.dangerouslyPasteHTML(htmlTA.value || '');
+            } catch (e) {
+              console.warn('[QEditor] HTML 파싱 오류:', e);
+              quill.setText('');
+            }
+          }
+
+          /* 들어올 때: 목적 탭에 최신 내용 채우기 */
+          const container = editorArea.querySelector('.ql-container');
+          const containerH = container ? container.offsetHeight : 450;
+
+          if (targetTab === 'html') {
+            htmlTA.value = quill.root.innerHTML;
+            htmlTA.style.height = containerH + 'px';
+            htmlTA.classList.add('is-visible');
+            textTA.classList.remove('is-visible');
+          } else if (targetTab === 'text') {
+            textTA.value = quill.getText().replace(/\n$/, '');
+            textTA.style.height = containerH + 'px';
+            textTA.classList.add('is-visible');
+            htmlTA.classList.remove('is-visible');
+          } else {
+            htmlTA.classList.remove('is-visible');
+            textTA.classList.remove('is-visible');
+          }
+
+          tabs.querySelectorAll('.qe-tab-btn').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.dataset.tab === targetTab);
+          });
+
+          modeLabel.textContent = labelMap[targetTab] || '';
+
+          /* HTML/TEXT 탭에서는 툴바 비활성화
+             툴바는 항상 렌더링 유지, opacity + pointer-events 로만 처리 */
+          const toolbar = editorArea.querySelector('.ql-toolbar');
+          if (toolbar) {
+            toolbar.style.opacity = targetTab === 'editor' ? '1' : '0.4';
+            toolbar.style.pointerEvents = targetTab === 'editor' ? 'auto' : 'none';
+          }
+
+          currentTab = targetTab;
+        }
+
+        tabs.querySelectorAll('.qe-tab-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () { switchTab(btn.dataset.tab); });
+        });
+
+        inst.getCurrentTab = function () { return currentTab; };
+        inst.setHeight = setHeight;
+
+        /* getValue() 호출 시 현재 탭 내용을 Quill에 먼저 동기화 */
+        inst.syncFromCurrentTab = function () {
+          if (currentTab === 'html') {
+            try {
+              quill.clipboard.dangerouslyPasteHTML(htmlTA.value || '');
+            } catch (e) {
+              quill.setText('');
+            }
+          }
+        };
+      }
+
+
+      /* --------------------------------------------------------------
+         리사이즈 핸들 초기화
+         Quill 초기화 완료 후 호출해야 .ql-editor 참조 가능
+         마우스 및 터치 이벤트 모두 지원
+      -------------------------------------------------------------- */
+      function _initResize(inst) {
+        const { resizeHandle, wrap, editorArea } = inst.dom;
+        const MIN_HEIGHT = 200;
+        const MAX_HEIGHT = 1200;
+        let isDragging = false, startY = 0, startHeight = 0;
+
+        function getEditorHeight() {
+          const el = editorArea.querySelector('.ql-editor');
+          return el ? el.offsetHeight : 450;
+        }
+
+        resizeHandle.addEventListener('mousedown', function (e) {
+          isDragging = true;
+          startY = e.clientY;
+          startHeight = getEditorHeight();
+          resizeHandle.classList.add('is-dragging');
+          wrap.classList.add('is-resizing');
+          document.body.style.cursor = 'ns-resize';
+          e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', function (e) {
+          if (!isDragging) return;
+          const newH = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, startHeight + (e.clientY - startY)));
+          inst.setHeight(newH);
+        });
+
+        document.addEventListener('mouseup', function () {
+          if (!isDragging) return;
+          isDragging = false;
+          resizeHandle.classList.remove('is-dragging');
+          wrap.classList.remove('is-resizing');
+          document.body.style.cursor = '';
+        });
+
+        resizeHandle.addEventListener('touchstart', function (e) {
+          isDragging = true;
+          startY = e.touches[0].clientY;
+          startHeight = getEditorHeight();
+          resizeHandle.classList.add('is-dragging');
+          e.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function (e) {
+          if (!isDragging) return;
+          const newH = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, startHeight + (e.touches[0].clientY - startY)));
+          inst.setHeight(newH);
+        }, { passive: false });
+
+        document.addEventListener('touchend', function () {
+          if (!isDragging) return;
+          isDragging = false;
+          resizeHandle.classList.remove('is-dragging');
+          wrap.classList.remove('is-resizing');
+        });
+      }
+
+
+      /* --------------------------------------------------------------
+         커스텀 컬러피커 생성
+         type: 'color' (글자색) | 'background' (배경색)
+      -------------------------------------------------------------- */
+      function _createColorPicker(type, toolbar, quill, colorsAll) {
+        let currentColor = type === 'color' ? '#000000' : '#ffffff';
+
+        const qlBtn = toolbar.querySelector(type === 'color' ? '.ql-color' : '.ql-background');
+        if (!qlBtn) return;
+
+        const wrapEl = document.createElement('span');
+        wrapEl.style.cssText = 'position:relative;display:inline-block;vertical-align:middle;margin:0 1px;';
+
+        const trigger = document.createElement('button');
+        trigger.type = 'button';
+        trigger.className = 'cp-trigger';
+        trigger.title = type === 'color' ? '글자색' : '글자 배경색';
+
+        if (type === 'color') {
+          trigger.innerHTML =
+            '<span class="cp-color-icon">' +
+            '<span class="cp-label">A</span>' +
+            '<span class="cp-color-bar" style="background:' + currentColor + '"></span>' +
+            '</span>';
+        } else {
+          trigger.innerHTML =
+            '<span class="cp-color-icon">' +
+            '<span class="cp-bg-icon-wrap">' +
+            '<span class="cp-bg-color-fill" style="background:transparent"></span>' +
+            '<span class="cp-bg-icon-label">A</span>' +
+            '</span>' +
+            '<span class="cp-color-bar" style="background:' + currentColor + '"></span>' +
+            '</span>';
+        }
+
+        const panel = document.createElement('div');
+        panel.className = 'cp-panel';
+
+        const palette = document.createElement('div');
+        palette.className = 'cp-palette';
+        colorsAll.forEach(function (hex) {
+          const sw = document.createElement('span');
+          sw.className = 'cp-swatch';
+          sw.style.background = hex;
+          sw.title = hex;
+          sw.addEventListener('click', function () { applyColor(hex); closePanel(); });
+          palette.appendChild(sw);
+        });
+
+        const divider = document.createElement('hr');
+        divider.className = 'cp-divider';
+
+        const inputRow = document.createElement('div');
+        inputRow.className = 'cp-input-row';
+
+        const preview = document.createElement('label');
+        preview.className = 'cp-preview';
+        preview.title = '클릭하면 직접 색상 선택';
+
+        const previewInner = document.createElement('span');
+        previewInner.className = 'cp-preview-inner';
+        previewInner.style.background = currentColor;
+
+        const nativePicker = document.createElement('input');
+        nativePicker.type = 'color';
+        nativePicker.className = 'cp-native';
+        nativePicker.value = currentColor;
+        nativePicker.addEventListener('input', function (e) {
+          hexInput.value = e.target.value.toUpperCase();
+          previewInner.style.background = e.target.value;
+        });
+        nativePicker.addEventListener('change', function (e) { applyColor(e.target.value); });
+
+        preview.appendChild(previewInner);
+        preview.appendChild(nativePicker);
+
+        const hexInput = document.createElement('input');
+        hexInput.type = 'text';
+        hexInput.className = 'cp-hex-input';
+        hexInput.value = currentColor.toUpperCase();
+        hexInput.maxLength = 7;
+        hexInput.placeholder = '#000000';
+        hexInput.addEventListener('input', function (e) {
+          if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) {
+            previewInner.style.background = e.target.value;
+            nativePicker.value = e.target.value;
+          }
+        });
+        hexInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') { e.preventDefault(); applyAndClose(); }
+        });
+
+        const applyBtn = document.createElement('button');
+        applyBtn.type = 'button';
+        applyBtn.className = 'cp-apply-btn';
+        applyBtn.textContent = '입력';
+        applyBtn.addEventListener('click', applyAndClose);
+
+        inputRow.appendChild(preview);
+        inputRow.appendChild(hexInput);
+        inputRow.appendChild(applyBtn);
+
+        const clearBtn = document.createElement('button');
+        clearBtn.type = 'button';
+        clearBtn.className = 'cp-clear-btn';
+        clearBtn.textContent = '색상 제거';
+        clearBtn.addEventListener('click', function () {
+          quill.format(type === 'color' ? 'color' : 'background', false);
+          updateBar(type === 'color' ? '#000000' : '#ffffff');
+          closePanel();
+        });
+
+        panel.appendChild(palette);
+        panel.appendChild(divider);
+        panel.appendChild(inputRow);
+        panel.appendChild(clearBtn);
+
+        wrapEl.appendChild(trigger);
+        wrapEl.appendChild(panel);
+        qlBtn.parentNode.insertBefore(wrapEl, qlBtn);
+
+        trigger.addEventListener('click', function (e) {
+          e.stopPropagation();
+          e.preventDefault();
+          const isOpen = panel.classList.contains('is-open');
+          document.querySelectorAll('.cp-panel.is-open').forEach(function (p) {
+            p.classList.remove('is-open');
+          });
+          if (!isOpen) panel.classList.add('is-open');
+        });
+
+        panel.addEventListener('click', function (e) { e.stopPropagation(); });
+
+        function applyColor(hex) {
+          quill.focus();
+          quill.format(type === 'color' ? 'color' : 'background', hex);
+          updateBar(hex);
+        }
+
+        function updateBar(hex) {
+          currentColor = hex;
+          trigger.querySelector('.cp-color-bar').style.background = hex;
+          previewInner.style.background = hex;
+          nativePicker.value = hex;
+          hexInput.value = hex.toUpperCase();
+
+          if (type === 'background') {
+            const fill = trigger.querySelector('.cp-bg-color-fill');
+            const label = trigger.querySelector('.cp-bg-icon-label');
+            if (fill) fill.style.background = hex;
+            if (label) label.style.color = _isDark(hex) ? '#fff' : '#222';
+          }
+
+          palette.querySelectorAll('.cp-swatch').forEach(function (sw) {
+            sw.classList.toggle('is-selected', sw.style.background === _hexToRgb(hex));
+          });
+        }
+
+        function applyAndClose() {
+          const val = hexInput.value.trim();
+          if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+            applyColor(val);
+            closePanel();
+          } else {
+            hexInput.style.borderColor = '#e00';
+            setTimeout(function () { hexInput.style.borderColor = ''; }, 1000);
+          }
+        }
+
+        function closePanel() { panel.classList.remove('is-open'); }
+
+        /* rgb(r,g,b) 문자열 → #rrggbb 변환 (외부 HTML 붙여넣기 대응) */
+        function _rgbStringToHex(rgb) {
+          var m = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+          if (!m) return null;
+          return '#' +
+            ('0' + parseInt(m[1]).toString(16)).slice(-2) +
+            ('0' + parseInt(m[2]).toString(16)).slice(-2) +
+            ('0' + parseInt(m[3]).toString(16)).slice(-2);
+        }
+
+        /* 커서 이동 시 해당 위치의 색상으로 피커 아이콘 업데이트
+           → 폰트 크기 드롭다운이 커서 위치를 반영하는 것과 동일한 UX */
+        quill.on('selection-change', function (range) {
+          if (!range || range.length > 0) return;
+          var formats = quill.getFormat(range.index);
+          var formatKey = type === 'color' ? 'color' : 'background';
+          var val = formats[formatKey];
+
+          if (val && typeof val === 'string') {
+            var hex = val.charAt(0) === '#' ? val : _rgbStringToHex(val);
+            if (hex) { updateBar(hex); return; }
+          }
+          /* 해당 위치에 색상 없음 → 기본값으로 복원 */
+          updateBar(type === 'color' ? '#000000' : '#ffffff');
+        });
+      }
+
+
+      /* --------------------------------------------------------------
+         이미지 업로드 핸들러
+
+         mockUpload: true  -> FileReader로 Base64 변환 후 삽입 (서버 불필요)
+         mockUpload: false -> FormData로 서버 POST, 응답 URL 삽입
+      -------------------------------------------------------------- */
+      function _makeImageHandler(cfg, quill, wrap) {
+        return function () {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = cfg.image.allowedTypes.join(',');
+
+          input.onchange = async function () {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (file.size > cfg.image.maxSizeMB * 1024 * 1024) {
+              alert('이미지는 ' + cfg.image.maxSizeMB + 'MB 이하만 업로드 가능합니다.');
+              return;
+            }
+
+            wrap.classList.add('is-uploading');
+
+            try {
+              let imageUrl = '';
+              if (cfg.mockUpload) {
+                imageUrl = await _fileToBase64(file);
+              } else {
+                const fd = new FormData();
+                fd.append('image', file);
+                const res = await fetch(cfg.uploadUrl, { method: 'POST', body: fd });
+                if (!res.ok) throw new Error('서버 오류 (' + res.status + ')');
+                const data = await res.json();
+                imageUrl = data.url;
+              }
+
+              const range = quill.getSelection() || { index: quill.getLength() };
+              quill.insertEmbed(range.index, 'image', imageUrl);
+              quill.setSelection(range.index + 1);
+
+            } catch (err) {
+              console.error('[QEditor] 이미지 업로드 오류:', err);
+              alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+            } finally {
+              wrap.classList.remove('is-uploading');
+            }
+          };
+
+          input.click();
+        };
+      }
+
+
+      /* --------------------------------------------------------------
+         유틸 함수
+      -------------------------------------------------------------- */
+
+      function _fileToBase64(file) {
+        return new Promise(function (resolve, reject) {
+          const reader = new FileReader();
+          reader.onload = function (e) { resolve(e.target.result); };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function _hexToRgb(hex) {
+        return 'rgb(' +
+          parseInt(hex.slice(1, 3), 16) + ', ' +
+          parseInt(hex.slice(3, 5), 16) + ', ' +
+          parseInt(hex.slice(5, 7), 16) + ')';
+      }
+
+      function _isDark(hex) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return (r * 299 + g * 587 + b * 114) / 1000 < 128;
+      }
+
+
+      /* --------------------------------------------------------------
+         공개 API
+      -------------------------------------------------------------- */
+      return {
+
+        /* init(targetId, options)
+           에디터 초기화. 페이지당 에디터 ID별 1회 호출.
+           반환값: Quill 인스턴스 (직접 제어가 필요한 경우 사용) */
+        init: function (targetId, options) {
+          options = options || {};
+
+          if (!_formatsRegistered) {
+            _registerFormats();
+            _formatsRegistered = true;
+          }
+
+          const cfg = Object.assign({}, DEFAULTS, options);
+          cfg.features = Object.assign({}, DEFAULTS.features, options.features || {});
+          cfg.image = Object.assign({}, DEFAULTS.image, options.image || {});
+          cfg.colorsAll = options.colorsAll || DEFAULTS.colorsAll;
+
+          const dom = _buildDOM(targetId);
+          if (!dom) return null;
+
+          const quill = new Quill('#' + targetId, {
+            theme: 'snow',
+            placeholder: cfg.placeholder,
+            formats: [
+              'font', 'size', 'header',
+              'bold', 'italic', 'underline', 'strike',
+              'color', 'background',
+              'align', 'indent',
+              'list',
+              'script',
+              'link', 'image', 'video',
+              'blockquote', 'code-block',
+            ],
+            modules: {
+              toolbar: {
+                container: _buildToolbar(cfg.features),
+                handlers: { image: function () { } },
+              },
+              /* keyboard 블록 완전 삭제 */
+            },
+          });
+
+          /* Quill 초기화 완료 후 tab 바인딩만 별도 추가 */
+          quill.keyboard.addBinding({ key: 'Tab' }, function (range) {
+            quill.formatText(range.index, range.length, 'indent', '+1');
+            return false;
+          });
+
+
+
+          /* Quill 초기화 후 이미지 핸들러 재등록 (quill 참조 확보 후) */
+          quill.getModule('toolbar').addHandler('image', _makeImageHandler(cfg, quill, dom.wrap));
+
+          const editorEl = dom.editorArea.querySelector('.ql-editor');
+          if (editorEl) editorEl.style.minHeight = cfg.minHeight;
+
+          const inst = { quill: quill, dom: dom, cfg: cfg };
+          _instances[targetId] = inst;
+
+          _initTabs(inst);
+          _initResize(inst);
+
+          const toolbar = dom.editorArea.querySelector('.ql-toolbar');
+          if (cfg.features.color) _createColorPicker('color', toolbar, quill, cfg.colorsAll);
+          if (cfg.features.background) _createColorPicker('background', toolbar, quill, cfg.colorsAll);
+
+          document.addEventListener('click', function () {
+            document.querySelectorAll('.cp-panel.is-open').forEach(function (p) {
+              p.classList.remove('is-open');
+            });
+          });
+
+          quill.on('text-change', function () {
+            const len = quill.getLength() - 1;
+            const max = cfg.maxLength;
+            dom.charCount.textContent = max
+              ? len.toLocaleString() + ' / ' + max.toLocaleString() + '자'
+              : len.toLocaleString() + '자';
+            dom.charCount.style.color = (max && len > max) ? '#e00' : '#888';
+          });
+
+          /*
+           * Quill 2.x 버그 패치: Enter 시 인라인 포맷(size·font·color 등) 새 줄 미상속
+           *
+           * 기존 selection-change 방식의 문제
+           *   Quill 2.x 에서 selection-change 가 text-change 보다 먼저 실행되는 경우가 있어
+           *   Enter 직전 포맷이 "새 빈 줄 기준 {}" 으로 덮여 사라지는 타이밍 버그 발생
+           *
+           * 수정된 동작 원리
+           *   1) keydown(Enter) — Quill 이 키를 처리하기 전에 실행 → 포맷 캡처 시점이 가장 정확
+           *      한국어 IME 조합 중 Enter(확정)는 제외 (e.isComposing 체크)
+           *   2) text-change(\n) — _enterFormats 로 새 줄에 포맷 재적용
+           *      연속 Enter 시를 위해 _enterFormats 도 갱신
+           *   3) text-change(전체 삭제) — 빈 상태이면 포맷 전부 초기화
+           *
+           * align 추가: Quill 2.x 에서 블록 포맷(align)도 자동 상속이 안 되는 회귀 버그 있음
+           * header·list 는 Quill 자체 처리(Enter 시 해제/유지)이므로 제외
+           */
+          var _enterFormats = null;
+          var _applyingFormats = false;
+          var FORMAT_KEYS = ['bold', 'italic', 'underline', 'strike', 'size', 'font', 'color', 'background', 'align'];
+
+          /* keydown: Quill 이 Enter 를 처리하기 전 포맷 스냅샷 */
+          quill.root.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter' || e.isComposing) return;
+            var sel = quill.getSelection();
+            if (!sel) return;
+            var fmt = quill.getFormat(sel.index > 0 ? sel.index : 0);
+            _enterFormats = {};
+            FORMAT_KEYS.forEach(function (k) { if (fmt[k]) _enterFormats[k] = fmt[k]; });
+          });
+
+          quill.on('text-change', function (delta, oldDelta, source) {
+            if (source !== 'user' || _applyingFormats) return;
+
+            /* 전체 삭제 후 빈 상태 → 포맷 초기화 */
+            if (quill.getLength() === 1) {
+              _enterFormats = null;
+              _applyingFormats = true;
+              FORMAT_KEYS.forEach(function (k) { quill.format(k, false); });
+              _applyingFormats = false;
+              return;
+            }
+
+            /* Enter(\n 단독 삽입)만 감지 — 붙여넣기 포함 다중 문자는 제외 */
+            var hasNewline = delta.ops.some(function (op) { return op.insert === '\n'; });
+            if (!hasNewline || !_enterFormats || !Object.keys(_enterFormats).length) return;
+
+            var toApply = Object.assign({}, _enterFormats);
+
+            setTimeout(function () {
+              _applyingFormats = true;
+              Object.keys(toApply).forEach(function (k) { quill.format(k, toApply[k]); });
+              _enterFormats = Object.assign({}, toApply); /* 연속 Enter 시 포맷 유지 */
+              _applyingFormats = false;
+            }, 0);
+          });
+
+          return quill;
+        },
+
+
+        /* getValue(targetId)
+           현재 탭 내용을 Quill에 동기화 후 HTML 반환
+           저장 시 이 메서드로 내용 수집 */
+        getValue: function (targetId) {
+          const inst = _instances[targetId];
+          if (!inst) return '';
+          inst.syncFromCurrentTab();
+          return inst.quill.root.innerHTML;
+        },
+
+
+        /* setValue(targetId, html)
+           에디터에 HTML 주입
+           수정 페이지에서 기존 저장 내용 로드 시 사용 */
+        setValue: function (targetId, html) {
+          const inst = _instances[targetId];
+          if (!inst) return;
+          inst.quill.clipboard.dangerouslyPasteHTML(html || '');
+        },
+
+
+        /* isEmpty(targetId)
+           에디터 빈 값 여부 확인
+           저장 전 유효성 검사 시 사용 */
+        isEmpty: function (targetId) {
+          const inst = _instances[targetId];
+          if (!inst) return true;
+          return inst.quill.getText().trim().length === 0;
+        },
+
+
+        /* getInstance(targetId)
+           Quill 인스턴스 직접 접근
+           일반적인 경우 getValue/setValue/isEmpty로 충분 */
+        getInstance: function (targetId) {
+          return _instances[targetId] ? _instances[targetId].quill : null;
+        },
+
+      };
+
+    })();
+
+
+    /* ==================================================================
+       페이지별 초기화 코드
+       에디터 컴포넌트 사용 예시
+       이 아래부터 각 페이지에서 작성하는 영역
+    ================================================================== */
+
+    QEditor.init('editor', {
+      uploadUrl: '/api/upload/image',
+      mockUpload: true,    /* 서버 연동 시 false 로 변경 */
+      minHeight: '450px',
+      maxLength: 0,
+    });
+
+    document.getElementById('postForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const title = document.querySelector('[name="title"]').value.trim();
+      const content = QEditor.getValue('editor');
+      const isEmpty = QEditor.isEmpty('editor');
+
+      if (!title) { alert('제목을 입력해주세요.'); return; }
+      if (isEmpty) { alert('내용을 입력해주세요.'); return; }
+
+      /*
+       * ── 저장 API 연동 ───────────────────────────────────────────
+       * fetch JSON 방식 (Laravel / CodeIgniter Route 예시)
+       *   POST /board/store
+       *   Content-Type: application/json
+       *   Body: { "title": "...", "content": "<p>...</p>" }
+       *
+       * PHP 수신 (JSON):
+       *   $data    = json_decode(file_get_contents('php://input'), true);
+       *   $title   = htmlspecialchars($data['title']   ?? '', ENT_QUOTES);
+       *   $content = $purifier->purify($data['content'] ?? '');
+       *
+       * 전통 form POST 방식을 선호하는 경우:
+       *   HTML: <input type="hidden" id="contentHidden" name="content">
+       *   JS  : document.getElementById('contentHidden').value = QEditor.getValue('editor');
+       *   PHP : $content = $purifier->purify($_POST['content'] ?? '');
+       *
+       * ★ content는 반드시 서버에서 HTMLPurifier로 Sanitize 후 DB 저장
+       *   (자세한 예시는 상단 QEditor 주석 "PHP XSS 처리" 참고)
+       * ─────────────────────────────────────────────────────────── */
+      fetch('/save-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title, content: content }),
+      })
+        .then(function (res) { return res.json(); })
+        .then(function () { alert('저장 완료!'); })
+        .catch(function () { alert('저장 실패. 다시 시도해주세요.'); });
+    });
+
+  </script>
+</body>
+
+</html>

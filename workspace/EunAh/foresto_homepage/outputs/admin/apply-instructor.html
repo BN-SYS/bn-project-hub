@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>강사신청자 관리 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .kw-select { height:34px; padding:0 28px 0 8px; border:1px solid #d5e0ce; border-radius:6px; font-size:13px; font-family:'Noto Sans KR',sans-serif; color:#2a3a26; background:#fafcf9 url('../assets/icons/chevron-down.png') no-repeat right 8px center / 11px; appearance:none; -webkit-appearance:none; outline:none; cursor:pointer; }
+    .applicant-row:hover td { background:#f2f7f0; cursor:pointer; }
+    .schedule-banner { display:flex; align-items:center; gap:12px; padding:10px 16px; margin-bottom:16px; background:#f0f8f0; border:1px solid #c8e0c8; border-radius:8px; font-size:13px; }
+    .schedule-banner strong { color:#2e5c2e; font-size:14px; }
+    .schedule-banner .banner-meta { color:#5a7a5a; }
+    .schedule-banner .btn-clear { margin-left:auto; }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title">강사신청자 관리</h1>
+      <div class="admin-topbar-actions">
+        <button class="btn-refresh" onclick="InstructorList.load()" title="새로고침">
+          <img src="../assets/icons/refresh.png" alt="새로고침">
+        </button>
+      </div>
+    </div>
+
+    <!-- 일정 배너 (일정 목록에서 진입 시) -->
+    <div class="schedule-banner" id="scheduleBanner" style="display:none">
+      <div>
+        <strong id="bannerTitle"></strong>
+        <span class="banner-meta" id="bannerMeta"></span>
+      </div>
+      <button class="btn btn-gray btn-xs btn-clear"
+        onclick="InstructorList.clearScheduleFilter()">전체 보기</button>
+    </div>
+
+    <!-- 검색 필터 -->
+    <div class="filter-card">
+      <div class="filter-body">
+
+        <div class="filter-row">
+          <span class="filter-label">활동 일정</span>
+          <div class="filter-content">
+            <select id="filterSchedule"
+              style="height:34px;padding:0 10px;border:1px solid #d5e0ce;border-radius:6px;font-size:13px;font-family:'Noto Sans KR',sans-serif;min-width:300px;max-width:100%"
+              onchange="InstructorList.search()">
+              <option value="">전체 일정</option>
+              <option value="1">2026-03-15 토요일 — 도봉산</option>
+              <option value="2">2026-04-05 일요일 — 수락산</option>
+              <option value="3">2026-04-20 토요일 — 불암산</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">신청일</span>
+          <div class="filter-content">
+            <div class="date-pair">
+              <input type="date" id="filterDateFrom">
+              <span class="date-sep">—</span>
+              <input type="date" id="filterDateTo">
+            </div>
+            <div class="date-preset-group">
+              <button class="date-preset-btn" onclick="setDatePreset('today')">오늘</button>
+              <button class="date-preset-btn" onclick="setDatePreset(7)">7일</button>
+              <button class="date-preset-btn" onclick="setDatePreset(30)">30일</button>
+              <button class="date-preset-btn" onclick="setDatePreset(90)">3개월</button>
+              <button class="date-preset-btn" onclick="setDatePreset(180)">6개월</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">거주지역</span>
+          <div class="filter-content">
+            <div class="chip-group">
+              <label class="chip"><input type="radio" name="filterRegion" value="" checked><span>전체</span></label>
+              <label class="chip"><input type="radio" name="filterRegion" value="서울"><span>서울</span></label>
+              <label class="chip"><input type="radio" name="filterRegion" value="경기"><span>경기</span></label>
+              <label class="chip"><input type="radio" name="filterRegion" value="인천"><span>인천</span></label>
+              <label class="chip"><input type="radio" name="filterRegion" value="부산"><span>부산</span></label>
+              <label class="chip"><input type="radio" name="filterRegion" value="기타"><span>기타</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">검색어</span>
+          <div class="filter-content">
+            <div class="kw-wrap">
+              <select id="filterSearchType" class="kw-select">
+                <option value="all">전체</option>
+                <option value="name">이름</option>
+                <option value="email">이메일</option>
+                <option value="phone">연락처</option>
+              </select>
+              <div class="kw-input-wrap">
+                <input type="text" id="filterKeyword" placeholder="검색어를 입력하세요"
+                  onkeydown="if(event.key==='Enter') InstructorList.search()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="filter-footer">
+        <button class="btn btn-outline btn-sm"
+          onclick="AdminHttp.downloadExcel(ADMIN_API.applyInstructor + '/export', InstructorList.getParams())">
+          엑셀 다운로드
+        </button>
+        <button class="btn btn-gray btn-sm" onclick="InstructorList.reset()">초기화</button>
+        <button class="btn btn-primary btn-sm" onclick="InstructorList.search()">검색</button>
+      </div>
+    </div>
+
+    <!-- 목록 상단 -->
+    <div class="list-top">
+      <div class="list-count" id="listCount">총 <strong>0</strong>건</div>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width:4%">No</th>
+            <th style="width:12%">접수번호</th>
+            <th style="width:20%">활동 일정</th>
+            <th style="width:8%">이름</th>
+            <th style="width:8%">거주지역</th>
+            <th style="width:12%">연락처</th>
+            <th>이메일</th>
+            <th style="width:12%">신청일</th>
+            <th style="width:11%">관리자 메모</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] AdminHttp.get(ADMIN_API.applyInstructor, params) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_DATA = {
+  total: 3,
+  items: [
+    { id: 1, no: 3, appNo: 'INS-2026-00001', schedule: '2026-03-15 토요일 오전 9시 — 도봉산',  name: '김민준', userId: 'ins5001', region: '서울', phone: '010-1234-5678', email: 'kim@example.com', applyDate: '2026-01-10 09:07', memo: '—' },
+    { id: 2, no: 2, appNo: 'INS-2026-00002', schedule: '2026-04-05 일요일 오전 10시 — 수락산', name: '이서연', userId: 'ins5002', region: '경기', phone: '010-2345-6789', email: 'lee@example.com', applyDate: '2026-02-05 14:23', memo: '경력증명서 요청' },
+    { id: 3, no: 1, appNo: 'INS-2026-00003', schedule: '2026-04-20 토요일 오전 9시 — 불암산',  name: '박지훈', userId: 'ins5003', region: '인천', phone: '010-3456-7890', email: 'park@example.com', applyDate: '2026-03-01 11:15', memo: '—' },
+  ],
+};
+
+const InstructorList = {
+  currentPage: 1,
+  pageSize:    10,
+
+  getParams() {
+    return {
+      schedule_id: document.getElementById('filterSchedule').value,
+      date_from:   document.getElementById('filterDateFrom').value,
+      date_to:     document.getElementById('filterDateTo').value,
+      region:      document.querySelector('input[name="filterRegion"]:checked')?.value || '',
+      kw_type:     document.getElementById('filterSearchType').value,
+      kw:          document.getElementById('filterKeyword').value.trim(),
+      page:        this.currentPage,
+      size:        this.pageSize,
+    };
+  },
+
+  search() { this.currentPage = 1; this.load(); },
+
+  async load() {
+    AdminUI.showLoading('tableBody', 9);
+    try {
+      /*
+       * [개발자 연동]
+       * const data = await AdminHttp.get(ADMIN_API.applyInstructor, this.getParams());
+       * this.render(data.items, data.total);
+       */
+      await new Promise(r => setTimeout(r, 200));
+      const p = this.getParams();
+      let items = SAMPLE_DATA.items.filter(d => {
+        if (p.date_from && d.applyDate < p.date_from) return false;
+        if (p.date_to   && d.applyDate > p.date_to + ' 23:59:59') return false;
+        if (p.region && d.region !== p.region) return false;
+        if (p.kw) {
+          const kw = p.kw.toLowerCase();
+          if (p.kw_type === 'name')  return d.name.includes(kw);
+          if (p.kw_type === 'phone') return d.phone.includes(kw);
+          return (d.name + d.phone + d.schedule).toLowerCase().includes(kw);
+        }
+        return true;
+      });
+      const total = items.length;
+      const start = (this.currentPage - 1) * this.pageSize;
+      this.render(items.slice(start, start + this.pageSize), total);
+    } catch (e) {
+      AdminUI.showError('tableBody', e.message, 9);
+    }
+  },
+
+  render(items, total) {
+    AdminUI.updateCount('listCount', total);
+    const totalPages = Math.ceil(total / this.pageSize) || 1;
+    AdminUI.renderPagination('pagination', this.currentPage, totalPages, p => {
+      this.currentPage = p; this.load();
+    });
+
+    const tbody = document.getElementById('tableBody');
+    if (!items.length) {
+      AdminUI.showEmpty('tableBody', '내역이 없습니다.', 9); return;
+    }
+    tbody.innerHTML = items.map(d => `
+      <tr class="applicant-row"
+        onclick="location.href='apply-instructor-detail.html?id=${d.id}'">
+        <td style="text-align:center">${d.no}</td>
+        <td style="text-align:center;font-size:12px;font-weight:600;color:#2e5c2e">${d.appNo}</td>
+        <td style="font-size:12px;color:#4a7c59">${d.schedule}</td>
+        <td style="font-weight:600">${d.name}
+          <span style="color:#5a7a5a;font-size:12px">(${d.userId})</span>
+        </td>
+        <td style="text-align:center;font-size:13px">${d.region}</td>
+        <td style="text-align:center;font-size:13px">${d.phone}</td>
+        <td style="font-size:13px">${d.email}</td>
+        <td style="text-align:center;font-size:13px">${d.applyDate}</td>
+        <td style="text-align:center">
+          <span style="${d.memo === '—' ? 'color:#ccc;font-size:12px' : 'font-size:12px;color:#5a7a5a'}">
+            ${d.memo}
+          </span>
+        </td>
+      </tr>`).join('');
+  },
+
+  clearScheduleFilter() {
+    document.getElementById('filterSchedule').value = '';
+    document.getElementById('scheduleBanner').style.display = 'none';
+    this.search();
+  },
+
+  changePageSize(size) {
+    this.pageSize = parseInt(size); this.currentPage = 1; this.load();
+  },
+
+  reset() {
+    document.getElementById('filterSchedule').value = '';
+    document.getElementById('filterDateFrom').value = '';
+    document.getElementById('filterDateTo').value   = '';
+    document.querySelector('input[name="filterRegion"][value=""]').checked = true;
+    document.getElementById('filterSearchType').value = 'all';
+    document.getElementById('filterKeyword').value    = '';
+    document.getElementById('scheduleBanner').style.display = 'none';
+    this.currentPage = 1;
+    this.load();
+  },
+};
+
+/* URL 파라미터로 일정 필터 진입 처리 */
+(function initScheduleFilter() {
+  const scheduleId = App.getParam('scheduleId');
+  if (scheduleId) {
+    const sel = document.getElementById('filterSchedule');
+    if (sel) sel.value = scheduleId;
+    const banner = document.getElementById('scheduleBanner');
+    if (banner) banner.style.display = 'flex';
+  }
+})();
+
+AdminSidebar.mount('apply-instructor');
+InstructorList.load();
+</script>
+</body>
+</html>

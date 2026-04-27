@@ -1,0 +1,458 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>회원 상세 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 24px; }
+    .detail-grid.col4 { grid-template-columns:1fr 1fr 1fr 1fr; }
+    .detail-grid .span2 { grid-column:span 2; }
+    .form-group { margin:0; display:flex; flex-direction:column; gap:5px; }
+    .form-label { font-size:12px; font-weight:600; color:var(--gray-dark); }
+    .card { margin-bottom:16px; }
+    .card-header { display:flex; align-items:center; gap:8px; padding:14px 20px; border-bottom:1px solid var(--gray-light); }
+    .card-title { font-size:14px; font-weight:700; color:var(--green-dark); }
+    .badge-admin-only { display:inline-block; font-size:11px; background:#fff3e0; color:#e65100; border-radius:3px; padding:1px 6px; font-weight:500; }
+    .badge-readonly { display:inline-block; font-size:11px; background:#e8f5e9; color:#2e7d32; border-radius:3px; padding:1px 6px; margin-left:6px; font-weight:500; }
+    .admin-summary-bar { display:flex; align-items:center; gap:0; background:#fff8f0; border:1px solid #fde8c8; border-radius:var(--radius); padding:10px 16px; margin-bottom:16px; flex-wrap:wrap; row-gap:6px; }
+    .admin-summary-bar .asb-label { font-size:11px; font-weight:700; color:#e65100; background:#fff3e0; border:1px solid #fde8c8; border-radius:3px; padding:2px 7px; margin-right:14px; white-space:nowrap; }
+    .admin-summary-bar .asb-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--gray-mid); padding:0 14px; border-left:1px solid #fde8c8; white-space:nowrap; }
+    .admin-summary-bar .asb-item:first-of-type { border-left:none; padding-left:0; }
+    .admin-summary-bar .asb-key { font-weight:600; color:var(--gray-dark); }
+    .admin-summary-bar .asb-spacer { flex:1; }
+    .admin-summary-bar .asb-joindate { font-size:12px; color:var(--gray-mid); }
+    .terms-row { display:flex; align-items:center; justify-content:space-between; padding:9px 14px; border-bottom:1px solid var(--gray-light); font-size:13px; }
+    .terms-row:last-child { border-bottom:none; }
+    .terms-row .terms-name { font-weight:500; }
+    .terms-row .terms-state { display:flex; align-items:center; gap:10px; }
+    .terms-row .terms-date { font-size:12px; color:var(--gray-mid); }
+    .detail-value { display:flex; align-items:center; min-height:36px; font-size:13px; color:var(--gray-dark); padding:0 2px; line-height:1.5; }
+    .detail-bottom-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; border-top:1px solid var(--gray-light); padding:16px 0 24px; margin-top:4px; }
+    .detail-bottom-bar .bar-right { display:flex; gap:8px; }
+    .memo-footer { display:flex; justify-content:flex-end; margin-top:8px; }
+    /* 탈퇴 모달 */
+    .withdraw-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:9000; align-items:center; justify-content:center; }
+    .withdraw-modal-overlay.open { display:flex; }
+    .withdraw-modal { background:#fff; border-radius:10px; width:480px; max-width:calc(100vw - 40px); box-shadow:0 8px 32px rgba(0,0,0,.18); overflow:hidden; }
+    .withdraw-modal-head { background:#fff5f5; border-bottom:1px solid #fecaca; padding:16px 20px; display:flex; align-items:center; gap:8px; }
+    .withdraw-modal-head strong { color:#b91c1c; font-size:15px; }
+    .withdraw-modal-body { padding:20px; }
+    .withdraw-modal-body .warn-text { font-size:13px; color:var(--gray-dark); margin-bottom:16px; line-height:1.6; }
+    .withdraw-modal-body .warn-text b { color:#b91c1c; }
+    .withdraw-modal-body label { display:block; font-size:12px; font-weight:700; color:#b91c1c; margin-bottom:6px; }
+    .withdraw-modal-body textarea { width:100%; padding:8px 10px; border:1px solid #fca5a5; border-radius:6px; font-size:13px; font-family:'Noto Sans KR',sans-serif; resize:none; box-sizing:border-box; outline:none; }
+    .withdraw-modal-body textarea:focus { border-color:#dc2626; box-shadow:0 0 0 3px rgba(220,38,38,.08); }
+    .withdraw-modal-foot { padding:14px 20px; border-top:1px solid var(--gray-light); display:flex; justify-content:flex-end; gap:8px; }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title">회원 상세</h1>
+      <div class="admin-topbar-actions">
+        <button class="btn-refresh" onclick="MemberDetail.load()" title="새로고침">
+          <img src="../assets/icons/refresh.png" alt="새로고침">
+        </button>
+      </div>
+    </div>
+
+    <div id="detailWrap">
+
+      <!-- 관리자 전용 요약 바 -->
+      <div class="admin-summary-bar" id="summaryBar">
+        <span class="asb-label">관리자 전용</span>
+        <div class="asb-item">
+          <span class="asb-key">회원 구분</span>
+          <span id="sumGrade">—</span>
+        </div>
+        <div class="asb-item">
+          <span class="asb-key">회원 상태</span>
+          <span id="sumStatus">—</span>
+        </div>
+        <div class="asb-spacer"></div>
+        <span class="asb-joindate" id="sumJoinDate"></span>
+      </div>
+
+      <!-- 본인인증 기반 정보 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">본인인증 기반 정보</span>
+          <span class="badge-readonly">본인인증 확인 항목</span>
+          <span style="font-size:12px;color:var(--gray-mid);margin-left:auto">사용자 임의 수정 불가 | 관리자 수정 가능</span>
+        </div>
+        <div class="card-body" style="padding:20px">
+          <div class="detail-grid col4">
+            <div class="form-group">
+              <label class="form-label">이름</label>
+              <div class="detail-value" id="dName">—</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">성별</label>
+              <div class="detail-value" id="dGender">—</div>
+            </div>
+            <div class="form-group span2">
+              <label class="form-label">생년월일</label>
+              <div class="detail-value" id="dBirth">—</div>
+            </div>
+            <div class="form-group span2">
+              <label class="form-label">휴대폰 번호</label>
+              <div class="detail-value" id="dPhone">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 계정·연락처 -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">계정 · 연락처 정보</span></div>
+        <div class="card-body" style="padding:20px;display:flex;flex-direction:column;gap:18px">
+          <div class="detail-grid">
+            <div class="form-group">
+              <label class="form-label">아이디</label>
+              <div class="detail-value" id="dUserId" style="color:var(--gray-mid)">—</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">이메일</label>
+              <div class="detail-value" id="dEmail">—</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">비밀번호 관리</label>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:2px">
+              <div class="detail-value" style="letter-spacing:2px;color:var(--gray-mid)">●●●●●●●●</div>
+              <button class="btn btn-outline btn-sm" onclick="MemberDetail.sendTempPw()">임시 비밀번호 발송</button>
+              <span style="font-size:12px;color:var(--gray-mid)">등록된 이메일로 임시 비밀번호가 발송됩니다</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">주소</label>
+            <div class="detail-value" id="dAddr" style="flex-direction:column;align-items:flex-start;gap:2px">—</div>
+          </div>
+          <div class="detail-grid">
+            <div class="form-group">
+              <label class="form-label">직업</label>
+              <div class="detail-value" id="dJob">—</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">가입경로</label>
+              <div class="detail-value" id="dJoinPath">—</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">선택약관 동의 내역</label>
+            <div style="border:1px solid var(--gray-light);border-radius:var(--radius);margin-top:4px;max-width:480px" id="dTerms"></div>
+            <div style="font-size:11px;color:var(--gray-mid);margin-top:4px">* 약관 항목은 실제 구현 시 약관 관리와 연동됩니다.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 교육 신청 내역 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">교육 신청 내역</span>
+          <span style="font-size:12px;color:var(--gray-mid);margin-left:auto" id="applyCount"></span>
+        </div>
+        <div class="table-wrap" style="margin:0">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width:44px" class="center">NO</th>
+                <th style="width:150px" class="center">신청일시</th>
+                <th style="width:90px" class="center">강좌 구분</th>
+                <th>강좌명</th>
+                <th style="width:110px" class="center">교육일자(시작)</th>
+                <th style="width:80px" class="center">상태</th>
+              </tr>
+            </thead>
+            <tbody id="applyTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 활동 정보(소속) -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">활동 정보 (소속)</span>
+          <span style="font-size:12px;color:var(--gray-mid);margin-left:auto" id="affilCount"></span>
+        </div>
+        <div class="table-wrap" style="margin:0">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width:52px" class="center">번호</th>
+                <th>소속명</th>
+                <th style="width:130px" class="center">소속 유형</th>
+                <th style="width:120px" class="center">가입일</th>
+              </tr>
+            </thead>
+            <tbody id="affilTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 관리자 메모 -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">관리자 메모</span>
+          <span class="badge-admin-only">회원 미노출</span>
+        </div>
+        <div class="card-body" style="padding:20px">
+          <textarea class="form-control" id="fMemo" rows="4"
+            placeholder="내부 메모 (회원에게 노출되지 않습니다)"
+            style="font-size:13px;resize:vertical"></textarea>
+          <div class="memo-footer">
+            <button class="btn btn-outline btn-sm" onclick="MemberDetail.saveMemo()">메모 저장</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 버튼 -->
+      <div class="detail-bottom-bar">
+        <button class="btn btn-danger btn-sm" onclick="MemberDetail.openWithdrawModal()">탈퇴 처리</button>
+        <div class="bar-right">
+          <button class="btn btn-gray btn-sm" onclick="history.back()">목록으로</button>
+          <button class="btn btn-primary btn-sm" onclick="MemberDetail.goEdit()">수정</button>
+        </div>
+      </div>
+
+    </div><!-- /detailWrap -->
+  </main>
+</div>
+
+<!-- 탈퇴 처리 모달 -->
+<div class="withdraw-modal-overlay" id="withdrawModal">
+  <div class="withdraw-modal">
+    <div class="withdraw-modal-head">
+      <strong>회원 탈퇴 처리</strong>
+    </div>
+    <div class="withdraw-modal-body">
+      <p class="warn-text">
+        탈퇴 처리 시 회원 정보는 탈퇴회원 목록으로 이동되며 로그인이 불가합니다.<br>
+        <b>탈퇴 후에는 복구가 불가합니다.</b> 신중하게 처리하세요.
+      </p>
+      <label for="fWithdrawReason">탈퇴 사유 <span style="font-weight:400;color:var(--gray-mid)">(필수)</span></label>
+      <textarea id="fWithdrawReason" rows="3"
+        placeholder="탈퇴 사유를 입력하세요"></textarea>
+    </div>
+    <div class="withdraw-modal-foot">
+      <button class="btn btn-gray btn-sm" onclick="MemberDetail.closeWithdrawModal()">취소</button>
+      <button class="btn btn-danger btn-sm" id="btnWithdrawConfirm"
+        onclick="MemberDetail.withdraw()" disabled>탈퇴 처리</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] AdminHttp.get(ADMIN_API.url('members', id)) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_DETAIL = {
+  id: 1, userId: 'forest001', name: '김숲해설',
+  gender: '여성', birth: '1985년 4월 12일',
+  phone: '010-1234-5678', email: 'forest001@foresto.or.kr',
+  grade: 'fullMember', gradeLabel: '정회원', gradeBadge: 'badge-green',
+  status: 'active', statusLabel: '정상', statusBadge: 'badge-green',
+  joinDate: '2026-03-15',
+  postcode: '01234', addr1: '서울특별시 도봉구 방학동 123-45', addr2: '101호',
+  job: '환경교육강사', joinPath: '홈페이지',
+  memo: '',
+  terms: [
+    { name: '마케팅 수신 동의', agreed: true, date: '2026-03-15 14:32' },
+  ],
+  applies: [
+    { no: 1, appliedAt: '2026-04-01 09:00:00', typeLabel: '전문과정', typeBadge: 'badge-gray', courseName: '제55기 숲해설가 전문가과정', eduStart: '2026-04-01', statusLabel: '신청완료', statusBadge: 'badge-blue' },
+  ],
+  affiliations: [
+    { no: 1, name: '숲사랑동아리', typeLabel: '동아리', typeBadge: 'badge-blue', joinDate: '2025-03-01' },
+  ],
+};
+
+/* ──────────────────────────────────────────
+   MemberDetail 컨트롤러
+────────────────────────────────────────── */
+const MemberDetail = {
+  memberId: null,
+  data: null,
+
+  async load() {
+    this.memberId = App.getParam('id');
+    try {
+      /*
+       * [개발자 연동]
+       * this.data = await AdminHttp.get(ADMIN_API.url('members', this.memberId));
+       */
+      this.data = SAMPLE_DETAIL;
+      this.render(this.data);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  render(d) {
+    /* 요약 바 */
+    document.getElementById('sumGrade').innerHTML  = `<span class="badge ${d.gradeBadge}" style="font-size:11px">${d.gradeLabel}</span>`;
+    document.getElementById('sumStatus').innerHTML = `<span class="badge ${d.statusBadge}" style="font-size:11px">${d.statusLabel}</span>`;
+    document.getElementById('sumJoinDate').textContent = `가입일: ${d.joinDate}`;
+
+    /* 기본 정보 */
+    document.getElementById('dName').textContent   = d.name;
+    document.getElementById('dGender').textContent = d.gender;
+    document.getElementById('dBirth').textContent  = d.birth;
+    document.getElementById('dPhone').textContent  = d.phone;
+    document.getElementById('dUserId').textContent = d.userId;
+    document.getElementById('dEmail').textContent  = d.email;
+    document.getElementById('dJob').textContent    = d.job || '—';
+    document.getElementById('dJoinPath').textContent = d.joinPath || '—';
+
+    /* 주소 */
+    document.getElementById('dAddr').innerHTML = d.addr1
+      ? `<span style="font-size:12px;color:var(--gray-mid)">[${d.postcode}]</span>
+         <span>${d.addr1}</span>
+         ${d.addr2 ? `<span>${d.addr2}</span>` : ''}`
+      : '—';
+
+    /* 약관 */
+    document.getElementById('dTerms').innerHTML = d.terms.map(t => `
+      <div class="terms-row">
+        <span class="terms-name">${t.name}</span>
+        <div class="terms-state">
+          <span class="badge ${t.agreed ? 'badge-green' : 'badge-gray'}" style="font-size:11px">
+            ${t.agreed ? '동의' : '미동의'}
+          </span>
+          <span class="terms-date">최종 저장: ${t.date}</span>
+        </div>
+      </div>`).join('');
+
+    /* 교육 신청 내역 */
+    document.getElementById('applyCount').textContent = `${d.applies.length}건 (최신순)`;
+    const applyTbody = document.getElementById('applyTableBody');
+    applyTbody.innerHTML = d.applies.length
+      ? d.applies.map(a => `
+          <tr>
+            <td class="center" style="color:var(--gray-mid);font-size:12px">${a.no}</td>
+            <td class="center" style="font-size:12px;color:var(--gray-mid)">${a.appliedAt}</td>
+            <td class="center"><span class="badge ${a.typeBadge}" style="font-size:11px">${a.typeLabel}</span></td>
+            <td style="font-size:13px;font-weight:500">${a.courseName}</td>
+            <td class="center" style="font-size:12px;color:var(--gray-mid)">${a.eduStart}</td>
+            <td class="center"><span class="badge ${a.statusBadge}" style="font-size:11px">${a.statusLabel}</span></td>
+          </tr>`).join('')
+      : '<tr><td colspan="6" class="td-empty">신청 내역이 없습니다.</td></tr>';
+
+    /* 소속 */
+    document.getElementById('affilCount').textContent = `${d.affiliations.length}건`;
+    const affilTbody = document.getElementById('affilTableBody');
+    affilTbody.innerHTML = d.affiliations.length
+      ? d.affiliations.map(a => `
+          <tr>
+            <td class="center" style="color:var(--gray-mid);font-size:13px">${a.no}</td>
+            <td style="font-weight:500;font-size:13px">${a.name}</td>
+            <td class="center"><span class="badge ${a.typeBadge}" style="font-size:11px">${a.typeLabel}</span></td>
+            <td class="center" style="font-size:12px;color:var(--gray-mid)">${a.joinDate}</td>
+          </tr>`).join('')
+      : '<tr><td colspan="4" class="td-empty">소속 정보가 없습니다.</td></tr>';
+
+    /* 메모 */
+    document.getElementById('fMemo').value = d.memo || '';
+  },
+
+  /* 임시 비밀번호 발송
+     [개발자] AdminHttp.post(ADMIN_API.url('members', this.memberId, 'temp-pw')) 로 교체 */
+  async sendTempPw() {
+    if (!confirm('임시 비밀번호를 발송하시겠습니까?')) return;
+    try {
+      /*
+       * [개발자 연동]
+       * await AdminHttp.post(ADMIN_API.url('members', this.memberId, 'temp-pw'));
+       */
+      App.toast('임시 비밀번호가 발송되었습니다.', 'success');
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  /* 메모 저장
+     [개발자] AdminHttp.post() 로 교체 */
+  async saveMemo() {
+    const memo = document.getElementById('fMemo').value;
+    try {
+      /*
+       * [개발자 연동]
+       * await AdminHttp.post(ADMIN_API.url('members', this.memberId, 'memo'), { memo });
+       */
+      App.toast('메모가 저장되었습니다.', 'success');
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  goEdit() {
+    location.href = `member-edit.html?id=${this.memberId}`;
+  },
+
+  openWithdrawModal() {
+    document.getElementById('fWithdrawReason').value = '';
+    document.getElementById('btnWithdrawConfirm').disabled = true;
+    document.getElementById('withdrawModal').classList.add('open');
+    setTimeout(() => document.getElementById('fWithdrawReason').focus(), 80);
+  },
+
+  closeWithdrawModal() {
+    document.getElementById('withdrawModal').classList.remove('open');
+  },
+
+  /* 탈퇴 처리
+     [개발자] AdminHttp.del() 로 교체 */
+  async withdraw() {
+    const reason = document.getElementById('fWithdrawReason').value.trim();
+    if (!reason) return;
+    try {
+      /*
+       * [개발자 연동]
+       * await AdminHttp.post(ADMIN_API.url('members', this.memberId, 'withdraw'), { reason });
+       */
+      this.closeWithdrawModal();
+      App.toast('탈퇴 처리되었습니다.', 'success');
+      setTimeout(() => location.href = 'members.html', 1500);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+};
+
+/* 탈퇴 사유 입력 시 버튼 활성화 */
+document.getElementById('fWithdrawReason').addEventListener('input', function () {
+  document.getElementById('btnWithdrawConfirm').disabled = !this.value.trim();
+});
+
+/* 모달 외부 클릭 닫기 */
+document.getElementById('withdrawModal').addEventListener('click', function (e) {
+  if (e.target === this) MemberDetail.closeWithdrawModal();
+});
+
+AdminSidebar.mount('members');
+MemberDetail.load();
+</script>
+</body>
+</html>

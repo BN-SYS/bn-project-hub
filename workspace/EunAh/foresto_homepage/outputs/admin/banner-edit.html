@@ -1,0 +1,641 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>배너 등록 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    /* ── 레이아웃: 폼 + 프리뷰 2열 */
+    .banner-edit-layout {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    .banner-edit-form  { flex: 1; min-width: 0; }
+    .banner-edit-preview { width: 580px; flex-shrink: 0; position: sticky; top: 24px; }
+
+    /* ── 폼 카드 */
+    .edit-card {
+      background: #fff;
+      border: 1px solid #e3eadd;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .edit-card-head {
+      padding: 14px 22px;
+      border-bottom: 1px solid #eef2ea;
+      background: #f8faf6;
+      font-size: 13px;
+      font-weight: 700;
+      color: #3a4836;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .edit-card-body { padding: 22px 24px; }
+    .edit-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 24px;
+      border-top: 1px solid #e8efe3;
+      background: #f8faf6;
+    }
+
+    /* ── 폼 행 */
+    .form-row {
+      margin-bottom: 18px;
+    }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #6a7e64;
+      letter-spacing: .04em;
+      margin-bottom: 6px;
+    }
+    .form-label .req { color: #dc2626; margin-left: 2px; }
+    .form-label .opt { color: #aabba4; font-weight: 400; margin-left: 4px; font-size: 11px; }
+
+    .form-input, .form-textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #d5e0ce;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: #1a2718;
+      background: #fafcf9;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-input:focus, .form-textarea:focus {
+      border-color: #508829;
+      box-shadow: 0 0 0 3px rgba(80,136,41,.08);
+      background: #fff;
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: #aabba4; }
+    .form-textarea {
+      resize: vertical;
+      min-height: 72px;
+      line-height: 1.6;
+    }
+
+    /* 힌트 텍스트 */
+    .form-hint {
+      margin-top: 5px;
+      font-size: 11px;
+      color: #8a9e84;
+      line-height: 1.5;
+    }
+    .form-hint strong { color: #508829; }
+
+    /* ── 이미지 업로더 */
+    .img-upload-zone {
+      border: 2px dashed #c8dfa6;
+      border-radius: 8px;
+      background: #f8faf6;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+      position: relative;
+    }
+    .img-upload-zone:hover,
+    .img-upload-zone.drag-over {
+      background: #eef6e2;
+      border-color: #80b840;
+    }
+    .img-upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .img-upload-icon {
+      width: 36px; height: 36px;
+      margin: 0 auto 10px;
+      opacity: .45;
+      filter: invert(35%) sepia(15%) saturate(700%) hue-rotate(80deg);
+    }
+    .img-upload-label {
+      font-size: 13px;
+      color: #5a6e54;
+      line-height: 1.6;
+    }
+    .img-upload-label strong { color: #3e6c1e; }
+    .img-upload-label small  { display: block; font-size: 11px; color: #8a9e84; margin-top: 2px; }
+
+    /* 업로드된 이미지 미리보기 (업로더 내부) */
+    .img-preview-thumb {
+      max-width: 100%;
+      max-height: 160px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 4px;
+      display: block;
+      margin: 0 auto;
+    }
+    .img-preview-clear {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 11px;
+      color: #dc2626;
+      cursor: pointer;
+      text-decoration: underline;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* 링크 2열 */
+    .link-row {
+      display: flex;
+      gap: 12px;
+    }
+    .link-row .form-input:first-child { flex: 2; }
+    .link-row .link-badge {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #5a6e54;
+      background: #f0f4ee;
+      border: 1px solid #d5e0ce;
+      border-radius: 6px;
+      padding: 0 12px;
+      white-space: nowrap;
+    }
+    .link-badge span { font-weight: 700; color: #2e5c2e; }
+
+    /* ── 프리뷰 패널 */
+    .preview-panel {
+      background: #fff;
+      border: 1px solid #e3eadd;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .preview-panel-head {
+      padding: 12px 18px;
+      border-bottom: 1px solid #eef2ea;
+      background: #f8faf6;
+      font-size: 12px;
+      font-weight: 700;
+      color: #5a6e54;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .preview-panel-head .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #80b840;
+      display: inline-block;
+    }
+
+    /* 실제 배너처럼 보이는 프리뷰 */
+    .banner-preview {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 1;
+      overflow: hidden;
+      background: #1a2718;
+    }
+    .bp-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: .65;
+    }
+    .bp-no-img {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #5a7850;
+      font-size: 12px;
+    }
+    .bp-no-img img { width: 28px; height: 28px; opacity: .3; filter: invert(100%); }
+    .bp-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 24px;
+      gap: 6px;
+    }
+    .bp-top    { font-size: 10px; color: rgba(255,255,255,.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bp-main   { font-size: 14px; font-weight: 700; color: #fff; line-height: 1.45; white-space: pre-line; }
+    .bp-bottom { font-size: 10px; color: rgba(255,255,255,.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bp-btn {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 10px;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.65);
+      border-radius: 2px;
+      padding: 3px 10px;
+      width: fit-content;
+    }
+    .bp-top.empty, .bp-bottom.empty, .bp-btn.hidden { display: none; }
+
+    /* 프리뷰 안내 */
+    .preview-note {
+      padding: 10px 16px;
+      font-size: 11px;
+      color: #8a9e84;
+      border-top: 1px solid #f0f4ee;
+      line-height: 1.6;
+    }
+
+    /* 필수 표시 범례 */
+    .required-legend {
+      font-size: 11px;
+      color: #8a9e84;
+    }
+    .required-legend .req { color: #dc2626; }
+  </style>
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-head">
+        <span class="adm-sb-title">MENU</span>
+        <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+      </div>
+      <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <a href="banner.html" class="btn btn-ghost btn-sm" style="padding:0 8px">← 목록</a>
+          <h1 class="admin-page-title" id="pageTitle">배너 등록</h1>
+        </div>
+      </div>
+
+      <div class="banner-edit-layout" data-sb-anno="1:배너 등록 전체 레이아웃 (폼+프리뷰 2열)">
+
+        <!-- ① 폼 -->
+        <div class="banner-edit-form" data-sb-anno="2:등록 폼 영역">
+
+          <!-- 이미지 -->
+          <div class="edit-card" data-sb-anno="3:배너 이미지 업로드 카드">
+            <div class="edit-card-head">
+              <span>배너 이미지</span>
+              <span style="font-size:11px;color:#dc2626;font-weight:400;">* 필수</span>
+            </div>
+            <div class="edit-card-body">
+              <div class="img-upload-zone" id="imgUploadZone"
+                   ondragover="BannerEdit.onDragOver(event)"
+                   ondragleave="BannerEdit.onDragLeave(event)"
+                   ondrop="BannerEdit.onDrop(event)">
+                <input type="file" id="imgFileInput" accept="image/*"
+                       onchange="BannerEdit.onFileChange(event)">
+                <div id="imgPlaceholder">
+                  <img class="img-upload-icon" src="../assets/icons/photograph.png" alt="">
+                  <div class="img-upload-label">
+                    <strong>클릭 또는 드래그</strong>하여 이미지를 업로드하세요<br>
+                    <small>JPG, PNG, GIF — 권장 크기 1200 × 400px</small>
+                  </div>
+                </div>
+                <div id="imgPreviewWrap" style="display:none;">
+                  <img class="img-preview-thumb" id="imgPreviewThumb" src="" alt="">
+                  <span class="img-preview-clear" onclick="BannerEdit.clearImage(event)">이미지 제거</span>
+                </div>
+              </div>
+              <div class="form-hint">배너는 가로로 넓은 비율(약 3:1)로 표시됩니다. 너무 작은 이미지는 품질이 저하될 수 있습니다.</div>
+            </div>
+          </div>
+
+          <!-- 텍스트 -->
+          <div class="edit-card" data-sb-anno="4:텍스트 설정 카드 (상단·메인·하단 텍스트)">
+            <div class="edit-card-head">텍스트 설정</div>
+            <div class="edit-card-body">
+
+              <div class="form-row">
+                <label class="form-label" for="inputTopText">
+                  상단 텍스트
+                  <span class="opt">(선택)</span>
+                </label>
+                <input type="text" id="inputTopText" class="form-input"
+                       placeholder="예: [산림청 인증 숲해설가 양성기관]"
+                       maxlength="60"
+                       oninput="BannerEdit.updatePreview()">
+                <div class="form-hint">배너 상단에 작게 표시되는 보조 텍스트입니다.</div>
+              </div>
+
+              <div class="form-row">
+                <label class="form-label" for="inputMainText">
+                  메인 텍스트
+                  <span class="req">*</span>
+                </label>
+                <textarea id="inputMainText" class="form-textarea" rows="3"
+                          placeholder="예: 숲과 자연이 주는 이야기를&#10;함께 나누는 사람들"
+                          maxlength="100"
+                          oninput="BannerEdit.updatePreview()"></textarea>
+                <div class="form-hint">배너 중앙에 크게 표시됩니다. 줄바꿈(Enter)을 사용할 수 있습니다.</div>
+              </div>
+
+              <div class="form-row">
+                <label class="form-label" for="inputBottomText">
+                  하단 텍스트
+                  <span class="opt">(선택)</span>
+                </label>
+                <input type="text" id="inputBottomText" class="form-input"
+                       placeholder="예: 한국숲해설가협회는 숲과 사람을 잇는 전문 해설가를 양성합니다."
+                       maxlength="80"
+                       oninput="BannerEdit.updatePreview()">
+                <div class="form-hint">메인 텍스트 아래 설명 문구입니다.</div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- 더보기 링크 -->
+          <div class="edit-card" data-sb-anno="5:더보기 링크 카드 (선택 입력)">
+            <div class="edit-card-head">더보기 버튼 링크
+              <span style="font-size:11px;color:#8a9e84;font-weight:400;">(선택 — 미입력 시 버튼 미노출)</span>
+            </div>
+            <div class="edit-card-body">
+              <div class="form-row" style="margin-bottom:0">
+                <label class="form-label" for="inputLinkUrl">링크 URL</label>
+                <div class="link-row">
+                  <input type="text" id="inputLinkUrl" class="form-input"
+                         placeholder="예: /education/course-list.html"
+                         oninput="BannerEdit.updatePreview()">
+                  <div class="link-badge">버튼명 <span>더보기</span></div>
+                </div>
+                <div class="form-hint">
+                  입력하면 배너 하단에 <strong>더보기</strong> 버튼이 노출됩니다.<br>
+                  사이트 내부 경로(예: /education/…) 또는 외부 URL을 입력하세요.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 하단 액션 -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
+            <span class="required-legend"><span class="req">*</span> 표시 항목은 필수입니다.</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-outline btn-sm" onclick="BannerEdit.cancel()">취소</button>
+              <button class="btn btn-primary btn-sm" onclick="BannerEdit.save()">저장</button>
+            </div>
+          </div>
+
+        </div><!-- /.banner-edit-form -->
+
+        <!-- ② 프리뷰 패널 -->
+        <div class="banner-edit-preview" data-sb-anno="6:라이브 프리뷰 패널">
+          <div class="preview-panel">
+            <div class="preview-panel-head">
+              <span class="dot"></span>
+              라이브 프리뷰
+            </div>
+
+            <!-- 배너 프리뷰 -->
+            <div class="banner-preview" id="bannerPreview">
+              <!-- 배경 이미지 -->
+              <img class="bp-bg" id="bpBg" src="" alt="" style="display:none;">
+              <!-- 이미지 없을 때 placeholder -->
+              <div class="bp-no-img" id="bpNoImg">
+                <img src="../assets/icons/photograph.png" alt="">
+                <span>이미지를 등록하면 미리보기가 표시됩니다</span>
+              </div>
+              <!-- 텍스트 오버레이 -->
+              <div class="bp-overlay">
+                <div class="bp-top empty"  id="bpTop"></div>
+                <div class="bp-main"       id="bpMain"></div>
+                <div class="bp-bottom empty" id="bpBottom"></div>
+                <div class="bp-btn hidden"  id="bpBtn">더보기 ›</div>
+              </div>
+            </div>
+
+            <div class="preview-note">
+              실제 배너 비율(3:1)로 표시됩니다. 텍스트를 입력하면 바로 반영됩니다.
+            </div>
+          </div>
+        </div><!-- /.banner-edit-preview -->
+
+      </div><!-- /.banner-edit-layout -->
+
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/admin.js"></script>
+  <script>
+  /* ══════════════════════════════════════
+     배너 더미 데이터 (수정 모드에서 로드)
+     ══════════════════════════════════════ */
+  const BANNERS_EDIT = [
+    {
+      id: 1,
+      img:        'https://picsum.photos/seed/banner1/1200/400',
+      topText:    '[산림청 인증 숲해설가 양성기관]',
+      mainText:   '숲과 자연이 주는 이야기를\n함께 나누는 사람들',
+      bottomText: '한국숲해설가협회는 숲과 사람을 잇는 전문 해설가를 양성합니다.',
+      linkUrl:    '/introduce',
+    },
+    {
+      id: 2,
+      img:        'https://picsum.photos/seed/banner2/1200/400',
+      topText:    '',
+      mainText:   '2026년 숲해설가\n정기 교육과정 모집',
+      bottomText: '전국 각지에서 진행되는 숲해설 교육에 참여하세요.',
+      linkUrl:    '/courses',
+    },
+  ];
+
+  /* ══════════════════════════════════════
+     BannerEdit
+     ══════════════════════════════════════ */
+  const BannerEdit = {
+
+    editId:    null,  /* null = 등록 모드, number = 수정 모드 */
+    imgDataUrl: null, /* 업로드된 이미지 DataURL */
+
+    /* 초기화 */
+    init() {
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+
+      if (id) {
+        /* 수정 모드 */
+        this.editId = parseInt(id);
+        const banner = BANNERS_EDIT.find(b => b.id === this.editId);
+        if (!banner) {
+          alert('배너를 찾을 수 없습니다.');
+          location.href = 'banner.html';
+          return;
+        }
+        document.getElementById('pageTitle').textContent = '배너 수정';
+        document.title = '배너 수정 | 관리자 | 한국숲해설가협회';
+
+        /* 폼 채우기 */
+        document.getElementById('inputTopText').value    = banner.topText    || '';
+        document.getElementById('inputMainText').value   = banner.mainText   || '';
+        document.getElementById('inputBottomText').value = banner.bottomText || '';
+        document.getElementById('inputLinkUrl').value    = banner.linkUrl    || '';
+
+        /* 기존 이미지 미리보기 */
+        if (banner.img) {
+          this.imgDataUrl = banner.img; /* 실제에선 서버 URL 유지 */
+          this._showImgPreview(banner.img);
+        }
+      }
+
+      this.updatePreview();
+    },
+
+    /* 이미지 파일 선택 */
+    onFileChange(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        this.imgDataUrl = ev.target.result;
+        this._showImgPreview(ev.target.result);
+        this.updatePreview();
+      };
+      reader.readAsDataURL(file);
+    },
+
+    /* 드래그앤드롭 */
+    onDragOver(e) {
+      e.preventDefault();
+      document.getElementById('imgUploadZone').classList.add('drag-over');
+    },
+    onDragLeave(e) {
+      document.getElementById('imgUploadZone').classList.remove('drag-over');
+    },
+    onDrop(e) {
+      e.preventDefault();
+      document.getElementById('imgUploadZone').classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (!file || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        this.imgDataUrl = ev.target.result;
+        this._showImgPreview(ev.target.result);
+        this.updatePreview();
+      };
+      reader.readAsDataURL(file);
+    },
+
+    _showImgPreview(src) {
+      document.getElementById('imgPlaceholder').style.display = 'none';
+      const wrap  = document.getElementById('imgPreviewWrap');
+      const thumb = document.getElementById('imgPreviewThumb');
+      wrap.style.display  = 'block';
+      thumb.src = src;
+    },
+
+    clearImage(e) {
+      e.stopPropagation();
+      this.imgDataUrl = null;
+      document.getElementById('imgFileInput').value = '';
+      document.getElementById('imgPreviewWrap').style.display  = 'none';
+      document.getElementById('imgPlaceholder').style.display  = '';
+      this.updatePreview();
+    },
+
+    /* 라이브 프리뷰 갱신 */
+    updatePreview() {
+      const top    = document.getElementById('inputTopText').value.trim();
+      const main   = document.getElementById('inputMainText').value;
+      const bottom = document.getElementById('inputBottomText').value.trim();
+      const link   = document.getElementById('inputLinkUrl').value.trim();
+
+      /* 이미지 */
+      const bpBg    = document.getElementById('bpBg');
+      const bpNoImg = document.getElementById('bpNoImg');
+      if (this.imgDataUrl) {
+        bpBg.src = this.imgDataUrl;
+        bpBg.style.display  = '';
+        bpNoImg.style.display = 'none';
+      } else {
+        bpBg.style.display  = 'none';
+        bpNoImg.style.display = '';
+      }
+
+      /* 텍스트 */
+      const elTop    = document.getElementById('bpTop');
+      const elMain   = document.getElementById('bpMain');
+      const elBottom = document.getElementById('bpBottom');
+      const elBtn    = document.getElementById('bpBtn');
+
+      elTop.textContent  = top;
+      elTop.className    = top ? 'bp-top' : 'bp-top empty';
+
+      elMain.textContent = main || '';
+      elMain.style.color = main ? '#fff' : 'rgba(255,255,255,.4)';
+
+      elBottom.textContent = bottom;
+      elBottom.className   = bottom ? 'bp-bottom' : 'bp-bottom empty';
+
+      elBtn.className = link ? 'bp-btn' : 'bp-btn hidden';
+    },
+
+    /* 유효성 검사 */
+    validate() {
+      if (!this.imgDataUrl) {
+        alert('배너 이미지를 등록해주세요.');
+        document.getElementById('imgUploadZone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+      }
+      const main = document.getElementById('inputMainText').value.trim();
+      if (!main) {
+        alert('메인 텍스트를 입력해주세요.');
+        document.getElementById('inputMainText').focus();
+        return false;
+      }
+      return true;
+    },
+
+    /* 저장 */
+    save() {
+      if (!this.validate()) return;
+
+      const data = {
+        img:        this.imgDataUrl,
+        topText:    document.getElementById('inputTopText').value.trim(),
+        mainText:   document.getElementById('inputMainText').value.trim(),
+        bottomText: document.getElementById('inputBottomText').value.trim(),
+        linkUrl:    document.getElementById('inputLinkUrl').value.trim(),
+      };
+
+      /* 실제 구현 시 API 호출 */
+      const isEdit = this.editId !== null;
+      /* TODO: AJAX — fetch(ADMIN_API.bannerSave, { method:'POST', body:JSON.stringify(payload) }) */
+      alert(isEdit ? '배너가 수정되었습니다.' : '배너가 등록되었습니다.');
+      setTimeout(() => { location.href = 'banner.html'; }, 700);
+    },
+
+    /* 취소 */
+    cancel() {
+      location.href = 'banner.html';
+    },
+  };
+
+  AdminSidebar.mount('site-banner');
+  BannerEdit.init();
+  </script>
+</body>
+</html>

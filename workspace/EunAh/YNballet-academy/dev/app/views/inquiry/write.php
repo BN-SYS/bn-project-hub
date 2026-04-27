@@ -17,9 +17,17 @@
   </div>
   <?php else: ?>
 
+  <?php if (!empty($authUser)): ?>
+  <div class="alert alert-info reveal py-2" style="font-size:.875rem;">
+    <strong><?= e($authUser['name']) ?></strong>님으로 로그인되어 있습니다.
+    이름과 연락처가 자동으로 입력되며, 문의 조회 시 비밀번호 없이 확인하실 수 있습니다.
+  </div>
+  <?php else: ?>
   <p class="reveal mb-4" style="font-size:.875rem;color:var(--text-muted);">
     작성하신 문의는 비밀번호로 조회하실 수 있습니다.
+    <a href="<?= BASE_PATH ?>/login?redirect=<?= urlencode(BASE_PATH . '/inquiry/write') ?>" class="ms-1">로그인</a>하시면 더 편리하게 이용하실 수 있습니다.
   </p>
+  <?php endif; ?>
 
   <?php if ($errors): ?>
   <div class="alert alert-danger reveal">
@@ -40,14 +48,16 @@
         <label for="name" class="form-label">이름 <span class="text-danger">*</span></label>
         <input type="text" class="form-control" id="name" name="name"
           maxlength="20" minlength="2" required
-          value="<?= e($old['name'] ?? '') ?>" placeholder="홍길동">
+          value="<?= e(!empty($authUser) ? $authUser['name'] : ($old['name'] ?? '')) ?>"
+          placeholder="홍길동" <?= !empty($authUser) ? 'readonly' : '' ?>>
         <div class="invalid-feedback">이름을 2자 이상 입력해 주세요.</div>
       </div>
       <div class="col-sm-6">
         <label for="contact" class="form-label">연락처 <span class="text-danger">*</span></label>
         <input type="text" class="form-control" id="contact" name="contact"
           maxlength="13" required
-          value="<?= e($old['contact'] ?? '') ?>" placeholder="010-1234-5678">
+          value="<?= e(!empty($authUser) ? $authUser['phone'] : ($old['contact'] ?? '')) ?>"
+          placeholder="010-1234-5678" <?= !empty($authUser) ? 'readonly' : '' ?>>
         <div class="invalid-feedback">숫자와 하이픈으로 입력해 주세요.</div>
       </div>
     </div>
@@ -76,6 +86,7 @@
       <div class="invalid-feedback">내용을 10자 이상 입력해 주세요.</div>
     </div>
 
+    <?php if (empty($authUser)): ?>
     <div class="row g-3 mb-4">
       <div class="col-sm-6">
         <label for="password" class="form-label">비밀번호 <span class="text-danger">*</span></label>
@@ -91,6 +102,7 @@
         <div class="invalid-feedback" id="pw-confirm-msg">비밀번호가 일치하지 않습니다.</div>
       </div>
     </div>
+    <?php endif; ?>
 
     <div class="d-flex justify-content-between align-items-center">
       <a href="<?= BASE_PATH ?>/inquiry" class="btn btn-yn-outline-navy">목록으로</a>

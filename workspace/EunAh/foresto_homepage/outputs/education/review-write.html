@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>수료생 후기 작성 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/education.css">
+  <style>
+    .write-page {
+      padding: 48px 20px 80px;
+    }
+    .write-wrap {
+      max-width: var(--container-md);
+      margin: 0 auto;
+    }
+    .write-page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gray-dark);
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--green-dark);
+      margin-bottom: 28px;
+    }
+    /* 스마트에디터2 영역 */
+    .smart-editor-area {
+      border: 1px solid var(--gray-light);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .smart-editor-toolbar {
+      background: #f5f5f5;
+      border-bottom: 1px solid var(--gray-light);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .smart-editor-toolbar .se-btn {
+      font-size: 12px;
+      color: var(--gray-dark);
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      padding: 3px 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .smart-editor-toolbar .se-divider {
+      width: 1px; height: 16px;
+      background: var(--gray-light);
+      flex-shrink: 0;
+    }
+    .smart-editor-body {
+      width: 100%;
+      min-height: 360px;
+      padding: 14px 16px;
+      border: none;
+      outline: none;
+      font-size: var(--text-md);
+      font-family: inherit;
+      line-height: 1.8;
+      resize: vertical;
+      box-sizing: border-box;
+      color: var(--gray-dark);
+    }
+    /* 첨부파일 */
+    .attach-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .attach-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--gray-light);
+      border-radius: 6px;
+      background: var(--white);
+    }
+    .attach-item-num {
+      font-size: 12px; font-weight: 700;
+      color: var(--gray-mid); min-width: 20px;
+    }
+    .attach-item input[type="file"] { flex: 1; font-size: 13px; }
+    .write-action {
+      display: flex; justify-content: center; gap: 12px;
+      margin-top: 36px;
+    }
+    .write-action .btn { min-width: 120px; }
+  </style>
+</head>
+<body>
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>자격취득 과정</h1>
+    </div>
+  </div>
+
+  <div class="write-page">
+    <div class="write-wrap">
+
+      <h2 class="write-page-title" id="pageTitle">수료생 후기 작성</h2>
+
+      <!-- 수료과정 (자동입력, 수정불가) -->
+      <div class="form-group">
+        <label class="form-label">수료과정</label>
+        <input type="text" class="form-control" id="writeCourse" readonly
+               style="background:var(--gray-bg); color:var(--gray-mid);">
+        <div class="form-hint">수료한 과정명이 자동으로 입력됩니다.</div>
+      </div>
+
+      <!-- 제목 -->
+      <div class="form-group">
+        <label class="form-label">제목 <span class="req">*</span></label>
+        <input type="text" class="form-control" id="writeTitle" placeholder="후기 제목을 입력하세요">
+      </div>
+
+      <!-- 내용 (스마트에디터2 영역) -->
+      <div class="form-group">
+        <label class="form-label">내용 <span class="req">*</span></label>
+        <!-- 실제 구현 시 SmartEditor2 init()으로 대체 -->
+        <div class="smart-editor-area">
+          <div class="smart-editor-toolbar">
+            <span class="se-btn">본문</span>
+            <div class="se-divider"></div>
+            <span class="se-btn"><b>B</b></span>
+            <span class="se-btn"><i>I</i></span>
+            <span class="se-btn"><u>U</u></span>
+            <div class="se-divider"></div>
+            <span class="se-btn">글자색</span>
+            <span class="se-btn">배경색</span>
+            <div class="se-divider"></div>
+            <span class="se-btn">정렬</span>
+            <span class="se-btn">목록</span>
+            <div class="se-divider"></div>
+            <span class="se-btn">이미지</span>
+            <span class="se-btn">표</span>
+            <span class="se-btn">링크</span>
+          </div>
+          <textarea class="smart-editor-body" id="writeContent"
+                    placeholder="수료 소감 및 후기를 자유롭게 작성해 주세요.&#10;이미지를 삽입하면 첫 번째 이미지가 목록 썸네일로 자동 사용됩니다."></textarea>
+        </div>
+        <div class="form-hint">본문에 삽입된 첫 번째 이미지가 목록 썸네일로 자동 사용됩니다. 이미지 없을 경우 기본 이미지로 표시됩니다.</div>
+      </div>
+
+      <!-- 파일 첨부 (최대 3개) -->
+      <div class="form-group">
+        <label class="form-label">파일 첨부 <span style="font-weight:400;color:var(--gray-mid)">(최대 3개)</span></label>
+        <div class="attach-list">
+          <div class="attach-item">
+            <span class="attach-item-num">1</span>
+            <input type="file" accept="image/*,.pdf,.hwp,.hwpx,.docx">
+          </div>
+          <div class="attach-item">
+            <span class="attach-item-num">2</span>
+            <input type="file" accept="image/*,.pdf,.hwp,.hwpx,.docx">
+          </div>
+          <div class="attach-item">
+            <span class="attach-item-num">3</span>
+            <input type="file" accept="image/*,.pdf,.hwp,.hwpx,.docx">
+          </div>
+        </div>
+        <div class="form-hint">JPG, PNG, PDF, HWP, DOCX · 파일당 최대 10MB</div>
+      </div>
+
+      <div class="write-action">
+        <button class="btn btn-gray btn-lg" onclick="ReviewWrite.cancel()">취소</button>
+        <button class="btn btn-primary btn-lg" id="submitBtn" onclick="ReviewWrite.submit()">등록하기</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="ftr"></div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('숲해설가교육', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+  </script>
+  <script>
+    /* ── 마이페이지 교육내역 (수료과정명 조회용, 프로토타입) */
+    const ALL_EDU = [
+      { id:1,  title:'숲해설가 전문과정 1기'  },
+      { id:5,  title:'산림교육 전문가 특강'    },
+      { id:11, title:'산림치유지도사 전문과정' },
+    ];
+
+    /* ── 기존 후기 데이터 (수정 모드용) */
+    const REVIEWS_DATA = [
+      { id:1, courseTitle:'숲해설가 전문과정 1기',
+        title:'숲과 함께한 소중한 시간들',
+        content:'이 과정을 통해 숲의 언어를 배웠습니다. 전문 강사진의 열정적인 수업 덕분에 나무 한 그루, 풀 한 포기가 새롭게 보이기 시작했습니다.' },
+    ];
+
+    const ReviewWrite = {
+      _isEdit: false,
+      _reviewId: null,
+
+      init() {
+        const params   = new URLSearchParams(location.search);
+        const eduId    = Number(params.get('eduId'));
+        const reviewId = Number(params.get('id'));
+        this._isEdit   = params.get('edit') === '1';
+
+        if (this._isEdit && reviewId) {
+          /* 수정 모드: 기존 후기 불러오기 */
+          this._reviewId = reviewId;
+          const r = REVIEWS_DATA.find(x => x.id === reviewId);
+          if (r) {
+            document.getElementById('writeCourse').value  = r.courseTitle;
+            document.getElementById('writeTitle').value   = r.title;
+            document.getElementById('writeContent').value = r.content;
+          }
+          document.getElementById('pageTitle').textContent = '수료생 후기 수정';
+          document.getElementById('submitBtn').textContent = '수정하기';
+        } else if (eduId) {
+          /* 신규 작성: 과정명 자동입력 */
+          const edu = ALL_EDU.find(e => e.id === eduId);
+          if (edu) document.getElementById('writeCourse').value = edu.title;
+        }
+      },
+
+      cancel() {
+        if (confirm('작성을 취소하시겠습니까? 입력한 내용이 삭제됩니다.')) {
+          history.back();
+        }
+      },
+
+      submit() {
+        const title   = document.getElementById('writeTitle').value.trim();
+        const content = document.getElementById('writeContent').value.trim();
+        if (!title)   { App.toast('후기 제목을 입력해 주세요.', 'warning'); return; }
+        if (!content) { App.toast('후기 내용을 입력해 주세요.', 'warning'); return; }
+
+        App.toast(this._isEdit
+          ? '후기가 수정되었습니다.'
+          : '후기가 등록되었습니다. 수료생 후기 페이지에 노출됩니다.');
+        setTimeout(() => { location.href = '../mypage/index.html'; }, 1200);
+      },
+    };
+
+    ReviewWrite.init();
+  </script>
+</body>
+</html>

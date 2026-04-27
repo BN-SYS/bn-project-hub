@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게시글 등록 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .edit-card {
+      background: #fff;
+      border: 1px solid #e3eadd;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .edit-card-body { padding: 24px 28px; }
+    .edit-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 28px;
+      border-top: 1px solid #e8efe3;
+      background: #f8faf6;
+    }
+
+    #inputTitle {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1px solid #d5e0ce;
+      border-radius: 6px;
+      font-size: 15px;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: #1a2718;
+      background: #fafcf9;
+      outline: none;
+      box-sizing: border-box;
+    }
+    #inputTitle:focus { border-color: #508829; box-shadow: 0 0 0 3px rgba(80,136,41,.08); background: #fff; }
+    #inputTitle::placeholder { color: #aabba4; }
+
+    .se2-wrap { border: 1px solid #c8c8c8; border-radius: 4px; overflow: hidden; }
+    .se2-toolbar-row {
+      display: flex; align-items: center; gap: 1px;
+      padding: 4px 6px; background: #f0f0f0;
+      border-bottom: 1px solid #d0d0d0; flex-wrap: wrap;
+    }
+    .se2-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 26px; height: 24px; padding: 0 4px;
+      border: 1px solid transparent; border-radius: 3px;
+      background: none; cursor: pointer; font-size: 12px; color: #333;
+      font-family: 'Noto Sans KR', sans-serif; white-space: nowrap;
+    }
+    .se2-btn:hover { background: #ddd; border-color: #bbb; }
+    .se2-btn.se2-active { background: #c8dfc8; border-color: #5a8a5a; }
+    .se2-select {
+      height: 24px; padding: 0 4px; border: 1px solid #c0c0c0;
+      border-radius: 3px; font-size: 12px; background: #fff;
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+    }
+    .se2-sep { width: 1px; height: 18px; background: #c8c8c8; margin: 0 3px; flex-shrink: 0; }
+    .se2-editor {
+      min-height: 380px; padding: 16px 18px; background: #fff; outline: none;
+      font-size: 14px; line-height: 1.8; color: #222;
+      font-family: '맑은 고딕', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+      overflow-y: auto;
+    }
+    .se2-editor:focus { outline: none; }
+    .se2-editor img { max-width: 100%; height: auto; }
+    .se2-statusbar {
+      padding: 4px 8px; background: #f5f5f5; border-top: 1px solid #e0e0e0;
+      font-size: 11px; color: #888; display: flex; justify-content: space-between;
+    }
+
+    .thumb-notice {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 10px 14px; background: #e3f2fd;
+      border: 1px solid #90caf9; border-radius: 6px;
+      font-size: 13px; color: #1565c0; margin-bottom: 16px; line-height: 1.6;
+    }
+
+    .file-attach-area { display: flex; flex-direction: column; gap: 8px; }
+    .file-row { display: flex; align-items: center; gap: 8px; }
+    .file-row input[type="file"] {
+      flex: 1; height: 34px; padding: 4px 8px;
+      border: 1px solid #d5e0ce; border-radius: 6px;
+      font-size: 13px; font-family: 'Noto Sans KR', sans-serif;
+      background: #fafcf9; cursor: pointer; box-sizing: border-box;
+    }
+    .file-row input[type="file"]::-webkit-file-upload-button {
+      height: 24px; padding: 0 10px; border: 1px solid #b0c8a0;
+      border-radius: 4px; background: #f0f8e8; font-size: 12px;
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+    }
+    .file-hint { font-size: 12px; color: #aabba4; }
+  </style>
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-head">
+        <span class="adm-sb-title">MENU</span>
+        <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+      </div>
+      <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <h1 class="admin-page-title" id="pageTitle">게시글 등록</h1>
+      </div>
+
+      <div class="thumb-notice" id="thumbNotice" style="display:none">
+        이 게시판은 <strong>갤러리형 목록</strong>으로 표시됩니다.&nbsp;
+        본문에 삽입된 <strong>첫 번째 이미지가 자동으로 썸네일</strong>에 저장됩니다.
+        이미지가 없으면 기본 썸네일로 표시됩니다.
+      </div>
+
+      <div class="edit-card" data-sb-anno="1:게시글 등록/수정 폼 카드">
+        <div class="edit-card-body">
+
+          <div class="form-group" data-sb-anno="2:제목 입력 필드">
+            <label class="form-label">제목 <span class="req">*</span></label>
+            <input type="text" id="inputTitle" placeholder="제목을 입력하세요">
+          </div>
+
+          <div class="form-group" id="pinGroup">
+            <label class="form-label">상단 고정</label>
+            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:14px">
+              <input type="checkbox" id="chkPin" style="width:16px;height:16px;cursor:pointer">
+              목록 최상단에 고정 표시
+            </label>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0" data-sb-anno="3:내용 에디터 (스마트에디터2 목업)">
+            <label class="form-label">내용 <span class="req">*</span></label>
+            <div class="se2-wrap">
+              <div class="se2-toolbar-row">
+                <select class="se2-select" style="width:100px" onchange="Se2.fontName(this.value)">
+                  <option value="맑은고딕">맑은 고딕</option>
+                  <option value="굴림">굴림</option>
+                  <option value="돋움">돋움</option>
+                  <option value="바탕">바탕</option>
+                  <option value="Arial">Arial</option>
+                </select>
+                <select class="se2-select" style="width:56px" onchange="Se2.fontSize(this.value)">
+                  <option value="9">9pt</option>
+                  <option value="10">10pt</option>
+                  <option value="11">11pt</option>
+                  <option value="12" selected>12pt</option>
+                  <option value="14">14pt</option>
+                  <option value="16">16pt</option>
+                  <option value="18">18pt</option>
+                  <option value="24">24pt</option>
+                  <option value="36">36pt</option>
+                </select>
+                <div class="se2-sep"></div>
+                <button class="se2-btn" title="굵게" onclick="Se2.cmd('bold')"><b>B</b></button>
+                <button class="se2-btn" title="기울임" onclick="Se2.cmd('italic')"><i>I</i></button>
+                <button class="se2-btn" title="밑줄" onclick="Se2.cmd('underline')"><u>U</u></button>
+                <button class="se2-btn" title="취소선" onclick="Se2.cmd('strikeThrough')"><s>S</s></button>
+                <div class="se2-sep"></div>
+                <button class="se2-btn" title="글자색" onclick="Se2.foreColor()">A<span style="display:block;height:3px;background:#e00;margin-top:1px;border-radius:1px"></span></button>
+                <button class="se2-btn" title="배경색" onclick="Se2.backColor()"><span style="background:#ff0;padding:0 4px">A</span></button>
+                <div class="se2-sep"></div>
+                <button class="se2-btn" title="왼쪽정렬" onclick="Se2.cmd('justifyLeft')">≡L</button>
+                <button class="se2-btn" title="가운데정렬" onclick="Se2.cmd('justifyCenter')">≡C</button>
+                <button class="se2-btn" title="오른쪽정렬" onclick="Se2.cmd('justifyRight')">≡R</button>
+              </div>
+              <div class="se2-toolbar-row">
+                <button class="se2-btn" title="번호목록" onclick="Se2.cmd('insertOrderedList')">1.</button>
+                <button class="se2-btn" title="기호목록" onclick="Se2.cmd('insertUnorderedList')">•</button>
+                <button class="se2-btn" title="들여쓰기" onclick="Se2.cmd('indent')">→|</button>
+                <button class="se2-btn" title="내어쓰기" onclick="Se2.cmd('outdent')">|←</button>
+                <div class="se2-sep"></div>
+                <button class="se2-btn" title="링크 삽입" onclick="Se2.insertLink()">🔗 링크</button>
+                <button class="se2-btn" title="이미지 삽입" onclick="Se2.insertImage()">🖼 이미지</button>
+                <button class="se2-btn" title="표 삽입" onclick="Se2.insertTable()">⊞ 표</button>
+                <button class="se2-btn" title="수평선" onclick="Se2.cmd('insertHorizontalRule')">── 선</button>
+                <div class="se2-sep"></div>
+                <button class="se2-btn" title="실행 취소" onclick="Se2.cmd('undo')">↩ 취소</button>
+                <button class="se2-btn" title="다시 실행" onclick="Se2.cmd('redo')">↪ 재실행</button>
+                <div class="se2-sep"></div>
+                <button class="se2-btn" title="HTML 소스 보기" onclick="Se2.toggleSource()">&#60;/&#62; 소스</button>
+              </div>
+              <div class="se2-editor" id="se2Content" contenteditable="true"></div>
+              <div class="se2-statusbar">
+                <span id="se2CharCount">0자</span>
+                <span>Smart Editor 2</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="padding:18px 28px;border-top:1px solid #f0f4ee" data-sb-anno="4:파일 첨부 영역 (최대 3개)">
+          <label class="form-label" style="margin-bottom:10px;display:block">
+            파일 첨부 <span style="color:#aabba4;font-size:12px;font-weight:400">(최대 3개)</span>
+          </label>
+          <div class="file-attach-area">
+            <div class="file-row"><input type="file" id="file1" accept="*/*"></div>
+            <div class="file-row"><input type="file" id="file2" accept="*/*"></div>
+            <div class="file-row"><input type="file" id="file3" accept="*/*"></div>
+          </div>
+          <div class="file-hint" style="margin-top:6px">
+            파일당 최대 20MB / 허용 형식: PDF, HWP, DOCX, JPG, PNG, ZIP
+          </div>
+        </div>
+
+        <div class="edit-card-footer" data-sb-anno="5:하단 액션 바 (취소·저장)">
+          <button class="btn btn-gray btn-sm"
+            onclick="if(confirm('작성을 취소하시겠습니까?')) location.href='board.html?type='+BTYPE">취소</button>
+          <button class="btn btn-primary" onclick="BoardEdit.save()">저장</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/admin.js"></script>
+  <script>
+  'use strict';
+
+  const BOARD_CONFIG = {
+    notice:        { title: '공지사항', navKey: 'board-notice',      hasThumb: false },
+    newsletter:    { title: '협회지',   navKey: 'board-newsletter',  hasThumb: false },
+    press:         { title: '언론보도', navKey: 'board-press',       hasThumb: false },
+    gallery:       { title: '갤러리',   navKey: 'board-gallery',     hasThumb: true  },
+    'forest-work': { title: '숲일터',   navKey: 'board-forest-work', hasThumb: false },
+    region:        { title: '전국지역협회', navKey: 'board-region',  hasThumb: true  },
+    intro:         { title: '사공단소개',   navKey: 'board-intro',   hasThumb: true  },
+    club:          { title: '동아리소개',   navKey: 'board-club',    hasThumb: true  },
+  };
+
+  const params  = new URLSearchParams(location.search);
+  const BTYPE   = params.get('type') || 'notice';
+  const EDIT_ID = Number(params.get('id')) || 0;
+  const BCONFIG = BOARD_CONFIG[BTYPE] || BOARD_CONFIG.notice;
+  const isEdit  = !!EDIT_ID;
+
+  /* ──────────────────────────────────────────
+     샘플 데이터 (수정 모드)
+     [개발자] AdminHttp.get(ADMIN_API.url('board', EDIT_ID), { type: BTYPE }) 응답으로 교체
+  ────────────────────────────────────────── */
+  const SAMPLE_EDIT = {
+    id:      EDIT_ID,
+    title:   BCONFIG.title + ' 게시글 제목 예시',
+    pinned:  false,
+    content: '<p>기존 본문 내용이 여기 로드됩니다.</p><p>실제 구현 시 서버에서 게시글 데이터를 불러와 에디터에 주입합니다.</p>',
+  };
+
+  /* 페이지 타이틀 */
+  document.getElementById('pageTitle').textContent = BCONFIG.title + (isEdit ? ' 수정' : ' 등록');
+  document.title = BCONFIG.title + (isEdit ? ' 수정' : ' 등록') + ' | 관리자 | 한국숲해설가협회';
+
+  /* 썸네일 안내 표시 */
+  if (BCONFIG.hasThumb) {
+    document.getElementById('thumbNotice').style.display = 'flex';
+  }
+
+  /* ── 스마트에디터2 목업 컨트롤러 */
+  const Se2 = {
+    _editor() { return document.getElementById('se2Content'); },
+
+    cmd(command) {
+      this._editor().focus();
+      document.execCommand(command, false, null);
+      this._updateCount();
+    },
+    fontName(val) {
+      this._editor().focus();
+      document.execCommand('fontName', false, val);
+    },
+    fontSize(pt) {
+      this._editor().focus();
+      document.execCommand('fontSize', false, '3');
+      this._editor().querySelectorAll('font[size="3"]').forEach(el => {
+        el.removeAttribute('size');
+        el.style.fontSize = pt + 'pt';
+      });
+    },
+    foreColor() {
+      const color = prompt('글자색을 HEX 코드로 입력하세요 (예: #ff0000)', '#000000');
+      if (color) { this._editor().focus(); document.execCommand('foreColor', false, color); }
+    },
+    backColor() {
+      const color = prompt('배경색을 HEX 코드로 입력하세요 (예: #ffff00)', '#ffffff');
+      if (color) { this._editor().focus(); document.execCommand('hiliteColor', false, color); }
+    },
+    insertLink() {
+      const url  = prompt('링크 URL을 입력하세요', 'https://');
+      const text = prompt('링크 텍스트를 입력하세요', '링크');
+      if (url && text) {
+        this._editor().focus();
+        document.execCommand('insertHTML', false, `<a href="${url}" target="_blank">${text}</a>`);
+      }
+      this._updateCount();
+    },
+    insertImage() {
+      const url = prompt('이미지 URL을 입력하세요', 'https://');
+      if (url) {
+        this._editor().focus();
+        document.execCommand('insertHTML', false, `<img src="${url}" alt="" style="max-width:100%"><br>`);
+        App.toast('첫 번째 이미지가 썸네일로 자동 저장됩니다.', 'info');
+      }
+      this._updateCount();
+    },
+    insertTable() {
+      const rows = parseInt(prompt('행 수', '3'), 10) || 3;
+      const cols = parseInt(prompt('열 수', '3'), 10) || 3;
+      let html = '<table border="1" style="border-collapse:collapse;width:100%">';
+      for (let r = 0; r < rows; r++) {
+        html += '<tr>';
+        for (let c = 0; c < cols; c++) {
+          html += `<td style="padding:6px 10px;border:1px solid #ccc">&nbsp;</td>`;
+        }
+        html += '</tr>';
+      }
+      html += '</table><br>';
+      this._editor().focus();
+      document.execCommand('insertHTML', false, html);
+      this._updateCount();
+    },
+    toggleSource() {
+      const el = this._editor();
+      if (el.contentEditable === 'true') {
+        el.textContent     = el.innerHTML;
+        el.contentEditable = 'false';
+        el.style.fontFamily = 'monospace';
+        el.style.fontSize   = '13px';
+        el.style.color      = '#155';
+        el.style.background = '#f8fff8';
+      } else {
+        el.innerHTML       = el.textContent;
+        el.contentEditable = 'true';
+        el.style.fontFamily = '';
+        el.style.fontSize   = '';
+        el.style.color      = '';
+        el.style.background = '';
+      }
+    },
+    _updateCount() {
+      const text = this._editor().innerText || '';
+      document.getElementById('se2CharCount').textContent = text.length.toLocaleString() + '자';
+    },
+  };
+
+  document.getElementById('se2Content').addEventListener('input', () => Se2._updateCount());
+
+  /* ── 수정 모드: 기존 데이터 로드 */
+  const BoardEdit = {
+
+    async loadForEdit() {
+      try {
+        /*
+         * [개발자 연동]
+         * const data = await AdminHttp.get(
+         *   ADMIN_API.url('board', EDIT_ID), { type: BTYPE }
+         * );
+         * this.fill(data);
+         */
+        this.fill(SAMPLE_EDIT);
+      } catch (e) {
+        App.toast(e.message, 'error');
+      }
+    },
+
+    fill(d) {
+      document.getElementById('inputTitle').value      = d.title;
+      document.getElementById('chkPin').checked        = d.pinned || false;
+      document.getElementById('se2Content').innerHTML  = d.content || '';
+      Se2._updateCount();
+    },
+
+    async save() {
+      const title   = document.getElementById('inputTitle').value.trim();
+      const content = document.getElementById('se2Content').innerHTML.trim();
+
+      if (!title)   { App.toast('제목을 입력해주세요.', 'error'); return; }
+      if (!content || content === '<br>') {
+        App.toast('내용을 입력해주세요.', 'error'); return;
+      }
+
+      const fd = new FormData();
+      fd.append('type',    BTYPE);
+      fd.append('title',   title);
+      fd.append('content', content);
+      fd.append('pinned',  document.getElementById('chkPin').checked ? 'Y' : 'N');
+
+      const f1 = document.getElementById('file1').files[0];
+      const f2 = document.getElementById('file2').files[0];
+      const f3 = document.getElementById('file3').files[0];
+      if (f1) fd.append('files[]', f1);
+      if (f2) fd.append('files[]', f2);
+      if (f3) fd.append('files[]', f3);
+
+      try {
+        /*
+         * [개발자 연동]
+         * 등록: await AdminHttp.upload(ADMIN_API.board, fd)
+         * 수정: await AdminHttp.upload(ADMIN_API.url('board', EDIT_ID), fd)
+         */
+        console.log('저장 FormData:', Object.fromEntries(fd));
+        App.toast(isEdit ? '게시글이 수정되었습니다.' : '게시글이 등록되었습니다.', 'success');
+        setTimeout(() => { location.href = `board.html?type=${BTYPE}`; }, 800);
+      } catch (e) {
+        App.toast(e.message, 'error');
+      }
+    },
+  };
+
+  /* 초기화 */
+  AdminSidebar.mount(BCONFIG.navKey);
+  if (isEdit) BoardEdit.loadForEdit();
+  </script>
+</body>
+</html>

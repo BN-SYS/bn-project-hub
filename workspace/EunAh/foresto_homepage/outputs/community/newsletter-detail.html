@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>협회소식지 상세 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/pages/community.css">
+  <!-- attach-section, file-type-badge 스타일은 community.css 에 정의 -->
+</head>
+
+<body data-page="newsletter-detail">
+
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>소식</h1>
+    </div>
+  </div>
+
+  <div id="bc"></div>
+  <div class="sub-layout">
+    <div id="lnb"></div>
+    <main class="sub-content">
+      <!-- JS가 이 영역을 채움 -->
+      <div id="newsletterDetail"></div>
+    </main>
+  </div>
+
+  <div id="ftr"></div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/community-media.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('커뮤니티', '../');
+    document.getElementById('bc').innerHTML  = LNB.breadcrumb('../', 'community/newsletter-detail.html');
+    document.getElementById('lnb').innerHTML = LNB.render('../', 'community/newsletter-detail.html');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+  </script>
+</body>
+
+</html>

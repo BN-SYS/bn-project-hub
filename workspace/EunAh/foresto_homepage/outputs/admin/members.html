@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>회원관리 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .admin-table th.col-chk,
+    .admin-table td.col-chk { width:3%; overflow:visible; text-overflow:clip; white-space:normal; }
+    .admin-table tbody tr { cursor:pointer; }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title">회원관리</h1>
+      <div class="admin-topbar-actions">
+        <button class="btn-refresh" onclick="MemberList.load()" title="새로고침">
+          <img src="../assets/icons/refresh.png" alt="새로고침">
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="location.href='member-edit.html'">+ 회원 등록</button>
+      </div>
+    </div>
+
+    <!-- 검색 필터 -->
+    <div class="filter-card">
+      <div class="filter-body">
+
+        <div class="filter-row">
+          <span class="filter-label">가입기간</span>
+          <div class="filter-content">
+            <div class="date-pair">
+              <input type="date" id="filterDateFrom">
+              <span class="date-sep">—</span>
+              <input type="date" id="filterDateTo">
+            </div>
+            <div class="date-preset-group">
+              <button class="date-preset-btn" onclick="setDatePreset('today')">오늘</button>
+              <button class="date-preset-btn" onclick="setDatePreset(7)">7일</button>
+              <button class="date-preset-btn" onclick="setDatePreset(30)">30일</button>
+              <button class="date-preset-btn" onclick="setDatePreset(90)">3개월</button>
+              <button class="date-preset-btn" onclick="setDatePreset(180)">6개월</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-half">
+            <span class="filter-label">등급</span>
+            <div class="filter-content">
+              <div class="chip-group">
+                <label class="chip"><input type="radio" name="filterGrade" value="" checked><span>전체</span></label>
+                <label class="chip"><input type="radio" name="filterGrade" value="member"><span>일반회원</span></label>
+                <label class="chip"><input type="radio" name="filterGrade" value="fullMember"><span>정회원</span></label>
+                <label class="chip"><input type="radio" name="filterGrade" value="admin"><span>관리자</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="filter-half">
+            <span class="filter-label">상태</span>
+            <div class="filter-content">
+              <div class="chip-group">
+                <label class="chip"><input type="radio" name="filterStatus" value="" checked><span>전체</span></label>
+                <label class="chip"><input type="radio" name="filterStatus" value="active"><span>정상</span></label>
+                <label class="chip"><input type="radio" name="filterStatus" value="blocked"><span>차단</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">검색어</span>
+          <div class="filter-content">
+            <div class="kw-wrap">
+              <select id="filterKwType">
+                <option value="">전체 필드</option>
+                <option value="userId">아이디</option>
+                <option value="name">이름</option>
+                <option value="phone">연락처</option>
+              </select>
+              <div class="kw-input-wrap">
+                <input type="text" id="filterKeyword" placeholder="검색어를 입력하세요"
+                  onkeydown="if(event.key==='Enter') MemberList.search()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="filter-footer">
+        <button class="btn btn-outline btn-sm"
+          onclick="AdminHttp.downloadExcel(ADMIN_API.memberExcel, MemberList.getParams())">
+          엑셀 다운로드
+        </button>
+        <button class="btn btn-gray btn-sm" onclick="MemberList.reset()">초기화</button>
+        <button class="btn btn-primary btn-sm" onclick="MemberList.search()">검색</button>
+      </div>
+    </div>
+
+    <!-- 목록 상단 -->
+    <div class="list-top">
+      <div class="list-count" id="listCount">총 <strong>0</strong>건</div>
+      <select class="form-control" id="pageSizeSelect"
+        style="width:130px;height:36px;font-size:13px"
+        onchange="MemberList.changePageSize(this.value)">
+        <option value="10">10개씩 보기</option>
+        <option value="30">30개씩 보기</option>
+        <option value="50">50개씩 보기</option>
+        <option value="100">100개씩 보기</option>
+      </select>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th class="col-chk">
+              <input type="checkbox" id="chkAll" onchange="MemberList.toggleAll(this.checked)">
+            </th>
+            <th style="width:4%">번호</th>
+            <th style="width:8%">구분</th>
+            <th style="width:10%">아이디</th>
+            <th>이름</th>
+            <th style="width:5%">성별</th>
+            <th style="width:8%">생년월일</th>
+            <th style="width:12%">연락처</th>
+            <th style="width:15%">이메일</th>
+            <th style="width:15%">가입일시</th>
+            <th style="width:6%">상태</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <div class="table-bottom-bar">
+      <button class="btn btn-danger btn-danger-filled btn-sm"
+        id="btnDelete" disabled onclick="MemberList.deleteSelected()">선택 삭제</button>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] 실제 연동 시 SAMPLE_DATA 제거 후
+   AdminHttp.get() 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_DATA = {
+  total: 15,
+  items: [
+    { id: 1,  no: 15, grade: 'admin',      gradeLabel: '관리자',   gradeBadge: 'badge-green',   userId: 'admin01',    name: '최관리', gender: '남', birth: '1975-01-10', phone: '010-1000-0001', email: 'admin01@foresto.or.kr',    joinDatetime: '2024-06-01 08:00:00', status: 'active',  statusLabel: '정상', statusBadge: 'badge-green' },
+    { id: 2,  no: 14, grade: 'fullMember', gradeLabel: '정회원',   gradeBadge: 'badge-green',   userId: 'forest001',  name: '김숲해', gender: '여', birth: '1985-04-12', phone: '010-1234-5678', email: 'forest001@foresto.or.kr',  joinDatetime: '2025-01-15 09:23:41', status: 'active',  statusLabel: '정상', statusBadge: 'badge-green' },
+    { id: 3,  no: 13, grade: 'fullMember', gradeLabel: '정회원',   gradeBadge: 'badge-green',   userId: 'forest010',  name: '한나무', gender: '여', birth: '1982-09-05', phone: '010-1100-2200', email: 'hannamu@foresto.or.kr',    joinDatetime: '2025-02-20 10:15:30', status: 'active',  statusLabel: '정상', statusBadge: 'badge-green' },
+    { id: 4,  no: 12, grade: 'member',     gradeLabel: '일반회원', gradeBadge: 'badge-blue',    userId: 'forest002',  name: '이정회', gender: '남', birth: '1991-08-27', phone: '010-2345-6789', email: 'forest002@foresto.or.kr',  joinDatetime: '2025-04-10 14:05:17', status: 'active',  statusLabel: '정상', statusBadge: 'badge-green' },
+    { id: 5,  no: 11, grade: 'member',     gradeLabel: '일반회원', gradeBadge: 'badge-blue',    userId: 'forest003',  name: '박초록', gender: '여', birth: '1978-12-03', phone: '010-3456-7890', email: 'forest003@foresto.or.kr',  joinDatetime: '2025-06-01 11:48:33', status: 'blocked', statusLabel: '차단', statusBadge: 'badge-blocked' },
+    { id: 6,  no: 10, grade: 'fullMember', gradeLabel: '정회원',   gradeBadge: 'badge-green',   userId: 'forest011',  name: '정산들', gender: '남', birth: '1988-03-22', phone: '010-4567-8901', email: 'sandle@foresto.or.kr',     joinDatetime: '2025-07-15 08:30:00', status: 'active',  statusLabel: '정상', statusBadge: 'badge-green' },
+    { id: 7,  no: 9,  grade: 'member',     gradeLabel: '일반회원', gradeBadge: 'badge-blue',    userId: 'forest004',  name: '송풀잎', gender: '여', birth: '1993-05-18', phone: '010-5678-9012', email: 'pullip@foresto.or.kr',     joinDatetime: '2025-09-01 16:20:45', status: 'active',  statusLabel: '정상', statusBadge: 'badge-green' },
+    { id: 8,  no: 8,  grade: 'member',     gradeLabel: '일반회원', gradeBadge: 'badge-blue',    userId: 'forest005',  name: '윤도토리', gender: '남', birth: '1980-11-30', phone: '010-6789-0123', email: 'dotori@foresto.or.kr',   joinDatetime: '2025-10-20 13:10:22', status: 'active',  statusLabel: '정상', statusBadge: 'badge-green' },
+    { id: 9,  no: 7,  grade: 'fullMember', gradeLabel: '정회원',   gradeBadge: 'badge-green',   userId: 'forest012',  name: '오솔길', gender: '여', birth: '1976-07-14', phone: '010-7890-1234', email: 'solgil@foresto.or.kr',    joinDatetime: '2025-12-05 09:45:10', status: 'blocked', statusLabel: '차단', statusBadge: 'badge-blocked' },
+    { id: 10, no: 6,  grade: 'member',     gradeLabel: '일반회원', gradeBadge: 'badge-blue',    userId: 'forest006',  name: '장이슬', gender: '여', birth: '1995-02-28', phone: '010-8901-2345', email: 'iseul@foresto.or.kr',     joinDatetime: '2026-01-10 11:00:00', status: 'active',  statusLabel: '정상', statusBadge: 'badge-green' },
+    { id: 11, no: 5,  grade: 'member',     gradeLabel: '일반회원', gradeBadge: 'badge-blue',    userId: 'forest007',  name: '임단풍', gender: '남', birth: '1987-10-15', phone: '010-9012-3456', email: 'danpung@foresto.or.kr',   joinDatetime: '2026-02-01 15:33:00', status: 'active',  statusLabel: '정상', statusBadge: 'badge-green' },
+    { id: 12, no: 4,  grade: 'fullMember', gradeLabel: '정회원',   gradeBadge: 'badge-green',   userId: 'forest013',  name: '배솔바람', gender: '남', birth: '1972-06-20', phone: '010-0123-4567', email: 'solbaram@foresto.or.kr', joinDatetime: '2026-02-15 10:22:00', status: 'active',  statusLabel: '정상', statusBadge: 'badge-green' },
+    { id: 13, no: 3,  grade: 'member',     gradeLabel: '일반회원', gradeBadge: 'badge-blue',    userId: 'forest008',  name: '강하늘', gender: '여', birth: '1990-04-05', phone: '010-1111-2222', email: 'haneul@foresto.or.kr',    joinDatetime: '2026-03-01 09:00:00', status: 'blocked', statusLabel: '차단', statusBadge: 'badge-blocked' },
+    { id: 14, no: 2,  grade: 'member',     gradeLabel: '일반회원', gradeBadge: 'badge-blue',    userId: 'forest009',  name: '조은별', gender: '여', birth: '1998-01-22', phone: '010-3333-4444', email: 'eunbyul@foresto.or.kr',   joinDatetime: '2026-03-20 14:15:00', status: 'active',  statusLabel: '정상', statusBadge: 'badge-green' },
+    { id: 15, no: 1,  grade: 'member',     gradeLabel: '일반회원', gradeBadge: 'badge-blue',    userId: 'forest014',  name: '서나래', gender: '여', birth: '1992-12-10', phone: '010-5555-6666', email: 'narae@foresto.or.kr',     joinDatetime: '2026-04-05 17:40:00', status: 'active',  statusLabel: '정상', statusBadge: 'badge-green' },
+  ],
+};
+
+/* ──────────────────────────────────────────
+   MemberList 컨트롤러
+────────────────────────────────────────── */
+const MemberList = {
+  currentPage: 1,
+  pageSize:    10,
+  totalPages:  1,
+
+  /* 필터 파라미터 수집 */
+  getParams() {
+    return {
+      date_from: document.getElementById('filterDateFrom').value,
+      date_to:   document.getElementById('filterDateTo').value,
+      grade:     document.querySelector('input[name="filterGrade"]:checked')?.value || '',
+      status:    document.querySelector('input[name="filterStatus"]:checked')?.value || '',
+      kw_type:   document.getElementById('filterKwType').value,
+      kw:        document.getElementById('filterKeyword').value.trim(),
+      page:      this.currentPage,
+      size:      this.pageSize,
+    };
+  },
+
+  /* 검색 버튼 클릭 */
+  search() {
+    this.currentPage = 1;
+    this.load();
+  },
+
+  /* 데이터 로드
+     [개발자] AdminHttp.get() 호출 후 data.items / data.total 로 교체 */
+  async load() {
+    AdminUI.showLoading('tableBody', 11);
+    try {
+      /*
+       * [개발자 연동]
+       * const data = await AdminHttp.get(ADMIN_API.members, this.getParams());
+       * this.render(data.items, data.total);
+       */
+      // 프로토타입: 클라이언트 사이드 필터링
+      await new Promise(r => setTimeout(r, 200));
+      const p = this.getParams();
+      let items = SAMPLE_DATA.items.filter(d => {
+        if (p.date_from && d.joinDatetime < p.date_from) return false;
+        if (p.date_to   && d.joinDatetime > p.date_to + ' 23:59:59') return false;
+        if (p.grade  && d.grade  !== p.grade)  return false;
+        if (p.status && d.status !== p.status) return false;
+        if (p.kw) {
+          const kw = p.kw.toLowerCase();
+          if (p.kw_type === 'userId') return d.userId.toLowerCase().includes(kw);
+          if (p.kw_type === 'name')   return d.name.includes(kw);
+          if (p.kw_type === 'phone')  return d.phone.includes(kw);
+          return (d.userId + d.name + d.phone + d.email).toLowerCase().includes(kw);
+        }
+        return true;
+      });
+      const total = items.length;
+      const start = (this.currentPage - 1) * this.pageSize;
+      this.render(items.slice(start, start + this.pageSize), total);
+    } catch (e) {
+      AdminUI.showError('tableBody', e.message, 11);
+    }
+  },
+
+  /* 테이블 렌더 */
+  render(items, total) {
+    const tbody = document.getElementById('tableBody');
+    if (!tbody) return;
+
+    AdminUI.updateCount('listCount', total);
+
+    this.totalPages = Math.ceil(total / this.pageSize) || 1;
+    AdminUI.renderPagination('pagination', this.currentPage, this.totalPages, p => {
+      this.currentPage = p;
+      this.load();
+    });
+
+    if (!items.length) {
+      AdminUI.showEmpty('tableBody', '조회된 회원이 없습니다.', 11);
+      return;
+    }
+
+    tbody.innerHTML = items.map(d => `
+      <tr onclick="location.href='member-detail.html?id=${d.id}'">
+        <td class="col-chk" onclick="event.stopPropagation()">
+          <input type="checkbox" class="row-chk" data-id="${d.id}"
+            onchange="MemberList.syncDeleteBtn()">
+        </td>
+        <td class="col-no">${d.no}</td>
+        <td class="center"><span class="badge ${d.gradeBadge}">${d.gradeLabel}</span></td>
+        <td>${d.userId}</td>
+        <td><strong>${d.name}</strong></td>
+        <td class="center td-muted">${d.gender}</td>
+        <td class="center td-muted">${d.birth}</td>
+        <td class="center td-muted">${d.phone}</td>
+        <td class="td-muted">${d.email}</td>
+        <td class="center cell-datetime">${d.joinDatetime}</td>
+        <td class="center"><span class="badge ${d.statusBadge}">${d.statusLabel}</span></td>
+      </tr>`).join('');
+  },
+
+  /* 전체 선택 */
+  toggleAll(checked) {
+    document.querySelectorAll('.row-chk').forEach(cb => cb.checked = checked);
+    this.syncDeleteBtn();
+  },
+
+  /* 삭제 버튼 활성화 동기화 */
+  syncDeleteBtn() {
+    const any = document.querySelectorAll('.row-chk:checked').length > 0;
+    document.getElementById('btnDelete').disabled = !any;
+  },
+
+  /* 선택 삭제
+     [개발자] AdminHttp.del() 호출로 교체 */
+  async deleteSelected() {
+    const ids = [...document.querySelectorAll('.row-chk:checked')].map(cb => cb.dataset.id);
+    if (!ids.length) return;
+    if (!confirm(`선택한 ${ids.length}명을 삭제하시겠습니까?`)) return;
+    try {
+      /*
+       * [개발자 연동]
+       * await AdminHttp.post(ADMIN_API.memberDelete, { ids });
+       */
+      App.toast(`${ids.length}명이 삭제되었습니다.`, 'success');
+      this.load();
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  /* 페이지 크기 변경 */
+  changePageSize(size) {
+    this.pageSize    = parseInt(size);
+    this.currentPage = 1;
+    this.load();
+  },
+
+  /* 초기화 */
+  reset() {
+    document.getElementById('filterDateFrom').value = '';
+    document.getElementById('filterDateTo').value   = '';
+    document.querySelector('input[name="filterGrade"][value=""]').checked  = true;
+    document.querySelector('input[name="filterStatus"][value=""]').checked = true;
+    document.getElementById('filterKwType').value  = '';
+    document.getElementById('filterKeyword').value = '';
+    this.currentPage = 1;
+    this.load();
+  },
+};
+
+AdminSidebar.mount('members');
+MemberList.load();
+</script>
+</body>
+</html>

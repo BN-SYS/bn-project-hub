@@ -898,22 +898,119 @@ footer a:hover {
 
 @media (max-width: 768px) {
   .notice-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
   }
-  /* 모바일 2컬럼: 마지막 아이템이 홀로 남을 때 전체 행 차지, 카드는 50% 중앙 */
   .notice-card-link:last-child:nth-child(2n + 1) {
-    grid-column: 1 / -1;
+    grid-column: unset;
   }
   .notice-card-link:last-child:nth-child(2n + 1) .notice-card {
-    max-width: 50%;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  /* 공지사항 목록 전용: 가로 리스트 레이아웃 */
+  .notice-grid--list {
+    gap: 0;
+    background: transparent;
+  }
+  .notice-grid--list .notice-card-link {
+    border-bottom: 1px solid var(--ivory-dark);
+    background: transparent;
+  }
+  .notice-grid--list .notice-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: .85rem;
+    padding: .75rem 0;
+  }
+  .notice-grid--list .notice-card-img-wrap {
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+    aspect-ratio: unset;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .notice-grid--list .notice-card-info {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    border-top: none;
+  }
+  .notice-grid--list .notice-card-title {
+    font-size: .85rem;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  .notice-grid--list .notice-pin-badge {
+    top: .35rem;
+    left: .35rem;
   }
 }
 
 @media (max-width: 480px) {
   .notice-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 1px;
+  }
+}
+
+/* ─── Navbar 회원 영역 ────────────────────────── */
+.navbar-user-area {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin-left: .75rem;
+  padding-left: .75rem;
+  border-left: 1px solid rgba(255,255,255,.15);
+}
+
+.navbar-user-greeting {
+  font-size: .78rem;
+  color: rgba(255,255,255,.7);
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.navbar-user-btn {
+  display: inline-block;
+  font-size: .75rem;
+  color: rgba(255,255,255,.7);
+  text-decoration: none;
+  padding: .3rem .65rem;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 3px;
+  white-space: nowrap;
+  transition: color .2s, border-color .2s, background .2s;
+}
+
+.navbar-user-btn:hover {
+  color: #fff;
+  border-color: rgba(255,255,255,.5);
+  background: rgba(255,255,255,.06);
+}
+
+.navbar-user-btn--join {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.navbar-user-btn--join:hover {
+  background: rgba(198,160,104,.12);
+  color: var(--gold);
+}
+
+@media (max-width: 991px) {
+  .navbar-user-area {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+    padding-top: .75rem;
+    margin-top: .25rem;
+    border-top: 1px solid rgba(255,255,255,.1);
+    justify-content: flex-end;
+    width: 100%;
   }
 }
 
@@ -966,6 +1063,7 @@ footer a:hover {
     border-top: 1px solid rgba(255,255,255,.1);
     gap: .25rem;
     flex-wrap: wrap;
+    justify-content: flex-end;
   }
 }
 

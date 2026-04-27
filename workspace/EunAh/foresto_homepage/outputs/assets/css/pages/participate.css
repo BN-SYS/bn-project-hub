@@ -1,0 +1,724 @@
+/* =============================================
+   participate.css | 참여 페이지 전용 스타일
+   (후원안내 / 후원하기 / 정회원 가입안내 공통)
+   ============================================= */
+
+
+/* ── 폼 섹션 구분선 (후원하기 / 정회원신청 공통) */
+.form-section-label {
+  padding: 16px 4px 0;
+  font-size: var(--text-12);
+  font-weight: 700;
+  color: var(--green-main);
+  letter-spacing: .06em;
+  border-bottom: 1px solid var(--gray-line);
+  margin-bottom: 4px;
+}
+
+/* ════════════════════════════════════════
+   섹션 공통
+   ════════════════════════════════════════ */
+.info-section       { margin-bottom: 52px; }
+.info-section-title {
+  font-size: var(--text-lg);            /* 18px */
+  font-weight: 700;
+  color: var(--gray-dark);
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--green-main);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+/* ════════════════════════════════════════
+   donate-info.html | 후원안내
+   ════════════════════════════════════════ */
+
+/* ── 후원 임팩트 숫자 */
+.impact-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+.impact-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 28px 16px;
+  text-align: center;
+  border-top: 4px solid var(--green-main);
+  transition: var(--trans);
+}
+.impact-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+.impact-num {
+  font-size: var(--text-2xl);           /* 34px → 가장 근접: --text-2xl(26px). 임팩트 숫자라 큰 값 유지 원하면 variables.css에 --text-3xl: 2.125rem 추가 권장 */
+  font-weight: 800;
+  color: var(--green-dark);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.impact-num span {
+  font-size: var(--text-lg);            /* 18px */
+}
+.impact-label {
+  font-size: var(--text-md);            /* 13px */
+  color: var(--gray-mid);
+  line-height: 1.5;
+}
+
+/* ── 후원 방법 카드 */
+.donate-methods {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 48px;
+}
+.donate-method-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.donate-method-head {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-main));
+  color: #fff;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.donate-method-head .method-icon {
+  font-size: var(--text-2xl);           /* 28px → --text-2xl(26px) 근접 */
+  flex-shrink: 0;
+}
+.donate-method-head h3 {
+  font-size: var(--text-lg);            /* 17px → --text-lg(18px) 근접 */
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.donate-method-head p {
+  font-size: var(--text-md);            /* 13px */
+  opacity: .85;
+}
+.donate-method-body { padding: 20px 24px; }
+.donate-method-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gray-light);
+  font-size: var(--text-md);            /* 14px */
+  align-items: flex-start;
+}
+.donate-method-row:last-child { border-bottom: none; padding-bottom: 0; }
+.donate-method-label {
+  width: 80px;
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--gray-mid);
+  font-size: var(--text-md);            /* 13px */
+}
+.donate-method-value {
+  flex: 1;
+  color: var(--gray-dark);
+  line-height: 1.7;
+}
+.donate-method-value strong { color: var(--green-dark); }
+
+/* ── 후원금 사용 내역 */
+.usage-wrap {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 32px 36px;
+  margin-bottom: 48px;
+}
+.usage-bar-item {
+  display: grid;
+  grid-template-columns: 160px 1fr 60px;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.usage-bar-label {
+  font-size: var(--text-md);            /* 14px */
+  font-weight: 600;
+  color: var(--gray-dark);
+}
+.usage-bar-track {
+  height: 12px;
+  background: var(--gray-light);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.usage-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: var(--green-main);
+  transition: width .8s ease;
+}
+.usage-bar-pct {
+  font-size: var(--text-md);            /* 13px */
+  font-weight: 700;
+  color: var(--green-dark);
+  text-align: right;
+}
+
+/* ── 후원자 혜택 */
+.donor-benefits {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+.donor-benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+.donor-benefit-icon {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--green-pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-xl);            /* 20px → --text-xl(22px) 근접 */
+  flex-shrink: 0;
+}
+.donor-benefit-text h4 {
+  font-size: var(--text-md);            /* 14px */
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 5px;
+}
+.donor-benefit-text p {
+  font-size: var(--text-md);            /* 13px */
+  color: var(--gray-mid);
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+/* ── 세금공제 안내 박스 */
+.tax-box {
+  background: #fff8e1;
+  border: 1.5px solid #f9a825;
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 48px;
+}
+.tax-box-icon {
+  font-size: var(--text-2xl);           /* 28px → --text-2xl(26px) 근접 */
+  flex-shrink: 0;
+}
+.tax-box-body h4 {
+  font-size: var(--text-base);          /* 15px */
+  font-weight: 700;
+  color: #e65100;
+  margin-bottom: 8px;
+}
+.tax-box-body p {
+  font-size: var(--text-md);            /* 13px */
+  color: #795548;
+  line-height: 1.75;
+}
+
+/* ── CTA (후원안내) */
+.donate-cta {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-main));
+  border-radius: var(--radius-lg);
+  padding: 40px 48px;
+  text-align: center;
+  color: #fff;
+}
+.donate-cta h3 {
+  font-size: var(--text-xl);            /* 22px */
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.donate-cta p {
+  font-size: var(--text-md);            /* 14px */
+  opacity: .85;
+  margin-bottom: 24px;
+  line-height: 1.8;
+}
+.donate-cta-btns {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+
+/* ════════════════════════════════════════
+   donate.html | 후원하기
+   ════════════════════════════════════════ */
+
+/* ── 신청 래퍼 */
+.donate-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* ── 금액 선택 버튼 */
+.amount-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.amount-btn {
+  padding: 14px 8px;
+  border: 2px solid var(--gray-light);
+  border-radius: var(--radius);
+  background: var(--white);
+  font-size: var(--text-md);            /* 14px */
+  font-weight: 600;
+  color: var(--gray-dark);
+  cursor: pointer;
+  transition: var(--trans);
+  text-align: center;
+}
+.amount-btn:hover {
+  border-color: var(--green-main);
+  color: var(--green-main);
+}
+.amount-btn.active {
+  border-color: var(--green-dark);
+  background: var(--green-dark);
+  color: #fff;
+}
+
+/* ── 후원 유형 탭 */
+.donate-type-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 2px solid var(--green-main);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+.donate-type-btn {
+  padding: 14px;
+  text-align: center;
+  cursor: pointer;
+  font-size: var(--text-md);            /* 14px */
+  font-weight: 600;
+  background: var(--white);
+  color: var(--gray-mid);
+  border: none;
+  transition: var(--trans);
+}
+.donate-type-btn.active {
+  background: var(--green-main);
+  color: #fff;
+}
+.donate-type-btn span {
+  font-size: var(--text-sm);            /* 12px */
+  font-weight: 400;
+}
+
+/* ── 스텝 패널 */
+.donate-step-wrap         { display: none; }
+.donate-step-wrap.active  { display: block; }
+
+/* ── 계좌 안내 박스 */
+.account-box {
+  background: var(--green-pale);
+  border: 1.5px solid var(--green-light);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 28px;
+}
+.account-box h4 {
+  font-size: var(--text-base);          /* 15px */
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.account-row {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: var(--text-md);            /* 14px */
+  border-bottom: 1px solid rgba(64,145,108,.2);
+}
+.account-row:last-child { border-bottom: none; padding-bottom: 0; }
+.account-label {
+  width: 80px;
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--green-dark);
+  font-size: var(--text-md);            /* 13px */
+}
+.account-value { flex: 1; color: var(--gray-dark); }
+.account-value strong {
+  font-size: var(--text-lg);            /* 16px */
+  color: var(--green-dark);
+}
+
+/* ── 완료 화면 */
+.donate-done          { display: none; text-align: center; padding: 60px 24px; }
+.donate-done.active   { display: block; }
+.done-icon {
+  width: 80px; height: 80px;
+  background: var(--green-pale);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-2xl);           /* 36px → --text-2xl(26px) 근접. 아이콘이므로 크기 중요하면 고정값 유지 권장 */
+  margin: 0 auto 20px;
+}
+.done-title {
+  font-size: var(--text-xl);            /* 22px */
+  font-weight: 800;
+  color: var(--green-dark);
+  margin-bottom: 12px;
+}
+.done-desc {
+  font-size: var(--text-base);          /* 15px */
+  color: var(--gray-dark);
+  line-height: 1.9;
+  margin-bottom: 28px;
+}
+
+/* ── 개인정보 동의 */
+.privacy-box {
+  background: var(--gray-bg);
+  border: 1px solid var(--gray-light);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-size: var(--text-md);            /* 13px */
+  color: var(--gray-dark);
+  line-height: 1.75;
+  max-height: 120px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+
+/* ════════════════════════════════════════
+   membership.html | 정회원 가입안내
+   ════════════════════════════════════════ */
+
+/* ── 회원 등급 비교 카드 */
+.grade-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 48px;
+}
+.grade-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: var(--trans);
+}
+.grade-card.featured {
+  border-color: var(--green-main);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+.grade-card-head            { padding: 24px 20px; text-align: center; }
+.grade-card-head.guest      { background: var(--gray-bg); }
+.grade-card-head.member     { background: #e3f2fd; }
+.grade-card-head.full {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-main));
+  color: #fff;
+}
+.grade-icon  {
+  font-size: var(--text-2xl);           /* 36px → --text-2xl(26px) 근접. 아이콘 크기 중요하면 고정값 유지 권장 */
+  margin-bottom: 10px;
+}
+.grade-name  {
+  font-size: var(--text-lg);            /* 18px */
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.grade-desc  {
+  font-size: var(--text-md);            /* 13px */
+  opacity: .75;
+}
+.grade-badge {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 3px 14px;
+  border-radius: 20px;
+  font-size: var(--text-xs);            /* 11px */
+  font-weight: 700;
+  background: rgba(255,255,255,.25);
+  border: 1px solid rgba(255,255,255,.4);
+}
+.grade-card-body { padding: 20px; }
+.grade-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: var(--text-md);            /* 14px */
+  color: var(--gray-dark);
+  border-bottom: 1px solid var(--gray-light);
+}
+.grade-item:last-child { border-bottom: none; }
+.grade-item-icon {
+  flex-shrink: 0;
+  font-size: var(--text-base);          /* 15px */
+  margin-top: 1px;
+}
+.grade-item.disabled { color: var(--gray-mid); }
+.grade-item.disabled .grade-item-icon { opacity: .4; }
+
+/* ── 가입 절차 스텝 */
+.join-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  position: relative;
+  margin-bottom: 48px;
+}
+.join-steps::before {
+  content: '';
+  position: absolute;
+  top: 32px;
+  left: calc(12.5%);
+  right: calc(12.5%);
+  height: 2px;
+  background: var(--green-light);
+  z-index: 0;
+}
+.join-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 8px;
+  position: relative;
+  z-index: 1;
+}
+.join-step-num {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 3px solid var(--green-main);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.join-step-num .step-n {
+  font-size: var(--text-lg);            /* 18px */
+  font-weight: 800;
+  color: var(--green-dark);
+  line-height: 1;
+}
+.join-step-num .step-emoji {
+  font-size: var(--text-xl);            /* 20px → --text-xl(22px) 근접 */
+}
+.join-step-title {
+  font-size: var(--text-md);            /* 14px */
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 6px;
+}
+.join-step-desc {
+  font-size: var(--text-sm);            /* 12px */
+  color: var(--gray-mid);
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+/* ── 혜택 그리드 */
+.benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+.benefit-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px 20px;
+  border-left: 4px solid var(--green-main);
+  transition: var(--trans);
+}
+.benefit-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.benefit-icon  {
+  font-size: var(--text-2xl);           /* 28px → --text-2xl(26px) 근접 */
+  margin-bottom: 12px;
+}
+.benefit-title {
+  font-size: var(--text-base);          /* 15px */
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 8px;
+}
+.benefit-desc  {
+  font-size: var(--text-md);            /* 13px */
+  color: var(--gray-mid);
+  line-height: 1.75;
+  word-break: keep-all;
+}
+
+/* ── 회비 안내 박스 */
+.fee-box {
+  background: var(--green-pale);
+  border-radius: var(--radius-lg);
+  padding: 32px 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+.fee-item {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+}
+.fee-label {
+  font-size: var(--text-md);            /* 13px */
+  font-weight: 700;
+  color: var(--gray-mid);
+  margin-bottom: 6px;
+}
+.fee-amount {
+  font-size: var(--text-2xl);           /* 26px */
+  font-weight: 800;
+  color: var(--green-dark);
+  margin-bottom: 4px;
+}
+.fee-note {
+  font-size: var(--text-sm);            /* 12px */
+  color: var(--gray-mid);
+  line-height: 1.6;
+}
+
+/* ── 자격 요건 테이블 */
+.req-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-md);            /* 14px */
+  margin-bottom: 48px;
+  background: var(--white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.req-table thead {
+  background: var(--green-dark);
+  color: #fff;
+}
+.req-table th {
+  padding: 13px 18px;
+  font-size: var(--text-md);            /* 13px */
+  font-weight: 600;
+  text-align: left;
+}
+.req-table td {
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--gray-light);
+  vertical-align: middle;
+  line-height: 1.7;
+}
+.req-table tr:last-child td { border-bottom: none; }
+.req-table tr:hover td { background: var(--gray-bg); }
+.req-table td:first-child {
+  font-weight: 700;
+  color: var(--green-dark);
+  width: 140px;
+  white-space: nowrap;
+}
+
+/* ── CTA (정회원 가입안내) */
+.cta-join {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-main));
+  border-radius: var(--radius-lg);
+  padding: 40px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  color: #fff;
+}
+.cta-join h3 {
+  font-size: var(--text-xl);            /* 22px */
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.cta-join p {
+  font-size: var(--text-md);            /* 14px */
+  opacity: .85;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+.cta-join-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+
+/* ════════════════════════════════════════
+   반응형
+   ════════════════════════════════════════ */
+
+/* donate-info */
+@media (max-width: 900px) {
+  .impact-grid    { grid-template-columns: repeat(2, 1fr); }
+  .donate-methods { grid-template-columns: 1fr; }
+  .donor-benefits { grid-template-columns: 1fr; }
+  .donate-cta     { padding: 28px 20px; }
+  .usage-bar-item { grid-template-columns: 120px 1fr 50px; }
+}
+@media (max-width: 480px) {
+  .impact-grid    { grid-template-columns: repeat(2, 1fr); }
+  .usage-wrap     { padding: 20px; }
+  .usage-bar-item { grid-template-columns: 1fr; gap: 6px; }
+  .usage-bar-pct  { text-align: left; }
+}
+
+/* donate */
+@media (max-width: 600px) {
+  .amount-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* membership */
+@media (max-width: 900px) {
+  .grade-grid    { grid-template-columns: 1fr; }
+  .grade-card.featured { transform: none; }
+  .join-steps    { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .join-steps::before { display: none; }
+  .benefit-grid  { grid-template-columns: repeat(2, 1fr); }
+  .fee-box       { grid-template-columns: 1fr; padding: 24px; }
+  .cta-join      { flex-direction: column; padding: 28px 24px; }
+}
+@media (max-width: 480px) {
+  .benefit-grid  { grid-template-columns: 1fr; }
+  .join-steps    { grid-template-columns: 1fr; }
+}

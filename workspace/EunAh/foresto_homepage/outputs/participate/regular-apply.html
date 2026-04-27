@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>정회원 가입 신청 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/pages/participate.css">
+</head>
+<body data-page="regular-apply">
+
+<div id="hdr"></div>
+
+<div class="page-header">
+  <div class="container">
+    <h1>회원 안내</h1>
+  </div>
+</div>
+
+<div id="bc"></div>
+<div class="sub-layout">
+  <div id="lnb"></div>
+  <main class="sub-content">
+    <div class="content-wrap">
+      <div style="max-width:700px;margin:0 auto">
+
+        <!-- 안내 -->
+        <div class="card" style="margin-bottom:28px">
+          <div class="card-header"><span class="card-title">신청 안내</span></div>
+          <div style="font-size:14px;line-height:2;color:var(--gray-dark)">
+            <p>신청서를 제출하시면 사무국에서 확인 후 개별 연락드립니다.</p>
+            <ul style="list-style:disc;padding-left:20px;margin-top:8px">
+              <li>입회비 70,000원 / 월 회비 15,000원 (가입 승인 후 안내)</li>
+              <li>문의: 협회 사무국 02-747-6518</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 신청 폼 -->
+        <div class="card" id="formCard">
+          <div class="card-header"><span class="card-title">정회원 가입 신청서</span></div>
+
+          <!-- 기본 정보 -->
+          <div class="form-section-label">기본 정보</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 4px">
+            <div class="form-group">
+              <label class="form-label">이름 <span class="req">*</span></label>
+              <input type="text" class="form-control" id="rName" placeholder="이름을 입력하세요">
+            </div>
+            <div class="form-group">
+              <label class="form-label">생년월일 <span class="req">*</span></label>
+              <input type="date" class="form-control" id="rBirth">
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 4px">
+            <div class="form-group">
+              <label class="form-label">연락처 <span class="req">*</span></label>
+              <input type="tel" class="form-control" id="rPhone" placeholder="010-0000-0000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">이메일</label>
+              <input type="email" class="form-control" id="rEmail" placeholder="example@email.com">
+            </div>
+          </div>
+
+          <div style="padding:0 4px">
+            <div class="form-group">
+              <label class="form-label">주소</label>
+              <div style="display:flex;gap:8px;margin-bottom:8px">
+                <input type="text" class="form-control" id="rPostcode" placeholder="우편번호" readonly style="width:130px;background:#f5f8f3">
+                <button type="button" class="btn btn-outline btn-sm" onclick="execDaumPostcode()">주소 검색</button>
+              </div>
+              <input type="text" class="form-control" id="rAddress1" placeholder="기본 주소" readonly style="margin-bottom:8px;background:#f5f8f3">
+              <input type="text" class="form-control" id="rAddress2" placeholder="상세 주소 입력 (동·호수 등)">
+            </div>
+          </div>
+
+          <!-- 자동이체 계좌 정보 -->
+          <div class="form-section-label">월 회비 자동이체 계좌 정보</div>
+
+          <div style="background:var(--gray-bg);border-radius:var(--radius);padding:16px;margin:0 4px 16px;border:1px solid var(--gray-line)">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <div>
+                <label class="form-label" style="font-size:13px">은행명 <span class="req">*</span></label>
+                <select class="form-control" id="rBank">
+                  <option value="">은행 선택</option>
+                  <option>국민은행</option>
+                  <option>신한은행</option>
+                  <option>우리은행</option>
+                  <option>하나은행</option>
+                  <option>농협은행</option>
+                  <option>기업은행</option>
+                  <option>카카오뱅크</option>
+                  <option>토스뱅크</option>
+                  <option>케이뱅크</option>
+                  <option>새마을금고</option>
+                  <option>신협</option>
+                  <option>기타</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" style="font-size:13px">예금주 <span class="req">*</span></label>
+                <input type="text" class="form-control" id="rAccountHolder" placeholder="예금주 성명">
+              </div>
+            </div>
+            <div>
+              <label class="form-label" style="font-size:13px">계좌번호 <span class="req">*</span></label>
+              <input type="text" class="form-control" id="rAccountNo" placeholder="계좌번호 입력 (- 없이)">
+            </div>
+          </div>
+
+          <!-- 활동 정보 -->
+          <div class="form-section-label">활동 정보</div>
+
+          <div style="padding:0 4px">
+            <div class="form-group">
+              <label class="form-label">현재 활동 여부 <span class="req">*</span></label>
+              <div style="display:flex;gap:1.5rem;margin-top:8px">
+                <label style="display:flex;align-items:center;gap:6px;font-size:1rem;cursor:pointer">
+                  <input type="radio" name="actStatus" value="활동 중"> 활동 중
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:1rem;cursor:pointer">
+                  <input type="radio" name="actStatus" value="활동 예정"> 활동 예정
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:1rem;cursor:pointer">
+                  <input type="radio" name="actStatus" value="미활동"> 미활동
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">소속 기관</label>
+              <input type="text" class="form-control" id="rOrg" placeholder="소속 기관명 (없으면 비워두세요)">
+            </div>
+          </div>
+
+          <!-- 가입 정보 -->
+          <div class="form-section-label">가입 정보</div>
+
+          <div style="padding:0 4px">
+            <div class="form-group">
+              <label class="form-label">가입 경로</label>
+              <div style="display:flex;flex-wrap:wrap;gap:0.75rem 1.5rem;margin-top:8px;align-items:center">
+                <label style="display:flex;align-items:center;gap:6px;font-size:1rem;cursor:pointer"><input type="checkbox" name="joinPath" value="홈페이지"> 홈페이지</label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:1rem;cursor:pointer"><input type="checkbox" name="joinPath" value="지인 추천"> 지인 추천</label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:1rem;cursor:pointer"><input type="checkbox" name="joinPath" value="교육 과정"> 교육 과정</label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:1rem;cursor:pointer">
+                  <input type="checkbox" name="joinPath" value="기타" id="joinPathEtcCheck"
+                         onchange="RegularApplyForm.toggleJoinEtc(this)"> 기타
+                </label>
+                <input type="text" class="form-control" id="joinPathEtc" placeholder="직접 입력"
+                       style="display:none;width:180px;padding:4px 10px;height:auto">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">가입 동기</label>
+              <textarea class="form-control" id="rMotivation" rows="3"
+                        placeholder="간단하게 작성해 주세요."></textarea>
+            </div>
+          </div>
+
+          <!-- 개인정보 동의 -->
+          <div style="background:var(--gray-bg);border-radius:var(--radius);padding:14px;margin:8px 4px 20px;border:1px solid var(--gray-line)">
+            <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:14px">
+              <input type="checkbox" id="rAgree" style="margin-top:3px">
+              <span>개인정보 수집 및 이용에 동의합니다. <span style="color:var(--danger)">(필수)</span><br>
+                <span style="font-size:12px;color:var(--gray-mid)">
+                  수집 항목: 이름, 생년월일, 연락처, 이메일, 주소, 계좌정보 /
+                  목적: 정회원 가입 심사 및 회비 처리 /
+                  보유 기간: 회원 탈퇴 후 3년
+                </span>
+              </span>
+            </label>
+          </div>
+
+          <div style="display:flex;justify-content:center;gap:12px;padding-bottom:4px">
+            <button class="btn btn-gray btn-lg" onclick="history.back()">취소</button>
+            <button class="btn btn-primary btn-lg" onclick="RegularApplyForm.submit()">신청하기</button>
+          </div>
+        </div>
+
+        <!-- 완료 메시지 -->
+        <div class="card" id="doneCard" style="display:none;text-align:center;padding:48px 24px">
+          <h3 style="font-size:22px;font-weight:700;color:var(--green-dark);margin-bottom:12px">신청이 완료되었습니다</h3>
+          <p style="font-size:14px;color:var(--gray-mid);line-height:1.8;margin-bottom:8px">
+            접수번호: <strong id="doneApplyNo" style="color:var(--green-main);font-variant-numeric:tabular-nums"></strong>
+          </p>
+          <p style="font-size:14px;color:var(--gray-mid);line-height:1.8;margin-bottom:24px">
+            검토 후 사무국에서 개별 연락드립니다.<br>
+            문의: 02-747-6518 / info@forest-guide.or.kr
+          </p>
+          <a href="../index.html" class="btn btn-primary">홈으로 돌아가기</a>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="ftr"></div>
+
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script>
+  document.getElementById('hdr').innerHTML = Header.render('참여', '../');
+  document.getElementById('ftr').innerHTML = Footer.render('../');
+  document.getElementById('bc').innerHTML = LNB.breadcrumb('../', 'participate/regular-apply.html');
+  document.getElementById('lnb').innerHTML = LNB.render('../', 'participate/regular-apply.html');
+
+  function execDaumPostcode() {
+    new daum.Postcode({
+      oncomplete(data) {
+        const addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+        document.getElementById('rPostcode').value  = data.zonecode;
+        document.getElementById('rAddress1').value  = addr;
+        document.getElementById('rAddress2').value  = '';
+        document.getElementById('rAddress2').focus();
+      }
+    }).open();
+  }
+
+  const RegularApplyForm = {
+    toggleJoinEtc(cb) {
+      const el = document.getElementById('joinPathEtc');
+      if (el) el.style.display = cb.checked ? 'inline-block' : 'none';
+    },
+    submit() {
+      const name    = document.getElementById('rName').value.trim();
+      const birth   = document.getElementById('rBirth').value;
+      const phone   = document.getElementById('rPhone').value.trim();
+      const bank    = document.getElementById('rBank').value;
+      const holder  = document.getElementById('rAccountHolder').value.trim();
+      const accNo   = document.getElementById('rAccountNo').value.trim();
+      const actStatus = document.querySelector('input[name="actStatus"]:checked')?.value || '';
+      const agree   = document.getElementById('rAgree').checked;
+
+      if (!name)      { App.toast('이름을 입력해주세요.', 'warning');        return; }
+      if (!birth)     { App.toast('생년월일을 입력해주세요.', 'warning');    return; }
+      if (!phone)     { App.toast('연락처를 입력해주세요.', 'warning');      return; }
+      if (!bank)      { App.toast('은행을 선택해주세요.', 'warning');        return; }
+      if (!holder)    { App.toast('예금주를 입력해주세요.', 'warning');      return; }
+      if (!accNo)     { App.toast('계좌번호를 입력해주세요.', 'warning');    return; }
+      if (!actStatus) { App.toast('현재 활동 여부를 선택해주세요.', 'warning'); return; }
+      if (!agree)     { App.toast('개인정보 수집 동의가 필요합니다.', 'warning'); return; }
+
+      const seq = String(Math.floor(Math.random() * 90000) + 10000);
+      document.getElementById('doneApplyNo').textContent = `REG-2026-${seq}`;
+      document.getElementById('formCard').style.display = 'none';
+      document.getElementById('doneCard').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+</script>
+</body>
+</html>

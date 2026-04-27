@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>자료실 상세 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/community.css">
+  <!-- attach-section, file-type-badge 스타일은 community.css 에 정의 -->
+</head>
+
+<body data-page="archive-detail">
+
+  <div id="hdr"></div>
+
+  <!-- 페이지 헤더 -->
+  <div class="page-header">
+    <div class="container">
+      <h1>자료실</h1>
+    </div>
+  </div>
+
+  <!-- 서브 내비 -->
+  
+
+  <main>
+    <div class="content-wrap">
+      <!-- JS가 이 영역을 채움 -->
+      <div id="archiveDetail"></div>
+    </div>
+  </main>
+
+  <div id="ftr"></div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/community-media.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('회원활동', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+  </script>
+</body>
+
+</html>

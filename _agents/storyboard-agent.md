@@ -282,3 +282,31 @@ PM이 "최종 컨펌" 요청 시:
 
 전체 화면 완료 시에만:
 → `@client-comms [04_storyboard 완료] 스토리보드 전달 및 개발 착수 안내 메일 써줘`
+
+---
+
+## 6. 테스트 시나리오 자동 생성 (필수)
+
+### 실행 시점
+- **전체 storyboard 완료 직후** (모든 화면 sb_done)
+- **피드백 반영으로 HTML·스펙이 변경된 후**
+
+### 실행 명령
+```bash
+node C:/Users/BN659/Desktop/BN_SYS/_shared/scripts/generate_test_scenario.js <project_root>
+```
+`<project_root>` = 프로젝트 루트 절대 경로 (workspace/담당자/프로젝트명/)
+
+예시:
+```bash
+node "C:/Users/BN659/Desktop/BN_SYS/_shared/scripts/generate_test_scenario.js" "C:/Users/BN659/Desktop/BN_SYS/workspace/EunAh/YNballet-academy"
+```
+
+### 출력
+`06_qa/단위테스트_시나리오.xlsx`
+- 사용자 시트 / 관리자 시트 분리
+- 기존 파일 있으면 검수결과·검수자·검수일·비고·담당자·예정처리일 자동 보존
+- 새 화면 TC는 빈 검수결과로 추가
+
+### 보고 형식
+"테스트 시나리오 생성 완료: 사용자 N개 / 관리자 N개 TC → 06_qa/단위테스트_시나리오.xlsx"

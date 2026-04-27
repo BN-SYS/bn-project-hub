@@ -1,0 +1,299 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>배너 관리 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .banner-limit-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: #5a6e54; background: #f0f7e8;
+      border: 1px solid #c8dfa6; border-radius: 6px;
+      padding: 5px 12px;
+    }
+    .banner-limit-badge strong { color: #2e5c2e; }
+
+    .banner-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .banner-card {
+      background: #fff; border: 1px solid #e3eadd;
+      border-radius: 10px; overflow: hidden;
+      display: flex; align-items: stretch;
+    }
+
+    .banner-order {
+      width: 52px; flex-shrink: 0; background: #f8faf6;
+      border-right: 1px solid #e8efe3;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 6px; padding: 12px 0;
+    }
+    .banner-order-num { font-size: 18px; font-weight: 700; color: #3a4836; line-height: 1; }
+    .order-btn {
+      background: none; border: 1px solid #d5e0ce; border-radius: 4px;
+      width: 26px; height: 22px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .12s; padding: 0;
+    }
+    .order-btn:hover { background: #e8f0e0; }
+    .order-btn img { width: 12px; height: 12px; filter: invert(25%) sepia(10%) saturate(800%) hue-rotate(80deg); }
+    .order-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+    .banner-thumb {
+      width: 280px; flex-shrink: 0;
+      background: #1a2718; position: relative; overflow: hidden;
+    }
+    .banner-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .75; }
+    .banner-thumb-empty {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: #8a9e84; font-size: 13px; background: #f0f4ee;
+    }
+    .banner-thumb-overlay {
+      position: absolute; inset: 0; padding: 16px 18px;
+      display: flex; flex-direction: column; justify-content: center; gap: 4px;
+    }
+    .ov-top    { font-size: 10px; color: rgba(255,255,255,.8); }
+    .ov-main   { font-size: 13px; font-weight: 700; color: #fff; line-height: 1.4; white-space: pre-line; }
+    .ov-bottom { font-size: 10px; color: rgba(255,255,255,.75); }
+    .ov-link   {
+      display: inline-block; margin-top: 6px; font-size: 10px; color: #fff;
+      border: 1px solid rgba(255,255,255,.6); border-radius: 2px; padding: 2px 8px;
+    }
+
+    .banner-info {
+      flex: 1; padding: 18px 22px;
+      display: flex; flex-direction: column; justify-content: center;
+      gap: 8px; min-width: 0;
+    }
+    .bi-row { display: flex; align-items: baseline; gap: 10px; font-size: 13px; }
+    .bi-label { width: 72px; flex-shrink: 0; font-size: 11px; font-weight: 700; color: #7a8e74; letter-spacing: .04em; }
+    .bi-val { flex: 1; color: #2a3a26; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bi-val.main-txt { font-size: 14px; font-weight: 600; white-space: pre-line; overflow: visible; }
+    .bi-val.link-val { color: #508829; text-decoration: underline; font-size: 12px; }
+    .bi-val.empty-val { color: #bbbfb8; font-style: italic; }
+    .bi-required { font-size: 10px; color: #dc2626; margin-left: 2px; }
+
+    .banner-actions {
+      width: 100px; flex-shrink: 0; border-left: 1px solid #f0f4ee;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px; padding: 16px;
+    }
+
+    .banner-empty-slot {
+      background: #fafcf9; border: 2px dashed #d5e0ce; border-radius: 10px;
+      height: 100px; display: flex; align-items: center; justify-content: center;
+      gap: 10px; color: #8a9e84; font-size: 14px;
+      cursor: pointer; transition: background .15s, border-color .15s;
+    }
+    .banner-empty-slot:hover { background: #f0f7e8; border-color: #a8c87a; color: #3e6c1e; }
+    .banner-empty-slot img { width: 20px; height: 20px; opacity: .4; }
+    .banner-empty-slot:hover img { opacity: .7; }
+    .banner-empty-slot.disabled { pointer-events: none; opacity: .4; }
+  </style>
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-head">
+        <span class="adm-sb-title">MENU</span>
+        <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+      </div>
+      <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <h1 class="admin-page-title">배너 관리</h1>
+          <span class="banner-limit-badge">
+            현재 <strong id="bannerCount">0</strong>개 / 최대 <strong id="bannerMax">3</strong>개
+          </span>
+        </div>
+        <button class="btn-refresh" onclick="BannerManager.load()" title="새로고침">
+          <img src="../assets/icons/refresh.png" alt="새로고침">
+        </button>
+      </div>
+
+      <div class="banner-list" id="bannerList"></div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/admin.js"></script>
+  <script>
+  'use strict';
+
+  /* ──────────────────────────────────────────
+     샘플 데이터
+     [개발자] AdminHttp.get(ADMIN_API.banners) 응답으로 교체
+  ────────────────────────────────────────── */
+  const SAMPLE_BANNERS = {
+    maxCount: 3,
+    items: [
+      {
+        id: 1, sortOrder: 1,
+        imgUrl: 'https://picsum.photos/seed/banner1/1200/400',
+        topText:  '[산림청 인증 숲해설가 양성기관]',
+        mainText: '숲과 자연이 주는 이야기를\n함께 나누는 사람들',
+        bottomText: '한국숲해설가협회는 숲과 사람을 잇는 전문 해설가를 양성합니다.',
+        linkUrl: '/introduce',
+      },
+      {
+        id: 2, sortOrder: 2,
+        imgUrl: 'https://picsum.photos/seed/banner2/1200/400',
+        topText:  '',
+        mainText: '2026년 숲해설가\n정기 교육과정 모집',
+        bottomText: '전국 각지에서 진행되는 숲해설 교육에 참여하세요.',
+        linkUrl: '/courses',
+      },
+    ],
+  };
+
+  const BannerManager = {
+    data: [],
+    maxCount: 3,
+
+    async load() {
+      try {
+        /*
+         * [개발자 연동]
+         * const res = await AdminHttp.get(ADMIN_API.banners);
+         * this.data     = res.items;
+         * this.maxCount = res.maxCount;
+         */
+        this.data     = SAMPLE_BANNERS.items;
+        this.maxCount = SAMPLE_BANNERS.maxCount;
+        this.render();
+      } catch (e) {
+        App.toast(e.message, 'error');
+      }
+    },
+
+    render() {
+      const count = this.data.length;
+      document.getElementById('bannerCount').textContent = count;
+      document.getElementById('bannerMax').textContent   = this.maxCount;
+
+      const list = document.getElementById('bannerList');
+      const cards = this.data.map((d, idx) => this.buildCard(d, idx, count)).join('');
+
+      // 빈 슬롯 (최대치 미만일 때만)
+      const emptySlots = Array.from({ length: this.maxCount - count }, (_, i) => {
+        const slotNo = count + i + 1;
+        const disabled = false; // 최대 미만이면 항상 활성
+        return `
+          <div class="banner-empty-slot${disabled ? ' disabled' : ''}"
+               onclick="location.href='banner-edit.html'">
+            <img src="../assets/icons/photograph.png" alt="">
+            <span>배너 슬롯 ${slotNo} — 클릭하여 등록</span>
+          </div>`;
+      }).join('');
+
+      list.innerHTML = cards + emptySlots;
+    },
+
+    buildCard(d, idx, total) {
+      const isFirst = idx === 0;
+      const isLast  = idx === total - 1;
+      const thumb   = d.imgUrl
+        ? `<img src="${d.imgUrl}" alt="">`
+        : `<div class="banner-thumb-empty">이미지 없음</div>`;
+
+      return `
+        <div class="banner-card" id="bc-${d.id}">
+          <div class="banner-order">
+            <span class="banner-order-num">${d.sortOrder}</span>
+            <button class="order-btn" title="위로"
+              ${isFirst ? 'disabled' : `onclick="BannerManager.move(${d.id}, 'up')"`}>
+              <img src="../assets/icons/arrow-sm-up.png" alt="위로">
+            </button>
+            <button class="order-btn" title="아래로"
+              ${isLast ? 'disabled' : `onclick="BannerManager.move(${d.id}, 'down')"`}>
+              <img src="../assets/icons/arrow-sm-down.png" alt="아래로">
+            </button>
+          </div>
+          <div class="banner-thumb">
+            ${thumb}
+            <div class="banner-thumb-overlay">
+              ${d.topText    ? `<div class="ov-top">${d.topText}</div>`       : ''}
+              ${d.mainText   ? `<div class="ov-main">${d.mainText}</div>`     : ''}
+              ${d.bottomText ? `<div class="ov-bottom">${d.bottomText}</div>` : ''}
+              ${d.linkUrl    ? `<div class="ov-link">더보기 ›</div>`          : ''}
+            </div>
+          </div>
+          <div class="banner-info">
+            <div class="bi-row">
+              <span class="bi-label">상단 텍스트</span>
+              <span class="bi-val ${d.topText ? '' : 'empty-val'}">${d.topText || '(미입력)'}</span>
+            </div>
+            <div class="bi-row">
+              <span class="bi-label">메인 텍스트<span class="bi-required">*</span></span>
+              <span class="bi-val main-txt">${d.mainText}</span>
+            </div>
+            <div class="bi-row">
+              <span class="bi-label">하단 텍스트</span>
+              <span class="bi-val ${d.bottomText ? '' : 'empty-val'}">${d.bottomText || '(미입력)'}</span>
+            </div>
+            <div class="bi-row">
+              <span class="bi-label">더보기 링크</span>
+              <span class="bi-val ${d.linkUrl ? 'link-val' : 'empty-val'}">${d.linkUrl || '(미입력)'}</span>
+            </div>
+          </div>
+          <div class="banner-actions">
+            <button class="btn btn-outline btn-sm" style="width:68px"
+              onclick="location.href='banner-edit.html?id=${d.id}'">수정</button>
+            <button class="btn btn-danger btn-sm" style="width:68px"
+              onclick="BannerManager.remove(${d.id})">삭제</button>
+          </div>
+        </div>`;
+    },
+
+    async move(id, direction) {
+      try {
+        /*
+         * [개발자 연동]
+         * await AdminHttp.post(ADMIN_API.url('banners', id, 'order'), { direction });
+         */
+        const idx = this.data.findIndex(d => d.id === id);
+        const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+        if (swapIdx < 0 || swapIdx >= this.data.length) return;
+        // 샘플: 순서 swap
+        [this.data[idx], this.data[swapIdx]] = [this.data[swapIdx], this.data[idx]];
+        this.data.forEach((d, i) => d.sortOrder = i + 1);
+        this.render();
+      } catch (e) {
+        App.toast(e.message, 'error');
+      }
+    },
+
+    async remove(id) {
+      if (!confirm('해당 배너를 삭제하시겠습니까?')) return;
+      try {
+        /*
+         * [개발자 연동]
+         * await AdminHttp.del(ADMIN_API.url('banners', id));
+         */
+        this.data = this.data.filter(d => d.id !== id);
+        this.data.forEach((d, i) => d.sortOrder = i + 1);
+        App.toast('삭제되었습니다.', 'success');
+        this.render();
+      } catch (e) {
+        App.toast(e.message, 'error');
+      }
+    },
+  };
+
+  AdminSidebar.mount('site-banner');
+  BannerManager.load();
+  </script>
+</body>
+</html>

@@ -1,0 +1,502 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>강좌 등록/수정 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .form-card { background:#fff; border:1px solid #e3eadd; border-radius:10px; margin-bottom:20px; overflow:hidden; }
+    .form-card-head { padding:14px 20px; border-bottom:1px solid #e3eadd; background:#f8faf6; font-size:13px; font-weight:700; color:#2e5c2e; letter-spacing:.03em; }
+    .form-row { display:flex; align-items:stretch; min-height:52px; border-bottom:1px solid #f0f4ee; }
+    .form-row:last-child { border-bottom:none; }
+    .form-label { width:140px; min-width:140px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#7a8e74; letter-spacing:.04em; white-space:nowrap; background:#f8faf6; border-right:1px solid #e8efe3; padding:0 12px; text-align:center; }
+    .form-label.required::after { content:' *'; color:#c0392b; }
+    .form-content { flex:1; display:flex; align-items:center; padding:10px 16px; gap:8px; flex-wrap:wrap; }
+    .form-input { height:36px; padding:0 12px; border:1px solid #d0dbc8; border-radius:6px; font-size:13px; color:#2c3e2c; outline:none; transition:border-color .15s; font-family:'Noto Sans KR',sans-serif; }
+    .form-input:focus { border-color:#4a7c59; box-shadow:0 0 0 2px rgba(74,124,89,.12); }
+    .form-input.full { width:100%; box-sizing:border-box; }
+    .form-input.w80 { width:80px; }
+    .form-input[type="date"],.form-input[type="datetime-local"] { padding:0 10px; cursor:pointer; }
+    .date-sep { font-size:13px; color:#888; flex-shrink:0; }
+    .input-suffix { display:flex; align-items:center; gap:6px; }
+    .input-suffix span { font-size:13px; color:#666; }
+    .toggle-wrap { display:flex; align-items:center; gap:12px; }
+    .toggle-switch { position:relative; display:inline-block; width:44px; height:24px; }
+    .toggle-switch input { display:none; }
+    .toggle-slider { position:absolute; inset:0; background:#ccc; border-radius:24px; cursor:pointer; transition:background .2s; }
+    .toggle-slider::before { content:''; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform .2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .toggle-switch input:checked + .toggle-slider { background:#4a7c59; }
+    .toggle-switch input:checked + .toggle-slider::before { transform:translateX(20px); }
+    .toggle-desc { font-size:12px; color:#888; }
+    .status-info-box { background:#f0f8f0; border:1px solid #c8e0c8; border-radius:8px; padding:12px 16px; }
+    .status-info-box p { font-size:12px; color:#5a7a5a; margin:0; line-height:1.8; }
+    .status-info-box strong { color:#2e5c2e; }
+    /* SmartEditor2 목업 */
+    .smarteditor-mock { border:1px solid #d0dbc8; border-radius:6px; overflow:hidden; width:100%; }
+    .se-toolbar { display:flex; flex-wrap:wrap; gap:2px; padding:6px 8px; background:#f5f7f4; border-bottom:1px solid #e3eadd; }
+    .se-toolbar-group { display:flex; align-items:center; gap:2px; padding-right:8px; margin-right:4px; border-right:1px solid #d0dbc8; }
+    .se-toolbar-group:last-child { border-right:none; }
+    .se-btn { height:26px; min-width:26px; padding:0 5px; border:1px solid transparent; border-radius:4px; background:none; font-size:12px; color:#444; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .se-btn:hover { background:#e8efe3; border-color:#c8d9be; }
+    .se-btn.active { background:#d5e8d4; border-color:#4a7c59; color:#2e5c2e; }
+    .se-select { height:26px; padding:0 6px; border:1px solid #d0dbc8; border-radius:4px; background:#fff; font-size:12px; color:#444; cursor:pointer; }
+    .se-textarea { width:100%; min-height:280px; padding:14px 16px; border:none; outline:none; font-size:14px; color:#2c3e2c; line-height:1.7; resize:vertical; font-family:'Noto Sans KR',sans-serif; box-sizing:border-box; }
+    /* 파일첨부 */
+    .file-attach-wrap { display:flex; flex-direction:column; gap:8px; width:100%; }
+    .file-attach-row { display:flex; align-items:center; gap:8px; }
+    .file-fake-name { flex:1; height:36px; padding:0 12px; border:1px solid #d0dbc8; border-radius:6px; font-size:13px; color:#888; background:#fafafa; display:flex; align-items:center; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .file-fake-name.has-file { color:#2c3e2c; background:#fff; }
+    .btn-file-browse { height:36px; padding:0 14px; border:1px solid #4a7c59; border-radius:6px; background:#fff; color:#4a7c59; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
+    .btn-file-remove { width:32px; height:32px; border:none; background:none; color:#bbb; font-size:18px; cursor:pointer; border-radius:4px; display:flex; align-items:center; justify-content:center; }
+    .btn-file-remove:hover { color:#e74c3c; background:#fef0f0; }
+    .btn-file-remove.hidden { visibility:hidden; pointer-events:none; }
+    .file-hint { font-size:11px; color:#999; margin-top:2px; }
+    .form-bottom-bar { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:16px 0 4px; }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title" id="pageTitle">강좌 등록</h1>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- 기본 정보 -->
+      <div class="form-card">
+        <div class="form-card-head">기본 정보</div>
+
+        <div class="form-row">
+          <div class="form-label required">과정명</div>
+          <div class="form-content" style="border-right:1px solid #f0f4ee;flex:2">
+            <input type="text" id="fCourseName" class="form-input full"
+              placeholder="과정명을 입력해주세요" maxlength="100">
+          </div>
+          <div class="form-label" id="fCohortLabel">기수</div>
+          <div class="form-content" style="flex:1" id="fCohortWrap">
+            <div class="input-suffix">
+              <input type="number" id="fCohort" class="form-input w80" min="1" placeholder="—">
+              <span>기</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label required">교육기간</div>
+          <div class="form-content">
+            <input type="date" id="fEduStart" class="form-input">
+            <span class="date-sep">~</span>
+            <input type="date" id="fEduEnd" class="form-input">
+            <span class="date-sep" style="font-size:11px;color:#aaa">(하루 코스인 경우 시작일 = 종료일)</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label required">접수기간</div>
+          <div class="form-content">
+            <input type="datetime-local" id="fApplyStart" class="form-input">
+            <span class="date-sep">~</span>
+            <input type="datetime-local" id="fApplyEnd" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label required">정원</div>
+          <div class="form-content">
+            <div class="input-suffix">
+              <input type="number" id="fCapacity" class="form-input w80" min="1" max="9999" placeholder="0">
+              <span>명</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">총 강좌수</div>
+          <div class="form-content" style="border-right:1px solid #f0f4ee;flex:1">
+            <input type="text" id="fLessonCount" class="form-input"
+              placeholder="예) 총 16강" style="width:160px">
+          </div>
+          <div class="form-label">총 교육시간</div>
+          <div class="form-content" style="flex:1">
+            <input type="text" id="fEduHours" class="form-input"
+              placeholder="예) 40시간 30분" style="width:220px">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">신청파일첨부</div>
+          <div class="form-content">
+            <label class="toggle-wrap">
+              <span class="toggle-switch">
+                <input type="checkbox" id="fFileRequired">
+                <span class="toggle-slider"></span>
+              </span>
+              <span class="toggle-desc" id="fileRequiredDesc">비활성화 — 신청폼에 파일첨부 미사용</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label" id="fCertIssueLabel">수료증 발급</div>
+          <div class="form-content">
+            <label class="toggle-wrap">
+              <span class="toggle-switch">
+                <input type="checkbox" id="fCertIssue">
+                <span class="toggle-slider"></span>
+              </span>
+              <span class="toggle-desc" id="certIssueDesc">비활성화 — 수료 처리 시 수료증 자동발급 안함</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row" style="align-items:flex-start;padding:14px 0">
+          <div class="form-label" style="padding-top:4px">과정상태</div>
+          <div class="form-content" style="flex-direction:column;align-items:flex-start;gap:0">
+            <div class="status-info-box">
+              <p>
+                과정 상태는 <strong>자동 산출</strong>됩니다. 직접 변경하지 않아도 됩니다.<br>
+                ∙ <strong>준비중</strong>: 접수 시작일 이전<br>
+                ∙ <strong>접수중</strong>: 접수기간 내 + 정원 여유 있음<br>
+                ∙ <strong>접수마감</strong>: 정원 초과 또는 접수 종료일 경과
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 과정 상세내용 -->
+      <div class="form-card">
+        <div class="form-card-head">과정 상세내용</div>
+        <div style="padding:16px">
+          <div class="smarteditor-mock">
+            <div class="se-toolbar">
+              <div class="se-toolbar-group">
+                <select class="se-select" style="width:90px">
+                  <option selected>12pt</option><option>14pt</option><option>16pt</option><option>18pt</option>
+                </select>
+              </div>
+              <div class="se-toolbar-group">
+                <button class="se-btn" title="굵게" onclick="SeEditor.cmd('bold')"><b>B</b></button>
+                <button class="se-btn" title="기울임" onclick="SeEditor.cmd('italic')"><i>I</i></button>
+                <button class="se-btn" title="밑줄" onclick="SeEditor.cmd('underline')"><u>U</u></button>
+              </div>
+              <div class="se-toolbar-group">
+                <button class="se-btn" title="왼쪽" onclick="SeEditor.cmd('justifyLeft')">≡L</button>
+                <button class="se-btn" title="가운데" onclick="SeEditor.cmd('justifyCenter')">≡C</button>
+                <button class="se-btn" title="오른쪽" onclick="SeEditor.cmd('justifyRight')">≡R</button>
+              </div>
+              <div class="se-toolbar-group">
+                <button class="se-btn" title="목록" onclick="SeEditor.cmd('insertUnorderedList')">•</button>
+                <button class="se-btn" title="번호목록" onclick="SeEditor.cmd('insertOrderedList')">1.</button>
+              </div>
+              <div class="se-toolbar-group">
+                <button class="se-btn" title="이미지 삽입" onclick="SeEditor.showMock('이미지 삽입')">🖼</button>
+                <button class="se-btn" title="링크 삽입" onclick="SeEditor.showMock('링크 삽입')">🔗</button>
+              </div>
+              <div class="se-toolbar-group">
+                <button class="se-btn" title="실행취소" onclick="SeEditor.cmd('undo')">↩</button>
+                <button class="se-btn" title="다시실행" onclick="SeEditor.cmd('redo')">↪</button>
+              </div>
+            </div>
+            <textarea id="seContent" class="se-textarea"
+              placeholder="과정에 대한 상세 내용을 입력해주세요."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 첨부파일 -->
+      <div class="form-card">
+        <div class="form-card-head">첨부파일
+          <span style="font-size:11px;font-weight:400;color:#999">(최대 3개 / 파일당 최대 10MB)</span>
+        </div>
+        <div style="padding:16px">
+          <div class="file-attach-wrap" id="fileAttachWrap">
+            <div class="file-attach-row" id="fileRow0">
+              <div style="flex:1;display:flex;align-items:center;gap:6px">
+                <div class="file-fake-name" id="fileName0">파일을 선택해주세요</div>
+                <button class="btn-file-browse"
+                  onclick="document.getElementById('fileInput0').click()">파일 선택</button>
+              </div>
+              <button class="btn-file-remove hidden"
+                onclick="CourseEdit.removeFile(0)">×</button>
+            </div>
+            <div class="file-attach-row" id="fileRow1">
+              <div style="flex:1;display:flex;align-items:center;gap:6px">
+                <div class="file-fake-name" id="fileName1">파일을 선택해주세요</div>
+                <button class="btn-file-browse"
+                  onclick="document.getElementById('fileInput1').click()">파일 선택</button>
+              </div>
+              <button class="btn-file-remove hidden"
+                onclick="CourseEdit.removeFile(1)">×</button>
+            </div>
+            <div class="file-attach-row" id="fileRow2">
+              <div style="flex:1;display:flex;align-items:center;gap:6px">
+                <div class="file-fake-name" id="fileName2">파일을 선택해주세요</div>
+                <button class="btn-file-browse"
+                  onclick="document.getElementById('fileInput2').click()">파일 선택</button>
+              </div>
+              <button class="btn-file-remove hidden"
+                onclick="CourseEdit.removeFile(2)">×</button>
+            </div>
+          </div>
+          <p class="file-hint">허용 형식: PDF, HWP, DOCX, XLSX, JPG, PNG, ZIP</p>
+        </div>
+      </div>
+
+      <!-- 하단 버튼 -->
+      <div class="form-bottom-bar">
+        <button class="btn btn-gray" onclick="CourseEdit.cancel()">취소</button>
+        <button class="btn btn-primary" onclick="CourseEdit.save()">저장</button>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- hidden file inputs -->
+<input type="file" id="fileInput0" style="display:none"
+  onchange="CourseEdit.handleFileChange(0, this)">
+<input type="file" id="fileInput1" style="display:none"
+  onchange="CourseEdit.handleFileChange(1, this)">
+<input type="file" id="fileInput2" style="display:none"
+  onchange="CourseEdit.handleFileChange(2, this)">
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+const _p    = new URLSearchParams(location.search);
+const _id   = _p.get('id');
+const _type = _p.get('type') || 'basic';
+const _tab  = _p.get('tab');
+
+const NAV_KEY_MAP = {
+  basic: 'course-basic', qualify: 'course-qualify',
+  enhance: 'course-enhance', academy: 'course-academy',
+  instructor: 'instructor-schedule',
+};
+
+/* ──────────────────────────────────────────
+   샘플 데이터 (수정 모드)
+   [개발자] AdminHttp.get(ADMIN_API.url('courses', _id)) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_EDIT = {
+  courseName: '제55기 숲해설가 전문가과정',
+  cohort: 55,
+  eduStart: '2026-04-01', eduEnd: '2026-04-30',
+  applyStart: '2026-03-01T09:00', applyEnd: '2026-03-25T18:00',
+  capacity: 30,
+  lessonCount: '총 16강',
+  eduHours: '40시간 30분 (이론 20h + 실습 20h)',
+  fileRequired: true,
+  certIssue: true,
+  content: `본 과정은 숲해설가 자격 취득을 위한 기초 이론 과정입니다.\n\n■ 교육 목표\n- 숲의 생태 기초 이론을 체계적으로 습득합니다.`,
+  files: [
+    { name: '기초과정_커리큘럼_2026.pdf', size: '1.2MB' },
+    { name: '강사소개서_제55기.hwp',       size: '340KB' },
+  ],
+};
+
+/* SmartEditor2 목업 */
+const SeEditor = {
+  cmd(command) {
+    document.getElementById('seContent').focus();
+    document.execCommand(command, false, null);
+  },
+  showMock(feature) {
+    alert(`[SmartEditor2 목업] ${feature} — 실제 구현 시 활성화됩니다.`);
+  },
+};
+
+const CourseEdit = {
+  isEdit: !!_id,
+
+  async init() {
+    const isInstructor = _type === 'instructor';
+    const itemLabel    = isInstructor ? '일정' : '강좌';
+
+    document.getElementById('pageTitle').textContent =
+      this.isEdit ? `${itemLabel} 수정` : `${itemLabel} 등록`;
+    document.title = `${this.isEdit ? itemLabel + ' 수정' : itemLabel + ' 등록'} | 관리자 | 한국숲해설가협회`;
+
+    /* 강사과정: 기수 숨김, 수료증→활동확인서 */
+    if (isInstructor) {
+      const cohortLabel = document.getElementById('fCohortLabel');
+      const cohortWrap  = document.getElementById('fCohortWrap');
+      if (cohortLabel) cohortLabel.style.display = 'none';
+      if (cohortWrap)  cohortWrap.style.display  = 'none';
+      const certLabel = document.getElementById('fCertIssueLabel');
+      if (certLabel) certLabel.textContent = '활동확인서 발급';
+    }
+
+    /* 토글 설명 업데이트 */
+    document.getElementById('fFileRequired').addEventListener('change', function () {
+      document.getElementById('fileRequiredDesc').textContent = this.checked
+        ? '활성화 — 신청폼에 파일첨부 필드 표시 (필수 제출)'
+        : '비활성화 — 신청폼에 파일첨부 미사용';
+    });
+    document.getElementById('fCertIssue').addEventListener('change', function () {
+      document.getElementById('certIssueDesc').textContent = this.checked
+        ? '활성화 — 수료 처리 시 수료증 자동발급'
+        : '비활성화 — 수료 처리 시 수료증 자동발급 안함';
+    });
+
+    if (this.isEdit) await this.loadData();
+  },
+
+  async loadData() {
+    try {
+      /*
+       * [개발자 연동]
+       * const d = await AdminHttp.get(ADMIN_API.url('courses', _id));
+       */
+      const d = SAMPLE_EDIT;
+      this.fillForm(d);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  fillForm(d) {
+    document.getElementById('fCourseName').value   = d.courseName  || '';
+    document.getElementById('fCohort').value       = d.cohort      || '';
+    document.getElementById('fEduStart').value     = d.eduStart    || '';
+    document.getElementById('fEduEnd').value       = d.eduEnd      || '';
+    document.getElementById('fApplyStart').value   = d.applyStart  || '';
+    document.getElementById('fApplyEnd').value     = d.applyEnd    || '';
+    document.getElementById('fCapacity').value     = d.capacity    || '';
+    document.getElementById('fLessonCount').value  = d.lessonCount || '';
+    document.getElementById('fEduHours').value     = d.eduHours    || '';
+    document.getElementById('seContent').value     = d.content     || '';
+
+    const fileReq = document.getElementById('fFileRequired');
+    fileReq.checked = !!d.fileRequired;
+    document.getElementById('fileRequiredDesc').textContent = fileReq.checked
+      ? '활성화 — 신청폼에 파일첨부 필드 표시 (필수 제출)'
+      : '비활성화 — 신청폼에 파일첨부 미사용';
+
+    const certIssue = document.getElementById('fCertIssue');
+    certIssue.checked = !!d.certIssue;
+    document.getElementById('certIssueDesc').textContent = certIssue.checked
+      ? '활성화 — 수료 처리 시 수료증 자동발급'
+      : '비활성화 — 수료 처리 시 수료증 자동발급 안함';
+
+    /* 기존 파일명 표시 */
+    d.files?.forEach((f, i) => {
+      if (i > 2) return;
+      const nameEl = document.getElementById(`fileName${i}`);
+      const removeBtn = document.querySelector(`#fileRow${i} .btn-file-remove`);
+      if (nameEl) { nameEl.textContent = f.name; nameEl.classList.add('has-file'); }
+      if (removeBtn) removeBtn.classList.remove('hidden');
+    });
+  },
+
+  handleFileChange(idx, input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      alert('파일 크기는 10MB 이하만 가능합니다.'); input.value = ''; return;
+    }
+    const nameEl   = document.getElementById(`fileName${idx}`);
+    const removeBtn = document.querySelector(`#fileRow${idx} .btn-file-remove`);
+    if (nameEl) { nameEl.textContent = file.name; nameEl.classList.add('has-file'); }
+    if (removeBtn) removeBtn.classList.remove('hidden');
+  },
+
+  removeFile(idx) {
+    const input = document.getElementById(`fileInput${idx}`);
+    if (input) input.value = '';
+    const nameEl   = document.getElementById(`fileName${idx}`);
+    const removeBtn = document.querySelector(`#fileRow${idx} .btn-file-remove`);
+    if (nameEl) { nameEl.textContent = '파일을 선택해주세요'; nameEl.classList.remove('has-file'); }
+    if (removeBtn) removeBtn.classList.add('hidden');
+  },
+
+  validate() {
+    const name       = document.getElementById('fCourseName').value.trim();
+    const eduStart   = document.getElementById('fEduStart').value;
+    const eduEnd     = document.getElementById('fEduEnd').value;
+    const applyStart = document.getElementById('fApplyStart').value;
+    const applyEnd   = document.getElementById('fApplyEnd').value;
+    const capacity   = document.getElementById('fCapacity').value;
+    if (!name)       { alert('과정명을 입력해주세요.');       return false; }
+    if (!eduStart)   { alert('교육 시작일을 선택해주세요.');  return false; }
+    if (!eduEnd)     { alert('교육 종료일을 선택해주세요.');  return false; }
+    if (eduStart > eduEnd) { alert('교육 종료일이 시작일보다 빠를 수 없습니다.'); return false; }
+    if (!applyStart) { alert('접수 시작일시를 선택해주세요.'); return false; }
+    if (!applyEnd)   { alert('접수 종료일시를 선택해주세요.'); return false; }
+    if (applyStart >= applyEnd) { alert('접수 종료일시가 시작일시보다 빠를 수 없습니다.'); return false; }
+    if (!capacity || capacity < 1) { alert('정원을 1명 이상 입력해주세요.'); return false; }
+    return true;
+  },
+
+  /* 저장
+     [개발자] FormData 구성 후 AdminHttp.upload() 로 교체 (파일 포함 시) */
+  async save() {
+    if (!this.validate()) return;
+
+    const formData = new FormData();
+    formData.append('type',         _type);
+    formData.append('tab',          _tab || '');
+    formData.append('courseName',   document.getElementById('fCourseName').value.trim());
+    formData.append('cohort',       document.getElementById('fCohort').value);
+    formData.append('eduStart',     document.getElementById('fEduStart').value);
+    formData.append('eduEnd',       document.getElementById('fEduEnd').value);
+    formData.append('applyStart',   document.getElementById('fApplyStart').value);
+    formData.append('applyEnd',     document.getElementById('fApplyEnd').value);
+    formData.append('capacity',     document.getElementById('fCapacity').value);
+    formData.append('lessonCount',  document.getElementById('fLessonCount').value);
+    formData.append('eduHours',     document.getElementById('fEduHours').value);
+    formData.append('fileRequired', document.getElementById('fFileRequired').checked ? '1' : '0');
+    formData.append('certIssue',    document.getElementById('fCertIssue').checked ? '1' : '0');
+    formData.append('content',      document.getElementById('seContent').value);
+    [0, 1, 2].forEach(i => {
+      const input = document.getElementById(`fileInput${i}`);
+      if (input?.files[0]) formData.append(`file${i}`, input.files[0]);
+    });
+
+    try {
+      /*
+       * [개발자 연동]
+       * await AdminHttp.upload(
+       *   this.isEdit ? ADMIN_API.url('courses', _id) : ADMIN_API.courses,
+       *   formData
+       * );
+       */
+      App.toast(this.isEdit ? '강좌가 수정되었습니다.' : '강좌가 등록되었습니다.', 'success');
+      setTimeout(() => { this.cancel(); }, 900);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  cancel() {
+    const q = new URLSearchParams();
+    if (_type !== 'basic') q.set('type', _type);
+    if (_tab) q.set('tab', _tab);
+    const qs = q.toString();
+    location.href = `courses.html${qs ? '?' + qs : ''}`;
+  },
+};
+
+AdminSidebar.mount(NAV_KEY_MAP[_type] || 'course-basic');
+CourseEdit.init();
+</script>
+</body>
+</html>

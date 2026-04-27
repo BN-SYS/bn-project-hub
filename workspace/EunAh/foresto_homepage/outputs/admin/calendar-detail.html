@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>일정 상세 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .form-card {
+      background: #fff; border: 1px solid #e3eadd;
+      border-radius: 10px; margin-bottom: 20px; overflow: hidden;
+    }
+    .form-card-head {
+      padding: 14px 20px; border-bottom: 1px solid #e3eadd;
+      background: #f8faf6; font-size: 13px; font-weight: 700;
+      color: #2e5c2e; letter-spacing: 0.03em;
+    }
+    .form-row {
+      display: flex; align-items: stretch; min-height: 52px;
+      border-bottom: 1px solid #f0f4ee;
+    }
+    .form-row:last-child { border-bottom: none; }
+    .form-label {
+      width: 140px; min-width: 140px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #7a8e74;
+      letter-spacing: 0.04em; white-space: nowrap;
+      background: #f8faf6; border-right: 1px solid #e8efe3;
+      padding: 0 12px; text-align: center;
+    }
+    .form-content {
+      flex: 1; display: flex; align-items: center;
+      padding: 12px 16px; gap: 10px; flex-wrap: wrap;
+    }
+    .form-half {
+      flex: 1; display: flex; align-items: center; padding: 12px 16px; gap: 8px;
+    }
+    .form-half + .form-half { border-left: 1px solid #f0f4ee; }
+    .detail-val { font-size: 14px; color: #111; line-height: 1.6; }
+    .detail-val.mono { font-variant-numeric: tabular-nums; }
+    .cat-badge {
+      display: inline-flex; align-items: center; padding: 3px 12px;
+      border-radius: 99px; font-size: 12px; font-weight: 600;
+    }
+    .cat-edu   { background: #e8f5e9; color: #2e7d32; }
+    .cat-event { background: #e3f2fd; color: #1565c0; }
+    .cat-club  { background: #fff3e0; color: #e65100; }
+    .cat-public{ background: #f3e5f5; color: #6a1b9a; }
+    .cat-etc   { background: #f5f5f5; color: #616161; }
+    .detail-bottom-bar {
+      display: flex; align-items: center; justify-content: space-between; padding: 4px 0 8px;
+    }
+    .btn-group-right { display: flex; gap: 8px; }
+  </style>
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-head">
+        <span class="adm-sb-title">MENU</span>
+        <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+      </div>
+      <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <h1 class="admin-page-title">일정 상세</h1>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-danger btn-sm"
+            onclick="alert('일정이 삭제되었습니다. (실제 구현 시 서버 API와 연동됩니다.)')">삭제</button>
+        </div>
+      </div>
+
+      <div class="admin-content">
+
+        <!-- ════ 일정 정보 ════ -->
+        <div class="form-card" data-sb-anno="1:일정 정보">
+          <div class="form-card-head">일정 정보</div>
+          <div class="form-row">
+            <div class="form-label">일정명</div>
+            <div class="form-content">
+              <span class="detail-val" style="font-weight:600">2026 숲해설가 기초과정 개강</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">카테고리</div>
+            <div class="form-half">
+              <span class="cat-badge cat-edu">교육/강좌</span>
+            </div>
+            <div class="form-label">일정일</div>
+            <div class="form-half">
+              <span class="detail-val mono">2026-04-15</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-label">관련 링크</div>
+            <div class="form-content">
+              <!-- 링크 없을 때: <span class="detail-val" style="color:#aaa">없음</span> -->
+              <a href="#" onclick="event.preventDefault()" class="detail-val"
+                style="color:var(--green-dark)">교육과정 안내 페이지</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════ 등록 정보 ════ -->
+        <div class="form-card" data-sb-anno="2:등록 정보">
+          <div class="form-card-head">등록 정보</div>
+          <div class="form-row">
+            <div class="form-label">등록자</div>
+            <div class="form-half">
+              <span class="detail-val">관리자A</span>
+            </div>
+            <div class="form-label">등록일시</div>
+            <div class="form-half">
+              <span class="detail-val mono">2026-03-10 09:00:00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════ 하단 버튼 ════ -->
+        <div class="detail-bottom-bar">
+          <div></div>
+          <div class="btn-group-right">
+            <button class="btn btn-gray btn-sm" onclick="history.back()">목록으로</button>
+            <button class="btn btn-primary btn-sm"
+              onclick="location.href='calendar-edit.html?id=3001'">수정하기</button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/admin.js"></script>
+  <script>
+  'use strict';
+  AdminSidebar.mount('calendar');
+  </script>
+</body>
+</html>

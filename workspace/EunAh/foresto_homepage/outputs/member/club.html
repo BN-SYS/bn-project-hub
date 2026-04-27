@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>동아리단 | 한국숲해설가협회</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+    <link rel="stylesheet" href="../assets/css/list-common.css">
+    <link rel="stylesheet" href="../assets/css/pages/about.css">
+    <link rel="stylesheet" href="../assets/css/pages/community.css">
+</head>
+
+<body data-page="club">
+
+    <div id="hdr"></div>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>숲동아리단</h1>
+        </div>
+    </div>
+
+    <div id="bc"></div>
+    <div class="sub-layout">
+        <div id="lnb"></div>
+        <main class="sub-content">
+            <div class="content-wrap">
+
+
+                <!-- ===== 동아리 소개 탭 ===== -->
+                <div id="tab-intro" style="display:none">
+                    <div id="clubIntroDesc"></div>
+                    <!-- CLUB_DATA 기반 갤러리 카드 (ClubCtrl._renderIntro() 가 채움) -->
+                    <div class="gallery-grid" id="clubIntroGrid"></div>
+                </div>
+
+                <!-- ===== 동아리 소식 탭 ===== -->
+                <div id="tab-news" style="display:none">
+
+                    <!-- 필터 박스 (competency.html 동일 레이아웃) -->
+                    <div class="list-filter-box">
+                        <div class="list-filter-row">
+                            <div class="list-filter-item">
+                                <span class="list-filter-label">동아리</span>
+                                <select class="list-filter-select" id="clubNewsClubFilter">
+                                    <!-- ClubCtrl._syncClubSelects() 가 CLUB_DATA 기반으로 채움 -->
+                                    <option value="">전체 동아리</option>
+                                </select>
+                            </div>
+                            <div class="list-filter-item">
+                                <span class="list-filter-label">키워드</span>
+                                <input type="text" class="list-filter-input" id="clubNewsKeyword"
+                                    placeholder="제목 검색"
+                                    onkeydown="if(event.key==='Enter') ClubCtrl.searchNews()">
+                            </div>
+                            <button class="list-filter-btn" onclick="ClubCtrl.searchNews()">검색하기</button>
+                        </div>
+                    </div>
+
+                    <div class="list-top" style="margin-top:16px">
+                        <span class="list-count">Total <strong id="clubNewsCount">0</strong>건</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="board-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px">번호</th>
+                                    <th style="width:120px">동아리</th>
+                                    <th>제목</th>
+                                    <th style="width:90px">작성자</th>
+                                    <th style="width:110px">작성일</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clubNewsTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="list-write-area" id="clubNewsWriteBtn"></div>
+                </div>
+
+                <!-- ===== 동아리 자료방 탭 ===== -->
+                <div id="tab-archive" style="display:none">
+
+                    <!-- 필터 박스 -->
+                    <div class="list-filter-box">
+                        <div class="list-filter-row">
+                            <div class="list-filter-item">
+                                <span class="list-filter-label">동아리</span>
+                                <select class="list-filter-select" id="clubArchiveClubFilter">
+                                    <option value="">전체 동아리</option>
+                                </select>
+                            </div>
+                            <div class="list-filter-item">
+                                <span class="list-filter-label">키워드</span>
+                                <input type="text" class="list-filter-input" id="clubArchiveKeyword"
+                                    placeholder="제목 검색"
+                                    onkeydown="if(event.key==='Enter') ClubCtrl.searchArchive()">
+                            </div>
+                            <button class="list-filter-btn" onclick="ClubCtrl.searchArchive()">검색하기</button>
+                        </div>
+                    </div>
+
+                    <div class="list-top" style="margin-top:16px">
+                        <span class="list-count">Total <strong id="clubArchiveCount">0</strong>건</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="board-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px">번호</th>
+                                    <th style="width:120px">동아리</th>
+                                    <th>제목</th>
+                                    <th style="width:90px">작성자</th>
+                                    <th style="width:110px">등록일</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clubArchiveTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="list-write-area" id="clubArchiveWriteBtn"></div>
+                </div>
+
+                <!-- 상세 영역 (id 파라미터 있을 때 노출) -->
+                <div id="clubDetailWrap" style="display:none">
+                    <div id="clubDetail"></div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+
+    <div id="ftr"></div>
+
+    <script src="../assets/js/app.js"></script>
+    <script src="../assets/js/components/header.js"></script>
+    <script src="../assets/js/pages/member.js"></script>
+    <script>
+        document.getElementById('hdr').innerHTML = Header.render('회원활동', '../');
+        document.getElementById('ftr').innerHTML = Footer.render('../');
+
+        /* LNB active 항목: 탭 파라미터 반영 */
+        const _lnbTab  = new URLSearchParams(location.search).get('tab') || 'intro';
+        const _lnbPath = _lnbTab === 'intro' ? 'member/club.html' : `member/club.html?tab=${_lnbTab}`;
+        document.getElementById('bc').innerHTML  = LNB.breadcrumb('../', _lnbPath);
+        document.getElementById('lnb').innerHTML = LNB.render('../', _lnbPath);
+
+        /* ClubCtrl.init() 이 tab 파라미터를 읽어 탭 전환·렌더 일괄 처리 */
+        ClubCtrl.init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,477 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>강좌 신청 등록 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .reg-card { background:#fff; border:1px solid var(--gray-light); border-radius:var(--radius); margin-bottom:16px; }
+    .reg-card-head { display:flex; align-items:center; gap:8px; padding:13px 20px; border-bottom:1px solid var(--gray-light); background:var(--green-pale); border-radius:var(--radius) var(--radius) 0 0; }
+    .reg-card-head .step-badge { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:var(--green-dark); color:#fff; font-size:12px; font-weight:700; flex-shrink:0; }
+    .reg-card-head .card-title { font-size:14px; font-weight:700; color:var(--green-dark); }
+    .reg-card-head .step-done { margin-left:auto; font-size:12px; color:var(--green-main); font-weight:600; }
+    .reg-card-body { padding:20px; }
+    /* 회원 검색 */
+    .member-search-bar { display:flex; gap:8px; margin-bottom:14px; }
+    .member-search-bar input { flex:1; max-width:300px; height:36px; padding:0 10px; border:1px solid var(--gray-light); border-radius:6px; font-size:13px; font-family:'Noto Sans KR',sans-serif; outline:none; }
+    .member-search-bar input:focus { border-color:var(--green-main); box-shadow:0 0 0 2px rgba(5,128,62,.1); }
+    .member-search-bar select { height:36px; padding:0 28px 0 8px; border:1px solid var(--gray-light); border-radius:6px; font-size:13px; font-family:'Noto Sans KR',sans-serif; background:#fff url('../assets/icons/chevron-down.png') no-repeat right 8px center / 11px; appearance:none; -webkit-appearance:none; outline:none; cursor:pointer; }
+    .member-search-table-wrap { border:1px solid var(--gray-light); border-radius:6px; overflow:hidden; margin-bottom:12px; }
+    .member-search-empty { padding:32px; text-align:center; font-size:13px; color:var(--gray-mid); }
+    .selected-member-box { display:none; align-items:center; gap:14px; background:#f0f7f3; border:1px solid #b7d9c6; border-radius:8px; padding:12px 16px; margin-top:12px; }
+    .selected-member-box.visible { display:flex; }
+    .selected-member-box .sm-name { font-size:15px; font-weight:700; color:var(--green-dark); }
+    .selected-member-box .sm-meta { font-size:12px; color:var(--gray-mid); margin-top:2px; }
+    .selected-member-box .sm-clear { margin-left:auto; background:none; border:none; cursor:pointer; font-size:12px; color:var(--gray-mid); text-decoration:underline; }
+    /* 강좌 선택 */
+    .course-select-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px 24px; }
+    .form-group { display:flex; flex-direction:column; gap:5px; }
+    .form-label { font-size:12px; font-weight:600; color:var(--gray-dark); }
+    .form-select { height:38px; padding:0 28px 0 10px; border:1px solid var(--gray-light); border-radius:6px; font-size:13px; font-family:'Noto Sans KR',sans-serif; background:#fff url('../assets/icons/chevron-down.png') no-repeat right 10px center / 11px; appearance:none; -webkit-appearance:none; outline:none; cursor:pointer; }
+    .form-select:focus { border-color:var(--green-main); box-shadow:0 0 0 2px rgba(5,128,62,.1); }
+    .form-select:disabled { background-color:#f4f6f4; color:var(--gray-mid); cursor:not-allowed; }
+    .course-preview-box { display:none; background:#f8faf7; border:1px solid var(--gray-light); border-radius:6px; padding:14px 16px; margin-top:16px; font-size:13px; }
+    .course-preview-box.visible { display:block; }
+    .course-preview-box .cp-title { font-weight:700; color:var(--green-dark); margin-bottom:8px; font-size:14px; }
+    .course-preview-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px 16px; }
+    .cp-item { display:flex; flex-direction:column; gap:2px; }
+    .cp-key { font-size:11px; color:var(--gray-mid); }
+    .cp-val { font-size:13px; color:var(--gray-dark); font-weight:500; }
+    .memo-input { width:100%; padding:8px 10px; border:1px solid var(--gray-light); border-radius:6px; font-size:13px; font-family:'Noto Sans KR',sans-serif; resize:vertical; box-sizing:border-box; outline:none; }
+    .memo-input:focus { border-color:var(--green-main); box-shadow:0 0 0 2px rgba(5,128,62,.1); }
+    .reg-bottom-bar { display:flex; align-items:center; justify-content:flex-end; gap:8px; border-top:1px solid var(--gray-light); padding:16px 0 24px; margin-top:4px; }
+    .member-result-row { cursor:pointer; }
+    .member-result-row:hover td { background:#f2f7f0; }
+    .member-result-row input[type="radio"] { accent-color:var(--green-dark); }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title">강좌 신청 등록</h1>
+      <div class="admin-topbar-actions">
+        <button class="btn-refresh" onclick="location.reload()" title="새로고침">
+          <img src="../assets/icons/refresh.png" alt="새로고침">
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 1: 회원 검색 -->
+    <div class="reg-card">
+      <div class="reg-card-head">
+        <span class="step-badge">1</span>
+        <span class="card-title">회원 검색</span>
+        <span class="step-done" id="stepMemberDone" style="display:none">✓ 선택 완료</span>
+      </div>
+      <div class="reg-card-body">
+        <div class="member-search-bar">
+          <select id="memberSearchType">
+            <option value="name">이름</option>
+            <option value="id">아이디</option>
+            <option value="phone">휴대폰</option>
+          </select>
+          <input type="text" id="memberSearchKw" placeholder="검색어를 입력하세요"
+            onkeydown="if(event.key==='Enter') ApplyRegister.searchMember()">
+          <button class="btn btn-primary btn-sm"
+            onclick="ApplyRegister.searchMember()">검색</button>
+        </div>
+        <div class="member-search-table-wrap" id="memberSearchResult">
+          <div class="member-search-empty">이름, 아이디, 휴대폰으로 회원을 검색하세요.</div>
+        </div>
+        <div class="selected-member-box" id="selectedMemberBox">
+          <div>
+            <div class="sm-name" id="smName">—</div>
+            <div class="sm-meta" id="smMeta">—</div>
+          </div>
+          <button class="sm-clear" onclick="ApplyRegister.clearMember()">선택 취소</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: 강좌 선택 -->
+    <div class="reg-card">
+      <div class="reg-card-head">
+        <span class="step-badge">2</span>
+        <span class="card-title">강좌 선택</span>
+        <span class="step-done" id="stepCourseDone" style="display:none">✓ 선택 완료</span>
+      </div>
+      <div class="reg-card-body">
+        <div class="course-select-grid">
+          <div class="form-group">
+            <label class="form-label">과정 유형 <span style="color:var(--danger)">*</span></label>
+            <select class="form-select" id="selCourseType"
+              onchange="ApplyRegister.onTypeChange()">
+              <option value="">— 선택 —</option>
+              <option value="basic">기초과정</option>
+              <option value="qualify">자격취득과정</option>
+              <option value="enhance">역량강화</option>
+              <option value="academy">회원아카데미</option>
+            </select>
+          </div>
+          <div class="form-group" id="academyTabGroup" style="display:none">
+            <label class="form-label">아카데미 구분 <span style="color:var(--danger)">*</span></label>
+            <select class="form-select" id="selAcademyTab"
+              onchange="ApplyRegister.onAcademyTabChange()">
+              <option value="">— 선택 —</option>
+              <option value="lecture">특강</option>
+              <option value="course">강좌</option>
+              <option value="mentor">멘토링숲학교</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">강좌명 <span style="color:var(--danger)">*</span></label>
+            <select class="form-select" id="selCourseName" disabled
+              onchange="ApplyRegister.onCourseChange()">
+              <option value="">— 과정 유형 먼저 선택 —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">교육 일정 <span style="color:var(--danger)">*</span></label>
+            <select class="form-select" id="selSchedule" disabled
+              onchange="ApplyRegister.onScheduleChange()">
+              <option value="">— 강좌 먼저 선택 —</option>
+            </select>
+          </div>
+        </div>
+        <div class="course-preview-box" id="coursePreviewBox">
+          <div class="cp-title" id="cpTitle">—</div>
+          <div class="course-preview-grid">
+            <div class="cp-item"><span class="cp-key">과정유형</span><span class="cp-val" id="cpType">—</span></div>
+            <div class="cp-item"><span class="cp-key">교육기간</span><span class="cp-val" id="cpPeriod">—</span></div>
+            <div class="cp-item"><span class="cp-key">접수기간</span><span class="cp-val" id="cpApply">—</span></div>
+            <div class="cp-item"><span class="cp-key">정원 / 신청</span><span class="cp-val" id="cpCapacity">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: 신청 정보 -->
+    <div class="reg-card">
+      <div class="reg-card-head">
+        <span class="step-badge">3</span>
+        <span class="card-title">신청 정보</span>
+      </div>
+      <div class="reg-card-body" style="display:flex;flex-direction:column;gap:14px">
+        <div class="form-group">
+          <label class="form-label">신청 상태</label>
+          <div style="display:flex;gap:16px;margin-top:2px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer">
+              <input type="radio" name="regStatus" value="신청" checked
+                style="accent-color:var(--green-dark)"> 신청
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer">
+              <input type="radio" name="regStatus" value="취소"
+                style="accent-color:var(--green-dark)"> 취소
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer">
+              <input type="radio" name="regStatus" value="수료"
+                style="accent-color:var(--green-dark)"> 수료
+            </label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer">
+              <input type="radio" name="regStatus" value="미수료"
+                style="accent-color:var(--green-dark)"> 미수료
+            </label>
+          </div>
+          <div style="font-size:11px;color:var(--gray-mid);margin-top:4px">
+            관리자가 직접 등록하는 신청은 기본값 '신청'으로 처리됩니다.
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">관리자 메모
+            <span style="font-weight:400;color:var(--gray-mid)">(선택)</span>
+          </label>
+          <textarea class="memo-input" id="regMemo" rows="3"
+            placeholder="신청 관련 내부 메모 (회원에게 노출되지 않습니다)"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단 버튼 -->
+    <div class="reg-bottom-bar">
+      <button class="btn btn-gray btn-sm" onclick="history.back()">취소</button>
+      <button class="btn btn-primary btn-sm" onclick="ApplyRegister.submit()">신청 등록</button>
+    </div>
+
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] 회원 검색: AdminHttp.get(ADMIN_API.members, { kw, kw_type }) 응답으로 교체
+            강좌 목록: AdminHttp.get(ADMIN_API.courses, { type }) 응답으로 교체
+────────────────────────────────────────── */
+const MEMBER_POOL = [
+  { id: 50, userId: 'forest050', name: '김숲해', gender: '남', birth: '1980-03-15', phone: '010-1000-5000', gradeLabel: '정회원' },
+  { id: 49, userId: 'forest049', name: '이정회', gender: '여', birth: '1985-07-22', phone: '010-1001-5001', gradeLabel: '일반회원' },
+  { id: 48, userId: 'forest048', name: '박초록', gender: '남', birth: '1978-11-08', phone: '010-1002-5002', gradeLabel: '정회원' },
+];
+
+const COURSE_DB = [
+  { id: 'C001', type: 'basic', academyTab: null, name: '봄 숲 이야기 — 시민아카데미',
+    schedules: [{ id: 'S001', label: '2026-04-01 ~ 2026-05-31', eduStart: '2026-04-01', eduEnd: '2026-05-31', applyStart: '2026-03-01', applyEnd: '2026-03-28', capacity: 30, applicants: 17 }] },
+  { id: 'C002', type: 'qualify', academyTab: null, name: '제55기 숲해설가 전문가과정',
+    schedules: [{ id: 'S002', label: '2026-04-01 ~ 2026-07-31', eduStart: '2026-04-01', eduEnd: '2026-07-31', applyStart: '2026-03-01', applyEnd: '2026-03-28', capacity: 40, applicants: 38 }] },
+  { id: 'C003', type: 'academy', academyTab: 'lecture', name: '식물 생태 특강 — 봄 야생화',
+    schedules: [{ id: 'S003', label: '2026-04-15 (1일)', eduStart: '2026-04-15', eduEnd: '2026-04-15', applyStart: '2026-04-01', applyEnd: '2026-04-13', capacity: 50, applicants: 44 }] },
+];
+
+const TYPE_LABEL = { basic: '기초과정', qualify: '자격취득과정', enhance: '역량강화', academy: '회원아카데미' };
+const ACADEMY_TAB_LABEL = { lecture: '특강', course: '강좌', mentor: '멘토링숲학교' };
+
+const ApplyRegister = {
+  _member:   null,
+  _course:   null,
+  _schedule: null,
+
+  /* ── STEP 1: 회원 검색
+     [개발자] AdminHttp.get(ADMIN_API.members, { kw_type: type, kw }) 응답으로 교체 */
+  async searchMember() {
+    const type = document.getElementById('memberSearchType').value;
+    const kw   = document.getElementById('memberSearchKw').value.trim();
+    const wrap = document.getElementById('memberSearchResult');
+    if (!kw) {
+      wrap.innerHTML = '<div class="member-search-empty">검색어를 입력하세요.</div>';
+      return;
+    }
+    try {
+      /*
+       * [개발자 연동]
+       * const data = await AdminHttp.get(ADMIN_API.members, { kw_type: type, kw, size: 10 });
+       * const results = data.items;
+       */
+      const results = MEMBER_POOL.filter(m => {
+        if (type === 'name')  return m.name.includes(kw);
+        if (type === 'id')    return m.userId.includes(kw);
+        if (type === 'phone') return m.phone.includes(kw);
+        return false;
+      });
+
+      if (!results.length) {
+        wrap.innerHTML = '<div class="member-search-empty">검색 결과가 없습니다.</div>';
+        return;
+      }
+      wrap.innerHTML = `
+        <table class="admin-table" style="margin:0">
+          <thead>
+            <tr>
+              <th style="width:36px" class="center">선택</th>
+              <th style="width:60px" class="center">No</th>
+              <th>이름</th>
+              <th>아이디</th>
+              <th>휴대폰</th>
+              <th style="width:90px" class="center">회원구분</th>
+              <th style="width:90px" class="center">생년월일</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${results.map(m => `
+              <tr class="member-result-row"
+                onclick="ApplyRegister.selectMember(${m.id})">
+                <td class="center">
+                  <input type="radio" name="memberRadio" value="${m.id}"
+                    style="accent-color:var(--green-dark)">
+                </td>
+                <td class="center" style="color:var(--gray-mid);font-size:12px">${m.id}</td>
+                <td style="font-weight:600">${m.name}</td>
+                <td style="color:var(--gray-mid);font-size:13px">${m.userId}</td>
+                <td style="font-size:13px">${m.phone}</td>
+                <td class="center">
+                  <span class="badge badge-blue" style="font-size:11px">${m.gradeLabel}</span>
+                </td>
+                <td class="center" style="font-size:12px;color:var(--gray-mid)">${m.birth}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    } catch (e) {
+      wrap.innerHTML = `<div class="member-search-empty" style="color:#c0392b">${e.message}</div>`;
+    }
+  },
+
+  selectMember(id) {
+    const m = MEMBER_POOL.find(x => x.id === id);
+    if (!m) return;
+    this._member = m;
+    const radio = document.querySelector(`input[name="memberRadio"][value="${id}"]`);
+    if (radio) radio.checked = true;
+    document.getElementById('smName').textContent = `${m.name} (${m.userId})`;
+    document.getElementById('smMeta').textContent =
+      `${m.gradeLabel} · ${m.gender === '남' ? '남성' : '여성'} · ${m.birth} · ${m.phone}`;
+    document.getElementById('selectedMemberBox').classList.add('visible');
+    document.getElementById('stepMemberDone').style.display = '';
+  },
+
+  clearMember() {
+    this._member = null;
+    document.getElementById('selectedMemberBox').classList.remove('visible');
+    document.getElementById('stepMemberDone').style.display = 'none';
+    document.getElementById('memberSearchResult').innerHTML =
+      '<div class="member-search-empty">이름, 아이디, 휴대폰으로 회원을 검색하세요.</div>';
+  },
+
+  /* ── STEP 2: 강좌 선택
+     [개발자] AdminHttp.get(ADMIN_API.courses, { type }) 응답으로 교체 */
+  onTypeChange() {
+    const type     = document.getElementById('selCourseType').value;
+    const tabGroup = document.getElementById('academyTabGroup');
+    const selName  = document.getElementById('selCourseName');
+    const selSched = document.getElementById('selSchedule');
+
+    tabGroup.style.display = type === 'academy' ? '' : 'none';
+    document.getElementById('selAcademyTab').value = '';
+    this._course = null; this._schedule = null;
+    this._hideCoursePreview();
+    document.getElementById('stepCourseDone').style.display = 'none';
+
+    selName.innerHTML  = '<option value="">— 선택 —</option>';
+    selSched.innerHTML = '<option value="">— 강좌 먼저 선택 —</option>';
+    selSched.disabled  = true;
+
+    if (!type) { selName.disabled = true; return; }
+
+    const courses = COURSE_DB.filter(c =>
+      c.type === type && (type !== 'academy' || !c.academyTab)
+    );
+    selName.disabled = false;
+    courses.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.id; o.textContent = c.name;
+      selName.appendChild(o);
+    });
+  },
+
+  onAcademyTabChange() {
+    const tab     = document.getElementById('selAcademyTab').value;
+    const selName = document.getElementById('selCourseName');
+    const selSched = document.getElementById('selSchedule');
+    this._course = null; this._schedule = null;
+    this._hideCoursePreview();
+    document.getElementById('stepCourseDone').style.display = 'none';
+    selName.innerHTML  = '<option value="">— 선택 —</option>';
+    selSched.innerHTML = '<option value="">— 강좌 먼저 선택 —</option>';
+    selSched.disabled  = true;
+    if (!tab) { selName.disabled = true; return; }
+    const courses = COURSE_DB.filter(c => c.type === 'academy' && c.academyTab === tab);
+    selName.disabled = false;
+    courses.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.id; o.textContent = c.name;
+      selName.appendChild(o);
+    });
+  },
+
+  onCourseChange() {
+    const courseId = document.getElementById('selCourseName').value;
+    const selSched = document.getElementById('selSchedule');
+    this._course = null; this._schedule = null;
+    this._hideCoursePreview();
+    document.getElementById('stepCourseDone').style.display = 'none';
+    selSched.innerHTML = '<option value="">— 선택 —</option>';
+    selSched.disabled  = true;
+    if (!courseId) return;
+    const course = COURSE_DB.find(c => c.id === courseId);
+    if (!course) return;
+    this._course = course;
+    course.schedules.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.id; o.textContent = s.label;
+      selSched.appendChild(o);
+    });
+    selSched.disabled = false;
+  },
+
+  onScheduleChange() {
+    const schedId = document.getElementById('selSchedule').value;
+    this._schedule = null;
+    this._hideCoursePreview();
+    document.getElementById('stepCourseDone').style.display = 'none';
+    if (!schedId || !this._course) return;
+    const sched = this._course.schedules.find(s => s.id === schedId);
+    if (!sched) return;
+    this._schedule = sched;
+
+    const type = document.getElementById('selCourseType').value;
+    const tab  = document.getElementById('selAcademyTab').value;
+    const typeLabel = type === 'academy' && tab
+      ? `${TYPE_LABEL[type]} — ${ACADEMY_TAB_LABEL[tab]}`
+      : TYPE_LABEL[type];
+
+    document.getElementById('cpTitle').textContent    = this._course.name;
+    document.getElementById('cpType').textContent     = typeLabel;
+    document.getElementById('cpPeriod').textContent   = `${sched.eduStart} ~ ${sched.eduEnd}`;
+    document.getElementById('cpApply').textContent    = `${sched.applyStart} ~ ${sched.applyEnd}`;
+    document.getElementById('cpCapacity').textContent = `${sched.capacity}명 / ${sched.applicants}명`;
+    document.getElementById('coursePreviewBox').classList.add('visible');
+    document.getElementById('stepCourseDone').style.display = '';
+  },
+
+  _hideCoursePreview() {
+    document.getElementById('coursePreviewBox').classList.remove('visible');
+  },
+
+  /* ── 최종 제출
+     [개발자] AdminHttp.post(ADMIN_API.applicantRegister, payload) 로 교체 */
+  async submit() {
+    if (!this._member) {
+      alert('회원을 검색하여 선택해주세요.'); return;
+    }
+    if (!this._course || !this._schedule) {
+      alert('강좌와 교육 일정을 선택해주세요.'); return;
+    }
+
+    const s      = this._schedule;
+    const today  = new Date().toISOString().slice(0, 10);
+    const isFull = s.applicants >= s.capacity;
+    const isEnded = s.applyEnd < today;
+    const warnings = [];
+    if (isEnded) warnings.push(`· 접수 마감일(${s.applyEnd})이 지난 일정입니다.`);
+    if (isFull)  warnings.push(`· 정원이 초과되었습니다 (${s.applicants}/${s.capacity}명).`);
+    if (warnings.length) {
+      if (!confirm(`아래 항목을 확인하세요.\n\n${warnings.join('\n')}\n\n그래도 신청을 등록하시겠습니까?`)) return;
+    }
+
+    const payload = {
+      memberId:   this._member.id,
+      courseId:   this._course.id,
+      scheduleId: this._schedule.id,
+      status:     document.querySelector('input[name="regStatus"]:checked')?.value || '신청',
+      memo:       document.getElementById('regMemo').value,
+    };
+
+    try {
+      /*
+       * [개발자 연동]
+       * await AdminHttp.post(ADMIN_API.applicantRegister, payload);
+       */
+      App.toast(`${this._member.name}님을 [${this._course.name}] 과정에 신청 등록하였습니다.`, 'success');
+      setTimeout(() => location.href = 'applicants.html', 1500);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+};
+
+AdminSidebar.mount('course-applicants');
+</script>
+</body>
+</html>

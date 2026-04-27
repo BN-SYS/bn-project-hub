@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>게시글 상세 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .detail-card { background:#fff; border:1px solid #e3eadd; border-radius:10px; overflow:hidden; }
+    .detail-header { padding:20px 28px; border-bottom:1px solid #e8efe3; background:#f8faf6; }
+    .detail-title { font-size:18px; font-weight:700; color:#1a2718; margin:0 0 10px; line-height:1.5; }
+    .detail-meta { display:flex; gap:20px; font-size:13px; color:#7a8e74; }
+    .detail-meta span strong { color:#444; font-weight:500; }
+    .detail-body { padding:28px; min-height:300px; font-size:15px; line-height:1.8; color:#2a3a26; }
+    .attach-area { padding:14px 28px; border-top:1px solid #f0f4ee; background:#f8faf6; }
+    .attach-label { font-size:12px; font-weight:700; color:#7a8e74; margin-bottom:8px; letter-spacing:.04em; }
+    .file-list { display:flex; flex-direction:column; gap:4px; }
+    .file-item { display:inline-flex; align-items:center; gap:8px; font-size:13px; color:#2a5a8a; text-decoration:none; cursor:pointer; }
+    .file-item:hover { text-decoration:underline; }
+    .file-size { color:#aabba4; font-size:12px; }
+    .detail-footer { display:flex; justify-content:space-between; align-items:center; padding:16px 28px; border-top:1px solid #e8efe3; }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title" id="pageTitle">게시글 상세</h1>
+    </div>
+
+    <div class="detail-card">
+      <!-- 헤더 -->
+      <div class="detail-header">
+        <h2 class="detail-title" id="dTitle">—</h2>
+        <div class="detail-meta">
+          <span>작성자: <strong id="dAuthor">—</strong></span>
+          <span>등록일: <strong id="dRegDate">—</strong></span>
+          <span>조회수: <strong id="dViews">—</strong></span>
+        </div>
+      </div>
+
+      <!-- 본문 -->
+      <div class="detail-body" id="dBody"></div>
+
+      <!-- 첨부파일 -->
+      <div class="attach-area" id="attachArea" style="display:none">
+        <div class="attach-label" id="attachLabel">첨부파일</div>
+        <div class="file-list" id="dFileList"></div>
+      </div>
+
+      <!-- 하단 버튼 -->
+      <div class="detail-footer">
+        <button class="btn btn-danger btn-sm" onclick="BoardDetail.deletePost()">삭제</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-gray btn-sm" id="btnList">목록</button>
+          <button class="btn btn-primary btn-sm" id="btnEdit">수정</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+const BOARD_CONFIG = {
+  notice:        { title: '공지사항', navKey: 'board-notice'       },
+  newsletter:    { title: '협회지',   navKey: 'board-newsletter'   },
+  press:         { title: '언론보도', navKey: 'board-press'        },
+  gallery:       { title: '갤러리',   navKey: 'board-gallery'      },
+  'forest-work': { title: '숲일터',   navKey: 'board-forest-work'  },
+  region:        { title: '전국지역협회', navKey: 'board-region'   },
+  intro:         { title: '사공단소개',   navKey: 'board-intro'    },
+  club:          { title: '동아리소개',   navKey: 'board-club'     },
+};
+
+const params  = new URLSearchParams(location.search);
+const BTYPE   = params.get('type') || 'notice';
+const BID     = params.get('id');
+const BCONFIG = BOARD_CONFIG[BTYPE] || BOARD_CONFIG.notice;
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] AdminHttp.get(ADMIN_API.url('board', BID) + '?type=' + BTYPE) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_DETAIL = {
+  id: 5001,
+  title: '2026년 상반기 협회 공지사항',
+  author: '관리자A', regDate: '2026-03-15', views: 142,
+  body: '<p>안녕하세요, 한국숲해설가협회입니다.</p><p>본 게시글은 관리자가 등록한 내용입니다. 실제 서비스에서는 스마트에디터2를 통해 작성된 HTML 본문이 표시됩니다.</p>',
+  files: [
+    { name: '첨부파일_안내문.pdf', size: '340KB' },
+    { name: '동의서_양식.hwp',     size: '128KB' },
+  ],
+};
+
+const BoardDetail = {
+  data: null,
+
+  async load() {
+    try {
+      /*
+       * [개발자 연동]
+       * this.data = await AdminHttp.get(
+       *   ADMIN_API.url('board', BID), { type: BTYPE }
+       * );
+       */
+      this.data = SAMPLE_DETAIL;
+      this.render(this.data);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  render(d) {
+    document.getElementById('dTitle').textContent  = d.title;
+    document.getElementById('dAuthor').textContent = d.author;
+    document.getElementById('dRegDate').textContent = d.regDate;
+    document.getElementById('dViews').textContent  = d.views;
+    document.getElementById('dBody').innerHTML     = d.body || '';
+
+    /* 첨부파일 */
+    if (d.files?.length) {
+      document.getElementById('attachArea').style.display = '';
+      document.getElementById('attachLabel').textContent  = `첨부파일 (${d.files.length})`;
+      document.getElementById('dFileList').innerHTML = d.files.map(f => `
+        <span class="file-item" onclick="BoardDetail.downloadFile('${f.name}')">
+          ${f.name} <span class="file-size">${f.size}</span>
+        </span>`).join('');
+    }
+  },
+
+  downloadFile(name) {
+    /*
+     * [개발자 연동]
+     * window.location.href = ADMIN_API.url('board', BID) + '/files/' + encodeURIComponent(name);
+     */
+    alert(`${name} 다운로드 — 실제 구현 시 서버 API와 연동됩니다.`);
+  },
+
+  async deletePost() {
+    if (!confirm('이 게시글을 삭제하시겠습니까?')) return;
+    try {
+      /*
+       * [개발자 연동]
+       * await AdminHttp.del(ADMIN_API.url('board', BID) + '?type=' + BTYPE);
+       */
+      App.toast('게시글이 삭제되었습니다.', 'success');
+      setTimeout(() => location.href = `board.html?type=${BTYPE}`, 800);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+};
+
+/* 초기화 */
+(function init() {
+  document.title = `${BCONFIG.title} 상세 | 관리자 | 한국숲해설가협회`;
+  document.getElementById('pageTitle').textContent = `${BCONFIG.title} 상세`;
+  document.getElementById('btnList').onclick = () =>
+    location.href = `board.html?type=${BTYPE}`;
+  document.getElementById('btnEdit').onclick = () =>
+    location.href = `board-edit.html?type=${BTYPE}&id=${BID}`;
+  AdminSidebar.mount(BCONFIG.navKey);
+  BoardDetail.load();
+})();
+</script>
+</body>
+</html>

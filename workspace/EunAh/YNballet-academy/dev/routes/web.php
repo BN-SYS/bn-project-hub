@@ -5,6 +5,19 @@ $router->get('/',               'HomeController@index');
 $router->get('/about',          'AboutController@index');
 $router->get('/course',         'CourseController@index');
 
+// 회원 인증
+$router->get('/register',       'AuthController@showRegister');
+$router->post('/register',      'AuthController@register');
+$router->get('/login',          'AuthController@showLogin');
+$router->post('/login',         'AuthController@login');
+$router->get('/logout',         'AuthController@logout');
+
+// 이메일 인증 API
+$router->post('/api/check-username',      'AuthController@apiCheckUsername');
+$router->post('/api/check-email',         'AuthController@apiCheckEmail');
+$router->post('/api/send-email-code',     'AuthController@apiSendEmailCode');
+$router->post('/api/verify-email-code',   'AuthController@apiVerifyEmailCode');
+
 $router->get('/notice',         'NoticeController@index');
 $router->get('/notice/:id',     'NoticeController@show');
 

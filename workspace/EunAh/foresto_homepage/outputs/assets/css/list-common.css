@@ -1,0 +1,151 @@
+/* =============================================
+   list-common.css | 목록 페이지 공통 레이아웃
+   필터박스 · 섹션타이틀 · 테이블 정렬 · 페이지크기 선택
+   목록형 테이블이 있는 모든 페이지에서 공통 사용
+   ============================================= */
+
+/* ── 섹션 타이틀 */
+.list-section-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--gray-dark);
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--gray-light);
+  margin-bottom: 20px;
+}
+
+/* ── 필터 박스 */
+.list-filter-box {
+  background: #F1F5EE;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 0;
+}
+.list-filter-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+.list-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.list-filter-label {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--gray-dark);
+  white-space: nowrap;
+  line-height: 1;
+}
+.list-filter-select {
+  height: 44px;
+  box-sizing: border-box;
+  border: 1px solid #e0ddd7;
+  border-radius: 6px;
+  padding: 0 32px 0 12px;
+  font-size: var(--text-sm);
+  color: var(--gray-dark);
+  background: #fff;
+  outline: none;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("../icons/chevron-down.png");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px 12px;
+  cursor: pointer;
+}
+.list-filter-date-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.list-filter-input {
+  height: 44px;
+  box-sizing: border-box;
+  border: 1px solid #e0ddd7;
+  border-radius: 6px;
+  padding: 0 12px;
+  font-size: var(--text-sm);
+  color: var(--gray-dark);
+  background: #fff;
+  outline: none;
+  width: 100%;
+  min-width: 0;
+}
+/* 날짜 범위 필터 내부에서는 가로 flex 확장 허용 */
+.list-filter-date-inputs .list-filter-input {
+  flex: 1;
+  width: auto;
+}
+.list-filter-sep {
+  font-size: var(--text-sm);
+  color: var(--gray-mid);
+  flex-shrink: 0;
+}
+.list-filter-btn {
+  height: 44px;
+  padding: 0 28px;
+  background: #20281a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: var(--trans);
+  margin-left: auto;
+  white-space: nowrap;
+}
+.list-filter-btn:hover { background: #344526; }
+
+/* ── 목록 상단 페이지크기 선택 */
+.list-pagesize-select {
+  height: 40px;
+  border: 1px solid var(--gray-light);
+  border-radius: 6px;
+  padding: 0 28px 0 12px;
+  font-size: var(--text-sm);
+  color: var(--gray-dark);
+  background: #fff;
+  outline: none;
+  appearance: none;
+  background-image: url("../icons/chevron-down.png");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px 12px;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+/* ── 게시판 테이블 컬럼 정렬 기본값 */
+.board-table thead th:first-child { text-align: left;  padding-left: 32px; }
+.board-table tbody td:first-child  { text-align: left !important; padding-left: 24px; }
+.board-table thead th:last-child   { text-align: right; padding-right: 32px; }
+.board-table tbody td.col-status   { text-align: right !important; padding-right: 24px; }
+
+/* ── 반응형 (≤ 768px) */
+@media (max-width: 768px) {
+  .list-section-title { font-size: var(--text-base); }
+  .list-filter-box    { padding: 14px 16px; }
+  .list-filter-row    { flex-wrap: wrap; gap: 12px; }
+  .list-filter-item   { flex: 1 1 100%; min-width: 0; }
+  .list-filter-btn    { width: 100%; margin-left: 0; }
+}
+
+/* ── 반응형 (≤ 480px) — 날짜 입력 세로 배치 */
+@media (max-width: 480px) {
+  .list-filter-date-inputs {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .list-filter-date-inputs .list-filter-input {
+    width: 100%;
+    flex: none;
+  }
+  .list-filter-sep { display: none; }
+}

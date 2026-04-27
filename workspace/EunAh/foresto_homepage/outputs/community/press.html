@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>언론보도 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/community.css">
+</head>
+
+<body data-page="press">
+
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>소식</h1>
+    </div>
+  </div>
+
+  <div id="bc"></div>
+  <div class="sub-layout">
+    <div id="lnb"></div>
+    <main class="sub-content">
+
+    <div class="content-wrap">
+
+      <!-- 목록 상단 -->
+      <div class="list-top">
+        <span class="list-count">Total <strong id="pressCount">0</strong>건</span>
+        <div class="list-search">
+          <input type="text" class="list-search-input" id="pressKeyword" placeholder="검색어를 입력하세요"
+            onkeydown="if(event.key==='Enter') PressCtrl.search()">
+          <button class="list-search-btn" onclick="PressCtrl.search()">검색</button>
+        </div>
+      </div>
+
+      <!-- 게시판 테이블 -->
+      <div class="table-wrap">
+        <table class="board-table">
+          <thead>
+            <tr>
+              <th style="width:120px">번호</th>
+              <th>제목</th>
+              <th style="width:80px">작성자</th>
+              <th style="width:110px">등록일</th>
+            </tr>
+          </thead>
+          <tbody id="pressTableBody"></tbody>
+        </table>
+      </div>
+
+      <div id="pressPagination" class="pagination"></div>
+
+    </div>
+    </main>
+  </div>
+
+
+  <div id="ftr"></div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/community.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('커뮤니티', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+    document.getElementById('bc').innerHTML = LNB.breadcrumb('../', 'community/press.html');
+    document.getElementById('lnb').innerHTML = LNB.render('../', 'community/press.html');
+  </script>
+</body>
+
+</html>

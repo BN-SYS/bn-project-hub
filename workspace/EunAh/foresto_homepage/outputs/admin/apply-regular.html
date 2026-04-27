@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>정회원신청자 관리 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title">정회원신청자 관리</h1>
+      <div class="admin-topbar-actions">
+        <button class="btn-refresh" onclick="RegularList.load()" title="새로고침">
+          <img src="../assets/icons/refresh.png" alt="새로고침">
+        </button>
+      </div>
+    </div>
+
+    <!-- 검색 필터 -->
+    <div class="filter-card">
+      <div class="filter-body">
+
+        <div class="filter-row">
+          <span class="filter-label">신청기간</span>
+          <div class="filter-content">
+            <div class="date-pair">
+              <input type="date" id="filterDateFrom">
+              <span class="date-sep">—</span>
+              <input type="date" id="filterDateTo">
+            </div>
+            <div class="date-preset-group">
+              <button class="date-preset-btn" onclick="setDatePreset('today')">오늘</button>
+              <button class="date-preset-btn" onclick="setDatePreset(7)">7일</button>
+              <button class="date-preset-btn" onclick="setDatePreset(30)">30일</button>
+              <button class="date-preset-btn" onclick="setDatePreset(90)">3개월</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">활동여부</span>
+          <div class="filter-content">
+            <div class="chip-group">
+              <label class="chip"><input type="radio" name="filterActStatus" value="" checked><span>전체</span></label>
+              <label class="chip"><input type="radio" name="filterActStatus" value="활동 중"><span>활동 중</span></label>
+              <label class="chip"><input type="radio" name="filterActStatus" value="활동 예정"><span>활동 예정</span></label>
+              <label class="chip"><input type="radio" name="filterActStatus" value="미활동"><span>미활동</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">회원구분</span>
+          <div class="filter-content">
+            <div class="chip-group">
+              <label class="chip"><input type="radio" name="filterMemberType" value="" checked><span>전체</span></label>
+              <label class="chip"><input type="radio" name="filterMemberType" value="member"><span>회원</span></label>
+              <label class="chip"><input type="radio" name="filterMemberType" value="guest"><span>비회원</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">검색어</span>
+          <div class="filter-content">
+            <div class="kw-wrap">
+              <select id="filterSearchType">
+                <option value="all">전체</option>
+                <option value="name">이름</option>
+                <option value="email">이메일</option>
+                <option value="phone">연락처</option>
+              </select>
+              <div class="kw-input-wrap">
+                <input type="text" id="filterKeyword" placeholder="검색어를 입력하세요"
+                  onkeydown="if(event.key==='Enter') RegularList.search()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="filter-footer">
+        <button class="btn btn-outline btn-sm"
+          onclick="AdminHttp.downloadExcel(ADMIN_API.applyRegular + '/export', RegularList.getParams())">
+          엑셀 다운로드
+        </button>
+        <button class="btn btn-gray btn-sm" onclick="RegularList.reset()">초기화</button>
+        <button class="btn btn-primary btn-sm" onclick="RegularList.search()">검색</button>
+      </div>
+    </div>
+
+    <!-- 목록 상단 -->
+    <div class="list-top">
+      <div class="list-count" id="listCount">총 <strong>0</strong>건</div>
+      <select class="form-control" style="width:130px;height:36px;font-size:13px"
+        onchange="RegularList.changePageSize(this.value)">
+        <option value="10">10개씩 보기</option>
+        <option value="30">30개씩 보기</option>
+        <option value="50">50개씩 보기</option>
+        <option value="100">100개씩 보기</option>
+      </select>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width:4%">No</th>
+            <th style="width:12%">접수번호</th>
+            <th style="width:8%">이름</th>
+            <th style="width:7%">회원구분</th>
+            <th style="width:7%">활동여부</th>
+            <th style="width:13%">연락처</th>
+            <th>이메일</th>
+            <th style="width:13%">신청일</th>
+            <th style="width:12%">관리자 메모</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] AdminHttp.get(ADMIN_API.applyRegular, params) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_DATA = {
+  total: 8,
+  items: [
+    { id: 3001, no: 8, appNo: 'REG-2026-00001', name: '김숲해설', memberType: '회원',   memberBadge: 'badge-blue', actStatus: '활동 중',   phone: '010-1000-2000', email: 'user3001@example.com', applyDate: '2025-10-05 09:00:00', memo: '' },
+    { id: 3002, no: 7, appNo: 'REG-2026-00002', name: '이초록',   memberType: '비회원', memberBadge: 'badge-gray', actStatus: '활동 예정', phone: '010-1001-2001', email: 'user3002@example.com', applyDate: '2025-12-01 14:21:00', memo: '추가 서류 요청 필요' },
+    { id: 3003, no: 6, appNo: 'REG-2026-00003', name: '박자연',   memberType: '회원',   memberBadge: 'badge-blue', actStatus: '미활동',    phone: '010-1002-2002', email: 'user3003@example.com', applyDate: '2026-01-10 11:05:00', memo: '전화 확인 완료' },
+    { id: 3004, no: 5, appNo: 'REG-2026-00004', name: '오산들',   memberType: '회원',   memberBadge: 'badge-blue', actStatus: '활동 중',   phone: '010-1003-2003', email: 'user3004@example.com', applyDate: '2026-01-25 10:30:00', memo: '' },
+    { id: 3005, no: 4, appNo: 'REG-2026-00005', name: '서하늘',   memberType: '비회원', memberBadge: 'badge-gray', actStatus: '활동 예정', phone: '010-1004-2004', email: 'user3005@example.com', applyDate: '2026-02-10 09:15:00', memo: '' },
+    { id: 3006, no: 3, appNo: 'REG-2026-00006', name: '한솔바람', memberType: '회원',   memberBadge: 'badge-blue', actStatus: '활동 중',   phone: '010-1005-2005', email: 'user3006@example.com', applyDate: '2026-03-01 14:00:00', memo: '자격증 사본 확인' },
+    { id: 3007, no: 2, appNo: 'REG-2026-00007', name: '장이파리', memberType: '비회원', memberBadge: 'badge-gray', actStatus: '미활동',    phone: '010-1006-2006', email: 'user3007@example.com', applyDate: '2026-03-20 16:45:00', memo: '' },
+    { id: 3008, no: 1, appNo: 'REG-2026-00008', name: '윤단풍',   memberType: '회원',   memberBadge: 'badge-blue', actStatus: '활동 중',   phone: '010-1007-2007', email: 'user3008@example.com', applyDate: '2026-04-05 11:00:00', memo: '정회원 전환 완료' },
+  ],
+};
+
+const RegularList = {
+  currentPage: 1,
+  pageSize:    10,
+
+  getParams() {
+    return {
+      date_from:   document.getElementById('filterDateFrom').value,
+      date_to:     document.getElementById('filterDateTo').value,
+      act_status:  document.querySelector('input[name="filterActStatus"]:checked')?.value || '',
+      member_type: document.querySelector('input[name="filterMemberType"]:checked')?.value || '',
+      kw_type:     document.getElementById('filterSearchType').value,
+      kw:          document.getElementById('filterKeyword').value.trim(),
+      page:        this.currentPage,
+      size:        this.pageSize,
+    };
+  },
+
+  search() { this.currentPage = 1; this.load(); },
+
+  async load() {
+    AdminUI.showLoading('tableBody', 9);
+    try {
+      /*
+       * [개발자 연동]
+       * const data = await AdminHttp.get(ADMIN_API.applyRegular, this.getParams());
+       * this.render(data.items, data.total);
+       */
+      await new Promise(r => setTimeout(r, 200));
+      const p = this.getParams();
+      let items = SAMPLE_DATA.items.filter(d => {
+        if (p.date_from && d.applyDate < p.date_from) return false;
+        if (p.date_to   && d.applyDate > p.date_to + ' 23:59:59') return false;
+        if (p.act_status  && d.actStatus  !== p.act_status)  return false;
+        if (p.member_type) {
+          const mt = p.member_type === 'member' ? '회원' : '비회원';
+          if (d.memberType !== mt) return false;
+        }
+        if (p.kw) {
+          const kw = p.kw.toLowerCase();
+          if (p.kw_type === 'name')  return d.name.includes(kw);
+          if (p.kw_type === 'email') return d.email.toLowerCase().includes(kw);
+          if (p.kw_type === 'phone') return d.phone.includes(kw);
+          return (d.name + d.email + d.phone).toLowerCase().includes(kw);
+        }
+        return true;
+      });
+      const total = items.length;
+      const start = (this.currentPage - 1) * this.pageSize;
+      this.render(items.slice(start, start + this.pageSize), total);
+    } catch (e) {
+      AdminUI.showError('tableBody', e.message, 9);
+    }
+  },
+
+  render(items, total) {
+    AdminUI.updateCount('listCount', total);
+    const totalPages = Math.ceil(total / this.pageSize) || 1;
+    AdminUI.renderPagination('pagination', this.currentPage, totalPages, p => {
+      this.currentPage = p; this.load();
+    });
+
+    const tbody = document.getElementById('tableBody');
+    if (!items.length) {
+      AdminUI.showEmpty('tableBody', '신청 내역이 없습니다.', 9); return;
+    }
+    tbody.innerHTML = items.map(d => `
+      <tr style="cursor:pointer"
+        onclick="location.href='apply-regular-detail.html?id=${d.id}'">
+        <td class="td-muted">${d.no}</td>
+        <td class="td-muted">${d.appNo}</td>
+        <td><strong>${d.name}</strong></td>
+        <td class="center">
+          <span class="badge ${d.memberBadge}">${d.memberType}</span>
+        </td>
+        <td class="center">${d.actStatus}</td>
+        <td class="td-muted">${d.phone}</td>
+        <td class="td-muted">${d.email}</td>
+        <td class="td-muted cell-datetime">${d.applyDate}</td>
+        <td class="td-muted">${d.memo}</td>
+      </tr>`).join('');
+  },
+
+  changePageSize(size) {
+    this.pageSize = parseInt(size); this.currentPage = 1; this.load();
+  },
+
+  reset() {
+    document.getElementById('filterDateFrom').value = '';
+    document.getElementById('filterDateTo').value   = '';
+    document.querySelector('input[name="filterActStatus"][value=""]').checked  = true;
+    document.querySelector('input[name="filterMemberType"][value=""]').checked = true;
+    document.getElementById('filterSearchType').value = 'all';
+    document.getElementById('filterKeyword').value    = '';
+    this.currentPage = 1;
+    this.load();
+  },
+};
+
+AdminSidebar.mount('apply-regular');
+RegularList.load();
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+/* =============================================
+   variables.css | CSS 커스텀 프로퍼티
+   ============================================= */
+
+/* ── 기본 font-size 설정 (글자 크기 조절 기준 REQ-003)
+   FontSize JS 객체가 html[data-font] 속성을 제어
+   sm: 14px / md: 16px(기본) / lg: 18px
+*/
+html {
+   font-size: 16px;
+}
+
+html[data-font="sm"] {
+   font-size: 14px;
+}
+
+html[data-font="md"] {
+   font-size: 16px;
+}
+
+html[data-font="lg"] {
+   font-size: 18px;
+}
+
+/* 모바일: 글자 크기 단계를 한 단계 낮춰 적용 */
+@media (max-width: 768px) {
+  html[data-font="md"] { font-size: 15px; }
+  html[data-font="lg"] { font-size: 16px; }
+}
+
+:root {
+   /* 색상 */
+   --green-dark: #20281A;
+   --green-main: #05803e;
+   --green-light: #508829;
+   --green-pale: #F1F5EE;
+   --gray-dark: #2d3436;
+   --gray-mid: #636e72;
+   --gray-light: #dfe6e9;
+   --gray-bg: #f4f6f4;
+   --white: #ffffff;
+   --accent: #f4a261;
+   --danger: #e74c3c;
+   --warning: #f9a825;
+   --warning-pale: #fff8e1;
+   --info: #1976d2;
+   --info-pale: #e3f2fd;
+
+   /* 타이포 — rem 기준 (html font-size 16px 기준) */
+
+   --font-base: 'Noto Sans KR', sans-serif;
+
+   --text-2xs: 0.6rem;
+   /* 그대로 유지 (약 10px) */
+   --text-xs: 0.8125rem;
+   /* 13px */
+
+   /* 여기부터 수정 */
+   --text-sm: 0.875rem;
+   /* 14px */
+   --text-md: 1rem;
+   /* 16px */
+   --text-base: 1.125rem;
+   /* 18px */
+   --text-lg: 1.25rem;
+   /* 20px */
+   --text-xl: 1.375rem;
+   /* 22px */
+
+   /* 기존 유지 or 필요 시 확장 */
+   --text-2xl: 1.75rem;
+   /* 28px (기존 30 → 자연스럽게 스케일 맞춤) */
+   --text-3xl: 2.25rem;
+   /* 36px */
+   --text-4xl: 2.75rem;
+   /* 44px */
+
+   /* 확장 크기 — main.css 히어로/패널 전용 */
+   --text-12: 0.75rem;      /* 12px */
+   --text-15: 0.9375rem;    /* 15px */
+   --text-24: 1.5rem;       /* 24px */
+   --text-42: 2.625rem;     /* 42px */
+   --text-hero: 3.5rem;       /* 56px — 히어로 타이틀 */
+
+
+
+   /* 레이아웃 */
+   --container-max: 1700px;
+   --container-md: 1400px;
+   --container-sm: 760px;
+   --radius: 8px;
+   --radius-lg: 12px;
+   --radius-xl: 16px;
+   --shadow: 0 2px 12px rgba(0, 0, 0, .08);
+   --shadow-md: 0 4px 20px rgba(0, 0, 0, .12);
+   --shadow-lg: 0 8px 32px rgba(0, 0, 0, .16);
+   --trans: all .22s ease;
+
+   /* 헤더 높이 — 피그마 스펙: 유틸바 40px + 메인 nav 80px = 120px */
+   --pre-header-h: 40px;
+   /* row1: 사이트맵 + 글자크기 고정 row */
+   --header-h: calc(var(--pre-header-h) + 80px);
+   /* = 120px (row1 + row2) */
+}

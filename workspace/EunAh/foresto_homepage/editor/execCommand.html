@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>에디터 표준 템플릿</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── 에디터 래퍼 ── */
+    .editor-wrap {
+      border: 1px solid #c8c8c8;
+      border-radius: 6px;
+      overflow: hidden;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    /* ── 툴바 ── */
+    .editor-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      padding: 6px 8px;
+      background: #f5f5f5;
+      border-bottom: 1px solid #ddd;
+    }
+    .editor-toolbar.is-hidden { display: none; }
+
+    .tb-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 26px;
+      padding: 0 6px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: none;
+      cursor: pointer;
+      font-size: 13px;
+      color: #333;
+      font-family: 'Noto Sans KR', sans-serif;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .tb-btn:hover   { background: #e0e0e0; border-color: #bbb; }
+    .tb-btn.is-active { background: #c8dfc8; border-color: #5a8a5a; color: #2a5a2a; }
+
+    .tb-select {
+      height: 26px;
+      padding: 0 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 12px;
+      background: #fff;
+      cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .tb-sep {
+      width: 1px;
+      height: 20px;
+      background: #ccc;
+      margin: 0 4px;
+      align-self: center;
+      flex-shrink: 0;
+    }
+
+    .tb-color-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .tb-color-input {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+    }
+
+    /* ── 본문 영역 ── */
+    .editor-content {
+      min-height: 380px;
+      padding: 16px 18px;
+      background: #fff;
+      outline: none;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #222;
+      overflow-y: auto;
+    }
+    .editor-content:focus { outline: none; }
+    .editor-content img { max-width: 100%; height: auto; cursor: pointer; }
+    .editor-content table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 8px 0;
+    }
+    .editor-content td,
+    .editor-content th {
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      min-width: 40px;
+    }
+    .editor-content blockquote {
+      border-left: 4px solid #c8dfc8;
+      margin: 8px 0;
+      padding: 8px 16px;
+      background: #f8fdf8;
+      color: #555;
+    }
+    .editor-content pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 14px 16px;
+      border-radius: 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      overflow-x: auto;
+    }
+    .editor-content p.is-editor-empty:first-child::before {
+      content: attr(data-placeholder);
+      color: #aaa;
+      pointer-events: none;
+      float: left;
+      height: 0;
+    }
+
+    /* ── 소스 모드 ── */
+    .editor-source {
+      display: none;
+      min-height: 380px;
+      padding: 16px 18px;
+      background: #f8fff8;
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      color: #155;
+      border: none;
+      outline: none;
+      resize: vertical;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* ── 상태바 ── */
+    .editor-statusbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 10px;
+      background: #f5f5f5;
+      border-top: 1px solid #e0e0e0;
+      font-size: 11px;
+      color: #888;
+    }
+
+    /* ── 이미지 업로드 오버레이 ── */
+    .editor-uploading {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,.7);
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #508829;
+      z-index: 10;
+    }
+    .editor-wrap { position: relative; }
+    .editor-wrap.is-uploading .editor-uploading { display: flex; }
+  </style>
+</head>
+<body>
+
+<div style="max-width:900px; margin:40px auto; padding:20px;">
+  <h2>표준 에디터 템플릿</h2>
+  <div id="myEditor"></div>
+  <button onclick="console.log(StandardEditor.getValue())" style="margin-top:12px;padding:8px 20px;">
+    내용 확인 (콘솔)
+  </button>
+</div>
+
+<script>
+'use strict';
+
+// =============================================
+// editor.config.js — 프로젝트마다 이것만 수정
+// =============================================
+const EDITOR_CONFIG = {
+  uploadUrl: '/api/upload/image',
+  features: {
+    fontFamily:     true,
+    fontSize:       true,
+    bold:           true,
+    italic:         true,
+    underline:      true,
+    strike:         true,
+    color:          true,
+    highlight:      true,
+    align:          true,
+    bulletList:     true,
+    orderedList:    true,
+    indent:         true,
+    link:           true,
+    image:          true,
+    video:          true,
+    table:          true,
+    blockquote:     true,
+    codeBlock:      true,
+    horizontalRule: true,
+    undo:           true,
+    sourceCode:     true,
+  },
+  minHeight:   '380px',
+  maxLength:   0,
+  placeholder: '내용을 입력하세요...',
+  image: {
+    maxSizeMB:    5,
+    allowedTypes: ['image/jpeg','image/png','image/gif','image/webp'],
+  },
+};
+
+// =============================================
+// editor.core.js — 건드릴 필요 없음
+// =============================================
+const StandardEditor = (() => {
+
+  const FONT_FAMILIES = [
+    { label: '맑은 고딕',  value: 'Malgun Gothic' },
+    { label: '나눔고딕',   value: 'Nanum Gothic'  },
+    { label: '굴림',       value: 'Gulim'         },
+    { label: '돋움',       value: 'Dotum'         },
+    { label: '바탕',       value: 'Batang'        },
+    { label: 'Arial',      value: 'Arial'         },
+    { label: 'Georgia',    value: 'Georgia'       },
+  ];
+  const FONT_SIZES = [
+    '9','10','11','12','13','14','16','18','20','24','28','32','36','48','72'
+  ];
+
+  let _wrap    = null;
+  let _toolbar = null;
+  let _content = null;
+  let _source  = null;
+  let _counter = null;
+  let _isSourceMode = false;
+  let _cfg = EDITOR_CONFIG;
+
+  // ── 툴바 HTML 생성 (config.features 기준)
+  function _buildToolbar() {
+    const f = _cfg.features;
+    let rows = [[], []];
+
+    // 1행
+    if (f.fontFamily) rows[0].push(_makeSelect('font-family', FONT_FAMILIES, '맑은 고딕', e => {
+      _exec('fontName', e.target.value);
+    }));
+    if (f.fontSize) rows[0].push(_makeSelect('font-size', FONT_SIZES.map(s=>({label:s+'pt',value:s})), '12', e => {
+      _setFontSize(e.target.value);
+    }));
+    if (f.fontFamily || f.fontSize) rows[0].push('<div class="tb-sep"></div>');
+
+    if (f.bold)      rows[0].push(_makeBtn('<b>B</b>',       '굵게',     () => _exec('bold')));
+    if (f.italic)    rows[0].push(_makeBtn('<i>I</i>',       '기울임',   () => _exec('italic')));
+    if (f.underline) rows[0].push(_makeBtn('<u>U</u>',       '밑줄',     () => _exec('underline')));
+    if (f.strike)    rows[0].push(_makeBtn('<s>S</s>',       '취소선',   () => _exec('strikeThrough')));
+    if (f.bold || f.italic || f.underline || f.strike) rows[0].push('<div class="tb-sep"></div>');
+
+    if (f.color)     rows[0].push(_makeColorBtn('A', '글자색', color => _exec('foreColor', color), 'text'));
+    if (f.highlight) rows[0].push(_makeColorBtn('A', '배경색', color => _exec('hiliteColor', color), 'bg'));
+    if (f.color || f.highlight) rows[0].push('<div class="tb-sep"></div>');
+
+    if (f.align) {
+      rows[0].push(_makeBtn('≡L', '왼쪽정렬',   () => _exec('justifyLeft')));
+      rows[0].push(_makeBtn('≡C', '가운데정렬', () => _exec('justifyCenter')));
+      rows[0].push(_makeBtn('≡R', '오른쪽정렬', () => _exec('justifyRight')));
+      rows[0].push('<div class="tb-sep"></div>');
+    }
+
+    // 2행
+    if (f.orderedList)  rows[1].push(_makeBtn('1. 번호목록', '번호목록',   () => _exec('insertOrderedList')));
+    if (f.bulletList)   rows[1].push(_makeBtn('• 기호목록', '기호목록',   () => _exec('insertUnorderedList')));
+    if (f.indent) {
+      rows[1].push(_makeBtn('→| 들여쓰기', '들여쓰기', () => _exec('indent')));
+      rows[1].push(_makeBtn('|← 내어쓰기', '내어쓰기', () => _exec('outdent')));
+    }
+    if (f.orderedList || f.bulletList || f.indent) rows[1].push('<div class="tb-sep"></div>');
+
+    if (f.link)          rows[1].push(_makeBtn('🔗 링크',   '링크 삽입',  _insertLink));
+    if (f.image)         rows[1].push(_makeBtn('🖼 이미지', '이미지 삽입', _triggerImageUpload));
+    if (f.video)         rows[1].push(_makeBtn('▶ 동영상', '동영상 삽입', _insertVideo));
+    if (f.table)         rows[1].push(_makeBtn('⊞ 표',     '표 삽입',     _insertTable));
+    if (f.blockquote)    rows[1].push(_makeBtn('❝ 인용',   '인용구',      () => _exec('formatBlock', 'blockquote')));
+    if (f.horizontalRule)rows[1].push(_makeBtn('── 선',    '수평선',      () => _exec('insertHorizontalRule')));
+    if (f.codeBlock)     rows[1].push(_makeBtn('</> 코드', '코드블록',    _insertCodeBlock));
+    if (f.link || f.image || f.video || f.table) rows[1].push('<div class="tb-sep"></div>');
+
+    if (f.undo) {
+      rows[1].push(_makeBtn('↩ 취소',   '실행취소',  () => _exec('undo')));
+      rows[1].push(_makeBtn('↪ 재실행', '다시실행',  () => _exec('redo')));
+    }
+    if (f.sourceCode) {
+      rows[1].push('<div class="tb-sep"></div>');
+      rows[1].push(_makeBtn('&lt;/&gt; 소스', 'HTML 소스', _toggleSource));
+    }
+
+    return rows.map(r =>
+      r.length
+        ? `<div class="editor-toolbar">${r.join('')}</div>`
+        : ''
+    ).join('');
+  }
+
+  function _makeBtn(label, title, onClick) {
+    const id = 'tbBtn_' + Math.random().toString(36).slice(2);
+    // onClick을 전역에 임시 등록
+    window[id] = onClick;
+    return `<button class="tb-btn" title="${title}" onclick="window['${id}']()">${label}</button>`;
+  }
+
+  function _makeSelect(type, options, defaultVal, onChange) {
+    const id = 'tbSel_' + Math.random().toString(36).slice(2);
+    window[id] = onChange;
+    const opts = options.map(o =>
+      `<option value="${o.value}" ${o.value===defaultVal?'selected':''}>${o.label}</option>`
+    ).join('');
+    return `<select class="tb-select" onchange="window['${id}'](event)">${opts}</select>`;
+  }
+
+  function _makeColorBtn(label, title, onPick, type) {
+    const id = 'tbColor_' + Math.random().toString(36).slice(2);
+    window[id] = (e) => {
+      _content.focus();
+      onPick(e.target.value);
+    };
+    const style = type === 'bg'
+      ? `style="background:#ff0;padding:0 4px"`
+      : `style="text-decoration:underline;text-decoration-color:#e00"`;
+    return `
+      <div class="tb-color-wrap tb-btn" title="${title}">
+        <span ${style}>${label}</span>
+        <input type="color" class="tb-color-input" value="${type==='bg'?'#ffff00':'#ff0000'}"
+          oninput="window['${id}'](event)">
+      </div>`;
+  }
+
+  // ── execCommand 래퍼
+  function _exec(cmd, val = null) {
+    _content.focus();
+    document.execCommand(cmd, false, val);
+    _updateCount();
+  }
+
+  // ── 폰트 크기 (pt 단위 정확하게)
+  function _setFontSize(pt) {
+    _content.focus();
+    document.execCommand('fontSize', false, '3');
+    _content.querySelectorAll('font[size="3"]').forEach(el => {
+      el.removeAttribute('size');
+      el.style.fontSize = pt + 'pt';
+    });
+    _updateCount();
+  }
+
+  // ── 링크 삽입
+  function _insertLink() {
+    const url  = prompt('링크 URL', 'https://');
+    if (!url) return;
+    const text = prompt('링크 텍스트', '링크');
+    if (!text) return;
+    _content.focus();
+    document.execCommand('insertHTML', false,
+      `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`);
+    _updateCount();
+  }
+
+  // ── 이미지 업로드 (파일 선택)
+  function _triggerImageUpload() {
+    const input = document.createElement('input');
+    input.type   = 'file';
+    input.accept = _cfg.image.allowedTypes.join(',');
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (!file) return;
+
+      // 크기 체크
+      if (file.size > _cfg.image.maxSizeMB * 1024 * 1024) {
+        alert(`이미지는 ${_cfg.image.maxSizeMB}MB 이하만 업로드 가능합니다.`);
+        return;
+      }
+
+      _wrap.classList.add('is-uploading');
+      const fd = new FormData();
+      fd.append('image', file);
+
+      try {
+        const res  = await fetch(_cfg.uploadUrl, { method:'POST', body:fd });
+        const data = await res.json();
+        _content.focus();
+        document.execCommand('insertHTML', false,
+          `<img src="${data.url}" alt="" style="max-width:100%"><br>`);
+        _updateCount();
+      } catch(e) {
+        alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+      } finally {
+        _wrap.classList.remove('is-uploading');
+      }
+    };
+    input.click();
+  }
+
+  // ── 동영상 삽입
+  function _insertVideo() {
+    const url = prompt('동영상 URL (YouTube, Vimeo 등)', 'https://');
+    if (!url) return;
+
+    // YouTube embed 변환
+    const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&\s]+)/);
+    const embedUrl = ytMatch
+      ? `https://www.youtube.com/embed/${ytMatch[1]}`
+      : url;
+
+    _content.focus();
+    document.execCommand('insertHTML', false,
+      `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin:8px 0">
+        <iframe src="${embedUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%"
+          frameborder="0" allowfullscreen></iframe>
+      </div><br>`);
+    _updateCount();
+  }
+
+  // ── 표 삽입
+  function _insertTable() {
+    const rows = parseInt(prompt('행 수', '3'), 10) || 3;
+    const cols = parseInt(prompt('열 수', '3'), 10) || 3;
+    let html = '<table border="1" style="border-collapse:collapse;width:100%;margin:8px 0">';
+    html += '<thead><tr>' +
+      Array(cols).fill(0).map((_,i) =>
+        `<th style="padding:6px 10px;border:1px solid #ccc;background:#f5f5f5">헤더${i+1}</th>`
+      ).join('') + '</tr></thead>';
+    html += '<tbody>';
+    for (let r = 0; r < rows - 1; r++) {
+      html += '<tr>' +
+        Array(cols).fill(0).map(() =>
+          `<td style="padding:6px 10px;border:1px solid #ccc">&nbsp;</td>`
+        ).join('') + '</tr>';
+    }
+    html += '</tbody></table><br>';
+    _content.focus();
+    document.execCommand('insertHTML', false, html);
+    _updateCount();
+  }
+
+  // ── 코드블록 삽입
+  function _insertCodeBlock() {
+    _content.focus();
+    document.execCommand('insertHTML', false,
+      `<pre style="background:#1e1e1e;color:#d4d4d4;padding:14px 16px;border-radius:6px;font-family:Consolas,monospace;font-size:13px;overflow-x:auto">코드를 입력하세요</pre><br>`);
+    _updateCount();
+  }
+
+  // ── 소스 모드 토글
+  function _toggleSource() {
+    _isSourceMode = !_isSourceMode;
+    if (_isSourceMode) {
+      _source.value   = _content.innerHTML;
+      _content.style.display = 'none';
+      _source.style.display  = 'block';
+    } else {
+      _content.innerHTML     = _source.value;
+      _content.style.display = 'block';
+      _source.style.display  = 'none';
+    }
+    _updateCount();
+  }
+
+  // ── 글자수 카운터
+  function _updateCount() {
+    const text = _content.innerText || '';
+    const len  = text.replace(/\n/g,'').length;
+    const max  = _cfg.maxLength;
+    _counter.textContent = max
+      ? `${len.toLocaleString()} / ${max.toLocaleString()}자`
+      : `${len.toLocaleString()}자`;
+    if (max && len > max) _counter.style.color = '#e00';
+    else _counter.style.color = '#888';
+  }
+
+  // ── 공개 API
+  return {
+
+    // 초기화: init('컨테이너ID', config선택사항)
+    init(containerId, customConfig = {}) {
+      _cfg = Object.assign({}, EDITOR_CONFIG, customConfig);
+      const container = document.getElementById(containerId);
+      if (!container) return console.error('[Editor] 컨테이너를 찾을 수 없습니다:', containerId);
+
+      container.innerHTML = `
+        <div class="editor-wrap">
+          ${_buildToolbar()}
+          <div class="editor-uploading">이미지 업로드 중...</div>
+          <div class="editor-content" contenteditable="true"
+               data-placeholder="${_cfg.placeholder}"></div>
+          <textarea class="editor-source"></textarea>
+          <div class="editor-statusbar">
+            <span class="editor-char-count">0자</span>
+            <span>Standard Editor v1.0</span>
+          </div>
+        </div>`;
+
+      _wrap    = container.querySelector('.editor-wrap');
+      _toolbar = container.querySelectorAll('.editor-toolbar');
+      _content = container.querySelector('.editor-content');
+      _source  = container.querySelector('.editor-source');
+      _counter = container.querySelector('.editor-char-count');
+
+      _content.style.minHeight = _cfg.minHeight;
+      _content.addEventListener('input', _updateCount);
+
+      // 드래그앤드롭 이미지 업로드
+      if (_cfg.features.image) {
+        _content.addEventListener('dragover', e => e.preventDefault());
+        _content.addEventListener('drop', async e => {
+          e.preventDefault();
+          const file = e.dataTransfer.files[0];
+          if (!file || !file.type.startsWith('image/')) return;
+          if (file.size > _cfg.image.maxSizeMB * 1024 * 1024) {
+            alert(`이미지는 ${_cfg.image.maxSizeMB}MB 이하만 가능합니다.`); return;
+          }
+          _wrap.classList.add('is-uploading');
+          const fd = new FormData();
+          fd.append('image', file);
+          try {
+            const res  = await fetch(_cfg.uploadUrl, { method:'POST', body:fd });
+            const data = await res.json();
+            const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+            if (range) {
+              const sel = window.getSelection();
+              sel.removeAllRanges();
+              sel.addRange(range);
+            }
+            document.execCommand('insertHTML', false,
+              `<img src="${data.url}" alt="" style="max-width:100%"><br>`);
+          } catch { alert('이미지 업로드 실패'); }
+          finally  { _wrap.classList.remove('is-uploading'); }
+        });
+      }
+
+      console.log('[Editor] 초기화 완료:', containerId);
+    },
+
+    // HTML 값 가져오기 (save에서 사용)
+    getValue() {
+      return _isSourceMode ? _source.value : _content.innerHTML;
+    },
+
+    // HTML 값 넣기 (수정 모드에서 사용)
+    setValue(html) {
+      _content.innerHTML = html || '';
+      _updateCount();
+    },
+
+    // 초기화
+    clear() {
+      _content.innerHTML = '';
+      _updateCount();
+    },
+
+    // 유효성 검사
+    isEmpty() {
+      return (_content.innerText || '').trim().length === 0;
+    },
+  };
+})();
+
+// ── 사용 예시
+StandardEditor.init('myEditor');
+
+// 수정 모드라면:
+// StandardEditor.setValue('<p>기존 본문 내용</p>');
+
+// 저장할 때:
+// const html = StandardEditor.getValue();
+</script>
+</body>
+</html>

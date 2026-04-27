@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>전문과정 신청 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/education.css">
+</head>
+
+<body>
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>자격취득 과정</h1>
+    </div>
+  </div>
+
+  <div id="bc"></div>
+  <div class="sub-layout">
+    <div id="lnb"></div>
+    <main class="sub-content">
+  <div class="content-wrap">
+
+    <!-- 섹션 타이틀 -->
+    <h2 class="list-section-title">자격취득 과정 신청</h2>
+
+    <!-- 필터 박스 -->
+    <div class="list-filter-box">
+      <div class="list-filter-row">
+        <div class="list-filter-item">
+          <span class="list-filter-label">접수상태</span>
+          <select class="list-filter-select" id="searchStatus">
+            <option value="">선택해주세요</option>
+            <option value="open">접수중</option>
+            <option value="ready">준비중</option>
+            <option value="closed">접수마감</option>
+          </select>
+        </div>
+        <div class="list-filter-item">
+          <span class="list-filter-label">일자</span>
+          <div class="list-filter-date-inputs">
+            <input type="date" class="list-filter-input" id="dateFrom">
+            <span class="list-filter-sep">~</span>
+            <input type="date" class="list-filter-input" id="dateTo">
+          </div>
+        </div>
+        <button class="list-filter-btn" onclick="doSearch()">검색하기</button>
+      </div>
+    </div>
+
+    <!-- 목록 상단 -->
+    <div class="list-top" style="margin-top:20px;">
+      <span class="list-count">목록 <strong id="totalCount">0</strong>건</span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="board-table">
+        <thead>
+          <tr>
+            <th style="width:6%">NO.</th>
+            <th class="td-title">과정명</th>
+            <th style="width:10%">일자</th>
+            <th style="width:20%">접수 기간</th>
+            <th style="width:10%">접수상태</th>
+          </tr>
+        </thead>
+        <tbody id="courseBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="coursePagination"></div>
+  </div>
+    </main>
+  </div>
+
+
+  <div id="ftr"></div>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/education.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('숲해설가교육', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+    document.getElementById('bc').innerHTML = LNB.breadcrumb('../', 'education/course-list.html');
+    document.getElementById('lnb').innerHTML = LNB.render('../', 'education/course-list.html');
+
+    window._ctrl = new CourseListController('전문과정', 'courseBody', 'coursePagination');
+    window._ctrl.render();
+
+    function doSearch() {
+      const status = document.getElementById('searchStatus').value;
+      const from   = document.getElementById('dateFrom').value;
+      const to     = document.getElementById('dateTo').value;
+      window._ctrl.courses = ALL_COURSES_RAW.filter(c => c.type === '전문과정').sort((a, b) => b.date.localeCompare(a.date));
+      window._ctrl.filter(status, from, to);
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>협회 일정 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/pages/community.css">
+</head>
+
+<body data-page="calendar">
+
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>소식</h1>
+    </div>
+  </div>
+
+  <div id="bc"></div>
+  <div class="sub-layout">
+    <div id="lnb"></div>
+    <main class="sub-content">
+  <div class="content-wrap">
+
+    <!-- 오늘의 일정 -->
+    <div id="todaySchedule" style="margin-bottom:20px"></div>
+
+    <!-- 월 이동 네비게이션 -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="cal-main-nav">
+        <button onclick="CalendarCtrl.changeMonth(-1)">&#8249;</button>
+        <h2 id="calMonthTitle">2026년 3월</h2>
+        <button onclick="CalendarCtrl.changeMonth(1)">&#8250;</button>
+      </div>
+      <div class="full-cal-grid" id="fullCalGrid"></div>
+    </div>
+
+  </div>
+    </main>
+  </div>
+
+
+  <div id="ftr"></div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/community.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('커뮤니티', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+    document.getElementById('bc').innerHTML = LNB.breadcrumb('../', 'community/calendar.html');
+    document.getElementById('lnb').innerHTML = LNB.render('../', 'community/calendar.html');
+    CalendarCtrl.init();
+
+    /* 날짜별 일정 렌더링 (날짜 클릭 시 재호출) */
+    function renderDaySchedule(dateStr, label) {
+      const events = (typeof CALENDAR_EVENTS !== 'undefined')
+        ? CALENDAR_EVENTS.filter(e => e.date === dateStr)
+        : [];
+      const catMeta = CalendarCtrl.CAT_META;
+
+      const itemsHTML = events.length
+        ? events.map(e => {
+            const meta = catMeta[e.cat] || { label: e.cat, dotColor: 'var(--gray-mid)' };
+            const cursor = e.link ? 'cursor:pointer' : '';
+            const clickAttr = e.link ? `onclick="location.href='${e.link}'"` : '';
+            const titleStyle = e.link ? 'text-decoration:underline' : '';
+            return `
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 0;
+                        border-bottom:1px solid var(--gray-light);${cursor}" ${clickAttr}>
+              <div style="width:8px;height:8px;border-radius:50%;flex-shrink:0;
+                          background:${meta.dotColor}"></div>
+              <div style="flex:1;font-size:14px;color:var(--gray-dark);${titleStyle}">${e.title}</div>
+              <div style="font-size:12px;color:var(--gray-mid);white-space:nowrap">${meta.label}</div>
+            </div>`;
+          }).join('')
+        : `<div style="padding:16px 0;font-size:14px;color:var(--gray-mid)">예정된 일정이 없습니다.</div>`;
+
+      document.getElementById('todaySchedule').innerHTML = `
+        <div class="card" style="padding:20px 24px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <div style="font-size:15px;font-weight:700;color:var(--gray-dark)">${label}</div>
+            ${events.length ? `<div style="margin-left:auto;font-size:12px;background:var(--green-dark);
+              color:#fff;border-radius:20px;padding:2px 10px">${events.length}건</div>` : ''}
+          </div>
+          ${itemsHTML}
+        </div>`;
+    }
+
+    /* 초기 렌더: 오늘 날짜 */
+    (function() {
+      const t = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const todayStr = `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`;
+      renderDaySchedule(todayStr, `${t.getMonth() + 1}월 ${t.getDate()}일 일정`);
+    })();
+  </script>
+</body>
+
+</html>

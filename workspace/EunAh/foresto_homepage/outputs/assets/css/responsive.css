@@ -1,0 +1,404 @@
+/* =============================================
+   responsive.css | 반응형 브레이크포인트
+   ============================================= */
+
+/* ── 태블릿 (≤ 1024px) */
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 20px;
+  }
+
+  .main-nav {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .mobile-sitemap-btn {
+    display: flex;
+  }
+
+  /* 모바일 헤더: 인증 버튼 숨김 (모바일 드로어에서 접근 가능) */
+  #authArea {
+    display: none;
+  }
+
+  .header-actions .header-username {
+    display: none;
+  }
+
+  /* 사이트맵 텍스트 레이블 숨김 (아이콘만 노출) */
+  .sitemap-label {
+    display: none;
+  }
+
+  /* 로고 이미지 크기 축소 (모바일 헤더 대응) */
+  .logo-img,
+  .logo-img img {
+    height: 34px;
+  }
+}
+
+/* ── 소형 모바일 (≤ 480px): 글자크기 버튼 + 사이트맵 숨김 */
+@media (max-width: 480px) {
+  .font-ctrl {
+    display: none;
+  }
+
+  .sitemap-link {
+    display: none;
+  }
+}
+
+/* ── 태블릿 소형 (≤ 768px) */
+@media (max-width: 768px) {
+  :root {
+    --header-h: 54px;
+    /* 모바일: row1(util) 숨김 → row2 단독 사용 */
+  }
+
+  /* row1 전체 숨김 → row2(header-inner)가 전체 헤더 높이 차지 */
+  .header-util {
+    display: none;
+  }
+
+  .header-inner {
+    flex: none;
+    height: 100%;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .section {
+    padding: 32px 0;
+  }
+
+  .content-wrap {
+    padding: 20px 16px 48px;
+  }
+
+  .page-header {
+    padding: 24px 0;
+  }
+
+  .page-header h1 {
+    font-size: var(--text-xl);
+  }
+
+  .page-header p {
+    font-size: var(--text-sm);
+  }
+
+  /* sub-content 안의 content-wrap: 이중 패딩 방지 */
+  .sub-content .content-wrap {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* ── 서브메뉴 탭: 모바일 가로 스크롤 (Plan B)
+       - 탭 구조·active 상태·링크 모두 유지
+       - 스크롤바 숨김, 터치 스크롤 지원 */
+  .page-tabs {
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  .page-tabs::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
+  }
+
+  .page-tab {
+    flex-shrink: 0;
+    /* 탭 축소 금지 */
+    white-space: nowrap;
+    padding: 12px 18px;
+    font-size: var(--text-sm);
+  }
+
+  .data-table thead th:nth-child(n+4),
+  .data-table tbody td:nth-child(n+4) {
+    display: none;
+  }
+
+  /* ── 게시판 테이블 → 모바일 카드 레이아웃
+     구조:
+       [제목(1fr)            ] [작성자 or 상태(auto)]
+       [등록일(소형/회색)    ]
+  */
+  .board-table,
+  .board-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .board-table thead {
+    display: none;
+  }
+
+  .board-table tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-light);
+  }
+
+  .board-table tbody tr:hover {
+    background: var(--gray-bg);
+  }
+
+  /* 모든 td 기본: 숨김 */
+  .board-table tbody td {
+    display: none;
+    padding: 0;
+    text-align: left;
+    white-space: normal;
+    border: none;
+  }
+
+  /* 제목: 1열 1행, 볼드 말줄임 */
+  .board-table tbody td.td-title {
+    display: block;
+    grid-column: 1;
+    grid-row: 1;
+    font-weight: 700;
+    font-size: var(--text-md);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .board-table tbody td.td-title a {
+    font-weight: 700;
+  }
+
+  /* 날짜: 1열 2행, 소형 회색 */
+  .board-table tbody td.col-date {
+    display: block;
+    grid-column: 1;
+    grid-row: 2;
+    font-size: var(--text-xs);
+    color: var(--gray-mid);
+    margin-top: 4px;
+    white-space: nowrap;
+  }
+
+  /* 작성자: 2열 1~2행 (기본 게시판) */
+  .board-table tbody td.col-author {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    grid-column: 2;
+    grid-row: 1 / 3;
+    font-size: var(--text-sm);
+    color: var(--gray-mid);
+    padding-left: 10px;
+    white-space: nowrap;
+  }
+
+  /* 상태 배지: 2열 1~2행 (강좌·QnA 게시판) */
+  .board-table tbody td.col-status {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    grid-column: 2;
+    grid-row: 1 / 3;
+    padding-left: 10px;
+  }
+
+  /* 번호·부가정보·기간: 숨김 유지 */
+  .board-table tbody td.col-num,
+  .board-table tbody td.col-extra,
+  .board-table tbody td.col-period {
+    display: none;
+  }
+
+  /* 공지 핀 행 */
+  .board-table tbody tr.pinned {
+    background: var(--green-pale);
+  }
+
+  /* ── 푸터 */
+  .site-footer {
+    padding: 24px;
+    font-size: var(--text-xs);
+  }
+
+  /* main.css 새 푸터 구조 대응 */
+  .site-footer .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 24px 0 20px;
+  }
+
+  .footer-info {
+    gap: 4px;
+  }
+
+  .footer-links {
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .footer-right {
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+  }
+
+  /* 유관기관 슬라이드 모바일 */
+  .footer-related {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .related-viewport {
+    width: 180px;
+  }
+
+  .footer-copy {
+    margin-top: 16px;
+  }
+}
+
+/* ── 모바일 (≤ 480px) */
+@media (max-width: 480px) {
+  .tabs {
+    gap: 6px;
+  }
+
+  .tab-btn {
+    font-size: var(--text-sm);
+    padding: 7px 12px;
+  }
+
+  .btn-lg {
+    padding: 11px 20px;
+    font-size: var(--text-md);
+  }
+
+  .search-wrap {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-field .form-control,
+  .search-field input[type="date"] {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .search-btn {
+    width: 100%;
+  }
+
+  .pagination .page-btn {
+    width: 30px;
+    height: 30px;
+    font-size: var(--text-xs);
+  }
+
+  /* ── 푸터 전체 구조 재정의 */
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 24px 16px;
+  }
+
+  /* 로고 + 텍스트 세로 */
+  .footer-info {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .footer-info-text {
+    font-size: var(--text-xs);
+  }
+
+  /* 오른쪽 영역 → 왼쪽 정렬 + 세로 */
+  .footer-right {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 10px;
+  }
+
+  /* SNS + 버튼 줄 */
+  .footer-right-top {
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  /* 버튼 전체폭 */
+  .footer-old-site,
+  .footer-family-btn {
+    width: 100%;
+    align-items: center;
+  }
+
+  .footer-old-site {
+    justify-content: center;
+  }
+
+  /* 드롭다운도 width 맞추기 */
+  .footer-family-list {
+    width: 100%;
+  }
+
+  /* SNS 아이콘 축소 */
+  .footer-sns-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* 유관기관 카드 */
+  .org-band-card {
+    width: 140px;
+    font-size: var(--text-12);
+  }
+}
+
+/* ── 소형 모바일 (≤ 360px) — CLAUDE.md 기준 최솟값 */
+@media (max-width: 360px) {
+  .container {
+    padding: 0 12px;
+  }
+
+  .page-tab {
+    padding: 10px 10px;
+    font-size: var(--text-xs);
+  }
+
+  .btn {
+    padding: 7px 14px;
+  }
+
+  .btn-lg {
+    padding: 10px 16px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .modal {
+    width: 96%;
+  }
+
+  .tabs {
+    gap: 4px;
+  }
+}

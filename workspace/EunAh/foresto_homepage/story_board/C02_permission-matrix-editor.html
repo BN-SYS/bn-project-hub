@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C02 권한 매트릭스 — 편집 & 이미지 다운로드</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --border: #dee2e6;
+    --header-bg: #343a40;
+    --header-text: #fff;
+    --allow: #d4edda;
+    --deny: #f8d7da;
+    --cond: #fff3cd;
+    --row-hover: #e9ecef;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    background: var(--bg);
+    padding: 32px 24px;
+    color: #212529;
+  }
+
+  /* ─── 툴바 ─── */
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .toolbar button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .btn-download { background: #0d6efd; color: #fff; }
+  .btn-download:hover { background: #0b5ed7; }
+  .btn-add-row { background: #198754; color: #fff; }
+  .btn-add-row:hover { background: #157347; }
+  .btn-reset { background: #6c757d; color: #fff; }
+  .btn-reset:hover { background: #5a6268; }
+  .toolbar .hint {
+    font-size: 13px;
+    color: #6c757d;
+    margin-left: auto;
+  }
+
+  .legend {
+    font-size: 13px;
+    color: #495057;
+    margin-bottom: 12px;
+  }
+  .legend span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin: 0 4px 0 12px;
+    border: 1px solid var(--border);
+  }
+
+  /* ─── 캡처 대상 ─── */
+  #capture-area {
+    background: #fff;
+    padding: 28px 24px;
+    border-radius: 8px;
+    display: inline-block;
+  }
+  #capture-area h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  #capture-area .sub {
+    font-size: 13px;
+    color: #868e96;
+    margin-bottom: 16px;
+  }
+
+  /* ─── 테이블 공통 ─── */
+  table {
+    max-width: 1600px;
+    border-collapse: collapse;
+    font-size: 13px;
+    line-height: 1.55;
+    table-layout: fixed;
+  }
+
+  thead th {
+    background: var(--header-bg);
+    color: var(--header-text);
+    padding: 10px 8px;
+    text-align: center;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+  }
+
+  tbody td {
+    border: 1px solid var(--border);
+    padding: 8px;
+    vertical-align: middle;
+    word-break: keep-all;
+  }
+
+  /* ─── 열별 클래스 (핵심 수정) ─── */
+  .col-cat {
+    text-align: left;
+    font-weight: 600;
+    background: #f1f3f5;
+    white-space: pre-line;
+  }
+  .col-func {
+    text-align: left;
+  }
+  .col-perm {
+    text-align: center;
+    font-weight: 700;
+    width: 72px;
+  }
+  .col-block {
+    text-align: left;
+    font-size: 12px;
+    color: #495057;
+  }
+
+  /* 권한 셀 상태 색상 */
+  .col-perm.allow { background: var(--allow) !important; color: #155724; }
+  .col-perm.deny  { background: var(--deny)  !important; color: #721c24; }
+  .col-perm.cond  { background: var(--cond)  !important; color: #856404; }
+
+  /* hover */
+  tbody tr:hover td { background: var(--row-hover); }
+  tbody tr:hover td.col-cat { background: #e5e7ea; }
+  tbody tr:hover td.col-perm.allow { background: var(--allow) !important; }
+  tbody tr:hover td.col-perm.deny  { background: var(--deny)  !important; }
+  tbody tr:hover td.col-perm.cond  { background: var(--cond)  !important; }
+
+  /* 편집 포커스 */
+  td[contenteditable="true"]:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: -2px;
+  }
+
+  /* colgroup 너비 */
+  .cg-cat   { width: 200px; }
+  .cg-func  { width: 150px; }
+  .cg-perm  { width: 72px;  }
+  .cg-block { width: 500px;  }
+  .cg-action{ width: 30px;  }
+
+  /* 삭제 버튼 */
+  td.row-action {
+    border: none;
+    background: transparent !important;
+    padding: 0 4px;
+    text-align: center;
+  }
+  .del-btn {
+    background: none;
+    border: none;
+    color: #adb5bd;
+    font-size: 18px;
+    cursor: pointer;
+    transition: color .15s;
+  }
+  .del-btn:hover { color: #dc3545; }
+
+  @media print {
+    .toolbar, .del-btn, td.row-action { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 툴바 -->
+<div class="toolbar">
+  <button class="btn-download" onclick="downloadImage()">📥 이미지 다운로드 (PNG)</button>
+  <button class="btn-add-row" onclick="addRow()">＋ 행 추가</button>
+  <button class="btn-reset" onclick="resetData()">↺ 원본 복원</button>
+  <span class="hint">셀을 클릭하면 직접 편집 · 권한 셀(○/✕/△) 입력 시 색상 자동 반영</span>
+</div>
+
+<div class="legend">
+  범례:
+  <span style="background:var(--allow)"></span>○ 허용
+  <span style="background:var(--deny)"></span>✕ 차단
+  <span style="background:var(--cond)"></span>△ 조건부
+</div>
+
+<!-- 캡처 대상 -->
+<div id="capture-area">
+  <h2>C02 — 기능별 권한 매트릭스</h2>
+  <p class="sub">○ 허용 &nbsp;/&nbsp; ✕ 차단 &nbsp;/&nbsp; △ 조건부 &nbsp;&nbsp;|&nbsp;&nbsp; 최종 수정: <span id="date-stamp"></span></p>
+
+  <table id="matrix-table">
+    <colgroup>
+      <col class="cg-cat">
+      <col class="cg-func">
+      <col class="cg-perm">
+      <col class="cg-perm">
+      <col class="cg-perm">
+      <col class="cg-perm">
+      <col class="cg-block">
+      <col class="cg-action">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>분류</th>
+        <th>기능</th>
+        <th>비회원</th>
+        <th>일반회원</th>
+        <th>정회원</th>
+        <th>관리자</th>
+        <th>차단 처리</th>
+        <th style="background:transparent;"></th>
+      </tr>
+    </thead>
+    <tbody id="matrix-body"></tbody>
+  </table>
+</div>
+
+<script>
+/* ═══ 원본 데이터 ═══ */
+const ORIGINAL_DATA = [
+  ["T1 정적 페이지","열람","○","○","○","○","—"],
+  ["T1 정적 페이지","콘텐츠 관리","✕","✕","✕","○","관리자 페이지(A20~A22)로 이동"],
+
+  ["T2 교육과정\n(기초·자격취득·역량강화)","목록·상세 열람","○","○","○","○","—"],
+  ["T2 교육과정\n(기초·자격취득·역량강화)","신청하기 클릭","△","○","○","○","비회원: \"로그인 후 이용 가능합니다\" 토스트 → U53"],
+  ["T2 교육과정\n(기초·자격취득·역량강화)","신청 취소","✕","○","○","○","마이페이지(U56-2) 신청내역에서만 취소"],
+  ["T2 교육과정\n(기초·자격취득·역량강화)","수료증 발급","✕","○","○","○","신청내역 완료 상태에서만 버튼 노출"],
+
+  ["T2 회원아카데미\n(특강·강좌·멘토링)","목록·상세 열람","✕","✕","○","○","비회원·일반회원: \"정회원만 이용 가능한 서비스입니다.\" 토스트 → T1-DIFF"],
+  ["T2 회원아카데미\n(특강·강좌·멘토링)","신청하기","✕","✕","○","○","위 동일"],
+  ["T2 회원아카데미\n(특강·강좌·멘토링)","신청 취소","✕","✕","○","○","마이페이지 신청내역에서만"],
+
+  ["T2 강사 신청","목록·상세 열람","✕","✕","○","○","비회원·일반회원: 위 동일"],
+  ["T2 강사 신청","신청하기","✕","✕","○","○","위 동일"],
+
+  ["T3 일반 게시판\n(공지·자료실·언론보도·협회지)","목록·상세 열람","○","○","○","○","—"],
+  ["T3 일반 게시판\n(공지·자료실·언론보도·협회지)","글쓰기·수정","✕","✕","✕","○","관리자만 가능 (A20~A22)"],
+  ["T3 일반 게시판\n(공지·자료실·언론보도·협회지)","내 글 수정·삭제","✕","○","○","○","본인 글: post.user_id = session.user_id"],
+  ["T3 일반 게시판\n(공지·자료실·언론보도·협회지)","모든 글 삭제","✕","✕","✕","○","관리자만"],
+
+  ["T3 숲일터","목록·상세 열람","✕","✕","○","○","비회원·일반회원: \"정회원만 이용 가능한 서비스입니다.\" 토스트"],
+  ["T3 숲일터","글쓰기","✕","✕","✕","○","관리자만"],
+
+  ["T4 사공단·동아리단","소개·소식 열람","✕","✕","○","○","비회원·일반회원: 페이지 접근 차단 → 정회원 가입 안내"],
+  ["T4 사공단·동아리단","소식 등록·수정","✕","✕","○","○","본인 글만 수정, 삭제는 본인·관리자"],
+  ["T4 사공단·동아리단","소식 삭제 (모든 글)","✕","✕","✕","○","관리자만"],
+
+  ["T5 갤러리","목록·상세 열람","○","○","○","○","—"],
+  ["T5 갤러리","글쓰기·수정·삭제","✕","△","○","○","일반회원: 본인 글만. 비회원: 미표시."],
+
+  ["마이페이지","접근","✕","○","○","○","비회원: 로그인 페이지(U53) 리다이렉트"],
+  ["마이페이지","후기 작성","✕","○","○","○","완료 상태 강좌만 작성 가능"],
+  ["마이페이지","증명서 발급","✕","○","○","○","완료 상태 강좌만"],
+
+  ["관리자 페이지","접근","✕","✕","✕","○","미들웨어: role != admin → 로그인 페이지 리다이렉트"]
+];
+
+/* ─── 유틸 ─── */
+function getSymbolClass(val) {
+  const v = val.trim();
+  if (v === '○') return 'allow';
+  if (v === '✕') return 'deny';
+  if (v === '△') return 'cond';
+  return '';
+}
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ─── 권한 셀 생성 헬퍼 ─── */
+function createPermCell(val) {
+  const td = document.createElement('td');
+  td.className = 'col-perm ' + getSymbolClass(val);
+  td.setAttribute('contenteditable', 'true');
+  td.textContent = val;
+  td.addEventListener('input', function() {
+    // allow/deny/cond 외 클래스 유지하면서 교체
+    this.className = 'col-perm ' + getSymbolClass(this.textContent);
+  });
+  return td;
+}
+
+/* ─── 삭제 버튼 셀 ─── */
+function createDelCell(tr) {
+  const td = document.createElement('td');
+  td.className = 'row-action';
+  const btn = document.createElement('button');
+  btn.className = 'del-btn';
+  btn.title = '행 삭제';
+  btn.textContent = '×';
+  btn.addEventListener('click', () => tr.remove());
+  td.appendChild(btn);
+  return td;
+}
+
+/* ─── 테이블 렌더 ─── */
+function renderTable(data) {
+  const tbody = document.getElementById('matrix-body');
+  tbody.innerHTML = '';
+  document.getElementById('date-stamp').textContent = todayStr();
+
+  let i = 0;
+  while (i < data.length) {
+    const cat = data[i][0];
+    let span = 1;
+    while (i + span < data.length && data[i + span][0] === cat) span++;
+
+    for (let j = 0; j < span; j++) {
+      const row = data[i + j];
+      const tr = document.createElement('tr');
+
+      // 분류 (rowspan 첫 행만)
+      if (j === 0) {
+        const td = document.createElement('td');
+        td.className = 'col-cat';
+        td.setAttribute('rowspan', span);
+        td.setAttribute('contenteditable', 'true');
+        td.textContent = row[0];
+        tr.appendChild(td);
+      }
+
+      // 기능
+      const tdFunc = document.createElement('td');
+      tdFunc.className = 'col-func';
+      tdFunc.setAttribute('contenteditable', 'true');
+      tdFunc.textContent = row[1];
+      tr.appendChild(tdFunc);
+
+      // 권한 4열
+      for (let k = 2; k <= 5; k++) {
+        tr.appendChild(createPermCell(row[k]));
+      }
+
+      // 차단 처리
+      const tdBlock = document.createElement('td');
+      tdBlock.className = 'col-block';
+      tdBlock.setAttribute('contenteditable', 'true');
+      tdBlock.textContent = row[6];
+      tr.appendChild(tdBlock);
+
+      // 삭제
+      tr.appendChild(createDelCell(tr));
+
+      tbody.appendChild(tr);
+    }
+    i += span;
+  }
+}
+
+/* ─── 행 추가 ─── */
+function addRow() {
+  const tbody = document.getElementById('matrix-body');
+  const tr = document.createElement('tr');
+
+  const tdCat = document.createElement('td');
+  tdCat.className = 'col-cat';
+  tdCat.setAttribute('contenteditable', 'true');
+  tdCat.textContent = '분류명';
+  tr.appendChild(tdCat);
+
+  const tdFunc = document.createElement('td');
+  tdFunc.className = 'col-func';
+  tdFunc.setAttribute('contenteditable', 'true');
+  tdFunc.textContent = '기능명';
+  tr.appendChild(tdFunc);
+
+  ['○','○','○','○'].forEach(v => tr.appendChild(createPermCell(v)));
+
+  const tdBlock = document.createElement('td');
+  tdBlock.className = 'col-block';
+  tdBlock.setAttribute('contenteditable', 'true');
+  tdBlock.textContent = '차단 처리 설명';
+  tr.appendChild(tdBlock);
+
+  tr.appendChild(createDelCell(tr));
+  tbody.appendChild(tr);
+  tdCat.focus();
+}
+
+/* ─── 원본 복원 ─── */
+function resetData() {
+  if (!confirm('편집 내용을 모두 버리고 원본으로 되돌리시겠습니까?')) return;
+  renderTable(ORIGINAL_DATA);
+}
+
+/* ─── 이미지 다운로드 ─── */
+function downloadImage() {
+  const area = document.getElementById('capture-area');
+
+  // 캡처 전: 삭제 버튼 · 마지막 th 숨김
+  document.querySelectorAll('.row-action').forEach(el => el.style.display = 'none');
+  const lastTh = document.querySelector('#matrix-table thead th:last-child');
+  const lastCol = document.querySelector('#matrix-table colgroup col:last-child');
+  if (lastTh) lastTh.style.display = 'none';
+  if (lastCol) lastCol.style.display = 'none';
+
+  html2canvas(area, {
+    scale: 2,
+    backgroundColor: '#fff',
+    useCORS: true,
+    logging: false
+  }).then(canvas => {
+    restore();
+    const link = document.createElement('a');
+    link.download = `C02_권한매트릭스_${todayStr()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(err => {
+    restore();
+    alert('이미지 생성 중 오류: ' + err.message);
+  });
+
+  function restore() {
+    document.querySelectorAll('.row-action').forEach(el => el.style.display = '');
+    if (lastTh) lastTh.style.display = '';
+    if (lastCol) lastCol.style.display = '';
+  }
+}
+
+/* ─── 초기 렌더 ─── */
+renderTable(ORIGINAL_DATA);
+</script>
+</body>
+</html>

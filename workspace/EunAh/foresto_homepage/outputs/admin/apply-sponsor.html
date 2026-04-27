@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>후원신청자 관리 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .badge-regular { display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9; }
+    .badge-once    { display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;background:#e8f0fd;color:#1a5ea8;border:1px solid #c2d4f5; }
+    .amount-val { font-weight:700; font-variant-numeric:tabular-nums; color:#111; }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title">후원신청자 관리</h1>
+      <div class="admin-topbar-actions">
+        <button class="btn-refresh" onclick="SponsorList.load()" title="새로고침">
+          <img src="../assets/icons/refresh.png" alt="새로고침">
+        </button>
+      </div>
+    </div>
+
+    <!-- 검색 필터 -->
+    <div class="filter-card">
+      <div class="filter-body">
+
+        <div class="filter-row">
+          <span class="filter-label">신청기간</span>
+          <div class="filter-content">
+            <div class="date-pair">
+              <input type="date" id="filterDateFrom">
+              <span class="date-sep">—</span>
+              <input type="date" id="filterDateTo">
+            </div>
+            <div class="date-preset-group">
+              <button class="date-preset-btn" onclick="setDatePreset('today')">오늘</button>
+              <button class="date-preset-btn" onclick="setDatePreset(7)">7일</button>
+              <button class="date-preset-btn" onclick="setDatePreset(30)">30일</button>
+              <button class="date-preset-btn" onclick="setDatePreset(90)">3개월</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <div class="filter-half">
+            <span class="filter-label">후원유형</span>
+            <div class="filter-content">
+              <div class="chip-group">
+                <label class="chip"><input type="radio" name="filterType" value="" checked><span>전체</span></label>
+                <label class="chip"><input type="radio" name="filterType" value="정기"><span>정기 후원</span></label>
+                <label class="chip"><input type="radio" name="filterType" value="일시"><span>일시 후원</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="filter-half">
+            <span class="filter-label">후원목적</span>
+            <div class="filter-content">
+              <div class="chip-group">
+                <label class="chip"><input type="radio" name="filterPurpose" value="" checked><span>전체</span></label>
+                <label class="chip"><input type="radio" name="filterPurpose" value="교육 프로그램"><span>교육</span></label>
+                <label class="chip"><input type="radio" name="filterPurpose" value="사회공헌"><span>사회공헌</span></label>
+                <label class="chip"><input type="radio" name="filterPurpose" value="자유사용"><span>자유사용</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">회원구분</span>
+          <div class="filter-content">
+            <div class="chip-group">
+              <label class="chip"><input type="radio" name="filterMemberType" value="" checked><span>전체</span></label>
+              <label class="chip"><input type="radio" name="filterMemberType" value="member"><span>회원</span></label>
+              <label class="chip"><input type="radio" name="filterMemberType" value="guest"><span>비회원</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">검색어</span>
+          <div class="filter-content">
+            <div class="kw-wrap">
+              <select id="filterSearchType">
+                <option value="all">전체</option>
+                <option value="name">성명</option>
+                <option value="phone">연락처</option>
+                <option value="email">이메일</option>
+              </select>
+              <div class="kw-input-wrap">
+                <input type="text" id="filterKeyword" placeholder="검색어를 입력하세요"
+                  onkeydown="if(event.key==='Enter') SponsorList.search()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="filter-footer">
+        <button class="btn btn-outline btn-sm"
+          onclick="AdminHttp.downloadExcel(ADMIN_API.applySponsor + '/export', SponsorList.getParams())">
+          엑셀 다운로드
+        </button>
+        <button class="btn btn-gray btn-sm" onclick="SponsorList.reset()">초기화</button>
+        <button class="btn btn-primary btn-sm" onclick="SponsorList.search()">검색</button>
+      </div>
+    </div>
+
+    <!-- 목록 상단 -->
+    <div class="list-top">
+      <div class="list-count" id="listCount">총 <strong>0</strong>건</div>
+      <select class="form-control" style="width:130px;height:36px;font-size:13px"
+        onchange="SponsorList.changePageSize(this.value)">
+        <option value="10">10개씩 보기</option>
+        <option value="30">30개씩 보기</option>
+        <option value="50">50개씩 보기</option>
+        <option value="100">100개씩 보기</option>
+      </select>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width:4%">No</th>
+            <th style="width:11%">접수번호</th>
+            <th style="width:7%">성명</th>
+            <th style="width:7%">회원구분</th>
+            <th style="width:7%">후원유형</th>
+            <th style="width:9%">후원금액</th>
+            <th style="width:9%">후원목적</th>
+            <th style="width:11%">연락처</th>
+            <th style="width:12%">신청일</th>
+            <th style="width:11%">관리자 메모</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] AdminHttp.get(ADMIN_API.applySponsor, params) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_DATA = {
+  total: 3,
+  items: [
+    { id: 1, no: 3, appNo: 'SPN-2026-00001', name: '홍길동', userId: 'spn3001', memberType: '회원',  memberBadge: 'badge-green', sponsorType: '정기', sponsorBadgeClass: 'badge-regular', amount: '30,000원', purpose: '교육 프로그램 지원',  phone: '010-0001-1001', applyDate: '2026-01-05 09:00', memo: '—' },
+    { id: 2, no: 2, appNo: 'SPN-2026-00002', name: '김영희', userId: '',        memberType: '비회원', memberBadge: 'badge-gray',  sponsorType: '일시', sponsorBadgeClass: 'badge-once',    amount: '50,000원', purpose: '사회공헌 활동 지원', phone: '010-0002-1002', applyDate: '2026-02-10 14:30', memo: '은행 계좌 재확인' },
+    { id: 3, no: 1, appNo: 'SPN-2026-00003', name: '이철수', userId: 'spn3003', memberType: '회원',  memberBadge: 'badge-green', sponsorType: '정기', sponsorBadgeClass: 'badge-regular', amount: '100,000원', purpose: '자유 사용 (지정 없음)', phone: '010-0003-1003', applyDate: '2026-03-05 11:15', memo: '—' },
+  ],
+};
+
+const SponsorList = {
+  currentPage: 1,
+  pageSize:    10,
+
+  getParams() {
+    return {
+      date_from:   document.getElementById('filterDateFrom').value,
+      date_to:     document.getElementById('filterDateTo').value,
+      type:        document.querySelector('input[name="filterType"]:checked')?.value || '',
+      purpose:     document.querySelector('input[name="filterPurpose"]:checked')?.value || '',
+      member_type: document.querySelector('input[name="filterMemberType"]:checked')?.value || '',
+      kw_type:     document.getElementById('filterSearchType').value,
+      kw:          document.getElementById('filterKeyword').value.trim(),
+      page:        this.currentPage,
+      size:        this.pageSize,
+    };
+  },
+
+  search() { this.currentPage = 1; this.load(); },
+
+  async load() {
+    AdminUI.showLoading('tableBody', 10);
+    try {
+      /*
+       * [개발자 연동]
+       * const data = await AdminHttp.get(ADMIN_API.applySponsor, this.getParams());
+       * this.render(data.items, data.total);
+       */
+      await new Promise(r => setTimeout(r, 200));
+      const p = this.getParams();
+      let items = SAMPLE_DATA.items.filter(d => {
+        if (p.date_from && d.applyDate < p.date_from) return false;
+        if (p.date_to   && d.applyDate > p.date_to + ' 23:59:59') return false;
+        if (p.type && d.sponsorType !== p.type) return false;
+        if (p.purpose && d.purpose !== p.purpose) return false;
+        if (p.member_type) {
+          const mt = p.member_type === 'member' ? '회원' : '비회원';
+          if (d.memberType !== mt) return false;
+        }
+        if (p.kw) {
+          const kw = p.kw.toLowerCase();
+          if (p.kw_type === 'name')  return d.name.includes(kw);
+          if (p.kw_type === 'phone') return d.phone.includes(kw);
+          return (d.name + d.phone).toLowerCase().includes(kw);
+        }
+        return true;
+      });
+      const total = items.length;
+      const start = (this.currentPage - 1) * this.pageSize;
+      this.render(items.slice(start, start + this.pageSize), total);
+    } catch (e) {
+      AdminUI.showError('tableBody', e.message, 10);
+    }
+  },
+
+  render(items, total) {
+    AdminUI.updateCount('listCount', total);
+    const totalPages = Math.ceil(total / this.pageSize) || 1;
+    AdminUI.renderPagination('pagination', this.currentPage, totalPages, p => {
+      this.currentPage = p; this.load();
+    });
+
+    const tbody = document.getElementById('tableBody');
+    if (!items.length) {
+      AdminUI.showEmpty('tableBody', '내역이 없습니다.', 10); return;
+    }
+    tbody.innerHTML = items.map(d => `
+      <tr style="cursor:pointer"
+        onclick="location.href='apply-sponsor-detail.html?id=${d.id}'">
+        <td style="text-align:center">${d.no}</td>
+        <td style="text-align:center;font-size:12px;font-weight:600;color:#2e5c2e">${d.appNo}</td>
+        <td style="font-weight:600">${d.name}
+          ${d.userId ? `<span style="color:#5a7a5a;font-size:12px">(${d.userId})</span>` : ''}
+        </td>
+        <td style="text-align:center">
+          <span class="badge ${d.memberBadge}">${d.memberType}</span>
+        </td>
+        <td style="text-align:center">
+          <span class="${d.sponsorBadgeClass}">${d.sponsorType}</span>
+        </td>
+        <td style="text-align:center" class="amount-val">${d.amount}</td>
+        <td style="text-align:center;font-size:13px">${d.purpose}</td>
+        <td style="text-align:center;font-size:13px">${d.phone}</td>
+        <td style="text-align:center;font-size:13px">${d.applyDate}</td>
+        <td style="text-align:center">
+          <span style="${d.memo === '—' ? 'color:#ccc;font-size:12px' : 'font-size:12px;color:#5a7a5a'}">
+            ${d.memo}
+          </span>
+        </td>
+      </tr>`).join('');
+  },
+
+  changePageSize(size) {
+    this.pageSize = parseInt(size); this.currentPage = 1; this.load();
+  },
+
+  reset() {
+    document.getElementById('filterDateFrom').value = '';
+    document.getElementById('filterDateTo').value   = '';
+    document.querySelector('input[name="filterType"][value=""]').checked       = true;
+    document.querySelector('input[name="filterPurpose"][value=""]').checked    = true;
+    document.querySelector('input[name="filterMemberType"][value=""]').checked = true;
+    document.getElementById('filterSearchType').value = 'all';
+    document.getElementById('filterKeyword').value    = '';
+    this.currentPage = 1;
+    this.load();
+  },
+};
+
+AdminSidebar.mount('apply-sponsor');
+SponsorList.load();
+</script>
+</body>
+</html>

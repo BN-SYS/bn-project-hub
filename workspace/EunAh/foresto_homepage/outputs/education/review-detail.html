@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>수료생 후기 상세 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/pages/education.css">
+</head>
+
+<body>
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>자격취득 과정</h1>
+    </div>
+  </div>
+
+  <div id="bc"></div>
+  <div class="sub-layout">
+    <div id="lnb"></div>
+    <main class="sub-content">
+      <div class="content-wrap">
+        <div id="reviewDetail"></div>
+      </div>
+    </main>
+  </div>
+
+  <div id="ftr"></div>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('숲해설가교육', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+    document.getElementById('bc').innerHTML = LNB.breadcrumb('../', 'education/reviews.html');
+    document.getElementById('lnb').innerHTML = LNB.render('../', 'education/reviews.html');
+  </script>
+  <script>
+    /* ── 로그인 사용자 시뮬레이션 (프로토타입) */
+    const CURRENT_USER = '홍길동';
+
+    const REVIEWS_DATA = [
+      {
+        id: 1, courseTitle: '[전문과정] 55기 숲해설가 전문가과정',
+        title: '숲과 함께한 소중한 시간들',
+        content: '<p>이 과정을 통해 숲의 언어를 배웠습니다. 전문 강사진의 열정적인 수업 덕분에 나무 한 그루, 풀 한 포기가 새롭게 보이기 시작했습니다.</p><p>처음 입문할 때는 식물 이름 하나도 몰랐는데, 과정을 마친 지금은 주변 자연을 완전히 다른 눈으로 바라보게 되었습니다. 강사님들의 열정과 현장 중심 교육이 가장 큰 힘이 되었습니다. 앞으로 숲해설가로서 더 많은 사람들에게 자연의 아름다움을 전하고 싶습니다.</p>',
+        author: '홍길동', date: '2026-03-15'
+      },
+      {
+        id: 2, courseTitle: '[전문과정] 54기 숲해설가 전문가과정',
+        title: '자연과 사람을 잇는 다리가 되다',
+        content: '<p>54기 과정은 제 인생의 전환점이었습니다. 단순히 나무 이름을 외우는 교육이 아니라 숲을 바라보는 관점 자체가 달라지는 경험을 했습니다. 현장 실습이 특히 인상적이었고 강사님들의 열정이 대단했습니다.</p><p>5개월의 긴 여정이었지만 한 번도 포기하고 싶다는 생각을 하지 않았습니다. 함께한 동기들과의 유대감도 특별했고, 지금도 종종 모임을 이어가고 있습니다. 숲해설가로서의 첫걸음을 협회와 함께 시작하게 되어 정말 다행입니다.</p>',
+        author: '이수진', date: '2026-02-28'
+      },
+      {
+        id: 3, courseTitle: '[전문과정] 53기 숲해설가 전문가과정',
+        title: '생태 감수성이 깊어진 5개월',
+        content: '<p>처음에는 막연히 자연을 좋아해서 신청했는데, 과정을 마치고 나니 숲해설가로서의 책임감과 사명감이 생겼습니다. 함께한 동기들과의 교류도 큰 자산이 되었습니다.</p><p>특히 생태계의 연결성을 배우는 수업이 인상 깊었습니다. 한 그루의 나무가 얼마나 많은 생명과 연결되어 있는지를 이해하게 된 후로 숲을 걸을 때마다 전혀 다른 감동이 느껴집니다.</p>',
+        author: '박민준', date: '2025-12-10'
+      },
+      {
+        id: 4, courseTitle: '[전문과정] 52기 숲해설가 전문가과정',
+        title: '숲이 말을 걸어오기 시작했습니다',
+        content: '<p>52기 과정을 통해 식물 분류, 조류 관찰, 곤충 생태까지 폭넓게 배웠습니다. 현장에서 직접 해설해 보는 실습 수업이 가장 기억에 남습니다. 수료 후 지역 숲 해설 봉사활동을 시작하게 되었습니다.</p><p>교육을 통해 단순히 지식을 얻은 것이 아니라 자연을 대하는 태도 자체가 바뀌었습니다. 이제는 산책 중에도 계속 무언가를 관찰하고 이야기를 찾게 됩니다. 이 변화가 이 과정의 가장 큰 선물입니다.</p>',
+        author: '김예린', date: '2025-11-05'
+      },
+      {
+        id: 5, courseTitle: '[전문과정] 55기 숲해설가 전문가과정',
+        title: '40대에 새로운 꿈을 찾았습니다',
+        content: '<p>늦은 나이에 시작한 도전이었지만 협회의 체계적인 커리큘럼 덕분에 자신 있게 완주했습니다. 특히 숲 치유 관련 수업이 개인적으로도 큰 힐링이 되었습니다.</p><p>40대 중반에 새로운 도전을 한다는 것이 처음에는 두려웠습니다. 그러나 다양한 연령대의 수강생들이 함께 배우는 분위기가 저에게 큰 용기를 주었습니다. 앞으로도 계속 배우고 성장하겠습니다.</p>',
+        author: '최성호', date: '2026-03-08'
+      },
+      {
+        id: 6, courseTitle: '[전문과정] 51기 숲해설가 전문가과정',
+        title: '이론과 현장이 균형 잡힌 최고의 과정',
+        content: '<p>강의실 수업과 현장 실습의 비율이 딱 맞았습니다. 이론적 배경 없이 현장만 강조하거나, 반대의 경우도 아닌, 두 마리 토끼를 다 잡은 과정이라고 느꼈습니다.</p><p>특히 각 분야 전문가를 초청해 진행하는 특강들이 커리큘럼의 완성도를 높여주었습니다. 수료 후에도 협회를 통해 다양한 활동 기회를 이어갈 수 있어서 정말 만족스럽습니다.</p>',
+        author: '정다은', date: '2025-09-20'
+      },
+      {
+        id: 7, courseTitle: '[전문과정] 50기 숲해설가 전문가과정',
+        title: '50기라는 이름의 무게감',
+        content: '<p>50번째 기수라는 사실만으로도 특별했습니다. 선배 해설가님들의 특강과 현장 동행이 특히 소중했고, 이 과정에서 평생 함께할 동기들을 만났습니다.</p><p>50기 기념 행사에서 선배 기수 분들과 교류하는 특별한 기회를 가질 수 있었습니다. 긴 역사가 담긴 과정에 함께했다는 자부심이 앞으로 활동하는 데 큰 원동력이 될 것 같습니다.</p>',
+        author: '윤재원', date: '2025-07-14'
+      },
+      {
+        id: 8, courseTitle: '[전문과정] 54기 숲해설가 전문가과정',
+        title: '아이들 눈높이에서 숲을 설명하는 법',
+        content: '<p>초등학교 교사로서 아이들에게 자연을 가르쳐 주고 싶어 수강했습니다. 아동 대상 해설 기법을 따로 다루는 수업이 매우 유용했고, 실제 학교 숲 수업에 바로 적용할 수 있었습니다.</p><p>수료 후 학교 생태 텃밭 수업과 교내 숲 체험 활동을 새롭게 기획하여 운영 중입니다. 아이들이 나무 이름을 알아갈 때의 눈빛이 달라지는 것을 보면 정말 보람 있습니다.</p>',
+        author: '강지현', date: '2026-01-22'
+      },
+      {
+        id: 9, courseTitle: '[전문과정] 53기 숲해설가 전문가과정',
+        title: '도시 숲에서 만나는 생물 다양성',
+        content: '<p>도시 숲이라고 해서 볼 게 없을 것 같았는데, 전혀 달랐습니다. 공원 한 곳에도 수백 종의 생물이 살고 있다는 사실을 직접 확인하며 큰 감동을 받았습니다.</p><p>도시 생태계의 중요성을 새롭게 인식하게 된 것이 이 과정의 가장 큰 수확입니다. 앞으로 도시에서 활동하는 숲해설가로서 시민들에게 가까운 곳의 자연을 소개하고 싶습니다.</p>',
+        author: '임소현', date: '2025-10-30'
+      },
+      {
+        id: 10, courseTitle: '[전문과정] 52기 숲해설가 전문가과정',
+        title: '퇴직 후 제2의 인생, 숲해설가로 시작',
+        content: '<p>30년 직장 생활을 마치고 새로운 시작을 고민하던 중 협회를 알게 되었습니다. 52기 과정은 저에게 단순한 취미 그 이상의 의미였습니다. 지금은 국립공원에서 주말 해설 자원봉사를 하고 있습니다.</p><p>나이가 든 만큼 더 많은 경험과 이야기를 가지고 있다는 것이 해설 활동에 강점이 된다는 것을 깨달았습니다. 제2의 인생을 숲과 함께 시작하게 되어 정말 행복합니다.</p>',
+        author: '오병철', date: '2025-08-15'
+      },
+      {
+        id: 11, courseTitle: '[전문과정] 51기 숲해설가 전문가과정',
+        title: '산림치유와 해설을 함께 배운 값진 경험',
+        content: '<p>숲해설과 산림치유를 연계한 커리큘럼이 특히 인상적이었습니다. 단순히 지식을 전달하는 해설이 아니라, 방문객이 숲에서 실제로 치유받을 수 있도록 안내하는 법을 배웠습니다.</p><p>현대인들이 숲에서 필요한 것이 단순한 지식 습득이 아니라 정서적 회복이라는 것을 이 과정을 통해 깨달았습니다. 앞으로 치유적 관점을 갖춘 숲해설가로 활동하고 싶습니다.</p>',
+        author: '노미경', date: '2025-06-11'
+      },
+      {
+        id: 12, courseTitle: '[전문과정] 55기 숲해설가 전문가과정',
+        title: '숲해설가로서 첫발을 내딛으며',
+        content: '<p>자격증을 취득했다는 사실보다 이 과정에서 쌓은 지식과 경험이 훨씬 소중합니다. 앞으로 더 많은 사람들에게 숲의 아름다움을 전할 수 있도록 꾸준히 배우겠습니다.</p><p>55기 동기들과 함께 만든 소중한 추억, 강사님들께 배운 가르침, 현장에서 직접 느낀 생동감 — 이 모든 것이 제 해설 활동의 원동력이 될 것입니다. 감사합니다.</p>',
+        author: '장수빈', date: '2026-03-18'
+      },
+    ];
+
+    (function () {
+      const id = Number(new URLSearchParams(location.search).get('id'));
+      const review = REVIEWS_DATA.find(r => r.id === id);
+      const el = document.getElementById('reviewDetail');
+
+      if (!review) {
+        el.innerHTML = `<div style="text-align:center;padding:64px 24px;color:var(--gray-mid)">
+          후기를 찾을 수 없습니다.<br><br>
+          <button class="btn btn-gray" onclick="history.back()">이전 페이지로</button>
+        </div>`;
+        return;
+      }
+
+      const idx = REVIEWS_DATA.findIndex(r => r.id === id);
+      const next = REVIEWS_DATA[idx - 1];
+      const prev = REVIEWS_DATA[idx + 1];
+
+      const navHtml = (next || prev) ? `
+        <div class="cd-nav">
+          ${next ? `<div class="cd-nav-item" onclick="location.href='review-detail.html?id=${next.id}'">
+            <span class="cd-nav-label">다음글</span>
+            <span class="cd-nav-title">${next.title}</span>
+          </div>` : ''}
+          ${prev ? `<div class="cd-nav-item" onclick="location.href='review-detail.html?id=${prev.id}'">
+            <span class="cd-nav-label">이전글</span>
+            <span class="cd-nav-title">${prev.title}</span>
+          </div>` : ''}
+        </div>` : '';
+
+      /* 본인 글이면 수정 버튼 표시 */
+      const editBtn = review.author === CURRENT_USER
+        ? `<button class="btn btn-outline btn-sm"
+               onclick="location.href='review-write.html?id=${review.id}&edit=1'">수정</button>`
+        : '';
+
+      el.innerHTML = `
+        <div class="cd-wrap">
+          <div class="cd-head" style="flex-direction:column;align-items:stretch;gap:6px;padding-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="review-badge">${review.courseTitle}</span>              
+              <span class="cd-date">${review.date.replace(/-/g, '.')}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;">
+              <h2 class="cd-title">${review.title}</h2>
+              <span style="font-size:var(--text-sm);color:var(--gray-mid);">작성자 <strong style="color:var(--gray-dark);font-weight:600;">${review.author}</strong></span>
+            </div>
+          </div>
+          <hr class="cd-divider">
+          <div class="cd-body">
+            <div class="cd-content">${review.content}</div>
+          </div>
+          ${navHtml}
+          <div class="cd-actions">
+            <button class="btn btn-primary btn-sm cd-btn-list"
+                    onclick="location.href='reviews.html'">목록</button>
+            <div class="cd-actions-right">
+              ${editBtn}
+            </div>
+          </div>
+        </div>`;
+    })();
+  </script>
+</body>
+
+</html>

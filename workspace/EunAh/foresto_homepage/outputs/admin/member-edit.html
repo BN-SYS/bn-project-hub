@@ -1,0 +1,471 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>회원 등록/수정 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .edit-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px 24px; }
+    .edit-grid.col4 { grid-template-columns:1fr 1fr 1fr 1fr; }
+    .edit-grid .span2 { grid-column:span 2; }
+    .form-group { margin:0; display:flex; flex-direction:column; gap:5px; }
+    .form-label { font-size:12px; font-weight:600; color:var(--gray-dark); }
+    .form-label .req { color:var(--danger); margin-left:2px; }
+    .card { margin-bottom:16px; }
+    .card-header { display:flex; align-items:center; gap:8px; padding:14px 20px; border-bottom:1px solid var(--gray-light); }
+    .card-title { font-size:14px; font-weight:700; color:var(--green-dark); }
+    .badge-admin-only { display:inline-block; font-size:11px; background:#fff3e0; color:#e65100; border-radius:3px; padding:1px 6px; font-weight:500; }
+    .badge-new-only { display:inline-block; font-size:11px; background:#e3f2fd; color:#1565c0; border-radius:3px; padding:1px 6px; font-weight:500; }
+    .radio-inline { display:flex; gap:16px; margin-top:4px; }
+    .radio-inline label { display:flex; align-items:center; gap:5px; font-size:13px; cursor:pointer; }
+    .radio-inline input[type="radio"] { accent-color:var(--green-dark); }
+    .check-ok { color:#16a34a; font-size:12px; font-weight:600; }
+    .check-ng { color:var(--danger); font-size:12px; font-weight:600; }
+    .affil-table { width:100%; border-collapse:collapse; margin-top:8px; }
+    .affil-table th { font-size:12px; font-weight:600; color:var(--gray-dark); padding:8px 10px; background:#f8faf7; border:1px solid var(--gray-light); text-align:center; }
+    .affil-table td { padding:6px 8px; border:1px solid var(--gray-light); }
+    .userid-wrap { display:flex; gap:8px; align-items:center; }
+    .form-footer { display:flex; justify-content:flex-end; gap:10px; padding:20px 0; border-top:1px solid var(--gray-light); margin-top:8px; }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title" id="pageTitle">회원 등록</h1>
+    </div>
+
+    <!-- 관리 설정 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">관리 설정</span>
+        <span class="badge-admin-only">관리자 전용</span>
+      </div>
+      <div class="card-body" style="padding:20px">
+        <div class="edit-grid">
+          <div class="form-group">
+            <label class="form-label">회원 구분 <span class="req">*</span></label>
+            <select class="form-control" id="fGrade" style="height:36px">
+              <option value="member">일반회원</option>
+              <option value="fullMember">정회원</option>
+              <option value="admin">관리자</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">회원 상태 <span class="req">*</span></label>
+            <div class="radio-inline" style="margin-top:8px">
+              <label><input type="radio" name="fStatus" value="active" checked> 정상</label>
+              <label><input type="radio" name="fStatus" value="blocked"> 차단</label>
+            </div>
+            <div style="font-size:11px;color:var(--danger);margin-top:3px">* 차단 시 로그인 불가</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 아이디/비밀번호 (등록 시에만) -->
+    <div class="card" id="cardUserId" style="display:none">
+      <div class="card-header">
+        <span class="card-title">아이디 / 비밀번호 설정</span>
+        <span class="badge-new-only">등록 시에만 설정</span>
+      </div>
+      <div class="card-body" style="padding:20px">
+        <div class="edit-grid">
+          <div class="form-group">
+            <label class="form-label">아이디 <span class="req">*</span></label>
+            <div class="userid-wrap">
+              <input type="text" class="form-control" id="fUserId"
+                placeholder="영문 소문자, 숫자 4~20자" style="height:36px;flex:1"
+                oninput="MemberEdit.resetIdCheck()">
+              <button class="btn btn-outline btn-sm" onclick="MemberEdit.checkUserId()">중복 확인</button>
+            </div>
+            <div id="userIdMsg" style="margin-top:4px;font-size:12px"></div>
+            <div style="font-size:11px;color:var(--gray-mid);margin-top:3px">아이디는 등록 후 변경 불가합니다.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">비밀번호 <span class="req">*</span></label>
+            <input type="password" class="form-control" id="fPw"
+              placeholder="영문+숫자+특수문자 8자 이상" style="height:36px"
+              oninput="MemberEdit.checkPwMatch()">
+            <label class="form-label" style="margin-top:10px">비밀번호 확인 <span class="req">*</span></label>
+            <input type="password" class="form-control" id="fPwConfirm"
+              placeholder="비밀번호 재입력" style="height:36px"
+              oninput="MemberEdit.checkPwMatch()">
+            <div id="pwMsg" style="margin-top:5px;font-size:12px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 기본 정보 -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">기본 정보</span></div>
+      <div class="card-body" style="padding:20px">
+        <div class="edit-grid col4">
+          <div class="form-group">
+            <label class="form-label">이름 <span class="req">*</span></label>
+            <input type="text" class="form-control" id="fName" style="height:36px">
+          </div>
+          <div class="form-group">
+            <label class="form-label">성별</label>
+            <div class="radio-inline" style="margin-top:8px">
+              <label><input type="radio" name="fGender" value="남"> 남성</label>
+              <label><input type="radio" name="fGender" value="여" checked> 여성</label>
+            </div>
+          </div>
+          <div class="form-group span2">
+            <label class="form-label">생년월일</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <select class="form-control" id="fBirthY" style="width:90px;height:36px;font-size:13px"></select>
+              <select class="form-control" id="fBirthM" style="width:72px;height:36px;font-size:13px"></select>
+              <select class="form-control" id="fBirthD" style="width:72px;height:36px;font-size:13px"></select>
+            </div>
+          </div>
+          <div class="form-group span2">
+            <label class="form-label">휴대폰 번호</label>
+            <input type="tel" class="form-control" id="fPhone" style="height:36px;max-width:220px">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 연락처·기타 -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">연락처 · 기타 정보</span></div>
+      <div class="card-body" style="padding:20px;display:flex;flex-direction:column;gap:18px">
+        <div class="form-group" style="max-width:360px">
+          <label class="form-label">이메일 <span class="req">*</span></label>
+          <input type="email" class="form-control" id="fEmail" style="height:36px">
+          <div style="font-size:11px;color:var(--gray-mid);margin-top:3px">임시 비밀번호 발송에 사용됩니다.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">주소</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" class="form-control" id="fZip"
+              placeholder="우편번호" style="width:110px;height:36px;font-size:13px;flex-shrink:0">
+            <button type="button" class="btn btn-outline btn-sm"
+              onclick="alert('우편번호 검색 — 실제 구현 시 Kakao 주소 API 연동 예정')">
+              우편번호 찾기
+            </button>
+          </div>
+          <input type="text" class="form-control" id="fAddr1"
+            style="margin-top:6px;max-width:480px;background:var(--gray-light)" disabled>
+          <input type="text" class="form-control" id="fAddr2"
+            placeholder="상세 주소" style="margin-top:6px;max-width:480px;height:36px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">직업</label>
+          <select class="form-control" id="fJob" style="max-width:200px;height:36px;font-size:13px">
+            <option value="">선택 안 함</option>
+            <option>직장인</option><option>자영업자</option><option>공무원·교원</option>
+            <option>전문직</option><option>학생</option><option>주부</option>
+            <option>은퇴·퇴직</option><option>기타</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">마케팅 수신 동의</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;margin-top:4px">
+            <input type="checkbox" id="fMarketing"> 동의함
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 활동 정보(소속) -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">활동 정보 (소속)</span></div>
+      <div class="card-body" style="padding:20px">
+        <div id="affilList">
+          <table class="affil-table">
+            <thead>
+              <tr>
+                <th style="width:160px">소속 유형</th>
+                <th>소속명</th>
+                <th style="width:150px">가입일</th>
+                <th style="width:48px">관리</th>
+              </tr>
+            </thead>
+            <tbody id="affilBody"></tbody>
+          </table>
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:8px"
+          onclick="MemberEdit.addAffil()">+ 소속 추가</button>
+        <div style="font-size:11px;color:var(--gray-mid);margin-top:6px">
+          * 동아리: 콘텐츠관리 &gt; 동아리소개 게시판 목록 연동 | 사회공헌사업단: 사공단소개 게시판 목록 연동
+        </div>
+      </div>
+    </div>
+
+    <!-- 관리자 메모 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">관리자 메모</span>
+        <span class="badge-admin-only">회원 미노출</span>
+      </div>
+      <div class="card-body" style="padding:20px">
+        <textarea class="form-control" id="fMemo" rows="4"
+          placeholder="내부 메모 (회원에게 노출되지 않습니다)"
+          style="font-size:13px;resize:vertical"></textarea>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <button class="btn btn-gray" onclick="history.back()">취소</button>
+      <button class="btn btn-primary" onclick="MemberEdit.save()">저장</button>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+/* ──────────────────────────────────────────
+   샘플 데이터 (수정 모드)
+   [개발자] AdminHttp.get(ADMIN_API.url('members', id)) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_EDIT = {
+  id: 1, userId: 'forest001', name: '김숲해',
+  gender: '여', birthY: 1985, birthM: 4, birthD: 12,
+  phone: '010-1234-5678', email: 'forest001@foresto.or.kr',
+  grade: 'fullMember', status: 'active',
+  zip: '01234', addr1: '서울특별시 종로구 삼청로 00', addr2: '101호',
+  job: '공무원·교원', marketing: true,
+  memo: '정회원 전환 요청 확인 완료',
+  affiliations: [
+    { type: '동아리', name: '초록숲 동아리', joinDate: '2023-06-01' },
+  ],
+};
+
+const AFFIL_DATA = {
+  '동아리':         ['초록숲 동아리', '봄내음 동아리', '산들바람 동아리', '생태탐험대'],
+  '사회공헌사업단': ['서울 사공단', '경기 사공단', '부산 사공단'],
+};
+
+const MemberEdit = {
+  isEdit:      false,
+  memberId:    null,
+  affilSeq:    0,
+  idChecked:   false,
+
+  async init() {
+    this.memberId = App.getParam('id');
+    this.isEdit   = !!this.memberId;
+
+    this._buildBirthSelects();
+
+    if (this.isEdit) {
+      document.getElementById('pageTitle').textContent = '회원 수정';
+      document.title = '회원 수정 | 관리자 | 한국숲해설가협회';
+      await this.loadData();
+    } else {
+      document.getElementById('cardUserId').style.display = '';
+    }
+  },
+
+  async loadData() {
+    try {
+      /*
+       * [개발자 연동]
+       * const d = await AdminHttp.get(ADMIN_API.url('members', this.memberId));
+       */
+      const d = SAMPLE_EDIT;
+      this.fillForm(d);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  fillForm(d) {
+    document.getElementById('fGrade').value  = d.grade;
+    document.querySelector(`input[name="fStatus"][value="${d.status}"]`).checked = true;
+    document.getElementById('fName').value   = d.name;
+    document.querySelector(`input[name="fGender"][value="${d.gender}"]`).checked = true;
+    document.getElementById('fBirthY').value = d.birthY;
+    document.getElementById('fBirthM').value = d.birthM;
+    document.getElementById('fBirthD').value = d.birthD;
+    document.getElementById('fPhone').value  = d.phone;
+    document.getElementById('fEmail').value  = d.email;
+    document.getElementById('fZip').value    = d.zip    || '';
+    document.getElementById('fAddr1').value  = d.addr1  || '';
+    document.getElementById('fAddr2').value  = d.addr2  || '';
+    document.getElementById('fJob').value    = d.job    || '';
+    document.getElementById('fMarketing').checked = !!d.marketing;
+    document.getElementById('fMemo').value   = d.memo   || '';
+
+    d.affiliations?.forEach(a => this.addAffil(a));
+  },
+
+  _buildBirthSelects() {
+    const yEl = document.getElementById('fBirthY');
+    const mEl = document.getElementById('fBirthM');
+    const dEl = document.getElementById('fBirthD');
+    yEl.innerHTML = '<option value="">년</option>';
+    for (let y = 2015; y >= 1930; y--) yEl.innerHTML += `<option value="${y}">${y}년</option>`;
+    mEl.innerHTML = '<option value="">월</option>';
+    for (let m = 1; m <= 12; m++) mEl.innerHTML += `<option value="${m}">${m}월</option>`;
+    dEl.innerHTML = '<option value="">일</option>';
+    for (let d = 1; d <= 31; d++) dEl.innerHTML += `<option value="${d}">${d}일</option>`;
+  },
+
+  addAffil(data = null) {
+    this.affilSeq++;
+    const k    = this.affilSeq;
+    const body = document.getElementById('affilBody');
+    const tr   = document.createElement('tr');
+    tr.id = `affil-row-${k}`;
+    const typeVal  = data?.type || '동아리';
+    const nameOpts = (AFFIL_DATA[typeVal] || []).map(n =>
+      `<option ${n === data?.name ? 'selected' : ''}>${n}</option>`).join('');
+    tr.innerHTML = `
+      <td>
+        <select class="form-control" id="affilType-${k}"
+          onchange="MemberEdit.onAffilTypeChange(${k})" style="width:100%;height:32px;font-size:12px">
+          ${Object.keys(AFFIL_DATA).map(t =>
+            `<option ${t === typeVal ? 'selected' : ''}>${t}</option>`
+          ).join('')}
+        </select>
+      </td>
+      <td>
+        <select class="form-control" id="affilName-${k}"
+          style="width:100%;height:32px;font-size:12px">${nameOpts}</select>
+      </td>
+      <td>
+        <input type="date" class="form-control" id="affilDate-${k}"
+          value="${data?.joinDate || ''}" style="height:32px;font-size:12px">
+      </td>
+      <td style="text-align:center">
+        <button type="button" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--danger)"
+          onclick="MemberEdit.removeAffil(${k})">✕</button>
+      </td>`;
+    body.appendChild(tr);
+  },
+
+  onAffilTypeChange(k) {
+    const type  = document.getElementById(`affilType-${k}`).value;
+    const sel   = document.getElementById(`affilName-${k}`);
+    sel.innerHTML = (AFFIL_DATA[type] || []).map(n => `<option>${n}</option>`).join('');
+  },
+
+  removeAffil(k) {
+    document.getElementById(`affil-row-${k}`)?.remove();
+  },
+
+  checkPwMatch() {
+    const pw  = document.getElementById('fPw')?.value     || '';
+    const pw2 = document.getElementById('fPwConfirm')?.value || '';
+    const msg = document.getElementById('pwMsg');
+    if (!msg || !pw2) return;
+    msg.textContent = pw === pw2 ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.';
+    msg.className   = pw === pw2 ? 'check-ok' : 'check-ng';
+  },
+
+  resetIdCheck() {
+    this.idChecked = false;
+    const msg = document.getElementById('userIdMsg');
+    if (msg) msg.textContent = '';
+  },
+
+  /* 아이디 중복 확인
+     [개발자] AdminHttp.get(ADMIN_API.members + '/check-id', { userId }) 로 교체 */
+  async checkUserId() {
+    const userId = document.getElementById('fUserId')?.value.trim();
+    if (!userId) { alert('아이디를 입력해주세요.'); return; }
+    try {
+      /*
+       * [개발자 연동]
+       * const data = await AdminHttp.get(ADMIN_API.members + '/check-id', { userId });
+       * if (data.exists) throw new Error('이미 사용 중인 아이디입니다.');
+       */
+      this.idChecked = true;
+      const msg = document.getElementById('userIdMsg');
+      if (msg) { msg.textContent = '사용 가능한 아이디입니다.'; msg.className = 'check-ok'; }
+    } catch (e) {
+      const msg = document.getElementById('userIdMsg');
+      if (msg) { msg.textContent = e.message; msg.className = 'check-ng'; }
+    }
+  },
+
+  validate() {
+    const name  = document.getElementById('fName').value.trim();
+    const email = document.getElementById('fEmail').value.trim();
+    if (!name)  { alert('이름을 입력해주세요.');   return false; }
+    if (!email) { alert('이메일을 입력해주세요.'); return false; }
+    if (!this.isEdit) {
+      const userId = document.getElementById('fUserId')?.value.trim();
+      if (!userId)         { alert('아이디를 입력해주세요.');         return false; }
+      if (!this.idChecked) { alert('아이디 중복 확인을 해주세요.');    return false; }
+      const pw  = document.getElementById('fPw')?.value  || '';
+      const pw2 = document.getElementById('fPwConfirm')?.value || '';
+      if (pw.length < 8) { alert('비밀번호는 8자 이상 입력해주세요.'); return false; }
+      if (pw !== pw2)    { alert('비밀번호가 일치하지 않습니다.');      return false; }
+    }
+    return true;
+  },
+
+  /* 저장
+     [개발자] AdminHttp.post/put() 로 교체 */
+  async save() {
+    if (!this.validate()) return;
+
+    const payload = {
+      grade:     document.getElementById('fGrade').value,
+      status:    document.querySelector('input[name="fStatus"]:checked')?.value,
+      name:      document.getElementById('fName').value.trim(),
+      gender:    document.querySelector('input[name="fGender"]:checked')?.value,
+      birthY:    document.getElementById('fBirthY').value,
+      birthM:    document.getElementById('fBirthM').value,
+      birthD:    document.getElementById('fBirthD').value,
+      phone:     document.getElementById('fPhone').value.trim(),
+      email:     document.getElementById('fEmail').value.trim(),
+      zip:       document.getElementById('fZip').value.trim(),
+      addr1:     document.getElementById('fAddr1').value.trim(),
+      addr2:     document.getElementById('fAddr2').value.trim(),
+      job:       document.getElementById('fJob').value,
+      marketing: document.getElementById('fMarketing').checked,
+      memo:      document.getElementById('fMemo').value,
+    };
+
+    if (!this.isEdit) {
+      payload.userId   = document.getElementById('fUserId').value.trim();
+      payload.password = document.getElementById('fPw').value;
+    }
+
+    try {
+      /*
+       * [개발자 연동]
+       * if (this.isEdit) {
+       *   await AdminHttp.put(ADMIN_API.url('members', this.memberId), payload);
+       * } else {
+       *   await AdminHttp.post(ADMIN_API.members, payload);
+       * }
+       */
+      App.toast(this.isEdit ? '수정되었습니다.' : '등록되었습니다.', 'success');
+      setTimeout(() => location.href = 'members.html', 1500);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+};
+
+AdminSidebar.mount('members');
+MemberEdit.init();
+</script>
+</body>
+</html>

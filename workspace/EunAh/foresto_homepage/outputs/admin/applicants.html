@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>신청자 통합 관리 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .badge-type { display:inline-block; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:700; white-space:nowrap; }
+    .badge-type.basic   { background:#e8f5e9; color:#2e7d32; }
+    .badge-type.qualify { background:#e3f2fd; color:#1565c0; }
+    .badge-type.enhance { background:#fff3e0; color:#e65100; }
+    .badge-type.academy { background:#f3e5f5; color:#6a1b9a; }
+    .kw-select { height:34px; padding:0 28px 0 8px; border:1px solid #d5e0ce; border-radius:6px; font-size:13px; font-family:'Noto Sans KR',sans-serif; color:#2a3a26; background:#fafcf9 url('../assets/icons/chevron-down.png') no-repeat right 8px center / 11px; appearance:none; -webkit-appearance:none; outline:none; cursor:pointer; }
+    .bulk-btn-group { display:flex; gap:6px; flex-wrap:wrap; }
+    .applicant-row:hover td { background:#f2f7f0; cursor:pointer; }
+    #academySubRow { border-left:3px solid #c8e0c8; background:#fafcf9; }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title" id="pageTitle">신청자 통합 관리</h1>
+      <div class="admin-topbar-actions">
+        <button class="btn-refresh" onclick="ApplicantList.load()" title="새로고침">
+          <img src="../assets/icons/refresh.png" alt="새로고침">
+        </button>
+        <a href="apply-register.html" class="btn btn-primary btn-sm">신청등록</a>
+      </div>
+    </div>
+
+    <!-- 검색 필터 -->
+    <div class="filter-card">
+      <div class="filter-body">
+
+        <div class="filter-row">
+          <span class="filter-label">신청일</span>
+          <div class="filter-content">
+            <div class="date-pair">
+              <input type="date" id="filterDateFrom">
+              <span class="date-sep">—</span>
+              <input type="date" id="filterDateTo">
+            </div>
+            <div class="date-preset-group">
+              <button class="date-preset-btn" onclick="setDatePreset('today')">오늘</button>
+              <button class="date-preset-btn" onclick="setDatePreset(7)">7일</button>
+              <button class="date-preset-btn" onclick="setDatePreset(30)">30일</button>
+              <button class="date-preset-btn" onclick="setDatePreset(90)">3개월</button>
+              <button class="date-preset-btn" onclick="setDatePreset(180)">6개월</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row" id="filterRowCourseType">
+          <span class="filter-label">과정유형</span>
+          <div class="filter-content">
+            <div class="chip-group" id="courseTypeChips">
+              <label class="chip"><input type="radio" name="filterType" value="" checked><span>전체</span></label>
+              <label class="chip"><input type="radio" name="filterType" value="basic"><span>기초과정</span></label>
+              <label class="chip"><input type="radio" name="filterType" value="qualify"><span>자격취득과정</span></label>
+              <label class="chip"><input type="radio" name="filterType" value="enhance"><span>역량강화</span></label>
+              <label class="chip"><input type="radio" name="filterType" value="academy"><span>회원아카데미</span></label>
+              <label class="chip"><input type="radio" name="filterType" value="instructor"><span>강사과정</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row" id="academySubRow" style="display:none">
+          <span class="filter-label">아카데미<br>구분</span>
+          <div class="filter-content">
+            <div class="chip-group">
+              <label class="chip"><input type="radio" name="filterAcademyTab" value="" checked><span>전체</span></label>
+              <label class="chip"><input type="radio" name="filterAcademyTab" value="lecture"><span>특강</span></label>
+              <label class="chip"><input type="radio" name="filterAcademyTab" value="course"><span>강좌</span></label>
+              <label class="chip"><input type="radio" name="filterAcademyTab" value="mentor"><span>멘토링숲학교</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row" id="filterRowCohort">
+          <span class="filter-label">기수</span>
+          <div class="filter-content">
+            <select id="filterCohort" class="form-control" style="width:130px;height:34px;font-size:13px">
+              <option value="">전체</option>
+              <option value="55">55기</option>
+              <option value="54">54기</option>
+              <option value="10">10기</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">상태</span>
+          <div class="filter-content">
+            <div class="chip-group" id="statusChips">
+              <label class="chip"><input type="radio" name="filterStatus" value="" checked><span>전체</span></label>
+              <label class="chip" id="chipStatus신청"><input type="radio" name="filterStatus" value="신청"><span>신청</span></label>
+              <label class="chip" id="chipStatus취소"><input type="radio" name="filterStatus" value="취소"><span>취소</span></label>
+              <label class="chip" id="chipStatus수료"><input type="radio" name="filterStatus" value="수료"><span>수료</span></label>
+              <label class="chip" id="chipStatus미수료"><input type="radio" name="filterStatus" value="미수료"><span>미수료</span></label>
+              <label class="chip" id="chipStatus활동완료" style="display:none"><input type="radio" name="filterStatus" value="활동완료"><span>활동완료</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">검색</span>
+          <div class="filter-content">
+            <div class="kw-wrap">
+              <select class="kw-select" id="filterSearchType">
+                <option value="course">과정명</option>
+                <option value="name">신청자명</option>
+              </select>
+              <div class="kw-input-wrap">
+                <input type="text" id="filterKeyword" placeholder="검색어를 입력하세요"
+                  onkeydown="if(event.key==='Enter') ApplicantList.search()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="filter-footer">
+        <button class="btn btn-outline btn-sm"
+          onclick="AdminHttp.downloadExcel(ADMIN_API.applicantExcel, ApplicantList.getParams())">
+          엑셀 다운로드
+        </button>
+        <button class="btn btn-gray btn-sm" onclick="ApplicantList.reset()">초기화</button>
+        <button class="btn btn-primary btn-sm" onclick="ApplicantList.search()">검색</button>
+      </div>
+    </div>
+
+    <!-- 목록 상단 -->
+    <div class="list-top">
+      <div class="list-count" id="listCount">총 <strong>0</strong>건</div>
+      <select class="form-control" id="pageSizeSelect"
+        style="width:130px;height:36px;font-size:13px"
+        onchange="ApplicantList.changePageSize(this.value)">
+        <option value="10">10개씩 보기</option>
+        <option value="30">30개씩 보기</option>
+        <option value="50">50개씩 보기</option>
+      </select>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-wrap">
+      <table class="admin-table" style="table-layout:fixed;width:100%">
+        <colgroup>
+          <col style="width:34px">
+          <col style="width:38px">
+          <col style="width:9%">
+          <col style="width:7%">
+          <col style="width:5%">
+          <col>
+          <col style="width:10%">
+          <col style="width:3%">
+          <col style="width:7%">
+          <col style="width:10%">
+          <col style="width:11%">
+          <col style="width:11%">
+          <col style="width:8%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="col-chk">
+              <input type="checkbox" id="chkAll"
+                onchange="ApplicantList.toggleAll(this.checked)">
+            </th>
+            <th>No</th>
+            <th>접수번호</th>
+            <th>과정유형</th>
+            <th class="center">기수</th>
+            <th style="text-align:center">과정명</th>
+            <th>신청자</th>
+            <th>성별</th>
+            <th>생년월일</th>
+            <th>핸드폰</th>
+            <th>신청일시</th>
+            <th>취소일시</th>
+            <th>상태</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+
+    <!-- 하단 버튼 -->
+    <div class="table-bottom-bar">
+      <div class="bulk-btn-group">
+        <button class="btn btn-danger btn-danger-filled btn-sm"
+          id="btnBulkDelete" disabled onclick="ApplicantList.bulkAction('delete')">선택 삭제</button>
+        <button class="btn btn-danger btn-sm"
+          id="btnBulkCancel" disabled onclick="ApplicantList.bulkAction('취소')">선택 취소처리</button>
+        <button class="btn btn-outline btn-sm"
+          id="btnBulkComplete" disabled onclick="ApplicantList.bulkAction('수료')">선택 수료처리</button>
+        <button class="btn btn-gray btn-sm"
+          id="btnBulkIncomplete" disabled onclick="ApplicantList.bulkAction('미수료')">선택 미수료처리</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+const _urlParams  = new URLSearchParams(location.search);
+const BTYPE       = _urlParams.get('type') || '';          // 'instructor' 또는 ''(전체)
+const IS_INSTRUCTOR = BTYPE === 'instructor';
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] AdminHttp.get(ADMIN_API.applicants, params) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_DATA_INSTRUCTOR = {
+  total: 3,
+  items: [
+    { id: 3001, no: 3, appNo: 'INS-2026-00001', typeKey: 'instructor', typeLabel: '강사과정', cohort: '—', courseName: '2026 봄 생태해설 숲 활동',   memberId: 'ins5001', name: '김민준', gender: '남', dob: '1985-03-15', phone: '010-1234-5678', applyDate: '2026-01-10 09:07', cancelDate: '—', statusLabel: '신청', statusBadge: 'badge-green' },
+    { id: 3002, no: 2, appNo: 'INS-2026-00002', typeKey: 'instructor', typeLabel: '강사과정', cohort: '—', courseName: '어린이 숲체험 해설 봉사',       memberId: 'ins5002', name: '이서연', gender: '여', dob: '1990-07-22', phone: '010-2345-6789', applyDate: '2026-02-05 14:23', cancelDate: '—', statusLabel: '활동완료', statusBadge: 'badge-green' },
+    { id: 3003, no: 1, appNo: 'INS-2026-00003', typeKey: 'instructor', typeLabel: '강사과정', cohort: '—', courseName: '하반기 도시숲 해설 프로그램', memberId: 'ins5003', name: '박지훈', gender: '남', dob: '1978-11-08', phone: '010-3456-7890', applyDate: '2026-03-01 11:15', cancelDate: '—', statusLabel: '취소', statusBadge: 'badge-orange' },
+  ],
+};
+const SAMPLE_DATA = {
+  total: 10,
+  items: [
+    { id: 2001, no: 10, appNo: 'APP-2026-02001', typeKey: 'basic',   typeLabel: '기초과정',     cohort: '—',    courseName: '봄 숲 이야기 — 시민아카데미',     memberId: 'M02001', name: '김민준', gender: '남', dob: '1985-03-15', phone: '010-1234-5678', applyDate: '2026-01-10 09:07', cancelDate: '—',                statusLabel: '신청',  statusBadge: 'badge-green' },
+    { id: 2002, no: 9,  appNo: 'APP-2026-02002', typeKey: 'qualify', typeLabel: '자격취득과정', cohort: '55기',  courseName: '제55기 숲해설가 전문가과정',       memberId: 'M02002', name: '이서연', gender: '여', dob: '1990-07-22', phone: '010-2345-6789', applyDate: '2026-01-20 14:23', cancelDate: '—',                statusLabel: '수료',  statusBadge: 'badge-green' },
+    { id: 2003, no: 8,  appNo: 'APP-2026-02003', typeKey: 'enhance', typeLabel: '역량강화',     cohort: '—',    courseName: '숲해설 심화 — 생태 스토리텔링',   memberId: 'M02003', name: '박지훈', gender: '남', dob: '1978-11-08', phone: '010-3456-7890', applyDate: '2026-02-01 11:15', cancelDate: '2026-02-05 09:30', statusLabel: '취소',  statusBadge: 'badge-orange' },
+    { id: 2004, no: 7,  appNo: 'APP-2026-02004', typeKey: 'academy', typeLabel: '회원아카데미', cohort: '—',    courseName: '숲속 명상과 힐링 특강',           memberId: 'M02004', name: '최하늘', gender: '여', dob: '1992-04-18', phone: '010-4567-8901', applyDate: '2026-02-10 10:00', cancelDate: '—',                statusLabel: '신청',  statusBadge: 'badge-green' },
+    { id: 2005, no: 6,  appNo: 'APP-2026-02005', typeKey: 'basic',   typeLabel: '기초과정',     cohort: '—',    courseName: '봄 숲 이야기 — 시민아카데미',     memberId: 'M02005', name: '정도영', gender: '남', dob: '1988-09-30', phone: '010-5678-9012', applyDate: '2026-02-15 16:30', cancelDate: '—',                statusLabel: '미수료', statusBadge: 'badge-orange' },
+    { id: 2006, no: 5,  appNo: 'APP-2026-02006', typeKey: 'qualify', typeLabel: '자격취득과정', cohort: '54기',  courseName: '제54기 숲해설가 양성과정',         memberId: 'M02006', name: '한소리', gender: '여', dob: '1995-01-25', phone: '010-6789-0123', applyDate: '2026-03-01 09:00', cancelDate: '—',                statusLabel: '수료',  statusBadge: 'badge-green' },
+    { id: 2007, no: 4,  appNo: 'APP-2026-02007', typeKey: 'enhance', typeLabel: '역량강화',     cohort: '—',    courseName: '여름 숲캠프 리더 양성과정',        memberId: 'M02007', name: '윤하람', gender: '남', dob: '1980-06-12', phone: '010-7890-1234', applyDate: '2026-03-05 14:23', cancelDate: '—',                statusLabel: '신청',  statusBadge: 'badge-green' },
+    { id: 2008, no: 3,  appNo: 'APP-2026-02008', typeKey: 'basic',   typeLabel: '기초과정',     cohort: '—',    courseName: '겨울 숲 생태 특강',               memberId: 'M02008', name: '송이슬', gender: '여', dob: '1993-12-05', phone: '010-8901-2345', applyDate: '2026-03-10 11:15', cancelDate: '2026-03-12 15:00', statusLabel: '취소',  statusBadge: 'badge-orange' },
+    { id: 2009, no: 2,  appNo: 'APP-2026-02009', typeKey: 'academy', typeLabel: '회원아카데미', cohort: '—',    courseName: '숲해설가 멘토링 숲학교',          memberId: 'M02009', name: '강나래', gender: '여', dob: '1987-03-20', phone: '010-9012-3456', applyDate: '2026-03-20 09:30', cancelDate: '—',                statusLabel: '신청',  statusBadge: 'badge-green' },
+    { id: 2010, no: 1,  appNo: 'APP-2026-02010', typeKey: 'qualify', typeLabel: '자격취득과정', cohort: '55기',  courseName: '제55기 숲해설가 전문가과정',       memberId: 'M02010', name: '임은별', gender: '여', dob: '1998-08-14', phone: '010-0123-4567', applyDate: '2026-04-01 17:00', cancelDate: '—',                statusLabel: '신청',  statusBadge: 'badge-green' },
+  ],
+};
+
+const ApplicantList = {
+  currentPage: 1,
+  pageSize:    10,
+
+  getParams() {
+    return {
+      date_from:   document.getElementById('filterDateFrom').value,
+      date_to:     document.getElementById('filterDateTo').value,
+      course_type: document.querySelector('input[name="filterType"]:checked')?.value || '',
+      academy_tab: document.querySelector('input[name="filterAcademyTab"]:checked')?.value || '',
+      cohort:      document.getElementById('filterCohort').value,
+      status:      document.querySelector('input[name="filterStatus"]:checked')?.value || '',
+      kw_type:     document.getElementById('filterSearchType').value,
+      kw:          document.getElementById('filterKeyword').value.trim(),
+      page:        this.currentPage,
+      size:        this.pageSize,
+    };
+  },
+
+  search() { this.currentPage = 1; this.load(); },
+
+  async load() {
+    AdminUI.showLoading('tableBody', 13);
+    try {
+      /*
+       * [개발자 연동]
+       * const data = await AdminHttp.get(ADMIN_API.applicants, this.getParams());
+       * this.render(data.items, data.total);
+       */
+      await new Promise(r => setTimeout(r, 200));
+      const p = this.getParams();
+      const source = IS_INSTRUCTOR ? SAMPLE_DATA_INSTRUCTOR.items : SAMPLE_DATA.items;
+      let items = source.filter(d => {
+        if (p.date_from && d.applyDate < p.date_from) return false;
+        if (p.date_to   && d.applyDate > p.date_to + ' 23:59:59') return false;
+        /* instructor 모드: 과정유형 필터 무시(항상 instructor), 아닌 경우 필터 적용 */
+        if (!IS_INSTRUCTOR && p.course_type && d.typeKey !== p.course_type) return false;
+        if (p.status && d.statusLabel !== p.status) return false;
+        if (p.cohort && d.cohort !== p.cohort + '기') return false;
+        if (p.kw) {
+          const kw = p.kw.toLowerCase();
+          if (p.kw_type === 'name')   return d.name.includes(kw);
+          if (p.kw_type === 'course') return d.courseName.toLowerCase().includes(kw);
+          return (d.courseName + d.name).toLowerCase().includes(kw);
+        }
+        return true;
+      });
+      const total = items.length;
+      const start = (this.currentPage - 1) * this.pageSize;
+      this.render(items.slice(start, start + this.pageSize), total);
+    } catch (e) {
+      AdminUI.showError('tableBody', e.message, 13);
+    }
+  },
+
+  render(items, total) {
+    AdminUI.updateCount('listCount', total);
+    const totalPages = Math.ceil(total / this.pageSize) || 1;
+    AdminUI.renderPagination('pagination', this.currentPage, totalPages, p => {
+      this.currentPage = p; this.load();
+    });
+
+    const tbody = document.getElementById('tableBody');
+    if (!items.length) {
+      AdminUI.showEmpty('tableBody', '검색 결과가 없습니다.', 13); return;
+    }
+    tbody.innerHTML = items.map(d => `
+      <tr class="applicant-row"
+        onclick="location.href='applicant-detail.html?id=${d.id}'">
+        <td class="col-chk" onclick="event.stopPropagation()">
+          <input type="checkbox" class="row-chk" data-id="${d.id}"
+            onchange="ApplicantList.syncBulkBtns()">
+        </td>
+        <td>${d.no}</td>
+        <td class="cell-mono" style="font-size:12px">${d.appNo}</td>
+        <td><span class="badge-type ${d.typeKey}">${d.typeLabel}</span></td>
+        <td class="center" style="font-size:13px">${d.cohort}</td>
+        <td style="font-weight:500;text-align:center">${d.courseName}</td>
+        <td>
+          <span style="font-weight:600">${d.name}</span>
+          <span style="font-weight:400;color:#888;font-size:12px">(${d.memberId})</span>
+        </td>
+        <td>${d.gender}</td>
+        <td class="cell-mono">${d.dob}</td>
+        <td class="cell-mono">${d.phone}</td>
+        <td class="cell-mono">${d.applyDate}</td>
+        <td class="cell-mono">${d.cancelDate}</td>
+        <td><span class="badge ${d.statusBadge}">${d.statusLabel}</span></td>
+      </tr>`).join('');
+  },
+
+  toggleAll(checked) {
+    document.querySelectorAll('.row-chk').forEach(cb => cb.checked = checked);
+    this.syncBulkBtns();
+  },
+
+  syncBulkBtns() {
+    const any = document.querySelectorAll('.row-chk:checked').length > 0;
+    ['btnBulkDelete', 'btnBulkCancel', 'btnBulkComplete', 'btnBulkIncomplete']
+      .forEach(id => { document.getElementById(id).disabled = !any; });
+  },
+
+  /* 일괄 처리
+     [개발자] AdminHttp.post() 로 교체 */
+  async bulkAction(action) {
+    const ids = [...document.querySelectorAll('.row-chk:checked')].map(cb => cb.dataset.id);
+    if (!ids.length) return;
+    const label = action === 'delete' ? '삭제' : `[${action}] 처리`;
+    if (!confirm(`선택한 ${ids.length}건을 ${label}하시겠습니까?`)) return;
+    try {
+      /*
+       * [개발자 연동]
+       * if (action === 'delete') {
+       *   await AdminHttp.post(ADMIN_API.applicants + '/bulk-delete', { ids });
+       * } else {
+       *   await AdminHttp.post(ADMIN_API.applicants + '/bulk-status', { ids, status: action });
+       * }
+       */
+      App.toast(`${ids.length}건이 ${label}되었습니다.`, 'success');
+      this.load();
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  changePageSize(size) {
+    this.pageSize = parseInt(size); this.currentPage = 1; this.load();
+  },
+
+  reset() {
+    document.getElementById('filterDateFrom').value = '';
+    document.getElementById('filterDateTo').value   = '';
+    document.querySelector('input[name="filterType"][value=""]').checked       = true;
+    document.querySelector('input[name="filterAcademyTab"][value=""]').checked = true;
+    document.getElementById('academySubRow').style.display = 'none';
+    document.getElementById('filterCohort').value  = '';
+    document.querySelector('input[name="filterStatus"][value=""]').checked = true;
+    document.getElementById('filterSearchType').value = 'course';
+    document.getElementById('filterKeyword').value    = '';
+    this.currentPage = 1;
+    this.load();
+  },
+};
+
+/* 과정유형 → 아카데미 하위 행 토글 */
+document.querySelectorAll('input[name="filterType"]').forEach(radio => {
+  radio.addEventListener('change', function () {
+    const subRow = document.getElementById('academySubRow');
+    subRow.style.display = this.value === 'academy' ? '' : 'none';
+    if (this.value !== 'academy') {
+      const allTab = document.querySelector('input[name="filterAcademyTab"][value=""]');
+      if (allTab) allTab.checked = true;
+    }
+  });
+});
+
+/* ── 페이지 초기화 */
+(function initPage() {
+  if (IS_INSTRUCTOR) {
+    /* 타이틀 */
+    document.getElementById('pageTitle').textContent = '강사신청자 관리';
+    document.title = '강사신청자 관리 | 관리자 | 한국숲해설가협회';
+
+    /* 과정유형 필터 행 숨김 (항상 instructor만 조회) */
+    document.getElementById('filterRowCourseType').style.display = 'none';
+
+    /* 기수 필터 행 숨김 */
+    document.getElementById('filterRowCohort').style.display = 'none';
+
+    /* 상태 칩: 수료/미수료 숨기고 활동완료 표시 */
+    document.getElementById('chipStatus수료').style.display    = 'none';
+    document.getElementById('chipStatus미수료').style.display  = 'none';
+    document.getElementById('chipStatus활동완료').style.display = '';
+
+    /* 일괄처리 버튼 텍스트 변경 */
+    document.getElementById('btnBulkComplete').textContent   = '선택 활동완료처리';
+    document.getElementById('btnBulkIncomplete').style.display = 'none';
+
+    /* 사이드바 */
+    AdminSidebar.mount('apply-instructor');
+  } else {
+    AdminSidebar.mount('course-applicants');
+  }
+})();
+
+ApplicantList.load();
+</script>
+</body>
+</html>

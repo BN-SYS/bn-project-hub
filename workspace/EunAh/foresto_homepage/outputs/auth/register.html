@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원가입 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/auth.css">
+</head>
+
+<body class="auth-page">
+  <div id="hdr"></div>
+
+  <div class="auth-bg auth-bg--top">
+
+    <!-- 스텝 바 -->
+    <div class="reg-step-bar" id="regStepBar">
+      <div class="reg-step-item active" id="rsi1">
+        <div class="reg-step-circle">1</div>
+        <div class="reg-step-label">약관 동의</div>
+      </div>
+      <div class="reg-step-line" id="rsl1"></div>
+      <div class="reg-step-item pending" id="rsi2">
+        <div class="reg-step-circle">2</div>
+        <div class="reg-step-label">본인인증</div>
+      </div>
+      <div class="reg-step-line" id="rsl2"></div>
+      <div class="reg-step-item pending" id="rsi3">
+        <div class="reg-step-circle">3</div>
+        <div class="reg-step-label">정보 입력</div>
+      </div>
+      <div class="reg-step-line" id="rsl3"></div>
+      <div class="reg-step-item pending" id="rsi4">
+        <div class="reg-step-circle">✓</div>
+        <div class="reg-step-label">가입 완료</div>
+      </div>
+    </div>
+
+    <!-- 카드 -->
+    <div class="auth-card" style="max-width:540px;padding:0;overflow:hidden">
+
+      <!-- 카드 헤더 -->
+      <div class="auth-card-header" id="regCardHeader">
+        <h2 id="regCardTitle">약관 동의</h2>
+        <p id="regCardDesc">서비스 이용을 위한 약관에 동의해 주세요.</p>
+      </div>
+
+      <div class="auth-card-body">
+
+        <!-- ══ STEP 1: 약관 동의 ══ -->
+        <div class="reg-panel active" id="regPanel1">
+
+          <!-- 전체 동의 -->
+          <div class="agree-all-wrap">
+            <label class="agree-all-label">
+              <input type="checkbox" id="agreeAll" onchange="RegCtrl.toggleAll(this.checked)">
+              전체 동의합니다
+            </label>
+            <div style="font-size:12px;color:var(--green-dark);opacity:.8;margin-top:4px;padding-left:26px">
+              이용약관, 개인정보처리방침, 마케팅 수신 동의를 포함합니다.
+            </div>
+          </div>
+
+          <!-- 이용약관 -->
+          <div class="agree-item">
+            <label class="agree-item-left">
+              <input type="checkbox" id="agree1" onchange="RegCtrl.onAgreeChange()">
+              <span>이용약관 동의 <span style="color:var(--danger);font-size:12px">(필수)</span></span>
+            </label>
+            <a href="../terms.html" target="_blank"
+              style="font-size:12px;color:var(--gray-mid);text-decoration:underline">전문보기</a>
+          </div>
+          <div class="terms-box">
+            제1조 (목적) 이 약관은 한국숲해설가협회(이하 "협회")가 운영하는
+            홈페이지 서비스의 이용조건 및 절차, 협회와 이용자의 권리·의무 및
+            책임사항을 규정함을 목적으로 합니다.<br><br>
+            제2조 (정의) "회원"이란 협회와 서비스 이용계약을 체결하고
+            아이디를 부여받은 자를 말합니다.<br><br>
+            제3조 (약관의 효력) 이 약관은 회원가입 시 동의함으로써 효력이 발생합니다.
+          </div>
+
+          <!-- 개인정보처리방침 -->
+          <div class="agree-item">
+            <label class="agree-item-left">
+              <input type="checkbox" id="agree2" onchange="RegCtrl.onAgreeChange()">
+              <span>개인정보 수집·이용 동의 <span style="color:var(--danger);font-size:12px">(필수)</span></span>
+            </label>
+            <a href="../privacy.html" target="_blank"
+              style="font-size:12px;color:var(--gray-mid);text-decoration:underline">전문보기</a>
+          </div>
+          <div class="terms-box">
+            수집 항목: 이름, 이메일, 휴대폰번호, 생년월일<br>
+            수집 목적: 회원 관리, 서비스 제공, 본인 확인<br>
+            보유 기간: 회원 탈퇴 후 30일<br>
+            귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있으나,
+            동의 거부 시 서비스 이용이 제한될 수 있습니다.
+          </div>
+
+          <!-- 마케팅 수신 (선택) -->
+          <div class="agree-item">
+            <label class="agree-item-left">
+              <input type="checkbox" id="agree3" onchange="RegCtrl.onAgreeChange()">
+              <span>마케팅 정보 수신 동의 <span style="color:var(--gray-mid);font-size:12px">(선택)</span></span>
+            </label>
+          </div>
+          <div class="terms-box">
+            수집 항목: 이름, 이메일, 휴대폰번호, 생년월일<br>
+            수집 목적: 회원 관리, 서비스 제공, 본인 확인<br>
+            보유 기간: 회원 탈퇴 후 30일<br>
+            귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있으나,
+            동의 거부 시 서비스 이용이 제한될 수 있습니다.
+          </div>
+
+          <div class="reg-btn-row" style="justify-content:flex-end">
+            <button class="auth-btn auth-btn-primary" style="width:auto;padding:0 24px"
+              onclick="RegCtrl.nextFromStep1()">
+              다음 →
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ STEP 2: 본인인증 ══ -->
+        <div class="reg-panel" id="regPanel2">
+
+          <div class="auth-verify-box">
+            <p>
+              <strong>휴대폰 본인인증</strong>이 필요합니다.<br>
+              실명 확인 및 중복 가입 방지를 위해 본인인증을 진행해 주세요.<br>
+              <span style="font-size:12px;color:var(--green-dark);opacity:.8">
+                인증 서비스: NICE 또는 KCB 이니시스 (건당 비용 발생)
+              </span>
+            </p>
+            <button class="auth-btn auth-btn-primary" onclick="RegCtrl.doVerify()">
+              휴대폰 본인인증 진행
+            </button>
+          </div>
+
+          <div class="auth-verify-done" id="verifyDone">
+            <div>
+              <div style="font-weight:700;color:var(--green-dark)">본인인증 완료</div>
+              <div id="verifyInfo" style="font-size:12px;color:var(--gray-mid)"></div>
+            </div>
+          </div>
+
+          <div class="alert alert-warning" style="margin-top:12px;margin-bottom:0">
+            <div style="font-size:13px">
+              본인인증은 <strong>NICE 평가정보</strong> 또는
+              <strong>KCB 이니시스</strong> 연동 예정입니다.
+              실제 구현 시 개발사가 업체를 추천하며,
+              계약 및 비용은 고객사 직접 진행합니다.
+            </div>
+          </div>
+
+          <div class="reg-btn-row">
+            <button class="auth-btn auth-btn-gray" onclick="RegCtrl.prevStep()">← 이전</button>
+            <button class="auth-btn auth-btn-primary" style="width:auto;padding:0 24px" id="verifyNextBtn" disabled
+              onclick="RegCtrl.nextFromStep2()">
+              다음 →
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ STEP 3: 정보 입력 ══ -->
+        <div class="reg-panel" id="regPanel3">
+
+          <div class="alert alert-success" style="margin-bottom:20px">
+            <div style="font-size:13px">본인인증 완료 후 이름·생년월일·성별·휴대폰이 자동으로 입력되었습니다.</div>
+          </div>
+
+          <!-- ★ [신설] 아이디 + 중복확인 — 최상단 배치 -->
+          <div style="margin-bottom:16px">
+            <label class="auth-label">아이디 <span class="req">*</span></label>
+            <div class="form-row-btn">
+              <input type="text" class="auth-input" style="padding:0 14px" id="regUserId"
+                placeholder="영문 소문자·숫자 조합, 4~20자" maxlength="20" oninput="RegCtrl.onUserIdInput()">
+              <button class="btn btn-outline btn-sm" style="height:46px;white-space:nowrap"
+                onclick="RegCtrl.checkUserId()">중복확인</button>
+            </div>
+            <div class="auth-error-msg" id="regUserIdErr">영문 소문자·숫자 조합 4~20자로 입력해 주세요.</div>
+            <div class="auth-success-msg" id="regUserIdOk">사용 가능한 아이디입니다.</div>
+          </div>
+
+          <!-- ★ [위치 이동] 비밀번호 — 아이디 바로 아래 -->
+          <div style="margin-bottom:16px">
+            <label class="auth-label">비밀번호 <span class="req">*</span></label>
+            <div style="position:relative">
+              <input type="password" class="auth-input" id="regPw" placeholder="8자 이상, 영문·숫자·특수문자 조합"
+                oninput="RegCtrl.checkPwStrength(this.value)" style="padding:0 44px 0 14px">
+              <span
+                style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--gray-mid);cursor:pointer"
+                onclick="RegCtrl.togglePw('regPw',this)">👁</span>
+            </div>
+            <div class="pw-strength-wrap">
+              <div class="pw-strength-bar">
+                <div class="pw-strength-fill" id="pwStrengthFill"></div>
+              </div>
+              <div class="pw-strength-label" id="pwStrengthLabel"></div>
+            </div>
+            <div class="auth-error-msg" id="regPwErr">8자 이상 영문·숫자·특수문자를 포함해 주세요.</div>
+          </div>
+
+          <!-- ★ [위치 이동] 비밀번호 확인 -->
+          <div style="margin-bottom:16px">
+            <label class="auth-label">비밀번호 확인 <span class="req">*</span></label>
+            <input type="password" class="auth-input" style="padding:0 14px" id="regPwConfirm"
+              placeholder="비밀번호를 다시 입력하세요" oninput="RegCtrl.checkPwMatch()">
+            <div class="auth-error-msg" id="regPwConfirmErr">비밀번호가 일치하지 않습니다.</div>
+            <div class="auth-success-msg" id="regPwConfirmOk">비밀번호가 일치합니다.</div>
+          </div>
+
+          <!-- 이름 (본인인증 자동입력) -->
+          <div style="margin-bottom:16px">
+            <label class="auth-label">이름 <span class="req">*</span></label>
+            <input type="text" class="auth-input" style="padding:0 14px" id="regName" value="김숲해설" disabled>
+          </div>
+
+          <!-- 생년월일 (본인인증 자동입력) -->
+          <div style="margin-bottom:16px">
+            <label class="auth-label">생년월일 <span class="req">*</span></label>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <select class="auth-input" id="regBirthY" style="padding:0 8px;width:96px;flex-shrink:0" disabled>
+                <option value="">년</option>
+                <option value="1990" selected>1990년</option>
+              </select>
+              <select class="auth-input" id="regBirthM" style="padding:0 8px;width:76px;flex-shrink:0" disabled>
+                <option value="">월</option>
+                <option value="1" selected>1월</option>
+              </select>
+              <select class="auth-input" id="regBirthD" style="padding:0 8px;width:76px;flex-shrink:0" disabled>
+                <option value="">일</option>
+                <option value="1" selected>1일</option>
+              </select>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;margin-left:6px">
+                <input type="checkbox" id="regLunar"> 음력
+              </label>
+            </div>
+            <div style="font-size:12px;color:var(--gray-mid);margin-top:4px">본인인증으로 확인된 정보입니다.</div>
+          </div>
+
+          <!-- 성별 (본인인증 자동입력) -->
+          <div style="margin-bottom:16px">
+            <label class="auth-label">성별 <span class="req">*</span></label>
+            <div style="display:flex;gap:24px;margin-top:6px">
+              <label style="display:flex;align-items:center;gap:6px;cursor:default;font-size:14px">
+                <input type="radio" name="regGender" value="m" id="regGenderM" checked disabled> 남성
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:default;font-size:14px">
+                <input type="radio" name="regGender" value="f" id="regGenderF" disabled> 여성
+              </label>
+            </div>
+            <div style="font-size:12px;color:var(--gray-mid);margin-top:4px">본인인증으로 확인된 정보입니다.</div>
+          </div>
+
+          <!-- ★ [변경] 이메일 — 아이디 겸용 해제, 중복확인 버튼 제거, 단순 입력 필드 -->
+          <div style="margin-bottom:16px">
+            <label class="auth-label">이메일 <span class="req">*</span></label>
+            <input type="email" class="auth-input" style="padding:0 14px" id="regEmail" placeholder="example@email.com">
+            <div class="auth-error-msg" id="regEmailErr">올바른 이메일을 입력해 주세요.</div>
+            <!-- ★ [삭제] 뉴스레터 / 공지 수신 동의 체크박스 제거 -->
+          </div>
+
+          <!-- 휴대폰 (본인인증 자동입력) -->
+          <div style="margin-bottom:16px">
+            <label class="auth-label">휴대폰 번호 <span class="req">*</span></label>
+            <input type="tel" class="auth-input" style="padding:0 14px" id="regPhone" value="010-1234-5678" disabled>
+            <div style="font-size:12px;color:var(--gray-mid);margin-top:4px">본인인증으로 확인된 번호입니다.</div>
+            <!-- ★ [삭제] 알림문자 수신 동의 체크박스 제거 -->
+          </div>
+
+          <!-- 주소 -->
+          <div style="margin-bottom:16px">
+            <label class="auth-label">주소</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="text" class="auth-input" id="regZip" placeholder="우편번호"
+                style="padding:0 14px;width:110px;flex-shrink:0">
+              <button type="button" class="btn btn-outline btn-sm" id="regAddrSearchBtn" onclick="RegCtrl.searchAddr()"
+                style="height:46px;white-space:nowrap;flex-shrink:0">
+                우편번호 찾기
+              </button>
+            </div>
+            <input type="text" class="auth-input" id="regAddr1" placeholder="기본 주소 (우편번호 검색 후 자동 입력)"
+              style="margin-top:8px;padding:0 14px;background:var(--gray-light);color:var(--gray-mid)" disabled>
+            <input type="text" class="auth-input" id="regAddr2" placeholder="상세 주소 (동·호수 등 직접 입력)"
+              style="margin-top:8px;padding:0 14px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;margin-top:8px">
+              <input type="checkbox" id="regOverseas" onchange="RegCtrl.toggleOverseas(this.checked)"> 해외 거주
+            </label>
+          </div>
+
+          <!-- 직업 -->
+          <div style="margin-bottom:16px">
+            <label class="auth-label">직업</label>
+            <select class="auth-input" id="regJob"
+              style="padding:0 32px 0 14px;appearance:none;-webkit-appearance:none">
+              <option value="">선택</option>
+              <option>직장인</option>
+              <option>자영업자</option>
+              <option>공무원·교원</option>
+              <option>전문직</option>
+              <option>학생</option>
+              <option>주부</option>
+              <option>은퇴·퇴직</option>
+              <option>기타</option>
+            </select>
+          </div>
+
+          <!-- 가입 경로 -->
+          <div style="margin-bottom:0">
+            <label class="auth-label">가입 경로</label>
+            <select class="auth-input" id="regChannel"
+              style="padding:0 32px 0 14px;appearance:none;-webkit-appearance:none">
+              <option value="">선택</option>
+              <option>인터넷 검색</option>
+              <option>지인 추천</option>
+              <option>SNS (블로그·인스타·유튜브)</option>
+              <option>협회 교육 이수 후</option>
+              <option>기타</option>
+            </select>
+          </div>
+
+          <div class="reg-btn-row">
+            <button class="auth-btn auth-btn-gray" onclick="RegCtrl.prevStep()">← 이전</button>
+            <button class="auth-btn auth-btn-primary" style="width:auto;padding:0 24px"
+              onclick="RegCtrl.submitRegister()">
+              가입 완료
+            </button>
+          </div>
+        </div>
+
+
+        <!-- ══ STEP 4: 가입 완료 ══ -->
+        <div class="reg-panel" id="regPanel4">
+          <div class="reg-done">
+            <div class="reg-done-title">가입을 환영합니다!</div>
+            <div class="reg-done-desc">
+              <strong id="regDoneName">회원</strong>님,
+              한국숲해설가협회 회원이 되셨습니다.<br>
+              이제 다양한 교육과 활동에 참여하실 수 있습니다.
+            </div>
+
+            <div
+              style="background:var(--green-pale);border-radius:var(--radius-lg);padding:20px 24px;text-align:left;margin-bottom:24px;font-size:13px;line-height:1.9">
+              <div style="font-weight:700;color:var(--green-dark);margin-bottom:8px">✨ 다음 단계 안내</div>
+              <div>
+                현재 등급: <strong>일반회원</strong><br>
+                전문가과정 수료 후 월 회비 납부 시 <strong>정회원</strong>으로 등급 전환 가능<br>
+                정회원 전환 문의: 02-747-6518
+              </div>
+            </div>
+
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+              <a href="../auth/login.html" class="auth-btn auth-btn-primary"
+                style="text-decoration:none;flex:1;max-width:180px">로그인</a>
+              <a href="../education/course-list.html" class="btn btn-outline" style="flex:1;max-width:180px">교육 신청하기</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 로그인 링크 -->
+    <div style="text-align:center;margin-top:16px;font-size:13px;color:var(--gray-mid)">
+      이미 회원이신가요?
+      <a href="login.html" style="color:var(--green-dark);font-weight:700;text-decoration:none">로그인 →</a>
+    </div>
+
+  </div>
+
+  <div id="ftr"></div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script>
+
+    document.getElementById('hdr').innerHTML = Header.render('', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+
+    const REG_STEP_META = [
+      { title: '약관 동의', desc: '서비스 이용을 위한 약관에 동의해 주세요.' },
+      { title: '본인인증', desc: '휴대폰 본인인증을 진행해 주세요.' },
+      { title: '정보 입력', desc: '회원 정보를 입력해 주세요.' },
+      { title: '가입 완료', desc: '환영합니다! 가입이 완료되었습니다.' },
+    ];
+
+    const RegCtrl = {
+      _step: 1,
+      _verified: false,
+      _emailChecked: false,
+
+      _goStep(n) {
+        this._step = n;
+        const total = 4;
+        for (let i = 1; i <= total; i++) {
+          const panel = document.getElementById(`regPanel${i}`);
+          if (panel) panel.classList.toggle('active', i === n);
+        }
+        for (let i = 1; i <= total; i++) {
+          const item = document.getElementById(`rsi${i}`);
+          if (!item) continue;
+          item.className = 'reg-step-item ' + (i < n ? 'done' : i === n ? 'active' : 'pending');
+        }
+        for (let i = 1; i < total; i++) {
+          const line = document.getElementById(`rsl${i}`);
+          if (line) line.classList.toggle('done', i < n);
+        }
+        const meta = REG_STEP_META[n - 1];
+        const titleEl = document.getElementById('regCardTitle');
+        const descEl = document.getElementById('regCardDesc');
+        if (titleEl) titleEl.textContent = meta.title;
+        if (descEl) descEl.textContent = meta.desc;
+        const bar = document.getElementById('regStepBar');
+        if (bar) bar.style.display = n === 4 ? 'none' : 'flex';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+
+      prevStep() { if (this._step > 1) this._goStep(this._step - 1); },
+
+      toggleAll(checked) {
+        ['agree1', 'agree2', 'agree3'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.checked = checked;
+        });
+      },
+
+      onAgreeChange() {
+        const all = ['agree1', 'agree2', 'agree3'].every(id => document.getElementById(id)?.checked);
+        const agreeAll = document.getElementById('agreeAll');
+        if (agreeAll) agreeAll.checked = all;
+      },
+
+      nextFromStep1() {
+        const req1 = document.getElementById('agree1')?.checked;
+        const req2 = document.getElementById('agree2')?.checked;
+        if (!req1 || !req2) { App.toast('필수 약관에 동의해 주세요.', 'warning'); return; }
+        this._goStep(2);
+      },
+
+      /* ★ [신설] 아이디 입력 시 중복확인 플래그 초기화 */
+      onUserIdInput() {
+        this._userIdChecked = false;
+        document.getElementById('regUserIdOk')?.classList.remove('show');
+        document.getElementById('regUserIdErr')?.classList.remove('show');
+      },
+
+      /* ★ [신설] 아이디 중복확인 — 기존 checkEmail 대체 */
+      checkUserId() {
+        const uid = document.getElementById('regUserId')?.value.trim() || '';
+        const errEl = document.getElementById('regUserIdErr');
+        const okEl = document.getElementById('regUserIdOk');
+        const valid = /^[a-z0-9]{4,20}$/.test(uid);
+
+        if (!valid) {
+          if (errEl) { errEl.textContent = '영문 소문자·숫자 조합 4~20자로 입력해 주세요.'; errEl.classList.add('show'); }
+          if (okEl) okEl.classList.remove('show');
+          this._userIdChecked = false;
+          return;
+        }
+
+        App.toast('아이디 확인 중...');
+        setTimeout(() => {
+          // 데모용: 'taken' 이라는 아이디만 사용 불가 처리
+          if (uid === 'taken') {
+            if (errEl) { errEl.textContent = '이미 사용 중인 아이디입니다.'; errEl.classList.add('show'); }
+            if (okEl) okEl.classList.remove('show');
+            this._userIdChecked = false;
+          } else {
+            if (errEl) errEl.classList.remove('show');
+            if (okEl) okEl.classList.add('show');
+            this._userIdChecked = true;
+          }
+        }, 600);
+      },
+
+      doVerify() {
+        const btn = document.querySelector('#regPanel2 .auth-btn-primary');
+        if (btn) { btn.textContent = '인증 처리 중...'; btn.disabled = true; }
+        setTimeout(() => {
+          this._verified = true;
+
+          /* 본인인증 결과 → STEP 3 필드 반영 (실제 구현 시 API 응답값 사용) */
+          const verifiedName = '김숲해설';
+          const verifiedBirthY = '1990';
+          const verifiedBirthM = '1';
+          const verifiedBirthD = '1';
+          const verifiedGender = 'm';
+          const verifiedPhone = '010-1234-5678';
+
+          const nameEl = document.getElementById('regName');
+          if (nameEl) nameEl.value = verifiedName;
+
+          /* 생년월일 — 드롭다운 재구성 후 값 세팅 */
+          ['regBirthY', 'regBirthM', 'regBirthD'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.innerHTML = '';
+            if (id === 'regBirthY') {
+              Array.from({ length: 86 }, (_, k) => 2015 - k).forEach(y => {
+                const o = new Option(`${y}년`, y, y == verifiedBirthY, y == verifiedBirthY);
+                el.appendChild(o);
+              });
+            } else if (id === 'regBirthM') {
+              Array.from({ length: 12 }, (_, k) => k + 1).forEach(m => {
+                const o = new Option(`${m}월`, m, m == verifiedBirthM, m == verifiedBirthM);
+                el.appendChild(o);
+              });
+            } else {
+              Array.from({ length: 31 }, (_, k) => k + 1).forEach(d => {
+                const o = new Option(`${d}일`, d, d == verifiedBirthD, d == verifiedBirthD);
+                el.appendChild(o);
+              });
+            }
+          });
+
+          /* 성별 */
+          const gm = document.getElementById('regGenderM');
+          const gf = document.getElementById('regGenderF');
+          if (gm) gm.checked = verifiedGender === 'm';
+          if (gf) gf.checked = verifiedGender === 'f';
+
+          /* 휴대폰 */
+          const phoneEl = document.getElementById('regPhone');
+          if (phoneEl) phoneEl.value = verifiedPhone;
+
+          const doneBx = document.getElementById('verifyDone');
+          const infoEl = document.getElementById('verifyInfo');
+          const nextBtn = document.getElementById('verifyNextBtn');
+          if (doneBx) doneBx.classList.add('show');
+          if (infoEl) infoEl.textContent = `${verifiedName} · ${verifiedBirthY}-0${verifiedBirthM}-0${verifiedBirthD} · ${verifiedPhone}`;
+          if (nextBtn) nextBtn.disabled = false;
+          if (btn) { btn.textContent = '✅ 인증 완료'; btn.disabled = true; }
+          App.toast('본인인증이 완료되었습니다.');
+        }, 1200);
+      },
+
+      nextFromStep2() {
+        if (!this._verified) { App.toast('본인인증을 먼저 진행해 주세요.', 'warning'); return; }
+        this._goStep(3);
+      },
+
+      checkEmail() {
+        const email = document.getElementById('regEmail')?.value.trim() || '';
+        const errEl = document.getElementById('regEmailErr');
+        const okEl = document.getElementById('regEmailOk');
+        const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (!valid) {
+          if (errEl) { errEl.textContent = '올바른 이메일을 입력해 주세요.'; errEl.classList.add('show'); }
+          if (okEl) okEl.classList.remove('show');
+          this._emailChecked = false;
+          return;
+        }
+        App.toast('이메일 확인 중...');
+        setTimeout(() => {
+          if (email === 'taken@forest.or.kr') {
+            if (errEl) { errEl.textContent = '이미 사용 중인 이메일입니다.'; errEl.classList.add('show'); }
+            if (okEl) okEl.classList.remove('show');
+            this._emailChecked = false;
+          } else {
+            if (errEl) errEl.classList.remove('show');
+            if (okEl) okEl.classList.add('show');
+            this._emailChecked = true;
+          }
+        }, 600);
+      },
+
+      checkPwStrength(pw) {
+        const fill = document.getElementById('pwStrengthFill');
+        const label = document.getElementById('pwStrengthLabel');
+        if (!fill || !label) return;
+        let score = 0;
+        if (pw.length >= 8) score++;
+        if (/[A-Z]/.test(pw)) score++;
+        if (/[0-9]/.test(pw)) score++;
+        if (/[^A-Za-z0-9]/.test(pw)) score++;
+        const levels = [
+          { w: '0%', bg: 'transparent', text: '' },
+          { w: '25%', bg: 'var(--danger)', text: '취약한 비밀번호' },
+          { w: '50%', bg: 'var(--accent)', text: '보통 비밀번호' },
+          { w: '75%', bg: 'var(--green-light)', text: '강한 비밀번호' },
+          { w: '100%', bg: 'var(--green-dark)', text: '매우 강한 비밀번호' },
+        ];
+        const lv = levels[Math.min(score, 4)];
+        fill.style.width = lv.w;
+        fill.style.background = lv.bg;
+        label.textContent = lv.text;
+        label.style.color = lv.bg;
+      },
+
+      checkPwMatch() {
+        const pw = document.getElementById('regPw')?.value || '';
+        const pw2 = document.getElementById('regPwConfirm')?.value || '';
+        const errEl = document.getElementById('regPwConfirmErr');
+        const okEl = document.getElementById('regPwConfirmOk');
+        if (!pw2) { errEl?.classList.remove('show'); okEl?.classList.remove('show'); return; }
+        const match = pw === pw2;
+        errEl?.classList.toggle('show', !match);
+        okEl?.classList.toggle('show', match);
+      },
+
+      togglePw(inputId, iconEl) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        if (input.type === 'password') { input.type = 'text'; iconEl.textContent = '🙈'; }
+        else { input.type = 'password'; iconEl.textContent = '👁'; }
+      },
+
+      searchAddr() {
+        App.toast('우편번호 찾기 — 실제 구현 시 Kakao 주소 API 연동 예정', 'info');
+      },
+
+      toggleOverseas(checked) {
+        const zipEl = document.getElementById('regZip');
+        const addr1El = document.getElementById('regAddr1');
+        const addr2El = document.getElementById('regAddr2');
+        const searchBtn = document.getElementById('regAddrSearchBtn');
+        if (zipEl) zipEl.disabled = checked;
+        if (searchBtn) searchBtn.disabled = checked;
+        if (addr1El) addr1El.style.opacity = checked ? '0.4' : '1';
+        if (addr2El) addr2El.disabled = checked;
+        if (checked) {
+          if (zipEl) zipEl.value = '';
+          if (addr1El) addr1El.value = '';
+          if (addr2El) addr2El.value = '';
+        }
+      },
+
+      /* ★ [변경] submitRegister — 아이디 검증 추가, 이메일 중복확인 제거 */
+      submitRegister() {
+        const get = id => document.getElementById(id)?.value?.trim() || '';
+
+        /* 아이디 */
+        const uid = get('regUserId');
+        if (!/^[a-z0-9]{4,20}$/.test(uid)) {
+          App.toast('아이디를 올바르게 입력해 주세요.', 'warning'); return;
+        }
+        if (!this._userIdChecked) {
+          App.toast('아이디 중복 확인을 해주세요.', 'warning'); return;
+        }
+
+        /* 비밀번호 */
+        const pw = get('regPw');
+        const pwConf = get('regPwConfirm');
+        const pwValid = pw.length >= 8 && /[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw);
+        if (!pwValid) {
+          App.toast('비밀번호는 8자 이상 영문·숫자·특수문자 조합이어야 합니다.', 'warning'); return;
+        }
+        if (pw !== pwConf) {
+          App.toast('비밀번호가 일치하지 않습니다.', 'warning'); return;
+        }
+
+        /* 이메일 (형식만 체크, 중복확인 없음) */
+        const email = get('regEmail');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          App.toast('이메일을 올바르게 입력해 주세요.', 'warning'); return;
+        }
+
+        /* 주소 */
+        const overseas = document.getElementById('regOverseas')?.checked;
+        if (!overseas) {
+          if (!get('regZip') || !get('regAddr1')) {
+            App.toast('주소를 입력해 주세요. (해외 거주 시 체크박스를 선택하세요)', 'warning'); return;
+          }
+        }
+
+        /* 가입 완료 */
+        const name = get('regName') || '회원';
+        const doneEl = document.getElementById('regDoneName');
+        if (doneEl) doneEl.textContent = name;
+        this._goStep(4);
+        App.toast(`${name}님, 가입을 환영합니다! 🌳`);
+      },
+    };
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>갤러리 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/pages/community.css">
+</head>
+
+<body data-page="gallery">
+
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>갤러리</h1>
+    </div>
+  </div>
+
+  
+
+  
+  <div id="bc"></div>
+  <div class="sub-layout">
+    <div id="lnb"></div>
+    <main class="sub-content">
+  <div class="content-wrap">
+
+    <div class="list-top" style="margin-bottom:16px">
+      <span class="list-count">전체 <strong id="galleryCount">0</strong>건</span>
+      <div class="list-search">
+        <input type="text" class="list-search-input" id="galleryKeyword" placeholder="검색어를 입력하세요"
+          onkeydown="if(event.key==='Enter') GalleryCtrl.search()">
+        <button class="list-search-btn" onclick="GalleryCtrl.search()">검색</button>
+      </div>
+    </div>
+
+    <!-- 썸네일 카드 그리드 -->
+    <div class="gallery-grid" id="galleryGrid"></div>
+    <div class="pagination" id="galleryPagination"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <a id="galleryWriteBtn" href="gallery-write.html" class="btn btn-primary btn-sm" style="display:none;white-space:nowrap">글쓰기</a>
+    </div>
+
+  </div>
+    </main>
+  </div>
+
+
+  <div id="ftr"></div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/community.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('커뮤니티', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+    document.getElementById('bc').innerHTML = LNB.breadcrumb('../', 'community/gallery.html');
+    document.getElementById('lnb').innerHTML = LNB.render('../', 'community/gallery.html');
+
+    /* 로그인 회원에게만 글쓰기 버튼 노출 */
+    if (App.user.isLoggedIn) {
+      const btn = document.getElementById('galleryWriteBtn');
+      if (btn) btn.style.display = '';
+    }
+  </script>
+</body>
+
+</html>

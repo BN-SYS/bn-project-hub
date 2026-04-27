@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사용자 Flow Chart | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #f0f4f1;
+      padding: 36px 40px 60px;
+      color: #333;
+    }
+
+    /* ── 문서 헤더 ── */
+    .doc-header {
+      background: #fff;
+      border-radius: 10px;
+      padding: 28px 36px;
+      margin-bottom: 28px;
+      border-left: 5px solid #2d6a4f;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .doc-header-left h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1b4332;
+      margin-bottom: 6px;
+    }
+    .doc-header-left p { font-size: 13px; color: #666; line-height: 1.6; }
+    .doc-meta {
+      font-size: 12px;
+      color: #888;
+      text-align: right;
+      line-height: 2;
+      white-space: nowrap;
+    }
+    .doc-meta strong { color: #444; }
+
+    /* ── 범례 ── */
+    .legend {
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px 24px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+    .legend-title { font-size: 12px; font-weight: 700; color: #555; margin-right: 4px; }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #555;
+    }
+    .legend-dot {
+      width: 14px; height: 14px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .ld-start  { background: #2d6a4f; border-radius: 50%; }
+    .ld-page   { background: #e8f5e9; border: 1.5px solid #a5d6a7; }
+    .ld-check  { background: #fff9c4; border: 1.5px solid #f9a825; transform: rotate(45deg); border-radius: 2px; }
+    .ld-alert  { background: #fce4ec; border: 1.5px solid #e57373; }
+    .ld-action { background: #e3f2fd; border: 1.5px solid #64b5f6; }
+
+    /* ── 플로우 섹션 ── */
+    .flow-section {
+      background: #fff;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .flow-head {
+      background: #1b4332;
+      color: #fff;
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .flow-num {
+      width: 28px; height: 28px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .flow-head h2 { font-size: 15px; font-weight: 700; margin: 0; }
+    .flow-head .flow-sub {
+      margin-left: 8px;
+      font-size: 12px;
+      opacity: 0.65;
+      font-weight: 400;
+    }
+    .flow-screens {
+      background: rgba(255,255,255,0.08);
+      margin-left: auto;
+      font-size: 11px;
+      opacity: 0.8;
+      padding: 3px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .flow-body {
+      padding: 28px;
+      overflow-x: auto;
+    }
+    .flow-body .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Mermaid 기본 스타일 오버라이드 */
+    .mermaid svg { max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+
+  <!-- 문서 헤더 -->
+  <div class="doc-header">
+    <div class="doc-header-left">
+      <h1>사용자 Flow Chart</h1>
+      <p>
+        한국숲해설가협회 홈페이지 — 사용자 주요 태스크별 화면 흐름도.<br>
+        비회원/일반회원/정회원 권한 분기 및 주요 화면 ID 포함.
+      </p>
+    </div>
+    <div class="doc-meta">
+      <strong>프로젝트</strong> 한국숲해설가협회 홈페이지<br>
+      <strong>문서 ID</strong> DOC-04<br>
+      <strong>작성일</strong> 2026-04-06<br>
+      <strong>버전</strong> v1.0
+    </div>
+  </div>
+
+  <!-- 범례 -->
+  <div class="legend">
+    <span class="legend-title">범례</span>
+    <div class="legend-item"><span class="legend-dot ld-start"></span> 시작/종료</div>
+    <div class="legend-item"><span class="legend-dot ld-page"></span> 화면(페이지)</div>
+    <div class="legend-item"><span class="legend-dot ld-check"></span> 분기 조건</div>
+    <div class="legend-item"><span class="legend-dot ld-alert"></span> 에러/차단</div>
+    <div class="legend-item"><span class="legend-dot ld-action"></span> 처리/액션</div>
+  </div>
+
+  <!-- F01. 회원 인증 -->
+  <div class="flow-section">
+    <div class="flow-head">
+      <span class="flow-num">F1</span>
+      <h2>회원 인증 <span class="flow-sub">로그인 / 회원가입 / 아이디·비밀번호 찾기</span></h2>
+      <span class="flow-screens">U53 · U54 · U55</span>
+    </div>
+    <div class="flow-body">
+      <div class="mermaid">
+flowchart TD
+  A([사이트 진입]) --> B{로그인 필요\n서비스 접근?}
+  B -- 아니오 --> C([자유 이용])
+  B -- 예 --> D{로그인 상태?}
+  D -- 로그인됨 --> C
+  D -- 비로그인 --> E["Toast\n로그인이 필요합니다"]
+  E --> F[U53 로그인]
+
+  F --> G{선택}
+  G -- ID/PW 입력 --> H{인증 성공?}
+  H -- 성공 --> I([이전 화면 or 마이페이지])
+  H -- 실패 --> J["에러 메시지 노출"] --> F
+
+  G -- 아이디/비밀번호 찾기 --> K[U54 찾기]
+  K --> L["이름 + 이메일 인증"] --> M["아이디 노출 or\n임시 비밀번호 발송"]
+  M --> F
+
+  G -- 회원가입 --> N[U55 회원가입]
+  N --> O["본인인증 (PASS 등)"]
+  O --> P["정보 입력\n아이디·비밀번호·이메일 등"]
+  P --> Q{중복 확인\n완료?}
+  Q -- 미완료 --> R["중복 확인 요청"] --> P
+  Q -- 완료 --> S["가입 완료"]
+  S --> T([자동 로그인 → U56 마이페이지])
+
+  style A fill:#2d6a4f,color:#fff,stroke:none
+  style C fill:#2d6a4f,color:#fff,stroke:none
+  style I fill:#2d6a4f,color:#fff,stroke:none
+  style T fill:#2d6a4f,color:#fff,stroke:none
+  style E fill:#fff9c4,stroke:#f9a825,color:#555
+  style J fill:#fce4ec,stroke:#e57373,color:#c62828
+  style R fill:#fce4ec,stroke:#e57373,color:#c62828
+  style B fill:#fffde7,stroke:#f9a825
+  style D fill:#fffde7,stroke:#f9a825
+  style G fill:#fffde7,stroke:#f9a825
+  style H fill:#fffde7,stroke:#f9a825
+  style Q fill:#fffde7,stroke:#f9a825
+      </div>
+    </div>
+  </div>
+
+  <!-- F02. 강좌 신청 -->
+  <div class="flow-section">
+    <div class="flow-head">
+      <span class="flow-num">F2</span>
+      <h2>강좌 신청 <span class="flow-sub">기초과정 / 자격취득 / 역량강화 / 회원아카데미</span></h2>
+      <span class="flow-screens">U13–U27</span>
+    </div>
+    <div class="flow-body">
+      <div class="mermaid">
+flowchart TD
+  A([교육 메뉴 진입]) --> B{과정 유형}
+
+  B -- 기초과정 --> C1[U13 기초과정 개요]
+  C1 --> C2[U14 기초과정 신청 폼]
+
+  B -- 자격취득 --> D1[U15 자격취득 소개]
+  D1 --> D2[U16 강좌 목록]
+  D2 --> D3[U17 강좌 상세]
+
+  B -- 역량강화 --> E1[U18 역량강화 목록]
+  E1 --> E2[U19 역량강화 신청 폼]
+
+  B -- 회원아카데미 --> F1{아카데미 구분}
+  F1 -- 특강 --> F2[U22 특강 목록] --> F3[U23 특강 상세]
+  F1 -- 강좌 --> F4[U24 아카데미강좌 목록] --> F5[U25 아카데미강좌 상세]
+  F1 -- 멘토링 --> F6[U26 멘토링 목록] --> F7[U27 멘토링 상세]
+
+  C2 & D3 & E2 & F3 & F5 & F7 --> G{로그인 상태?}
+  G -- 비로그인 --> H["Toast: 로그인이 필요합니다"] --> I[U53 로그인]
+  I --> G
+  G -- 로그인됨 --> J{접수기간 내\n+ 정원 여유?}
+  J -- 아니오 --> K["신청 불가\n버튼 비활성화 or 안내"]
+  J -- 예 --> L["신청하기 클릭\n(폼 작성 or 바로 신청)"]
+  L --> M["신청 완료\nToast 노출"]
+  M --> N([U56 마이페이지 신청내역])
+
+  style A fill:#2d6a4f,color:#fff,stroke:none
+  style N fill:#2d6a4f,color:#fff,stroke:none
+  style H fill:#fff9c4,stroke:#f9a825,color:#555
+  style K fill:#fce4ec,stroke:#e57373,color:#c62828
+  style B fill:#fffde7,stroke:#f9a825
+  style F1 fill:#fffde7,stroke:#f9a825
+  style G fill:#fffde7,stroke:#f9a825
+  style J fill:#fffde7,stroke:#f9a825
+      </div>
+    </div>
+  </div>
+
+  <!-- F03. 정회원 신청 -->
+  <div class="flow-section">
+    <div class="flow-head">
+      <span class="flow-num">F3</span>
+      <h2>정회원 신청 <span class="flow-sub">일반회원 → 정회원 전환 신청</span></h2>
+      <span class="flow-screens">U48 · U49 · A12 · A13</span>
+    </div>
+    <div class="flow-body">
+      <div class="mermaid">
+flowchart LR
+  A([참여 메뉴 진입]) --> B[U48 정회원 가입안내]
+  B --> C["정회원 신청 CTA 클릭"]
+  C --> D{로그인 상태?}
+  D -- 비로그인 --> E[U53 로그인] --> D
+  D -- 로그인됨 --> F[U49 정회원 신청 폼]
+  F --> G["개인정보 입력\n+ 이력 + 서약\n+ 자격증 등 첨부파일"]
+  G --> H["제출"]
+  H --> I["접수 완료\n접수번호 발급"]
+
+  I --> J([관리자 A12 정회원신청 목록])
+  J --> K[A13 정회원신청 상세]
+  K --> L{검토 결과}
+  L -- 승인 --> M["회원 등급 → 정회원 전환\n(이메일 통보)"]
+  L -- 반려 --> N["반려 사유 안내\n(이메일 통보)"]
+  M --> O([정회원 서비스 이용])
+
+  style A fill:#2d6a4f,color:#fff,stroke:none
+  style O fill:#2d6a4f,color:#fff,stroke:none
+  style D fill:#fffde7,stroke:#f9a825
+  style L fill:#fffde7,stroke:#f9a825
+  style N fill:#fce4ec,stroke:#e57373,color:#c62828
+      </div>
+    </div>
+  </div>
+
+  <!-- F04. 후원 신청 -->
+  <div class="flow-section">
+    <div class="flow-head">
+      <span class="flow-num">F4</span>
+      <h2>후원 신청 <span class="flow-sub">후원 안내 → 후원하기</span></h2>
+      <span class="flow-screens">U50 · U51 · A18 · A19</span>
+    </div>
+    <div class="flow-body">
+      <div class="mermaid">
+flowchart LR
+  A([참여 메뉴 진입]) --> B[U50 후원 안내]
+  B --> C["후원하기 CTA 클릭"]
+  C --> D[U51 후원하기 폼]
+  D --> E["후원 유형 선택\n정기 / 일시"]
+  E --> F["후원자 정보 입력\n+ 금액 + 납부 방법"]
+  F --> G["제출"]
+  G --> H["접수 완료\n(이메일 확인 안내)"]
+  H --> I([관리자 A18 후원신청 목록])
+  I --> J[A19 후원신청 상세]
+
+  style A fill:#2d6a4f,color:#fff,stroke:none
+  style K fill:#fff9c4,stroke:#f9a825,color:#555
+      </div>
+    </div>
+  </div>
+
+  <!-- F05. 숲해설 신청 -->
+  <div class="flow-section">
+    <div class="flow-head">
+      <span class="flow-num">F5</span>
+      <h2>숲해설 신청 <span class="flow-sub">기관·단체 대상 숲해설 프로그램 신청</span></h2>
+      <span class="flow-screens">U52 · A16 · A17</span>
+    </div>
+    <div class="flow-body">
+      <div class="mermaid">
+flowchart LR
+  A([참여 메뉴 진입]) --> B[U52 숲해설 신청]
+  B --> C["신청 기관 정보 입력\n기관명 / 담당자 / 연락처"]
+  C --> D["희망 일시\n+ 장소 + 참가 인원 입력"]
+  D --> E["제출"]
+  E --> F["접수 완료\n(담당자 연락 예정 안내)"]
+  F --> G([관리자 A16 숲해설신청 목록])
+  G --> H[A17 숲해설신청 상세]
+  H --> I{처리}
+  I -- 확정 --> J["일정 확정 안내\n(이메일/전화)"]
+  I -- 취소 --> K["취소 처리"]
+
+  style A fill:#2d6a4f,color:#fff,stroke:none
+  style J fill:#2d6a4f,color:#fff,stroke:none
+  style I fill:#fffde7,stroke:#f9a825
+      </div>
+    </div>
+  </div>
+
+  <!-- F06. 강사 신청 -->
+  <div class="flow-section">
+    <div class="flow-head">
+      <span class="flow-num">F6</span>
+      <h2>강사 신청 <span class="flow-sub">회원 전용 강사 활동 일정 신청</span></h2>
+      <span class="flow-screens">U32 · U33 · A11 · A15 · A16</span>
+    </div>
+    <div class="flow-body">
+      <div class="mermaid">
+flowchart LR
+  A([회원 전용 메뉴]) --> B[U32 강사신청 일정 목록]
+  B --> C{로그인 상태?}
+  C -- 비로그인 --> D["Toast: 로그인이 필요합니다\n(클릭 차단)"]
+  C -- 로그인됨 --> E["일정 선택"]
+  E --> F[U33 일정 상세]
+  F --> G{신청 가능?}
+  G -- 마감 or 정원초과 --> H["신청 불가 안내"]
+  G -- 신청 가능 --> I["신청 모달\n신청 정보 확인"]
+  I --> J["신청 완료\nToast 노출"]
+  J --> K([관리자 A15 강사신청 목록])
+  K --> L[A16 강사신청 상세]
+  L --> M{선정 결과}
+  M -- 선정 --> N["선정 완료\n활동확인서 발급"]
+  M -- 미선정 --> O["미선정 처리"]
+
+  style A fill:#2d6a4f,color:#fff,stroke:none
+  style N fill:#2d6a4f,color:#fff,stroke:none
+  style D fill:#fff9c4,stroke:#f9a825,color:#555
+  style H fill:#fce4ec,stroke:#e57373,color:#c62828
+  style C fill:#fffde7,stroke:#f9a825
+  style G fill:#fffde7,stroke:#f9a825
+  style M fill:#fffde7,stroke:#f9a825
+      </div>
+    </div>
+  </div>
+
+  <!-- F07. 마이페이지 -->
+  <div class="flow-section">
+    <div class="flow-head">
+      <span class="flow-num">F7</span>
+      <h2>마이페이지 <span class="flow-sub">신청내역 조회 / 수료증 발급 / 내 정보 관리</span></h2>
+      <span class="flow-screens">U56 · U57</span>
+    </div>
+    <div class="flow-body">
+      <div class="mermaid">
+flowchart TD
+  A([U56 마이페이지]) --> B{탭 선택}
+
+  B -- 내 정보 수정 --> C["아이디 제외 정보 수정\n이메일·주소·직업 등"]
+  C --> D["저장"] --> E(["수정 완료"])
+
+  B -- 신청내역 --> F{신청 유형}
+  F -- 교육 신청 --> G["강좌별 상태 확인\n신청·수강중·취소·완료"]
+  F -- 강사 활동 --> H["활동 일정별 상태 확인\n선정·미선정·완료"]
+
+  G --> I{상태}
+  I -- 완료 + 수료증 발급 과정 --> J["수료증 버튼 활성화"]
+  J --> K[U57 수료증 미리보기]
+  K --> L["인쇄 or PDF 저장"]
+
+  H --> M{상태}
+  M -- 완료 --> N["활동확인서 버튼 활성화"]
+  N --> O[U57 활동확인서 미리보기]
+  O --> L
+
+  B -- 비밀번호 변경 --> P["현재 비밀번호 확인\n+ 새 비밀번호 입력"]
+  P --> Q(["변경 완료"])
+
+  B -- 회원탈퇴 --> R["탈퇴 사유 입력\n+ 확인 Confirm"]
+  R --> S{확인}
+  S -- 취소 --> A
+  S -- 확인 --> T(["탈퇴 처리 → 로그아웃\n→ 홈으로 이동"])
+
+  style A fill:#2d6a4f,color:#fff,stroke:none
+  style E fill:#2d6a4f,color:#fff,stroke:none
+  style L fill:#2d6a4f,color:#fff,stroke:none
+  style Q fill:#2d6a4f,color:#fff,stroke:none
+  style T fill:#2d6a4f,color:#fff,stroke:none
+  style B fill:#fffde7,stroke:#f9a825
+  style F fill:#fffde7,stroke:#f9a825
+  style I fill:#fffde7,stroke:#f9a825
+  style M fill:#fffde7,stroke:#f9a825
+  style S fill:#fffde7,stroke:#f9a825
+      </div>
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#e8f5e9',
+        primaryTextColor: '#1b4332',
+        primaryBorderColor: '#a5d6a7',
+        lineColor: '#52796f',
+        secondaryColor: '#f1f8e9',
+        tertiaryColor: '#fff9c4',
+        fontSize: '13px',
+        fontFamily: 'Noto Sans KR, sans-serif',
+      },
+      flowchart: {
+        curve: 'basis',
+        padding: 20,
+        nodeSpacing: 40,
+        rankSpacing: 50,
+        htmlLabels: true,
+      }
+    });
+  </script>
+</body>
+</html>

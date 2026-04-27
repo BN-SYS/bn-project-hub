@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>숲해설신청자 관리 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title">숲해설신청자 관리</h1>
+      <div class="admin-topbar-actions">
+        <button class="btn-refresh" onclick="ForestList.load()" title="새로고침">
+          <img src="../assets/icons/refresh.png" alt="새로고침">
+        </button>
+      </div>
+    </div>
+
+    <!-- 검색 필터 -->
+    <div class="filter-card">
+      <div class="filter-body">
+
+        <div class="filter-row">
+          <div class="filter-half">
+            <span class="filter-label">신청기간</span>
+            <div class="filter-content">
+              <div class="date-pair">
+                <input type="date" id="filterDateFrom">
+                <span class="date-sep">—</span>
+                <input type="date" id="filterDateTo">
+              </div>
+              <div class="date-preset-group">
+                <button class="date-preset-btn" onclick="setDatePreset('today')">오늘</button>
+                <button class="date-preset-btn" onclick="setDatePreset(7)">7일</button>
+                <button class="date-preset-btn" onclick="setDatePreset(30)">30일</button>
+                <button class="date-preset-btn" onclick="setDatePreset(90)">3개월</button>
+              </div>
+            </div>
+          </div>
+          <div class="filter-half">
+            <span class="filter-label">방문희망일</span>
+            <div class="filter-content">
+              <div class="date-pair">
+                <input type="date" id="filterVisitFrom">
+                <span class="date-sep">—</span>
+                <input type="date" id="filterVisitTo">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-label">검색어</span>
+          <div class="filter-content">
+            <div class="kw-wrap">
+              <select id="filterSearchType">
+                <option value="all">전체</option>
+                <option value="orgName">기관명</option>
+                <option value="contactName">담당자명</option>
+                <option value="phone">연락처</option>
+              </select>
+              <div class="kw-input-wrap">
+                <input type="text" id="filterKeyword" placeholder="검색어를 입력하세요"
+                  onkeydown="if(event.key==='Enter') ForestList.search()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="filter-footer">
+        <button class="btn btn-outline btn-sm"
+          onclick="AdminHttp.downloadExcel(ADMIN_API.applyForest + '/export', ForestList.getParams())">
+          엑셀 다운로드
+        </button>
+        <button class="btn btn-gray btn-sm" onclick="ForestList.reset()">초기화</button>
+        <button class="btn btn-primary btn-sm" onclick="ForestList.search()">검색</button>
+      </div>
+    </div>
+
+    <!-- 목록 상단 -->
+    <div class="list-top">
+      <div class="list-count" id="listCount">총 <strong>0</strong>건</div>
+      <select class="form-control" style="width:130px;height:36px;font-size:13px"
+        onchange="ForestList.changePageSize(this.value)">
+        <option value="10">10개씩 보기</option>
+        <option value="30">30개씩 보기</option>
+        <option value="50">50개씩 보기</option>
+        <option value="100">100개씩 보기</option>
+      </select>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="width:4%">No</th>
+            <th style="width:12%">접수번호</th>
+            <th>기관명</th>
+            <th style="width:8%">담당자명</th>
+            <th style="width:12%">연락처</th>
+            <th style="width:10%">방문희망일</th>
+            <th style="width:12%">신청일</th>
+            <th style="width:12%">관리자 메모</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] AdminHttp.get(ADMIN_API.applyForest, params) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_DATA = {
+  total: 3,
+  items: [
+    { id: 5001, no: 3, appNo: 'FST-2026-00001', orgName: '도봉초등학교',          contact: '김민수', phone: '02-1000-3000',  visitDate: '2026-03-15', applyDate: '2026-01-05 09:00:00', memo: '' },
+    { id: 5002, no: 2, appNo: 'FST-2026-00002', orgName: '서울시 북부장애인복지관', contact: '이영희', phone: '031-1001-3001', visitDate: '2026-04-10', applyDate: '2026-02-10 14:30:00', memo: '방문 경로 안내 전송' },
+    { id: 5003, no: 1, appNo: 'FST-2026-00003', orgName: '노원구청',               contact: '박철호', phone: '02-1002-3002',  visitDate: '2026-04-22', applyDate: '2026-03-05 11:15:00', memo: '참가 인원 재확인 요청' },
+  ],
+};
+
+const ForestList = {
+  currentPage: 1,
+  pageSize:    10,
+
+  getParams() {
+    return {
+      date_from:    document.getElementById('filterDateFrom').value,
+      date_to:      document.getElementById('filterDateTo').value,
+      visit_from:   document.getElementById('filterVisitFrom').value,
+      visit_to:     document.getElementById('filterVisitTo').value,
+      kw_type:      document.getElementById('filterSearchType').value,
+      kw:           document.getElementById('filterKeyword').value.trim(),
+      page:         this.currentPage,
+      size:         this.pageSize,
+    };
+  },
+
+  search() { this.currentPage = 1; this.load(); },
+
+  async load() {
+    AdminUI.showLoading('tableBody', 8);
+    try {
+      /*
+       * [개발자 연동]
+       * const data = await AdminHttp.get(ADMIN_API.applyForest, this.getParams());
+       * this.render(data.items, data.total);
+       */
+      await new Promise(r => setTimeout(r, 200));
+      const p = this.getParams();
+      let items = SAMPLE_DATA.items.filter(d => {
+        if (p.date_from  && d.applyDate < p.date_from) return false;
+        if (p.date_to    && d.applyDate > p.date_to + ' 23:59:59') return false;
+        if (p.visit_from && d.visitDate < p.visit_from) return false;
+        if (p.visit_to   && d.visitDate > p.visit_to)   return false;
+        if (p.kw) {
+          const kw = p.kw.toLowerCase();
+          if (p.kw_type === 'org')     return d.orgName.toLowerCase().includes(kw);
+          if (p.kw_type === 'contact') return d.contact.includes(kw);
+          return (d.orgName + d.contact).toLowerCase().includes(kw);
+        }
+        return true;
+      });
+      const total = items.length;
+      const start = (this.currentPage - 1) * this.pageSize;
+      this.render(items.slice(start, start + this.pageSize), total);
+    } catch (e) {
+      AdminUI.showError('tableBody', e.message, 8);
+    }
+  },
+
+  render(items, total) {
+    AdminUI.updateCount('listCount', total);
+    const totalPages = Math.ceil(total / this.pageSize) || 1;
+    AdminUI.renderPagination('pagination', this.currentPage, totalPages, p => {
+      this.currentPage = p; this.load();
+    });
+
+    const tbody = document.getElementById('tableBody');
+    if (!items.length) {
+      AdminUI.showEmpty('tableBody', '신청 내역이 없습니다.', 8); return;
+    }
+    tbody.innerHTML = items.map(d => `
+      <tr style="cursor:pointer"
+        onclick="location.href='apply-forest-detail.html?id=${d.id}'">
+        <td class="td-muted">${d.no}</td>
+        <td class="td-muted">${d.appNo}</td>
+        <td style="font-weight:500">${d.orgName}</td>
+        <td>${d.contact}</td>
+        <td class="td-muted">${d.phone}</td>
+        <td class="td-muted">${d.visitDate}</td>
+        <td class="td-muted cell-datetime">${d.applyDate}</td>
+        <td class="td-muted">${d.memo}</td>
+      </tr>`).join('');
+  },
+
+  changePageSize(size) {
+    this.pageSize = parseInt(size); this.currentPage = 1; this.load();
+  },
+
+  reset() {
+    document.getElementById('filterDateFrom').value  = '';
+    document.getElementById('filterDateTo').value    = '';
+    document.getElementById('filterVisitFrom').value = '';
+    document.getElementById('filterVisitTo').value   = '';
+    document.getElementById('filterSearchType').value = 'all';
+    document.getElementById('filterKeyword').value    = '';
+    this.currentPage = 1;
+    this.load();
+  },
+};
+
+AdminSidebar.mount('apply-forest');
+ForestList.load();
+</script>
+</body>
+</html>

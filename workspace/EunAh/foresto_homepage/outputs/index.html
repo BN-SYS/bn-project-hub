@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>한국숲해설가협회</title>
+  <!-- Pretendard + Nanum Pen Script (히어로 타이틀) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+  <link rel="stylesheet" href="assets/css/common.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+  <link rel="stylesheet" href="assets/css/pages/main.css">
+</head>
+
+<body>
+
+  <div id="hdr"></div>
+
+  <!-- 팝업 공지 -->
+  <!-- <div class="popup-wrap" id="popup">
+    <div class="popup-head">
+      공지사항
+      <button onclick="document.getElementById('popup').style.display='none'" aria-label="닫기">×</button>
+    </div>
+    <div class="popup-body">
+      <strong>2026년 55기 전문가과정 모집</strong><br>
+      접수: 2026.03.01 ~ 03.20<br>
+      교육: 2026.04.01 ~ 06.30<br>
+      <a href="education/course-list.html" style="color:#508829;font-weight:700">자세히 보기 →</a>
+    </div>
+    <div class="popup-foot">
+      <label class="popup-nosh-label">
+        <input type="checkbox" id="popupNoShow"> 오늘 하루 보지 않기
+      </label>
+      <button class="btn btn-primary btn-xs" onclick="document.getElementById('popup').style.display='none'">닫기</button>
+    </div>
+  </div> -->
+
+  <!-- ① 히어로 슬라이더 -->
+  <div class="hero-slider" id="heroSlider">
+
+    <div class="hero-slide active" style="background-image:url('assets/image/banner/banner1.jpg')">
+      <div class="hero-slide-inner">
+        <div class="hero-slide-texts">
+          <p class="hero-slide-tag">[산림청 인증 숲해설가 양성기관]</p>
+          <h2 class="hero-slide-title">"숲 해설가가 되고 싶습니다"</h2>
+          <p class="hero-slide-desc">자연과 인간의 통역자, 숲해설가가 되는 방법을 안내합니다.</p>
+        </div>
+        <a href="education/course-list.html" class="hero-slide-btn">
+          더보기 <span class="btn-arrow">›</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-slide" style="background-image:url('assets/image/banner/banner2.jpg')">
+      <div class="hero-slide-inner">
+        <div class="hero-slide-texts">
+          <p class="hero-slide-tag">[산림청 인증 숲해설가 양성기관]</p>
+          <h2 class="hero-slide-title">숲과 자연이 주는 이야기를<br>함께 나누는 사람들</h2>
+          <p class="hero-slide-desc">한국숲해설가협회는 숲과 사람을 잇는 전문 해설가를 양성합니다.</p>
+        </div>
+        <a href="education/course-list.html" class="hero-slide-btn">
+          더보기 <span class="btn-arrow">›</span>
+        </a>
+      </div>
+    </div>
+
+    <button class="hero-arrow hero-prev" onclick="heroSlide(-1)" aria-label="이전 슬라이드">&#10094;</button>
+    <button class="hero-arrow hero-next" onclick="heroSlide(1)" aria-label="다음 슬라이드">&#10095;</button>
+    <div class="hero-dots" id="heroDots"></div>
+
+  </div>
+
+  <!-- ② 협회 소개 + 메인 콘텐츠 -->
+  <div class="main-content-wrap">
+
+    <div class="assoc-intro">
+      <div class="container">
+        <div class="assoc-intro-box">
+          <p>(사)한국숲해설가협회는 <em>"숲이 사람에게 사람이 숲에게"</em> 라는 숲과 사람이 동행하는 가치를 제시하고 있습니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="content-main-grid">
+
+        <!-- 강좌 카드 (세로 5개 × 480px) -->
+        <div class="course-cards-col">
+
+          <a href="education/course-list.html" class="course-card"
+             style="background-image:url('assets/image/cta/cta1.jpg')">
+            <div class="course-card-overlay"></div>
+            <div class="course-card-body">
+              <span class="course-card-title">자격취득 과정</span>
+              <span class="course-card-arrow">›</span>
+            </div>
+          </a>
+
+          <a href="member/competency.html" class="course-card"
+             style="background-image:url('assets/image/cta/cta2.jpg')">
+            <div class="course-card-overlay"></div>
+            <div class="course-card-body">
+              <span class="course-card-title">교육특강</span>
+              <span class="course-card-arrow">›</span>
+            </div>
+          </a>
+
+          <a href="member/sagongdan-news.html" class="course-card"
+             style="background-image:url('assets/image/cta/cta3.jpg')">
+            <div class="course-card-overlay"></div>
+            <div class="course-card-body">
+              <span class="course-card-title">사회공헌단</span>
+              <span class="course-card-arrow">›</span>
+            </div>
+          </a>
+
+          <a href="member/club.html" class="course-card"
+             style="background-image:url('assets/image/cta/cta4.jpg')">
+            <div class="course-card-overlay"></div>
+            <div class="course-card-body">
+              <span class="course-card-title">동아리</span>
+              <span class="course-card-arrow">›</span>
+            </div>
+          </a>
+
+          <a href="forest/index.html" class="course-card"
+             style="background-image:url('assets/image/cta/cta5.jpg')">
+            <div class="course-card-overlay"></div>
+            <div class="course-card-body">
+              <span class="course-card-title">숲해설신청</span>
+              <span class="course-card-arrow">›</span>
+            </div>
+          </a>
+        </div>
+        <!-- /course-cards-col -->
+
+  
+
+        <!-- 공지사항 패널 -->
+        <div class="home-panel">
+          <div class="home-panel-head">
+            <span class="home-panel-title">공지사항</span>
+            <a href="community/notice-list.html" class="panel-more" aria-label="공지사항 전체보기">›</a>
+          </div>
+          <div class="notice-box" id="noticeList"></div>
+        </div>
+
+        <!-- 협회 일정 패널 -->
+        <div class="home-panel">
+          <div class="home-panel-head">
+            <span class="home-panel-title">협회 일정</span>
+            <a href="community/calendar.html" class="panel-more" aria-label="협회 일정 전체보기">›</a>
+          </div>
+          <div class="mini-cal-wrap">
+            <div class="cal-nav">
+              <button onclick="moveCalMonth(-1)" aria-label="이전 달">‹</button>
+              <span id="miniCalTitle"></span>
+              <button onclick="moveCalMonth(1)" aria-label="다음 달">›</button>
+            </div>
+            <div class="cal-grid" id="miniCal"></div>
+          </div>
+          <div class="cal-schedule-box" id="calScheduleBox"></div>
+        </div>
+
+      </div><!-- /content-main-grid -->
+    </div><!-- /container -->
+
+  </div><!-- /main-content-wrap -->
+
+  <div id="ftr"></div>
+
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/components/header.js"></script>
+
+  <!-- ★ [PREVIEW MODE] 고객사 시연용 링크 차단 — 정식 오픈 시 이 블록 삭제 ★ -->
+  <!-- <script>
+    document.addEventListener('click', function (e) {
+      const a = e.target.closest('a');
+      if (!a) return;
+      const href = a.getAttribute('href');
+      if (!href || href === '#' || href.startsWith('javascript') || href.startsWith('mailto')) return;
+      if (href.startsWith('http') || href.startsWith('//')) return;
+      e.preventDefault();
+      App.toast('해당 페이지는 현재 준비 중입니다.');
+    }, true);
+  </script> -->
+  <!-- ★ [PREVIEW MODE] END ★ -->
+  <script>
+
+    /* ── 헤더 / 푸터 렌더 */
+    document.getElementById('hdr').innerHTML = Header.render('', '');
+    document.getElementById('ftr').innerHTML = Footer.render('');
+    Footer.initFamilyOutsideClick();
+
+    /* ── 공지사항 더미 데이터 */
+    const NOTICES = [
+      { id: 25, t: '55기 전문가과정 모집 안내', d: '2026.03.08' },
+      { id: 24, t: '[긴급] 3월 이사회 일정 변경', d: '2026.03.05' },
+      { id: 19, t: '2026년 역량강화 교육 일정 공지', d: '2026.03.03' },
+    ];
+
+    /* 공지사항 리스트 렌더 — 제목과 구분선 번갈아 */
+    (function renderNotices() {
+      const box = document.getElementById('noticeList');
+      if (!box) return;
+      let html = '';
+      NOTICES.forEach((r, i) => {
+        html += `<div class="board-row" style="cursor:pointer" onclick="location.href='community/notice-detail.html?id=${r.id}'">
+          <span class="board-title">${r.t}</span>
+          <span class="board-date">${r.d}</span>
+        </div>`;
+        if (i < NOTICES.length - 1) html += `<div class="notice-divider"></div>`;
+      });
+      box.innerHTML = html;
+    })();
+
+    /* ── 협회 일정 데이터 (YYYY-MM-DD) */
+    const SCHEDULES = [
+      { date: '2026-03-15', title: '전문가과정 접수 마감', link: 'education/course-list.html' },
+      { date: '2026-03-20', title: '동아리 정기모임' },
+      { date: '2026-03-25', title: '역량강화 특강', link: 'education/course-list.html' },
+      { date: '2026-03-28', title: '사공단 봉사활동' },
+      { date: '2026-04-01', title: '전문가과정 개강', link: 'education/course-list.html' },
+      { date: '2026-04-05', title: '4월 이사회' },
+    ];
+
+    /* 선택 날짜 이후(당일 포함) 일정 최대 3건 렌더 — 항상 3슬롯 고정 */
+    function renderCalSchedule(fromDate) {
+      const box = document.getElementById('calScheduleBox');
+      if (!box) return;
+      const list = SCHEDULES.filter(s => s.date >= fromDate).slice(0, 3);
+
+      if (!list.length) {
+        /* 일정 없음: 메시지 1줄 + 빈 슬롯 2개로 높이 유지 */
+        box.innerHTML =
+          `<div class="cal-schedule-item" style="color:var(--gray-mid);cursor:default;">예정된 일정이 없습니다.</div>` +
+          `<div class="cal-schedule-empty">&nbsp;</div>` +
+          `<div class="cal-schedule-empty">&nbsp;</div>`;
+        return;
+      }
+
+      box.innerHTML = Array.from({ length: 3 }, (_, i) => {
+        const s = list[i];
+        if (s) {
+          const label = s.date.slice(5).replace('-', '.');
+          const linkIcon = s.link
+            ? `<svg class="cal-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`
+            : '';
+          if (s.link) {
+            return `<div class="cal-schedule-item" onclick="location.href='${s.link}'">${label} ${s.title}${linkIcon}</div>`;
+          }
+          return `<div class="cal-schedule-item" style="cursor:default">${label} ${s.title}</div>`;
+        }
+        return `<div class="cal-schedule-empty">&nbsp;</div>`;
+      }).join('');
+    }
+
+    /* 날짜 셀 클릭: 선택 표시 + 일정 갱신 */
+    function selectCalDate(dateStr, el) {
+      document.querySelectorAll('#miniCal .cal-cell.selected')
+        .forEach(c => c.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+      renderCalSchedule(dateStr);
+    }
+
+    /* ── 미니캘린더 상태 */
+    const _calNow = new Date();
+    let _calYr = _calNow.getFullYear();
+    let _calMo = _calNow.getMonth(); /* 0-based */
+
+    function renderMiniCal() {
+      const yr = _calYr;
+      const mo = _calMo;
+      const todayD = (_calNow.getFullYear() === yr && _calNow.getMonth() === mo)
+        ? _calNow.getDate() : -1;
+      const yrStr = String(yr);
+      const moStr = String(mo + 1).padStart(2, '0');
+
+      /* 이번 달 이벤트 날짜 추출 */
+      const eventDays = SCHEDULES
+        .filter(s => s.date.startsWith(`${yrStr}-${moStr}`))
+        .map(s => Number(s.date.slice(8, 10)));
+
+      document.getElementById('miniCalTitle').textContent = `${yr}.${moStr}`;
+
+      const first = new Date(yr, mo, 1).getDay();
+      const lastDay = new Date(yr, mo + 1, 0).getDate();
+
+      const days = ['일', '월', '화', '수', '목', '금', '토'];
+      let html = days.map(d => `<div class="cal-dh">${d}</div>`).join('');
+
+      for (let i = 0; i < first; i++) html += `<div class="cal-cell"></div>`;
+
+      for (let d = 1; d <= lastDay; d++) {
+        const dow = (first + d - 1) % 7;
+        const dStr = String(d).padStart(2, '0');
+        const dateStr = `${yrStr}-${moStr}-${dStr}`;
+        const cls = [
+          'cal-cell',
+          d === todayD ? 'today' : '',
+          eventDays.includes(d) ? 'has-event' : '',
+          dow === 0 ? 'sun' : '',
+          dow === 6 ? 'sat' : ''
+        ].filter(Boolean).join(' ');
+        html += `<div class="${cls}" onclick="selectCalDate('${dateStr}', this)">${d}</div>`;
+      }
+
+      /* 항상 6행(42칸) 고정 — 남은 칸 빈 셀로 패딩 */
+      const padCount = 42 - first - lastDay;
+      for (let i = 0; i < padCount; i++) html += `<div class="cal-cell"></div>`;
+
+      document.getElementById('miniCal').innerHTML = html;
+
+      /* 현재 달이면 오늘, 다른 달이면 1일 기본 선택 */
+      const defaultDate = todayD > 0
+        ? `${yrStr}-${moStr}-${String(todayD).padStart(2, '0')}`
+        : `${yrStr}-${moStr}-01`;
+      renderCalSchedule(defaultDate);
+
+      /* 오늘이 아닌 경우만 selected 표시 (오늘은 .today 스타일 유지) */
+      if (todayD <= 0) {
+        const defaultCell = document.querySelector(`#miniCal .cal-cell[onclick*="${defaultDate}"]`);
+        if (defaultCell) defaultCell.classList.add('selected');
+      }
+    }
+
+    function moveCalMonth(dir) {
+      _calMo += dir;
+      if (_calMo > 11) { _calMo = 0; _calYr++; }
+      if (_calMo < 0) { _calMo = 11; _calYr--; }
+      renderMiniCal();
+    }
+
+    /* 초기 렌더 */
+    renderMiniCal();
+
+    /* ── 팝업 오늘 하루 닫기 (팝업 주석 해제 시 함께 활성화) */
+    const _popupNoShow = document.getElementById('popupNoShow');
+    if (_popupNoShow) {
+      _popupNoShow.addEventListener('change', function () {
+        if (this.checked) {
+          localStorage.setItem('popup_hide_until', new Date().toDateString());
+          document.getElementById('popup').style.display = 'none';
+        }
+      });
+      if (localStorage.getItem('popup_hide_until') === new Date().toDateString()) {
+        document.getElementById('popup').style.display = 'none';
+      }
+    }
+
+    /* ── 히어로 슬라이더 */
+    let _slideIdx = 0;
+    const _slides = document.querySelectorAll('.hero-slide');
+    const _dotsWrap = document.getElementById('heroDots');
+
+    _slides.forEach((_, i) => {
+      const d = document.createElement('button');
+      d.className = 'hero-dot' + (i === 0 ? ' active' : '');
+      d.setAttribute('aria-label', `슬라이드 ${i + 1}`);
+      d.onclick = () => goSlide(i);
+      _dotsWrap.appendChild(d);
+    });
+
+    function goSlide(idx) {
+      _slides[_slideIdx].classList.remove('active');
+      _dotsWrap.children[_slideIdx].classList.remove('active');
+      _slideIdx = (idx + _slides.length) % _slides.length;
+      _slides[_slideIdx].classList.add('active');
+      _dotsWrap.children[_slideIdx].classList.add('active');
+    }
+    function heroSlide(dir) { goSlide(_slideIdx + dir); }
+    setInterval(() => heroSlide(1), 5000);
+
+  </script>
+</body>
+
+</html>

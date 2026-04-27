@@ -1,0 +1,270 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>연혁 등록/수정 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .item-row {
+      background: var(--green-pale);
+      border: 1px solid #dde8d4;
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+    }
+    .item-row + .item-row { margin-top: 10px; }
+    .item-row .form-label { font-size: 12px; margin-bottom: 4px; display: block; }
+    .item-img-preview {
+      width: 80px; height: 52px; object-fit: cover;
+      border-radius: 4px; margin-top: 6px; display: none;
+    }
+    .img-upload-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--green-dark); cursor: pointer;
+      border: 1px dashed var(--green-light); border-radius: 4px;
+      padding: 5px 10px; margin-top: 6px;
+    }
+    .img-upload-label:hover { background: #e4eed9; }
+    .img-upload-label input[type=file] { display: none; }
+    .item-required-note { font-size: 12px; color: var(--gray-mid); margin-left: 8px; }
+  </style>
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-head">
+        <span class="adm-sb-title">MENU</span>
+        <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+      </div>
+      <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <h1 class="admin-page-title" id="pageTitle">연혁 등록</h1>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header"><span class="card-title">연도 기본 정보</span></div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;gap:16px;align-items:flex-end">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">연도 <span class="req">*</span></label>
+              <select class="form-control" id="eYear" style="width:140px;height:36px"></select>
+            </div>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label">연도 대표 이미지 <span style="color:var(--gray-mid);font-size:12px">(선택, 1장)</span></label>
+            <label class="img-upload-label">
+              <input type="file" accept="image/*" onchange="HistEdit.previewYearImg(this)">
+              이미지 선택
+            </label>
+            <img id="yearImgPreview" class="item-img-preview" alt="연도 이미지 미리보기" style="width:160px;height:100px">
+            <div style="font-size:12px;color:var(--gray-mid);margin-top:4px">
+              권장 크기: 800×400px 이상 / JPG·PNG
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">상세 항목</span>
+          <span class="item-required-note">최소 1개 필수</span>
+          <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="HistEdit.addItem()">+ 항목 추가</button>
+        </div>
+        <div style="padding:20px">
+          <div id="itemList"></div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+        <button class="btn btn-gray" onclick="history.back()">취소</button>
+        <button class="btn btn-primary" onclick="HistEdit.save()">저장</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/admin.js"></script>
+  <script>
+  'use strict';
+
+  /* ──────────────────────────────────────────
+     샘플 데이터
+     [개발자] AdminHttp.get(ADMIN_API.url('history', year)) 응답으로 교체
+  ────────────────────────────────────────── */
+  const HISTORY_SAMPLE = [
+    {
+      year: 2026, img: null,
+      items: [
+        { text: '03.30 제55기 숲해설가 전문가과정 모집 시작', img: null },
+        { text: '03.30 2026년도 정기 이사회 개최, 사업계획 확정', img: null },
+      ],
+    },
+    {
+      year: 2025, img: null,
+      items: [
+        { text: '03.30 제54기 전문가과정 수료식, 수료생 42명 배출', img: null },
+        { text: '03.30 전국 지역 숲해설가 연합 워크숍 개최 (전주)', img: null },
+        { text: '03.30 제53기 전문가과정 수료, 온라인 교육 병행 첫 시행', img: null },
+      ],
+    },
+    {
+      year: 2000, img: null,
+      items: [{ text: '03.30 (사)한국숲해설가협회로 명칭 변경, 산림청 사단법인 등록', img: null }],
+    },
+    {
+      year: 1998, img: null,
+      items: [{ text: '자연환경 안내자 협회 창립, 제1회 숲해설가 양성과정 개설', img: null }],
+    },
+  ];
+
+  let _itemCounter = 0;
+
+  const HistEdit = {
+    _yearData: null,
+
+    init() {
+      /* 연도 드롭다운 생성 */
+      const sel     = document.getElementById('eYear');
+      const current = new Date().getFullYear();
+      for (let y = current; y >= 1990; y--) {
+        const opt       = document.createElement('option');
+        opt.value       = y;
+        opt.textContent = y + '년';
+        sel.appendChild(opt);
+      }
+
+      const yearParam = App.getParam('year');
+      if (yearParam) {
+        /* 수정 모드 */
+        /*
+         * [개발자 연동]
+         * AdminHttp.get(ADMIN_API.url('history', yearParam)).then(g => {
+         *   this._yearData = g;
+         *   document.getElementById('pageTitle').textContent = `연혁 수정 — ${g.year}년`;
+         *   document.getElementById('eYear').value = g.year;
+         *   g.items.forEach(item => this._renderItem(item));
+         *   this._updateDeleteButtons();
+         * });
+         */
+        const g = HISTORY_SAMPLE.find(x => String(x.year) === String(yearParam));
+        if (g) {
+          this._yearData = g;
+          document.getElementById('pageTitle').textContent = `연혁 수정 — ${g.year}년`;
+          document.getElementById('eYear').value = g.year;
+          g.items.forEach(item => this._renderItem(item));
+        } else {
+          this._renderItem({ text: '', img: null });
+        }
+      } else {
+        /* 신규 등록 */
+        this._renderItem({ text: '', img: null });
+      }
+      this._updateDeleteButtons();
+    },
+
+    addItem(data) {
+      this._renderItem(data || { text: '', img: null });
+      this._updateDeleteButtons();
+    },
+
+    _renderItem(data) {
+      const key  = ++_itemCounter;
+      const list = document.getElementById('itemList');
+      const div  = document.createElement('div');
+      div.className = 'item-row';
+      div.id        = `item-${key}`;
+      div.innerHTML = `
+        <div>
+          <label class="form-label">내용 <span class="req">*</span></label>
+          <input type="text" class="form-control" id="iText-${key}"
+            value="${data.text || ''}" placeholder="항목 내용을 입력하세요" style="margin-bottom:6px">
+        </div>
+        <button class="btn btn-danger btn-xs" id="iDel-${key}" style="margin-top:20px;flex-shrink:0"
+          onclick="HistEdit.removeItem(${key})">삭제</button>`;
+      list.appendChild(div);
+      this._updateDeleteButtons();
+    },
+
+    removeItem(key) {
+      const list = document.getElementById('itemList');
+      if (list.children.length <= 1) return;
+      const el = document.getElementById(`item-${key}`);
+      if (el) el.remove();
+      this._updateDeleteButtons();
+    },
+
+    _updateDeleteButtons() {
+      const list  = document.getElementById('itemList');
+      const count = list ? list.children.length : 0;
+      list.querySelectorAll('[id^="iDel-"]').forEach(btn => {
+        btn.disabled      = count <= 1;
+        btn.style.opacity = count <= 1 ? '0.35' : '1';
+        btn.style.cursor  = count <= 1 ? 'not-allowed' : 'pointer';
+      });
+    },
+
+    previewYearImg(input) {
+      const preview = document.getElementById('yearImgPreview');
+      if (!preview || !input.files?.[0]) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(input.files[0]);
+    },
+
+    async save() {
+      const year = Number(document.getElementById('eYear')?.value);
+      if (!year) { App.toast('연도를 선택해주세요.', 'error'); return; }
+
+      const rows = document.querySelectorAll('#itemList .item-row');
+      const items = [];
+      let hasError = false;
+      rows.forEach(row => {
+        const key  = row.id.replace('item-', '');
+        const text = document.getElementById(`iText-${key}`)?.value.trim() || '';
+        if (!text) hasError = true;
+        else items.push({ text, img: null });
+      });
+
+      if (hasError) { App.toast('모든 항목의 내용을 입력해주세요.', 'error'); return; }
+      if (!items.length) { App.toast('항목을 1개 이상 추가해주세요.', 'error'); return; }
+
+      const isEdit = !!App.getParam('year');
+      try {
+        /*
+         * [개발자 연동]
+         * const fd = new FormData();
+         * fd.append('year', year);
+         * fd.append('items', JSON.stringify(items));
+         * const yearImgFile = document.querySelector('input[type=file][accept="image/*"]').files[0];
+         * if (yearImgFile) fd.append('yearImg', yearImgFile);
+         * if (isEdit) await AdminHttp.upload(ADMIN_API.url('history', year), fd);
+         * else        await AdminHttp.upload(ADMIN_API.history, fd);
+         */
+        App.toast(`${year}년 연혁이 저장되었습니다.`, 'success');
+        setTimeout(() => { location.href = 'history.html'; }, 900);
+      } catch (e) {
+        App.toast(e.message, 'error');
+      }
+    },
+  };
+
+  AdminSidebar.mount('history');
+  HistEdit.init();
+  </script>
+</body>
+</html>

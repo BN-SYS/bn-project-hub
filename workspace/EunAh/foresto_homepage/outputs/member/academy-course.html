@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원아카데미 강좌 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/education.css">
+  <link rel="stylesheet" href="../assets/css/pages/member.css">
+</head>
+
+<body data-page="academy-course">
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>회원아카데미</h1>
+    </div>
+  </div>
+
+  <div id="bc"></div>
+  <div class="sub-layout">
+    <div id="lnb"></div>
+    <main class="sub-content">
+      <div class="content-wrap">
+
+        <!-- 섹션 타이틀 + 짧은 개요 -->
+        <h2 class="list-section-title">회원아카데미 강좌</h2>
+        <p style="font-size:var(--text-md);color:var(--gray-mid);line-height:1.8;margin-bottom:24px;">
+          특정 분야를 깊이 있게 다루는 연속 강의(5회 이상)로, 체계적인 학습을 통해 전문성과 해설의 깊이를 한층 강화하는 과정으로 열립니다. 
+        </p>
+
+        <!-- 필터 박스 -->
+        <div class="list-filter-box">
+          <div class="list-filter-row">
+            <div class="list-filter-item">
+              <span class="list-filter-label">접수상태</span>
+              <select class="list-filter-select" id="searchStatus">
+                <option value="">선택해주세요</option>
+                <option value="open">접수중</option>
+                <option value="ready">준비중</option>
+                <option value="closed">접수마감</option>
+              </select>
+            </div>
+            <div class="list-filter-item">
+              <span class="list-filter-label">일자</span>
+              <div class="list-filter-date-inputs">
+                <input type="date" class="list-filter-input" id="dateFrom">
+                <span class="list-filter-sep">~</span>
+                <input type="date" class="list-filter-input" id="dateTo">
+              </div>
+            </div>
+            <button class="list-filter-btn" onclick="doSearch()">검색하기</button>
+          </div>
+        </div>
+
+        <!-- 목록 상단 -->
+        <div class="list-top" style="margin-top:20px;">
+          <span class="list-count">목록 <strong id="totalCount">0</strong>건</span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="board-table">
+            <thead>
+              <tr>
+                <th style="width:6%">NO.</th>
+                <th class="td-title">강좌명</th>
+                <th style="width:10%">일자</th>
+                <th style="width:20%">접수 기간</th>
+                <th style="width:10%">접수상태</th>
+              </tr>
+            </thead>
+            <tbody id="academyCourseBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="academyCoursePagination"></div>
+
+      </div>
+    </main>
+  </div>
+
+  <div id="ftr"></div>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/education.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('회원활동', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+    document.getElementById('bc').innerHTML  = LNB.breadcrumb('../', 'member/academy-course.html');
+    document.getElementById('lnb').innerHTML = LNB.render('../', 'member/academy-course.html');
+
+    window._ctrl = new CourseListController('회원강좌', 'academyCourseBody', 'academyCoursePagination', '', 'academy-course-detail.html');
+    window._ctrl.render();
+
+    function doSearch() {
+      const status = document.getElementById('searchStatus').value;
+      const from   = document.getElementById('dateFrom').value;
+      const to     = document.getElementById('dateTo').value;
+      window._ctrl.courses = ALL_COURSES_RAW.filter(c => c.type === '회원강좌').sort((a, b) => b.date.localeCompare(a.date));
+      window._ctrl.filter(status, from, to);
+    }
+  </script>
+</body>
+
+</html>

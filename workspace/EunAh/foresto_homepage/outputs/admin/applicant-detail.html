@@ -1,0 +1,270 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>신청 상세 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .form-card { background:#fff; border:1px solid #e3eadd; border-radius:10px; margin-bottom:20px; overflow:hidden; }
+    .form-card-head { padding:14px 20px; border-bottom:1px solid #e3eadd; background:#f8faf6; font-size:13px; font-weight:700; color:#2e5c2e; letter-spacing:.03em; }
+    .form-row { display:flex; align-items:stretch; min-height:52px; border-bottom:1px solid #f0f4ee; }
+    .form-row:last-child { border-bottom:none; }
+    .form-label { width:140px; min-width:140px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#7a8e74; letter-spacing:.04em; white-space:nowrap; background:#f8faf6; border-right:1px solid #e8efe3; padding:0 12px; text-align:center; }
+    .form-content { flex:1; display:flex; align-items:center; padding:12px 16px; gap:10px; flex-wrap:wrap; }
+    .form-half { flex:1; display:flex; align-items:center; padding:12px 16px; gap:8px; }
+    .form-half + .form-half { border-left:1px solid #f0f4ee; }
+    .detail-val { font-size:14px; color:#111; line-height:1.6; }
+    .detail-val.mono { font-variant-numeric:tabular-nums; }
+    .detail-val.muted { color:#7a8e74; font-size:13px; }
+    .file-list { display:flex; flex-direction:column; gap:8px; width:100%; padding:16px; }
+    .file-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid #e3eadd; border-radius:8px; background:#fafcf9; }
+    .file-item-icon { width:32px; height:32px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0; }
+    .file-item-icon.hwp { background:#e8f4fd; color:#2980b9; }
+    .file-item-icon.pdf { background:#fde8e8; color:#c0392b; }
+    .file-item-name { flex:1; font-size:13px; color:#2c3e2c; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .file-item-size { font-size:12px; color:#aaa; white-space:nowrap; }
+    .btn-download { height:30px; padding:0 12px; border:1px solid #d0dbc8; border-radius:6px; background:#fff; color:#4a7c59; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; }
+    .btn-download:hover { background:#f0f8f0; border-color:#4a7c59; }
+    .cert-unavail { font-size:13px; color:#9e9e9e; padding:12px 0; }
+    .detail-bottom-bar { display:flex; align-items:center; justify-content:space-between; padding:4px 0 8px; }
+    .btn-group-right { display:flex; gap:8px; }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title">신청 상세</h1>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- 신청자 정보 -->
+      <div class="form-card">
+        <div class="form-card-head">신청자 정보</div>
+        <div class="form-row">
+          <div class="form-label">접수번호</div>
+          <div style="flex:3;padding:10px 16px">
+            <span class="detail-val mono" id="dAppNo"
+              style="font-weight:700;color:#2e5c2e">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">이름</div>
+          <div class="form-half">
+            <span class="detail-val" id="dName" style="font-weight:600">—</span>
+          </div>
+          <div class="form-label">회원 ID</div>
+          <div class="form-half">
+            <span class="detail-val mono" id="dMemberId">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">성별</div>
+          <div class="form-half">
+            <span class="detail-val" id="dGender">—</span>
+          </div>
+          <div class="form-label">생년월일</div>
+          <div class="form-half">
+            <span class="detail-val mono" id="dBirth">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">핸드폰</div>
+          <div class="form-half">
+            <span class="detail-val mono" id="dPhone">—</span>
+          </div>
+          <div class="form-label">이메일</div>
+          <div class="form-half">
+            <span class="detail-val" id="dEmail">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 신청 과정 -->
+      <div class="form-card">
+        <div class="form-card-head">신청 과정</div>
+        <div class="form-row">
+          <div class="form-label">과정유형</div>
+          <div class="form-content">
+            <span class="detail-val" id="dCourseType">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">기수</div>
+          <div class="form-content">
+            <span class="detail-val" id="dCohort">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">과정명</div>
+          <div class="form-content">
+            <span class="detail-val" id="dCourseName" style="font-weight:600">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 신청 현황 -->
+      <div class="form-card">
+        <div class="form-card-head">신청 현황</div>
+        <div class="form-row">
+          <div class="form-label">신청일시</div>
+          <div class="form-half">
+            <span class="detail-val mono" id="dApplyDate">—</span>
+          </div>
+          <div class="form-label">상태</div>
+          <div class="form-half" id="dStatusWrap">—</div>
+        </div>
+      </div>
+
+      <!-- 제출 파일 -->
+      <div class="form-card">
+        <div class="form-card-head">제출 파일</div>
+        <div class="file-list" id="dFileList">
+          <span class="detail-val muted">파일 없음</span>
+        </div>
+      </div>
+
+      <!-- 수료증 -->
+      <div class="form-card">
+        <div class="form-card-head">수료증</div>
+        <div class="form-row">
+          <div class="form-label">수료증 발급</div>
+          <div class="form-content" id="dCertWrap">
+            <p class="cert-unavail">수료 처리 후 수료증을 발급·다운로드할 수 있습니다.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 버튼 -->
+      <div class="detail-bottom-bar">
+        <div></div>
+        <div class="btn-group-right">
+          <button class="btn btn-gray btn-sm" onclick="history.back()">목록으로</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+const _id = App.getParam('id');
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] AdminHttp.get(ADMIN_API.url('applicants', _id)) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_DETAIL = {
+  id: 2001,
+  appNo: 'APP-2026-02001',
+  name: '김민준', memberId: 'M02001',
+  gender: '남', birth: '1985-03-15',
+  phone: '010-1234-5678', email: 'kim@example.com',
+  courseType: '기초과정', cohort: '—',
+  courseName: '봄 숲 이야기 — 시민아카데미',
+  applyDate: '2026-03-01 09:07:22',
+  statusLabel: '신청', statusBadge: 'badge-green',
+  certIssued: false,
+  files: [
+    { name: '신청서_제출용.hwp', ext: 'hwp', size: '120KB' },
+  ],
+};
+
+const ApplicantDetail = {
+  data: null,
+
+  async load() {
+    try {
+      /*
+       * [개발자 연동]
+       * this.data = await AdminHttp.get(ADMIN_API.url('applicants', _id));
+       */
+      this.data = SAMPLE_DETAIL;
+      this.render(this.data);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  render(d) {
+    document.getElementById('dAppNo').textContent      = d.appNo;
+    document.getElementById('dName').textContent       = d.name;
+    document.getElementById('dMemberId').textContent   = d.memberId;
+    document.getElementById('dGender').textContent     = d.gender;
+    document.getElementById('dBirth').textContent      = d.birth;
+    document.getElementById('dPhone').textContent      = d.phone;
+    document.getElementById('dEmail').textContent      = d.email;
+    document.getElementById('dCourseType').textContent = d.courseType;
+    document.getElementById('dCohort').textContent     = d.cohort || '—';
+    document.getElementById('dCourseName').textContent = d.courseName;
+    document.getElementById('dApplyDate').textContent  = d.applyDate;
+    document.getElementById('dStatusWrap').innerHTML   =
+      `<span class="badge ${d.statusBadge}">${d.statusLabel}</span>`;
+
+    /* 파일 목록 */
+    const fileList = document.getElementById('dFileList');
+    fileList.innerHTML = d.files?.length
+      ? d.files.map(f => `
+          <div class="file-item">
+            <div class="file-item-icon ${f.ext}">${f.ext.toUpperCase()}</div>
+            <span class="file-item-name">${f.name}</span>
+            <span class="file-item-size">${f.size}</span>
+            <button class="btn-download"
+              onclick="ApplicantDetail.downloadFile('${f.name}')">다운로드</button>
+          </div>`).join('')
+      : '<span class="detail-val muted">파일 없음</span>';
+
+    /* 수료증 */
+    const certWrap = document.getElementById('dCertWrap');
+    if (d.certIssued) {
+      certWrap.innerHTML = `
+        <button class="btn btn-outline btn-sm"
+          onclick="ApplicantDetail.downloadCert()">수료증 다운로드</button>`;
+    } else {
+      certWrap.innerHTML =
+        '<p class="cert-unavail">수료 처리 후 수료증을 발급·다운로드할 수 있습니다.</p>';
+    }
+  },
+
+  downloadFile(name) {
+    /*
+     * [개발자 연동]
+     * window.location.href = ADMIN_API.url('applicants', _id) + '/files/' + encodeURIComponent(name);
+     */
+    alert(`${name} 다운로드 — 실제 구현 시 서버 파일 경로와 연동됩니다.`);
+  },
+
+  downloadCert() {
+    /*
+     * [개발자 연동]
+     * window.location.href = ADMIN_API.url('applicants', _id) + '/cert';
+     */
+    alert('수료증 다운로드 — 실제 구현 시 서버 API와 연동됩니다.');
+  },
+};
+
+AdminSidebar.mount('course-applicants');
+ApplicantDetail.load();
+</script>
+</body>
+</html>

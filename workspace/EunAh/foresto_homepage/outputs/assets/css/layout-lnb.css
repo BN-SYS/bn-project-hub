@@ -1,0 +1,207 @@
+/* =============================================
+   layout-lnb.css | 서브페이지 탭 네비게이션 레이아웃
+   req.md 4-3. 서브페이지 공통 레이아웃 기준
+   ============================================= */
+
+/* ── 브레드크럼 (페이지 현재위치) ─────────────── */
+.breadcrumb {
+  background: var(--gray-bg);
+  border-bottom: 1px solid var(--gray-light);
+  padding: 10px 0;
+}
+.breadcrumb-inner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 24px;
+  font-size: var(--text-xs);
+  color: var(--gray-mid);
+}
+.breadcrumb-sep { color: var(--gray-light); }
+.breadcrumb-inner a {
+  color: var(--gray-mid);
+  text-decoration: none;
+  transition: var(--trans);
+}
+.breadcrumb-inner a:hover { color: var(--green-dark); }
+.breadcrumb-inner .current { color: var(--green-dark); font-weight: 600; }
+
+/* ── 전체 서브 레이아웃 (단일 컬럼) ──────────── */
+.sub-layout {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 40px;
+  flex: 1;          /* body flex-column 환경에서 남은 공간 채워 푸터를 하단 고정 */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── 탭 네비게이션 바 ──────────────────────────── */
+.sub-lnb {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-bottom: none;
+  width: 100%;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  overflow-y: hidden;
+  position: static;
+  top: auto;
+  margin-bottom: 48px; /* 탭 아래 여백 — 모든 서브 페이지 통일 */
+}
+
+/* 그룹 타이틀 (카테고리명) — 탭 위 노출 안 함 */
+.lnb-group-title {
+  display: none;
+}
+
+/* 탭 아이템 행 wrapper — 세그먼트 컨트롤 컨테이너 */
+.lnb-items {
+  display: inline-flex;
+  gap: 0;
+  background: #f5f5f3;
+  border-radius: 12px;
+  padding: 12px;
+  max-width: 100%;
+  height: 72px;
+  box-sizing: border-box;
+}
+
+/* 개별 탭 아이템 */
+.lnb-item {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: #505050;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  white-space: nowrap;
+  transition: color .2s, background .2s;
+  text-align: center;
+  padding: 10px 24px 12px;
+}
+.lnb-item:hover {
+  color: #20281a;
+}
+.lnb-item.active {
+  background: #20281a;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ── 콘텐츠 영역 (사이드바 없이 전체 너비) ──── */
+.sub-content {
+  flex: none;
+  width: 100%;
+  min-width: 0;
+  padding: 0 24px;
+}
+
+/* content-wrap 상단 패딩 제거 — tab-nav 아래 여백은 cd-wrap margin-top 24px 로 통일 */
+.sub-content .content-wrap {
+  padding-top: 0;
+}
+
+/* 서브 콘텐츠 상단 타이틀 */
+.sub-content-header {
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--green-dark);
+}
+.sub-content-title {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 6px;
+}
+.sub-content-desc {
+  font-size: var(--text-md);
+  color: var(--gray-mid);
+  line-height: 1.6;
+}
+
+/* ── 반응형 (≤ 768px) ──────────────────────── */
+@media (max-width: 768px) {
+  .sub-layout {
+    padding: 0 0 40px;        /* 좌우 패딩 제거 — 자식 요소가 각자 처리 */
+  }
+
+  .sub-lnb {
+    padding: 12px 16px 0;
+    margin-bottom: 16px;
+  }
+
+  .lnb-group-title {
+    margin-bottom: 8px;
+  }
+
+  .lnb-items {
+    height: auto;             /* 고정 72px 해제 */
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    padding: 6px 8px;
+  }
+  .lnb-items::-webkit-scrollbar { display: none; }
+
+  /* 스크롤 힌트 — 오른쪽(has-overflow) / 왼쪽(scrolled-right) */
+  .sub-lnb {
+    position: relative;
+  }
+  .sub-lnb.has-overflow::after,
+  .sub-lnb.scrolled-right::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    bottom: 0;
+    width: 36px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .sub-lnb.has-overflow::after {
+    right: 16px;
+    background: linear-gradient(to right, transparent, #fff);
+  }
+  .sub-lnb.scrolled-right::before {
+    left: 16px;
+    background: linear-gradient(to left, transparent, #fff);
+  }
+
+  .lnb-item {
+    padding: 8px 18px;
+    font-size: var(--text-sm);
+    flex-shrink: 0;
+  }
+  .lnb-item.active {
+    padding-left: 18px;
+  }
+
+  .sub-content {
+    padding: 0 16px;
+  }
+
+  .breadcrumb-inner {
+    padding: 0 16px;
+  }
+
+  .sub-content-title {
+    font-size: var(--text-xl);
+  }
+}

@@ -1,0 +1,110 @@
+/* =============================================
+   policy.css | 개인정보처리방침 / 이용약관 공통
+   ============================================= */
+
+/* ── 본문 래퍼 */
+.policy-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* ── 문서 제목 */
+.policy-title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--gray-dark);
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--gray-dark);
+  margin-bottom: 28px;
+}
+
+/* ── 본문 */
+.policy-body {
+  font-size: var(--text-md);
+  line-height: 1.9;
+  color: var(--gray-dark);
+}
+
+.policy-body p { margin-bottom: 14px; }
+
+.policy-body h3 {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--gray-dark);
+  margin: 28px 0 10px;
+}
+
+.policy-body ul {
+  padding-left: 0;
+  list-style: none;
+  margin-bottom: 14px;
+}
+
+.policy-body ul li {
+  padding-left: 14px;
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.policy-body ul li::before {
+  content: 'o';
+  position: absolute;
+  left: 0;
+  color: var(--gray-mid);
+}
+
+.policy-body .indent {
+  padding-left: 14px;
+  color: var(--gray-dark);
+  margin-bottom: 6px;
+  font-size: var(--text-md);
+  line-height: 1.8;
+}
+
+.policy-effective {
+  margin-top: 32px;
+  padding: 14px 18px;
+  background: var(--gray-bg);
+  border-radius: var(--radius);
+  font-size: var(--text-md);
+  color: var(--gray-mid);
+}
+
+/* ── 정책 섹션 (이메일 무단수집 거부 등) */
+.policy-section        { margin: 24px 0; }
+.policy-section-title  {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--gray-dark);
+  margin-bottom: 8px;
+}
+
+/* ── 반응형 */
+@media (max-width: 768px) {
+  .policy-wrap {
+    padding: 0 4px;
+  }
+  .policy-title {
+    font-size: var(--text-lg);
+  }
+  .policy-body {
+    font-size: var(--text-base);
+    line-height: 1.8;
+  }
+  .policy-body h3 {
+    font-size: var(--text-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .policy-title {
+    font-size: var(--text-md);
+  }
+  .page-tabs {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  .page-tab {
+    padding: 10px 12px;
+  }
+}

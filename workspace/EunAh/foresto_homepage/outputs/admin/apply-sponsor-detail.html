@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>후원신청 상세 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .form-card { background:#fff; border:1px solid #e3eadd; border-radius:10px; margin-bottom:20px; overflow:hidden; }
+    .form-card-head { padding:14px 20px; border-bottom:1px solid #e3eadd; background:#f8faf6; font-size:13px; font-weight:700; color:#2e5c2e; letter-spacing:.03em; }
+    .form-row { display:flex; align-items:stretch; min-height:52px; border-bottom:1px solid #f0f4ee; }
+    .form-row:last-child { border-bottom:none; }
+    .form-label { width:140px; min-width:140px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#7a8e74; letter-spacing:.04em; white-space:nowrap; background:#f8faf6; border-right:1px solid #e8efe3; padding:0 12px; text-align:center; }
+    .form-content { flex:1; display:flex; align-items:center; padding:12px 16px; gap:10px; flex-wrap:wrap; }
+    .form-half { flex:1; display:flex; align-items:center; padding:12px 16px; gap:8px; }
+    .form-half + .form-half { border-left:1px solid #f0f4ee; }
+    .detail-val { font-size:14px; color:#111; line-height:1.6; }
+    .detail-val.mono { font-variant-numeric:tabular-nums; }
+    .detail-val.muted { color:#7a8e74; font-size:13px; }
+    .badge-regular { display:inline-flex;align-items:center;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9; }
+    .badge-once    { display:inline-flex;align-items:center;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:600;background:#e8f0fd;color:#1a5ea8;border:1px solid #c2d4f5; }
+    .amount-highlight { font-size:20px; font-weight:700; color:#20281A; font-variant-numeric:tabular-nums; }
+    .account-wrap { display:flex; align-items:center; gap:8px; }
+    .btn-reveal { font-size:12px; padding:3px 10px; border:1px solid #c8d8c2; border-radius:6px; background:#f4f8f2; color:#4a7a46; cursor:pointer; white-space:nowrap; }
+    .btn-reveal:hover { background:#e8f2e4; }
+    .memo-textarea { width:100%; min-height:120px; padding:12px 14px; border:1px solid #d5e0ce; border-radius:8px; font-size:14px; font-family:'Noto Sans KR',sans-serif; color:#2a3a26; background:#fafcf9; outline:none; resize:vertical; box-sizing:border-box; line-height:1.7; }
+    .memo-textarea:focus { border-color:#508829; background:#fff; box-shadow:0 0 0 3px rgba(80,136,41,.08); }
+    .memo-footer { display:flex; justify-content:flex-end; padding:12px 16px 14px; border-top:1px solid #f0f4ee; gap:8px; }
+    .detail-bottom-bar { display:flex; align-items:center; justify-content:flex-end; padding:4px 0 8px; }
+    .btn-group-right { display:flex; gap:8px; }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title">후원신청 상세</h1>
+      <div class="admin-topbar-actions">
+        <button class="btn-refresh" onclick="SponsorDetail.load()" title="새로고침">
+          <img src="../assets/icons/refresh.png" alt="새로고침">
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- 신청자 정보 -->
+      <div class="form-card">
+        <div class="form-card-head">신청자 정보</div>
+        <div class="form-row">
+          <div class="form-label">접수번호</div>
+          <div class="form-half">
+            <span class="detail-val mono" id="dAppNo" style="font-weight:700;color:#2e5c2e">—</span>
+          </div>
+          <div class="form-label">회원구분</div>
+          <div class="form-half" id="dMemberTypeWrap">—</div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">이름</div>
+          <div class="form-half">
+            <span class="detail-val" id="dName" style="font-weight:600">—</span>
+          </div>
+          <div class="form-label">연락처</div>
+          <div class="form-half">
+            <span class="detail-val mono" id="dPhone">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">이메일</div>
+          <div class="form-content">
+            <span class="detail-val" id="dEmail">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">신청일시</div>
+          <div class="form-content">
+            <span class="detail-val mono" id="dApplyDate">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 후원 정보 -->
+      <div class="form-card">
+        <div class="form-card-head">후원 정보</div>
+        <div class="form-row">
+          <div class="form-label">후원 유형</div>
+          <div class="form-half" id="dSponsorTypeWrap">—</div>
+          <div class="form-label">후원 금액</div>
+          <div class="form-half" id="dAmountWrap">—</div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">후원 목적</div>
+          <div class="form-half">
+            <span class="detail-val" id="dPurpose">—</span>
+          </div>
+          <div class="form-label">개인정보 동의</div>
+          <div class="form-half">
+            <span class="detail-val" id="dPrivacy">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 자동이체 계좌 -->
+      <div class="form-card" id="cardAccount" style="display:none">
+        <div class="form-card-head">자동이체 계좌</div>
+        <div class="form-row">
+          <div class="form-label">은행명</div>
+          <div class="form-half">
+            <span class="detail-val" id="dBankName">—</span>
+          </div>
+          <div class="form-label">예금주</div>
+          <div class="form-half">
+            <span class="detail-val" id="dAccountHolder">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">계좌번호</div>
+          <div class="form-content">
+            <div class="account-wrap">
+              <span class="detail-val mono" id="dAccountNo">—</span>
+              <button class="btn-reveal" id="accountRevealBtn"
+                onclick="SponsorDetail.toggleAccount()">보기</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 관리자 메모 -->
+      <div class="form-card">
+        <div class="form-card-head">관리자 메모</div>
+        <div style="padding:16px">
+          <textarea class="memo-textarea" id="adminMemo"
+            placeholder="관리자 메모를 입력하세요. (후원자에게 표시되지 않습니다)"></textarea>
+        </div>
+        <div class="memo-footer">
+          <button class="btn btn-gray btn-sm"
+            onclick="document.getElementById('adminMemo').value = ''">초기화</button>
+          <button class="btn btn-primary btn-sm" onclick="SponsorDetail.saveMemo()">메모 저장</button>
+        </div>
+      </div>
+
+      <div class="detail-bottom-bar">
+        <div class="btn-group-right">
+          <button class="btn btn-gray btn-sm" onclick="history.back()">목록으로</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/components/header.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+const _id = App.getParam('id');
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] AdminHttp.get(ADMIN_API.url('applySponsor', _id)) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_DETAIL = {
+  id: 1,
+  appNo: 'SPN-2026-00001',
+  memberType: '회원', memberBadge: 'badge-green', userId: 'spn3001',
+  name: '홍길동', phone: '010-0001-1001',
+  email: 'hong@example.com', applyDate: '2026-01-05 09:00:00',
+  sponsorType: '정기', sponsorBadgeClass: 'badge-regular',
+  amount: '30,000', amountUnit: '/ 월',
+  purpose: '교육 프로그램 지원', privacyAgreed: true,
+  /* 정기 후원일 때만 계좌 정보 존재 */
+  bankName: '국민은행', accountHolder: '홍길동',
+  accountNoMasked: '012***-**-***001', accountNoFull: '012001-01-901001',
+  memo: '',
+};
+
+const SponsorDetail = {
+  data:            null,
+  accountRevealed: false,
+
+  async load() {
+    try {
+      /*
+       * [개발자 연동]
+       * this.data = await AdminHttp.get(ADMIN_API.url('applySponsor', _id));
+       */
+      this.data = SAMPLE_DETAIL;
+      this.render(this.data);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  render(d) {
+    document.getElementById('dAppNo').textContent    = d.appNo;
+    document.getElementById('dMemberTypeWrap').innerHTML =
+      `<span class="badge ${d.memberBadge}" style="font-size:12px">${d.memberType}</span>
+       <span class="detail-val muted" style="margin-left:6px">${d.userId || ''}</span>`;
+    document.getElementById('dName').textContent       = d.name;
+    document.getElementById('dPhone').textContent      = d.phone;
+    document.getElementById('dEmail').textContent      = d.email;
+    document.getElementById('dApplyDate').textContent  = d.applyDate;
+
+    document.getElementById('dSponsorTypeWrap').innerHTML =
+      `<span class="${d.sponsorBadgeClass}">${d.sponsorType} 후원</span>`;
+    document.getElementById('dAmountWrap').innerHTML   =
+      `<span class="amount-highlight">${d.amount}원</span>
+       <span style="font-size:14px;color:#7a8e74;font-weight:400;margin-left:4px">${d.amountUnit || ''}</span>`;
+    document.getElementById('dPurpose').textContent    = d.purpose;
+    document.getElementById('dPrivacy').textContent    = d.privacyAgreed ? '동의함' : '미동의';
+    document.getElementById('adminMemo').value         = d.memo || '';
+
+    /* 정기 후원 계좌 카드 */
+    if (d.sponsorType === '정기' && d.bankName) {
+      document.getElementById('cardAccount').style.display = '';
+      document.getElementById('dBankName').textContent       = d.bankName;
+      document.getElementById('dAccountHolder').textContent  = d.accountHolder;
+      document.getElementById('dAccountNo').textContent      = d.accountNoMasked;
+    }
+  },
+
+  toggleAccount() {
+    if (!this.data) return;
+    this.accountRevealed = !this.accountRevealed;
+    document.getElementById('dAccountNo').textContent =
+      this.accountRevealed ? this.data.accountNoFull : this.data.accountNoMasked;
+    document.getElementById('accountRevealBtn').textContent =
+      this.accountRevealed ? '숨기기' : '보기';
+  },
+
+  async saveMemo() {
+    const memo = document.getElementById('adminMemo').value;
+    try {
+      /*
+       * [개발자 연동]
+       * await AdminHttp.post(ADMIN_API.url('applySponsor', _id, 'memo'), { memo });
+       */
+      App.toast('관리자 메모가 저장되었습니다.', 'success');
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+};
+
+AdminSidebar.mount('apply-sponsor');
+SponsorDetail.load();
+</script>
+</body>
+</html>

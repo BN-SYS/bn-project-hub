@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>마이페이지 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/mypage.css">
+</head>
+
+<body>
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>마이페이지</h1>
+    </div>
+  </div>
+
+  <div class="my-wrap">
+    <div class="my-layout">
+      <!-- 사이드바 -->
+      <aside class="my-sidebar">
+        <div class="my-profile">
+          <div class="my-avatar">🌿</div>
+          <div class="my-name" id="sidebarName">김숲해설</div>
+          <div class="my-grade">정회원</div>
+          <div class="my-join" id="sidebarJoin">2022.03.15 가입</div>
+        </div>
+        <nav class="side-nav">
+          <a onclick="MyPage.showPanel('info')" id="nav-info" class="active">회원정보 수정</a>
+          <a onclick="MyPage.showPanel('cert')" id="nav-cert">신청내역</a>
+        </nav>
+      </aside>
+
+      <!-- 메인 -->
+      <main>
+        <!-- 회원정보 패널 -->
+        <div class="my-panel active" id="panel-info">
+          <div class="info-card">
+            <div class="info-card-title">기본 정보</div>
+            <div class="form-grid">
+
+              <div class="form-row"><label>이름</label><input class="form-control" id="infoName" value="김숲해설" readonly>
+              </div>
+              <div class="form-row">
+                <label>아이디</label>
+                <input class="form-control" id="infoId" value="forest2022" readonly>
+              </div>
+              <div class="form-row"><label>생년월일</label><input class="form-control" id="infoBirth" value="1990-03-15"
+                  readonly></div>
+              <div class="form-row"><label>성별</label><input class="form-control" id="infoGender" value="여성" readonly>
+              </div>
+              <div class="form-row" style="grid-column:1/-1;">
+                <label>연락처</label>
+                <div style="display:flex;gap:8px;">
+                  <input class="form-control" id="infoPhone" value="010-1234-5678" readonly style="flex:1">
+                  <button class="btn btn-outline btn-sm" onclick="App.toast('본인인증 서비스 준비 중입니다.')">변경</button>
+                </div>
+              </div>
+
+              <!-- 수정 가능 항목 -->
+              <div class="form-divider" style="grid-column:1/-1;"></div>
+
+              <div class="form-row"><label>이메일</label><input type="email" class="form-control" id="infoEmail"
+                  value="forest@example.com"></div>
+              <div class="form-row">
+                <label>직업</label>
+                <select class="form-control" id="infoJob">
+                  <option>직장인</option>
+                  <option>자영업자</option>
+                  <option selected>공무원·교원</option>
+                  <option>전문직</option>
+                  <option>학생</option>
+                  <option>주부</option>
+                  <option>은퇴·퇴직</option>
+                  <option>기타</option>
+                </select>
+              </div>
+              <div class="form-row" style="grid-column:1/-1;">
+                <label>주소</label>
+                <div style="display:flex;gap:8px;margin-bottom:6px;">
+                  <input class="form-control" id="infoPostcode" value="03152" style="max-width:120px;" readonly
+                    placeholder="우편번호">
+                  <button class="btn btn-outline btn-sm" onclick="App.toast('주소 검색 서비스 준비 중입니다.')">주소 검색</button>
+                </div>
+                <input class="form-control" id="infoAddr1" value="서울특별시 종로구 삼청로 00" readonly style="margin-bottom:6px;">
+                <input class="form-control" id="infoAddr2" placeholder="상세주소">
+              </div>
+
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-title">협회 정보</div>
+            <div class="form-grid">
+              <div class="form-row affiliation-row" style="grid-column:1/-1;">
+                <label>소속</label>
+                <ul class="affiliation-list" id="affiliationList">
+                  <li>
+                    <span class="affiliation-name">사회공헌사업단</span>
+                    <span class="affiliation-date">2022.03.15 가입</span>
+                  </li>
+                  <li>
+                    <span class="affiliation-name">나무반지 동아리</span>
+                    <span class="affiliation-date">2023.06.01 가입</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-row" style="justify-content:space-between;align-items:center;">
+            <button class="btn btn-gray" onclick="MyPage.openWithdrawModal()">탈퇴하기</button>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-outline" onclick="MyPage.openPwModal()">비밀번호 변경</button>
+              <button class="btn btn-primary" onclick="App.toast('회원정보가 저장되었습니다.')">저장하기</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 신청내역 패널 -->
+        <div class="my-panel" id="panel-cert">
+          <div class="info-card">
+            <div class="info-card-title">신청내역</div>
+
+            <!-- 필터 드롭다운 -->
+            <select class="edu-filter-select" id="applyFilterSelect" onchange="MyPage.filterApply(this.value)">
+              <option value="all">전체</option>
+              <option value="applied">신청</option>
+              <option value="unselected">미선정</option>
+              <option value="done">완료</option>
+              <option value="cancel">취소</option>
+            </select>
+
+            <div class="table-wrap">
+              <table class="board-table" style="min-width:600px">
+                <thead>
+                  <tr>
+                    <th style="width:44px;">NO.</th>
+                    <th>신청명</th>
+                    <th style="width:100px;">구분</th>
+                    <th style="width:110px;">일자</th>
+                    <th style="width:72px;">시간</th>
+                    <th style="width:72px;">상태</th>
+                    <th style="width:88px;">증명서</th>
+                    <th style="width:80px;">후기</th>
+                  </tr>
+                </thead>
+                <tbody id="applyTableBody"></tbody>
+              </table>
+            </div>
+            <div class="pagination" id="applyPagination"></div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <div id="ftr"></div>
+
+  <!-- 비밀번호 변경 모달 -->
+  <div class="modal-overlay" id="pwModal">
+    <div class="modal" style="max-width:440px">
+      <div class="modal-header">
+        <h3>비밀번호 변경</h3>
+        <button class="modal-close" onclick="MyPage.closePwModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="form-row" style="flex-direction:column;gap:6px;">
+            <label>현재 비밀번호</label>
+            <input type="password" class="form-control" id="pwCurrent" placeholder="현재 비밀번호를 입력하세요.">
+          </div>
+          <div class="form-row" style="flex-direction:column;gap:6px;">
+            <label>새 비밀번호</label>
+            <input type="password" class="form-control" id="pwNew" placeholder="영문+숫자+특수문자 포함 8자 이상">
+          </div>
+          <div class="form-row" style="flex-direction:column;gap:6px;">
+            <label>새 비밀번호 확인</label>
+            <input type="password" class="form-control" id="pwConfirm" placeholder="새 비밀번호를 다시 입력하세요.">
+          </div>
+          <p id="pwMsg" style="font-size:13px;margin:0;min-height:18px;"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-gray" onclick="MyPage.closePwModal()">취소</button>
+        <button class="btn btn-primary" onclick="MyPage.changePw()">변경하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 탈퇴 모달 -->
+  <div class="modal-overlay" id="withdrawModal">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-header">
+        <h3>회원 탈퇴</h3>
+        <button class="modal-close" onclick="App.closeModal('withdrawModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- 탈퇴 안내 -->
+        <div
+          style="background:var(--gray-bg,#f8f9fa);border-radius:8px;padding:16px;font-size:13px;line-height:1.8;color:var(--gray-dark);margin-bottom:16px;">
+          <strong style="display:block;margin-bottom:8px;font-size:14px;color:var(--danger);">탈퇴 전 꼭 확인해 주세요.</strong>
+          <ul style="margin:0;padding-left:18px;">
+            <li>탈퇴 시 모든 회원정보가 즉시 삭제되며 <strong>복구가 불가능</strong>합니다.</li>
+            <li>이수한 교육내역 및 수료증은 탈퇴 후 조회할 수 없습니다.</li>
+            <li>탈퇴 후 동일 아이디로 재가입이 불가능합니다.</li>
+            <li>진행 중인 교육 수강이 있는 경우 자동 취소 처리됩니다.</li>
+          </ul>
+        </div>
+        <!-- 탈퇴 사유 -->
+        <div class="form-row" style="flex-direction:column;gap:6px;margin-bottom:14px;">
+          <label style="font-size:14px;">탈퇴 사유 <span style="color:var(--gray-mid);font-weight:400;">(선택)</span></label>
+          <textarea id="withdrawReason" rows="3" class="form-control" placeholder="탈퇴 사유를 입력해 주세요."
+            style="resize:none;"></textarea>
+        </div>
+        <!-- 동의 체크 -->
+        <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer;line-height:1.5;">
+          <input type="checkbox" id="withdrawAgree" style="margin-top:2px;flex-shrink:0;">
+          위 내용을 모두 확인하였으며 회원 탈퇴에 동의합니다.
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-gray" onclick="App.closeModal('withdrawModal')">취소</button>
+        <button class="btn btn-danger" onclick="MyPage.doWithdraw()">탈퇴하기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/mypage.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('마이페이지', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+    MyPage.init();
+  </script>
+</body>
+
+</html>

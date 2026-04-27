@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사이트맵 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/common.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+  <style>
+    .sitemap-wrap {
+      max-width: 1700px;
+      margin: 48px auto;
+      padding: 0 40px 80px;
+    }
+
+    /* ── PC: 5열 그리드 */
+    .sitemap-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 40px 32px;
+    }
+
+    .sitemap-group {
+      border: 1px solid var(--gray-line);
+      padding: 16px;
+    }
+
+    .sitemap-depth1 {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--green-dark);
+      padding: 10px 0 10px;
+      border-bottom: 2px solid var(--green-main);
+      margin-bottom: 16px;
+      letter-spacing: .02em;
+    }
+
+    .sitemap-depth2 {
+      margin-bottom: 18px;
+    }
+
+    .sitemap-depth2-label {
+      font-size: var(--text-md);
+      font-weight: 700;
+      color: #444;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sitemap-depth2-label::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green-main);
+      flex-shrink: 0;
+    }
+
+    .sitemap-depth3 {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 0 12px;
+    }
+
+    .sitemap-depth3 li {
+      padding: 4px 0;
+    }
+
+    .sitemap-depth3 a {
+      font-size: var(--text-md);
+      color: var(--gray-dark);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color .15s;
+    }
+
+    .sitemap-depth3 a::before {
+      content: '–';
+      color: var(--gray-mid);
+      font-size: calc(var(--text-xs) * 1.6);
+    }
+
+    .sitemap-depth3 a:hover {
+      color: var(--green-main);
+    }
+
+    .sitemap-flat-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: var(--text-md);
+      color: var(--gray-dark);
+      text-decoration: none;
+      margin-top: 2px;
+      transition: color .15s;
+    }
+
+    .sitemap-flat-link:hover {
+      color: var(--green-main);
+    }
+
+    .sitemap-flat-link::before {
+      content: '–';
+      color: var(--gray-mid);
+      font-size: calc(var(--text-xs) * 1.6);
+    }
+
+    /* ── 모바일: 아코디언 */
+    .sitemap-accordion {
+      display: none;
+    }
+
+    .sm-item {
+      border-bottom: 1px solid var(--gray-line);
+    }
+
+    .sm-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 4px;
+      background: none;
+      border: none;
+      font-family: var(--font-base);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--green-dark);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .sm-trigger .sm-arrow {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .2s;
+      color: var(--green-main);
+      flex-shrink: 0;
+    }
+
+    .sm-item.open .sm-trigger .sm-arrow {
+      transform: rotate(180deg);
+    }
+
+    .sm-body {
+      display: none;
+      padding: 4px 0 16px 8px;
+    }
+
+    .sm-item.open .sm-body {
+      display: block;
+    }
+
+    .sm-body .sitemap-depth2 {
+      margin-bottom: 10px;
+    }
+
+    .sm-body .sitemap-depth2-label {
+      font-size: var(--text-md);
+    }
+
+    .sm-body .sitemap-depth3 a {
+      font-size: var(--text-md);
+    }
+
+    /* 단독 flat 항목 (숲해설 신청) */
+    .sm-flat {
+      border-bottom: 1px solid var(--gray-line);
+    }
+
+    .sm-flat a {
+      display: flex;
+      align-items: center;
+      padding: 14px 4px;
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--green-dark);
+      text-decoration: none;
+    }
+
+    .sm-flat a::after {
+      content: '›';
+      margin-left: auto;
+      color: var(--green-main);
+      font-size: 1.2em;
+    }
+
+    @media (max-width: 768px) {
+      .sitemap-grid {
+        display: none;
+      }
+
+      .sitemap-accordion {
+        display: block;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>사이트맵</h1>
+    </div>
+  </div>
+
+  <div class="sitemap-wrap">
+    <!-- PC 그리드 -->
+    <div class="sitemap-grid" id="sitemapGrid"></div>
+    <!-- 모바일 아코디언 -->
+    <div class="sitemap-accordion" id="sitemapAccordion"></div>
+  </div>
+
+  <div id="ftr"></div>
+
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/components/header.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('', './');
+    document.getElementById('ftr').innerHTML = Footer.render('');
+    Footer.initFamilyOutsideClick();
+
+    const root = './';
+
+    /* ── 공통: depth2 내용 HTML */
+    function depth2Html(n1) {
+      return n1.children.map(n2 => {
+        if (!n2.children) {
+          return `<div class="sitemap-depth2">
+          <a href="${root}${n2.href}" class="sitemap-flat-link"
+             style="font-weight:700;color:#444">${n2.label}</a>
+        </div>`;
+        }
+        const visibleChildren = n2.children.filter(n3 => !n3.hideLnb);
+        const items = visibleChildren.map(n3 =>
+          `<li><a href="${root}${n3.href}">${n3.label}</a></li>`
+        ).join('');
+        return `<div class="sitemap-depth2">
+        <div class="sitemap-depth2-label">${n2.label}</div>
+        <ul class="sitemap-depth3">${items}</ul>
+      </div>`;
+      }).join('');
+    }
+
+    /* ── PC 그리드 렌더 */
+    document.getElementById('sitemapGrid').innerHTML = NAV_DATA.map(n1 => {
+      if (!n1.children) {
+        return `<div class="sitemap-group">
+        <div class="sitemap-depth1">${n1.label}</div>
+        <a href="${root}${n1.href}" class="sitemap-flat-link">${n1.label}</a>
+      </div>`;
+      }
+      return `<div class="sitemap-group">
+      <div class="sitemap-depth1">${n1.label}</div>
+      ${depth2Html(n1)}
+    </div>`;
+    }).join('');
+
+    /* ── 모바일 아코디언 렌더 */
+    document.getElementById('sitemapAccordion').innerHTML = NAV_DATA.map((n1, i) => {
+      if (!n1.children) {
+        return `<div class="sm-flat">
+        <a href="${root}${n1.href}">${n1.label}</a>
+      </div>`;
+      }
+      return `<div class="sm-item" id="smItem${i}">
+      <button class="sm-trigger" onclick="toggleAccordion(${i})">
+        ${n1.label}
+        <span class="sm-arrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </span>
+      </button>
+      <div class="sm-body">${depth2Html(n1)}</div>
+    </div>`;
+    }).join('');
+
+    function toggleAccordion(i) {
+      const item = document.getElementById('smItem' + i);
+      if (item) item.classList.toggle('open');
+    }
+  </script>
+</body>
+
+</html>

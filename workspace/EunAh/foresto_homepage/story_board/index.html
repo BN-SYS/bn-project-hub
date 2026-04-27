@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Storyboard</title>
+  <link rel="stylesheet" href="css/sb.css">
+</head>
+<body class="mode-list">
+  <div id="app">
+
+    <nav id="sidebar">
+      <div class="sb-header">
+        <h1 id="sbTitle"></h1>
+        <p id="sbSubtitle"></p>
+      </div>
+      <div id="sbNav"></div>
+      <div class="sb-stats" id="sbStats"></div>
+      <div class="resize-handle" id="sidebar-resize"></div>
+    </nav>
+
+    <div id="main">
+      <header id="topbar">
+        <div id="tb-list">
+          <span class="tb-badge" id="sectionBadge">전체</span>
+          <span id="topbarTitle">전체 화면 목록</span>
+          <span id="topbarSub"></span>
+          <div class="tb-spacer"></div>
+          <div class="tb-actions">
+            <button class="btn-filter" id="btnPdf" onclick="exportAllPDF()" title="전체 PDF">PDF</button>
+            <div class="tb-search">
+              <input type="text" id="sbSearch" placeholder="페이지 검색..." oninput="filterSearch(this.value)">
+            </div>
+            <button class="btn-filter active" id="btnAll" onclick="setFilter('all')">전체</button>
+            <button class="btn-filter doc" id="btnDoc" onclick="setFilter('doc')">문서</button>
+            <button class="btn-filter" id="btnUser" onclick="setFilter('user')">사용자</button>
+            <button class="btn-filter admin" id="btnAdmin" onclick="setFilter('admin')">관리자</button>
+          </div>
+        </div>
+        <div id="tb-detail">
+          <button class="btn-back" onclick="backToList()">← 목록</button>
+          <span class="tb-badge" id="detailBadge">사용자</span>
+          <span id="detailNum"></span>
+          <span id="detailTitle"></span>
+          <div class="tb-spacer"></div>
+          <div class="tb-actions">
+            <button class="btn-view-toggle" id="btnViewToggle" onclick="toggleViewMode()" style="display:none">🖼 스크린샷</button>
+            <button class="btn-filter" id="btnAnnoDebug" onclick="toggleAnnoDebug()" title="좌표 확인 모드" style="font-size:12px">📍 좌표</button>
+            <button class="btn-nav" id="btnPrev" onclick="navigateDetail(-1)">◀ 이전</button>
+            <button class="btn-nav" id="btnNext" onclick="navigateDetail(1)">다음 ▶</button>
+          </div>
+        </div>
+      </header>
+
+      <div id="content-area">
+        <div id="list-view"></div>
+        <div id="detail-view">
+          <div id="detail-img-wrap">
+            <img id="detail-img" src="" alt="" onclick="openModal()">
+          </div>
+        </div>
+        <div id="desc-panel">
+          <div class="resize-handle" id="panel-resize"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="imgModal" onclick="closeModal(event)">
+      <div class="modal-inner">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-zoom-bar">
+          <button class="modal-zoom-btn" onclick="modalZoom(-1)" title="축소">－</button>
+          <span class="modal-zoom-level" id="modalZoomLevel">100%</span>
+          <button class="modal-zoom-btn" onclick="modalZoom(1)" title="확대">＋</button>
+          <button class="modal-zoom-btn modal-zoom-reset" id="modalBtnReset" onclick="modalReset()" title="원래 크기">⊙ 초기화</button>
+        </div>
+        <div class="modal-img-viewport">
+          <img id="modalImg" src="" alt="">
+        </div>
+        <div class="modal-info" id="modalInfo"></div>
+        <div class="modal-hint">스크롤·핀치: 줌 &nbsp;|&nbsp; 드래그: 이동 &nbsp;|&nbsp; ESC: 닫기</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="print-overlay"></div>
+
+  <script src="data/config.js"></script>
+  <script src="data/pages.js"></script>
+  <script>
+    (function () {
+      const loaded = new Set();
+      (window.PAGES || []).forEach(p => {
+        const fn = p.id.replace(/-/g, '');
+        if (loaded.has(fn)) return;
+        loaded.add(fn);
+        document.write('<script src="data/specs/' + fn + '.js"><\/script>');
+      });
+    })();
+  </script>
+  <script src="js/sb.js"></script>
+</body>
+</html>

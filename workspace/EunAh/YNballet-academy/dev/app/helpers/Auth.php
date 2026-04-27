@@ -57,6 +57,43 @@ class Auth {
         session_destroy();
     }
 
+    // ─── 사용자 세션 ──────────────────────────────────────
+
+    public static function loginUser(array $user): void {
+        self::startSession();
+        session_regenerate_id(true);
+        $_SESSION['user'] = [
+            'id'       => (int)$user['id'],
+            'username' => $user['username'],
+            'name'     => $user['name'],
+            'phone'    => $user['phone'],
+            'email'    => $user['email'],
+        ];
+    }
+
+    public static function logoutUser(): void {
+        self::startSession();
+        unset($_SESSION['user'], $_SESSION['email_verify']);
+    }
+
+    public static function getUser(): ?array {
+        self::startSession();
+        return $_SESSION['user'] ?? null;
+    }
+
+    public static function isLoggedIn(): bool {
+        self::startSession();
+        return !empty($_SESSION['user']);
+    }
+
+    public static function requireUser(): void {
+        self::startSession();
+        if (empty($_SESSION['user'])) {
+            header('Location: ' . BASE_PATH . '/login?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+            exit;
+        }
+    }
+
     // ─── CSRF ─────────────────────────────────────────────
 
     public static function csrfToken(): string {

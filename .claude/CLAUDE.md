@@ -73,8 +73,18 @@ api_spec.md — 개발자 바로 구현 가능 수준:
 ## 데이터 체인
 RFP원문 → 기능목록.json → 기획서 → 요구사항_정의서 → pages_draft.json
 → pages.json → 프로토타입HTML(개발자주석) → specs + specs.meta.json
+→ **단위테스트_시나리오.xlsx** (자동 생성)
 → api_spec(코드예시) → QA체크리스트 → 납품패키지 → 피드백이력
 + 커뮤니케이션이력 (background, 상시)
+
+## 테스트 시나리오 자동 생성
+- **스크립트**: `_shared/scripts/generate_test_scenario.js`
+- **실행**: `node "_shared/scripts/generate_test_scenario.js" <project_root>`
+- **트리거**: storyboard 전체 완료 직후 / 피드백으로 HTML 변경될 때마다
+- **출력**: `06_qa/단위테스트_시나리오.xlsx` (사용자·관리자 시트 분리)
+- **병합**: 기존 파일의 검수결과·검수자·검수일·비고·담당자 자동 보존
+- **생성 근거**: HTML 개발자 주석 (SCREEN·FORM·API-DATA·SECTION) 파싱
+- **의존**: Node.js + `_shared/scripts/node_modules/xlsx`
 
 ## 토큰 절감 규칙
 - overview 필드: 에이전트 간 이전 모듈 파일 전체 Read 대신 overview 참조

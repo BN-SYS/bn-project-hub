@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원아카데미 특강 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/layout-lnb.css">
+  <link rel="stylesheet" href="../assets/css/list-common.css">
+  <link rel="stylesheet" href="../assets/css/pages/education.css">
+  <link rel="stylesheet" href="../assets/css/pages/member.css">
+</head>
+
+<body data-page="competency">
+  <div id="hdr"></div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>회원아카데미</h1>
+    </div>
+  </div>
+
+  <div id="bc"></div>
+  <div class="sub-layout">
+    <div id="lnb"></div>
+    <main class="sub-content">
+      <div class="content-wrap">
+
+        <!-- 섹션 타이틀 + 짧은 개요 -->
+        <h2 class="list-section-title">회원아카데미 특강</h2>
+        <p style="font-size:var(--text-md);color:var(--gray-mid);line-height:1.8;margin-bottom:24px;">
+          정기 특강을 통해 숲해설가의 배움과 성장을 지원하고, 지속적인 교육으로 회원님들의 전문성과 가치를 높이고자 합니다.<br> 매월 첫째·마지막 수요일 오후 7시, 나눔특강과 심화특강으로 현장 경험과 전문성을
+          함께 키워갑니다.
+        </p>
+
+        <!-- 필터 박스 -->
+        <div class="list-filter-box">
+          <div class="list-filter-row">
+            <div class="list-filter-item">
+              <span class="list-filter-label">접수상태</span>
+              <select class="list-filter-select" id="filterStatus">
+                <option value="">선택해주세요</option>
+                <option value="open">접수중</option>
+                <option value="ready">준비중</option>
+                <option value="closed">접수마감</option>
+              </select>
+            </div>
+            <div class="list-filter-item">
+              <span class="list-filter-label">일자</span>
+              <div class="list-filter-date-inputs">
+                <input type="date" class="list-filter-input" id="dateFrom">
+                <span class="list-filter-sep">~</span>
+                <input type="date" class="list-filter-input" id="dateTo">
+              </div>
+            </div>
+            <button class="list-filter-btn" onclick="doSearch()">검색하기</button>
+          </div>
+        </div>
+
+        <!-- 목록 상단 -->
+        <div class="list-top" style="margin-top:20px;">
+          <span class="list-count">목록 <strong id="totalCount">0</strong>건</span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="board-table">
+            <thead>
+              <tr>
+                <th style="width:6%">NO.</th>
+                <th class="td-title">강좌명</th>
+                <th style="width:10%">일자</th>
+                <th style="width:20%">접수 기간</th>
+                <th style="width:10%">접수상태</th>
+              </tr>
+            </thead>
+            <tbody id="competencyBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="competencyPagination"></div>
+
+      </div>
+    </main>
+  </div>
+
+  <div id="ftr"></div>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/components/header.js"></script>
+  <script src="../assets/js/pages/education.js"></script>
+  <script>
+    document.getElementById('hdr').innerHTML = Header.render('회원활동', '../');
+    document.getElementById('ftr').innerHTML = Footer.render('../');
+    document.getElementById('bc').innerHTML = LNB.breadcrumb('../', 'member/competency.html');
+    document.getElementById('lnb').innerHTML = LNB.render('../', 'member/competency.html');
+
+    /* 역량강화 + 직무교육 통합 목록 */
+    const merged = ALL_COURSES_RAW
+      .filter(c => c.type === '역량강화' || c.type === '직무교육')
+      .sort((a, b) => b.date.localeCompare(a.date));
+
+    window._ctrl = new CourseListController('역량강화', 'competencyBody', 'competencyPagination', '', 'competency-detail.html');
+    window._ctrl.courses = merged;
+    window._ctrl.filtered = [...merged];
+    window._ctrl.render();
+
+    function doSearch() {
+      const status = document.getElementById('filterStatus').value;
+      const from = document.getElementById('dateFrom').value;
+      const to = document.getElementById('dateTo').value;
+      window._ctrl.courses = merged;
+      window._ctrl.filter(status, from, to);
+    }
+  </script>
+</body>
+
+</html>

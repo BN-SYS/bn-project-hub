@@ -41,6 +41,17 @@
         </li>
       </ul>
 
+      <!-- 회원 영역 -->
+      <div class="navbar-user-area">
+        <?php if (Auth::isLoggedIn()): ?>
+          <span class="navbar-user-greeting"><?= e(Auth::getUser()['name']) ?>님</span>
+          <a href="<?= BASE_PATH ?>/logout" class="navbar-user-btn">로그아웃</a>
+        <?php else: ?>
+          <a href="<?= BASE_PATH ?>/login"    class="navbar-user-btn">로그인</a>
+          <a href="<?= BASE_PATH ?>/register" class="navbar-user-btn navbar-user-btn--join">회원가입</a>
+        <?php endif; ?>
+      </div>
+
       <!-- 구분선 + 소셜/연락처 -->
       <div class="navbar-contact">
         <a href="https://blog.naver.com/ynballet2025" target="_blank" class="navbar-contact-btn" title="네이버 블로그">

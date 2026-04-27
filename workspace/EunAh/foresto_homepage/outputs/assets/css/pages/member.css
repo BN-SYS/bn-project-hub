@@ -1,0 +1,258 @@
+/* =============================================
+   member.css | 회원활동 페이지 전용 스타일
+   ============================================= */
+
+/* ── board-table 핀(고정) 행 */
+.board-table tr.pinned td       { background: #f0faf4; }
+.board-table tr.pinned:hover td { background: #e4f5eb; }
+
+/* ── 안내 배너 */
+.member-intro-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--white);
+  border: 1.5px solid var(--green-pale);
+  border-left: 5px solid var(--green-main);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 28px;
+}
+
+.member-intro-icon {
+  font-size: var(--text-2xl);           /* 32px → 가장 근접: --text-2xl(26px). 이모지 아이콘이므로 고정값 32px 유지도 무방 */
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.member-intro-text h3 {
+  font-size: var(--text-lg);            /* 16px */
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.member-intro-text p {
+  font-size: var(--text-md);            /* 14px */
+  color: var(--gray-dark);
+  line-height: 1.7;
+  text-align: left;
+}
+
+
+/* ── 멘토링 카드 그리드 */
+.mentoring-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.mentoring-card {
+  background: var(--white);
+  border: 1px solid var(--gray-light);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  cursor: pointer;
+  transition: var(--trans);
+}
+
+.mentoring-card:hover {
+  border-color: var(--green-main);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.mentoring-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.mentoring-card-title {
+  font-size: var(--text-base);          /* 15px */
+  font-weight: 700;
+  color: var(--green-dark);
+}
+
+.mentoring-card-meta {
+  font-size: var(--text-sm);            /* 12px */
+  color: var(--gray-mid);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+
+/* ── 수시숲해설 모집 */
+.recruit-card {
+  background: var(--white);
+  border: 1px solid var(--gray-light);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: var(--trans);
+}
+
+.recruit-card:hover {
+  border-color: var(--green-main);
+  background: var(--green-pale);
+}
+
+.recruit-card-title {
+  flex: 1;
+  font-size: var(--text-base);          /* 15px */
+  font-weight: 600;
+  color: var(--gray-dark);
+}
+
+.recruit-card-meta {
+  font-size: var(--text-sm);            /* 12px */
+  color: var(--gray-mid);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+
+/* ── 사공단 / 동아리 소식 카드 */
+.news-card {
+  background: var(--white);
+  border: 1px solid var(--gray-light);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 10px;
+  transition: var(--trans);
+  cursor: pointer;
+}
+
+.news-card:hover {
+  border-color: var(--green-main);
+  box-shadow: var(--shadow);
+}
+
+.news-card-title {
+  font-size: var(--text-base);          /* 15px */
+  font-weight: 600;
+  color: var(--gray-dark);
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.news-card-meta {
+  font-size: var(--text-sm);            /* 12px */
+  color: var(--gray-mid);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+
+/* ── 강사 신청 폼 */
+.instructor-form-wrap {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 32px;
+  max-width: 640px;
+}
+
+.instructor-form-wrap .form-section-title {
+  font-size: var(--text-base);          /* 15px */
+  font-weight: 700;
+  color: var(--green-dark);
+  margin: 24px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--green-pale);
+  text-align: left;
+}
+
+.instructor-form-wrap .form-section-title:first-child {
+  margin-top: 0;
+}
+
+
+/* ── Q&A 아코디언 */
+.qna-item {
+  border: 1px solid var(--gray-light);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.qna-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  background: var(--white);
+  font-size: var(--text-md);            /* 14px */
+  font-weight: 600;
+  color: var(--gray-dark);
+  transition: var(--trans);
+  text-align: left;
+}
+
+.qna-question:hover {
+  background: var(--gray-bg);
+  color: var(--green-dark);
+}
+
+.qna-question .qna-q-mark {
+  color: var(--green-main);
+  font-weight: 700;
+  margin-right: 10px;
+  font-size: var(--text-lg);            /* 16px */
+  flex-shrink: 0;
+}
+
+.qna-answer {
+  display: none;
+  padding: 16px 20px 16px 44px;
+  background: var(--gray-bg);
+  font-size: var(--text-md);            /* 14px */
+  color: var(--gray-dark);
+  line-height: 1.8;
+  border-top: 1px solid var(--gray-light);
+}
+
+.qna-item.open .qna-answer {
+  display: block;
+}
+
+.qna-item.open .qna-question {
+  color: var(--green-dark);
+  background: var(--green-pale);
+}
+
+
+/* ── 반응형 */
+@media (max-width: 768px) {
+  .member-intro-banner {
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .mentoring-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recruit-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .instructor-form-wrap {
+    padding: 20px 16px;
+  }
+}

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 | 한국숲해설가협회</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="stylesheet" href="../assets/css/pages/auth.css">
+</head>
+
+<body class="auth-page">
+    <div id="hdr"></div>
+
+    <div class="auth-bg">
+
+        <!-- 로그인 카드 -->
+        <div class="auth-card">
+            <div class="auth-card-title">로그인</div>
+            <div class="auth-card-desc">
+                협회 홈페이지 회원 서비스를 이용하시려면 로그인해 주세요.
+            </div>
+
+            <!-- 오류 알림 -->
+            <div class="auth-alert auth-alert-error" id="loginAlert">
+                <span id="loginAlertMsg"></span>
+            </div>
+
+            <form id="loginForm" onsubmit="LoginCtrl.submit(event)">
+
+                <!-- 아이디 -->
+                <div class="auth-form-group">
+                    <label class="auth-label" for="loginId">아이디</label>
+                    <div class="auth-input-wrap">
+                        <input type="text" class="auth-input" id="loginId" placeholder="아이디 입력"
+                            autocomplete="username" required>
+                    </div>
+                    <div class="auth-error-msg" id="loginIdErr">
+                        아이디를 입력해 주세요.
+                    </div>
+                </div>
+
+                <!-- 비밀번호 -->
+                <div class="auth-form-group">
+                    <label class="auth-label" for="loginPw">비밀번호</label>
+                    <div class="auth-input-wrap">
+                        <input type="password" class="auth-input" id="loginPw" placeholder="비밀번호 입력"
+                            autocomplete="current-password" required>
+                        <span class="auth-input-icon" id="loginPwToggle"
+                            onclick="LoginCtrl.togglePw('loginPw','loginPwToggle')" title="비밀번호 표시/숨기기">👁</span>
+                    </div>
+                    <div class="auth-error-msg" id="loginPwErr">
+                        비밀번호를 입력해 주세요.
+                    </div>
+                </div>
+
+                <!-- 옵션 -->
+                <div class="auth-options">
+                    <label class="auth-checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        아이디 저장
+                    </label>
+                    <a href="find.html" class="auth-link">아이디 · 비밀번호 찾기</a>
+                </div>
+
+                <button type="submit" class="auth-btn auth-btn-primary">
+                    로그인
+                </button>
+            </form>
+
+            <div class="auth-divider">또는</div>
+
+            <a href="register.html" class="auth-btn auth-btn-outline" style="text-decoration:none">
+                회원가입
+            </a>
+
+            <div class="auth-footer-links">
+                <span>처음 방문하셨나요?</span>
+                <a href="register.html">회원가입 →</a>
+                <span class="sep">|</span>
+                <a href="../index.html">메인으로</a>
+            </div>
+        </div>
+
+        <!-- 안내 배너 -->
+        <!-- <div class="auth-notice">
+            <div>
+                회원가입 시 <strong>휴대폰 본인인증</strong>이 필요합니다.
+            </div>
+        </div> -->
+
+    </div>
+
+    <div id="ftr"></div>
+
+    <script src="../assets/js/app.js"></script>
+    <script src="../assets/js/components/header.js"></script>
+    <script>
+        document.getElementById('hdr').innerHTML = Header.render('', '../');
+        document.getElementById('ftr').innerHTML = Footer.render('../');
+
+        const LoginCtrl = {
+
+            togglePw(inputId, iconId) {
+                const input = document.getElementById(inputId);
+                const icon = document.getElementById(iconId);
+                if (!input) return;
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    if (icon) icon.textContent = '🙈';
+                } else {
+                    input.type = 'password';
+                    if (icon) icon.textContent = '👁';
+                }
+            },
+
+            showAlert(msg, type = 'error') {
+                const el = document.getElementById('loginAlert');
+                const msgEl = document.getElementById('loginAlertMsg');
+                if (!el) return;
+                el.className = `auth-alert auth-alert-${type} show`;
+                if (msgEl) msgEl.textContent = msg;
+            },
+
+            hideAlert() {
+                const el = document.getElementById('loginAlert');
+                if (el) el.classList.remove('show');
+            },
+
+            setError(inputId, errId, show) {
+                const input = document.getElementById(inputId);
+                const err = document.getElementById(errId);
+                if (input) input.classList.toggle('error', show);
+                if (err) err.classList.toggle('show', show);
+            },
+
+            setLoading(isLoading) {
+                const btn = document.getElementById('loginSubmitBtn');
+                if (!btn) return;
+                btn.disabled = isLoading;
+                btn.textContent = isLoading ? '로그인 중...' : '🌲 로그인';
+            },
+
+            submit(e) {
+                e.preventDefault();
+                this.hideAlert();
+
+                const id = document.getElementById('loginId')?.value.trim() || '';
+                const pw = document.getElementById('loginPw')?.value || '';
+
+                let hasError = false;
+
+                const idValid = id.length > 0;
+                this.setError('loginId', 'loginIdErr', !idValid);
+                if (!idValid) hasError = true;
+
+                this.setError('loginPw', 'loginPwErr', !pw);
+                if (!pw) hasError = true;
+
+                if (hasError) return;
+
+                if (document.getElementById('rememberMe')?.checked) {
+                    localStorage.setItem('savedLoginId', id);
+                } else {
+                    localStorage.removeItem('savedLoginId');
+                }
+
+                this.setLoading(true);
+
+                // ── 실제 구현 시 서버 API 호출로 교체
+                // POST /api/auth/login → { status: 'ok'|'error', ... }
+                setTimeout(() => {
+
+                    // 정상 회원
+                    if (id === 'test' && pw === '1234') {
+                        App.login({ name: '김숲해설', role: 'fullMember', grade: '정회원' });
+                        location.href = '../index.html';
+
+                    // 관리자
+                    } else if (id === 'admin' && pw === '1234') {
+                        App.login({ name: '관리자', role: 'admin', grade: '관리자' });
+                        location.href = '../admin/members.html';
+
+                    } else {
+                        this.showAlert('아이디 또는 비밀번호가 일치하지 않습니다.');
+                        this.setLoading(false);
+                    }
+                }, 800);
+            },
+
+            restoreSavedId() {
+                const saved = localStorage.getItem('savedLoginId');
+                if (!saved) return;
+                const input = document.getElementById('loginId');
+                const check = document.getElementById('rememberMe');
+                if (input) input.value = saved;
+                if (check) check.checked = true;
+            },
+        };
+
+        LoginCtrl.restoreSavedId();
+
+        document.getElementById('loginPw')?.addEventListener('keydown', e => {
+            if (e.key === 'Enter') LoginCtrl.submit(e);
+        });
+    </script>
+
+</body>
+
+</html>

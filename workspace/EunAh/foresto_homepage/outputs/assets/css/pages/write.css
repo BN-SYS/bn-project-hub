@@ -1,0 +1,246 @@
+/* ══════════════════════════════════════════════
+   write.css — 게시글 등록 공통 스타일
+   ══════════════════════════════════════════════ */
+
+.write-wrap {
+  width: 100%;
+  border-top: 1px solid var(--gray-line);
+  margin-bottom: 32px;
+}
+
+/* ══ 가로 행 (팀·동아리 선택, 제목) ══ */
+.write-row {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--gray-line);
+}
+
+.write-label {
+  flex-shrink: 0;
+  width: 110px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--gray-dark);
+  background: #f8f8f8;
+  border-right: 1px solid var(--gray-line);
+}
+
+.write-req      { color: var(--green-dark); margin-left: 2px; }
+
+.write-input-cell {
+  flex: 1;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* ── 드롭다운 */
+.write-select {
+  width: 100%;
+  max-width: 280px;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--gray-light);
+  border-radius: 5px;
+  font-size: var(--text-sm);
+  font-family: inherit;
+  color: var(--gray-dark);
+  background: var(--white);
+}
+.write-select:focus { outline: none; border-color: var(--green-dark); }
+
+/* ── 제목 입력 */
+.write-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--gray-light);
+  border-radius: 5px;
+  font-size: var(--text-sm);
+  font-family: inherit;
+  color: var(--gray-dark);
+  box-sizing: border-box;
+}
+.write-input:focus { outline: none; border-color: var(--green-dark); }
+
+/* ══ 세로 섹션 (내용, 파일 첨부) ══ */
+.write-section {
+  border-bottom: 1px solid var(--gray-line);
+}
+
+.write-section-label {
+  padding: 11px 16px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--gray-dark);
+  background: #f8f8f8;
+  border-bottom: 1px solid var(--gray-line);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.write-optional {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--gray-mid);
+}
+
+.write-section-body {
+  padding: 14px 16px;
+}
+
+/* ══ SmartEditor2 시뮬레이션 ══ */
+.se2-wrap {
+  width: 100%;
+  border: 1px solid var(--gray-light);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.se2-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 8px;
+  background: #f5f5f5;
+  border-bottom: 1px solid var(--gray-light);
+  flex-wrap: wrap;
+}
+
+.se2-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: none;
+  cursor: pointer;
+  font-size: var(--text-12);
+  color: var(--gray-dark);
+  flex-shrink: 0;
+}
+.se2-btn:hover       { background: #e2e2e2; border-color: #ccc; }
+.se2-btn-bold        { font-weight: 700; }
+.se2-btn-italic      { font-style: italic; }
+.se2-btn-underline   { text-decoration: underline; }
+
+.se2-sep {
+  display: inline-block;
+  width: 1px;
+  height: 16px;
+  background: #d0d0d0;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.se2-select {
+  height: 24px;
+  padding: 0 4px;
+  border: 1px solid #d0d0d0;
+  border-radius: 3px;
+  font-size: var(--text-12);
+  font-family: inherit;
+  background: var(--white);
+}
+
+.se2-body {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  padding: 14px;
+  border: none;
+  resize: vertical;
+  font-size: var(--text-sm);
+  font-family: inherit;
+  line-height: 1.8;
+  color: var(--gray-dark);
+  box-sizing: border-box;
+}
+.se2-body:focus { outline: none; }
+
+.se2-footer {
+  padding: 5px 12px;
+  background: #f9f9f9;
+  border-top: 1px solid var(--gray-light);
+  font-size: var(--text-xs);
+  color: var(--gray-mid);
+}
+
+/* ══ 파일 첨부 ══ */
+.write-file-area {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.write-file-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #fafafa;
+  border: 1px solid var(--gray-light);
+  border-radius: 5px;
+}
+
+/* 브라우저 기본 file input 숨김 — label for 방식으로 트리거 */
+.write-file-input { display: none; }
+.write-file-label {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  height: 30px;
+  border: 1px solid var(--gray-light);
+  border-radius: 5px;
+  font-size: var(--text-sm);
+  font-family: inherit;
+  color: var(--gray-dark);
+  background: var(--white);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+.write-file-label:hover { border-color: var(--green-dark); color: var(--green-dark); }
+
+.write-file-name {
+  flex: 1;
+  font-size: var(--text-sm);
+  color: var(--gray-mid);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.write-file-name.has-file { color: var(--gray-dark); }
+
+.write-file-clear,
+.write-file-remove {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  font-size: var(--text-12);
+  border: 1px solid var(--gray-light);
+  border-radius: 4px;
+  background: var(--white);
+  color: var(--gray-mid);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.write-file-clear:hover,
+.write-file-remove:hover { border-color: var(--red); color: var(--red); }
+
+/* ══ 하단 버튼 ══ */
+.write-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+}

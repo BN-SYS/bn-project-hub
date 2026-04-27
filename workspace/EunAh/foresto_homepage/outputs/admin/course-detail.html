@@ -1,0 +1,343 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="">
+  <title>강좌 상세 | 관리자 | 한국숲해설가협회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+  <link rel="stylesheet" href="../assets/css/pages/admin.css">
+  <style>
+    .form-card { background:#fff; border:1px solid #e3eadd; border-radius:10px; margin-bottom:20px; overflow:hidden; }
+    .form-card-head { padding:14px 20px; border-bottom:1px solid #e3eadd; background:#f8faf6; font-size:13px; font-weight:700; color:#2e5c2e; letter-spacing:.03em; }
+    .form-row { display:flex; align-items:stretch; min-height:52px; border-bottom:1px solid #f0f4ee; }
+    .form-row:last-child { border-bottom:none; }
+    .form-label { width:140px; min-width:140px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#7a8e74; letter-spacing:.04em; white-space:nowrap; background:#f8faf6; border-right:1px solid #e8efe3; padding:0 12px; text-align:center; }
+    .form-content { flex:1; display:flex; align-items:center; padding:12px 16px; gap:10px; flex-wrap:wrap; }
+    .form-half { flex:1; display:flex; align-items:center; padding:12px 16px; gap:8px; }
+    .form-half + .form-half { border-left:1px solid #f0f4ee; }
+    .detail-val { font-size:14px; color:#111; line-height:1.6; }
+    .detail-val.mono { font-variant-numeric:tabular-nums; }
+    .detail-val.muted { color:#7a8e74; font-size:13px; }
+    .date-sep { font-size:13px; color:#aaa; }
+    .badge-on { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:99px; font-size:12px; font-weight:600; background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9; }
+    .badge-off { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:99px; font-size:12px; font-weight:600; background:#f5f5f5; color:#9e9e9e; border:1px solid #e0e0e0; }
+    .applicant-wrap { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+    .applicant-count { font-size:22px; font-weight:700; color:#2e5c2e; line-height:1; }
+    .applicant-divider { font-size:16px; color:#ccc; }
+    .capacity-info { font-size:13px; color:#7a8e74; }
+    .capacity-info strong { color:#2c3e2c; font-weight:600; }
+    .progress-wrap { display:flex; align-items:center; gap:8px; }
+    .progress-bar-bg { width:120px; height:8px; background:#e8efe3; border-radius:99px; overflow:hidden; }
+    .progress-bar-fill { height:100%; background:#4a7c59; border-radius:99px; }
+    .progress-bar-fill.full { background:#e74c3c; }
+    .progress-pct { font-size:12px; color:#7a8e74; min-width:32px; }
+    .btn-excel { display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 14px; border:1px solid #217346; border-radius:6px; background:#fff; color:#217346; font-size:13px; font-weight:600; cursor:pointer; font-family:'Noto Sans KR',sans-serif; transition:background .15s; white-space:nowrap; }
+    .btn-excel:hover { background:#f0faf4; }
+    .btn-excel-icon { width:16px; height:16px; background:#217346; border-radius:2px; color:#fff; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+    .content-view { min-height:200px; padding:18px 20px; font-size:14px; color:#2c3e2c; line-height:1.8; white-space:pre-wrap; word-break:break-word; }
+    .file-list { display:flex; flex-direction:column; gap:8px; width:100%; padding:16px; }
+    .file-item { display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid #e3eadd; border-radius:8px; background:#fafcf9; }
+    .file-item-icon { width:32px; height:32px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0; }
+    .file-item-icon.pdf { background:#fde8e8; color:#c0392b; }
+    .file-item-icon.hwp { background:#e8f4fd; color:#2980b9; }
+    .file-item-name { flex:1; font-size:13px; color:#2c3e2c; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .file-item-size { font-size:12px; color:#aaa; white-space:nowrap; }
+    .btn-download { height:30px; padding:0 12px; border:1px solid #d0dbc8; border-radius:6px; background:#fff; color:#4a7c59; font-size:12px; font-weight:600; cursor:pointer; font-family:'Noto Sans KR',sans-serif; white-space:nowrap; }
+    .btn-download:hover { background:#f0f8f0; border-color:#4a7c59; }
+    .detail-bottom-bar { display:flex; align-items:center; justify-content:space-between; padding:4px 0 8px; }
+    .btn-group-right { display:flex; gap:8px; }
+  </style>
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-head">
+      <span class="adm-sb-title">MENU</span>
+      <button class="sidebar-toggle" onclick="AdminLayout.toggleSidebar()" aria-label="사이드바 토글">☰</button>
+    </div>
+    <nav class="admin-nav" id="adminNavMount" aria-label="관리자 메뉴"></nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-page-title" id="pageTitle">강좌 상세</h1>
+      <div class="admin-topbar-actions">
+        <button class="btn-refresh" onclick="CourseDetail.load()" title="새로고침">
+          <img src="../assets/icons/refresh.png" alt="새로고침">
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- 기본 정보 -->
+      <div class="form-card">
+        <div class="form-card-head">기본 정보</div>
+        <div class="form-row">
+          <div class="form-label">과정명</div>
+          <div class="form-content" style="border-right:1px solid #f0f4ee;flex:2">
+            <span class="detail-val" id="dCourseName">—</span>
+          </div>
+          <div class="form-label" id="dCohortLabel">기수</div>
+          <div class="form-content" style="flex:1" id="dCohortWrap">
+            <span class="detail-val mono" id="dCohort">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">과정상태</div>
+          <div class="form-content"><span id="dStatus">—</span></div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">교육기간</div>
+          <div class="form-content">
+            <span class="detail-val mono" id="dEduStart">—</span>
+            <span class="date-sep">~</span>
+            <span class="detail-val mono" id="dEduEnd">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">접수기간</div>
+          <div class="form-content">
+            <span class="detail-val mono" id="dApplyStart">—</span>
+            <span class="date-sep">~</span>
+            <span class="detail-val mono" id="dApplyEnd">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">총 강좌수</div>
+          <div class="form-half">
+            <span class="detail-val" id="dLessonCount">—</span>
+          </div>
+          <div class="form-label">총 교육시간</div>
+          <div class="form-half">
+            <span class="detail-val" id="dEduHours">—</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">신청파일첨부</div>
+          <div class="form-half" id="dFileRequired">—</div>
+          <div class="form-label" id="dCertIssueLabel">수료증 발급</div>
+          <div class="form-half" id="dCertIssue">—</div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">신청자 현황</div>
+          <div class="form-content">
+            <div class="applicant-wrap">
+              <span class="applicant-count" id="dEnrolled">0</span>
+              <span class="detail-val muted">명 신청</span>
+              <span class="applicant-divider">/</span>
+              <span class="capacity-info">정원 <strong id="dCapacity">0</strong>명</span>
+              <div class="progress-wrap">
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" id="dProgressBar" style="width:0%"></div>
+                </div>
+                <span class="progress-pct" id="dProgressPct">0%</span>
+              </div>
+              <button class="btn-excel" onclick="CourseDetail.downloadApplicants()">
+                <span class="btn-excel-icon">XL</span>
+                신청자 목록 다운로드
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">등록일</div>
+          <div class="form-content">
+            <span class="detail-val mono" id="dRegDate">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 과정 상세내용 -->
+      <div class="form-card">
+        <div class="form-card-head">과정 상세내용</div>
+        <div class="content-view" id="dContent">—</div>
+      </div>
+
+      <!-- 첨부파일 -->
+      <div class="form-card">
+        <div class="form-card-head">첨부파일</div>
+        <div class="file-list" id="dFileList"></div>
+      </div>
+
+      <!-- 하단 버튼 -->
+      <div class="detail-bottom-bar">
+        <button class="btn btn-danger" onclick="CourseDetail.deleteCourse()">삭제</button>
+        <div class="btn-group-right">
+          <button class="btn btn-gray" onclick="CourseDetail.goList()">목록</button>
+          <button class="btn btn-primary" onclick="CourseDetail.goEdit()">수정</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/pages/admin.js"></script>
+<script>
+'use strict';
+
+const _p      = new URLSearchParams(location.search);
+const _id     = _p.get('id');
+const _type   = _p.get('type') || 'basic';
+const _tab    = _p.get('tab');
+
+const NAV_KEY_MAP = {
+  basic: 'course-basic', qualify: 'course-qualify',
+  enhance: 'course-enhance', academy: 'course-academy',
+  instructor: 'instructor-schedule',
+};
+
+/* ──────────────────────────────────────────
+   샘플 데이터
+   [개발자] AdminHttp.get(ADMIN_API.url('courses', _id)) 응답으로 교체
+────────────────────────────────────────── */
+const SAMPLE_DETAIL = {
+  id: 1001,
+  courseName: '제55기 숲해설가 전문가과정',
+  cohort: '55기',
+  statusLabel: '접수중', statusBadge: 'badge-green',
+  eduStart: '2026-04-01', eduEnd: '2026-04-30',
+  applyStart: '2026-03-01 09:00', applyEnd: '2026-03-25 18:00',
+  lessonCount: '총 16강',
+  eduHours: '40시간 30분 (이론 20h + 실습 20h)',
+  fileRequired: true,
+  certIssue: true,
+  enrolled: 17, capacity: 30,
+  regDate: '2026-02-14',
+  content: `본 과정은 숲해설가 자격 취득을 위한 기초 이론 과정입니다.\n\n■ 교육 목표\n- 숲의 생태 기초 이론을 체계적으로 습득합니다.\n- 숲해설 기법과 프로그램 개발 역량을 기릅니다.`,
+  files: [
+    { name: '기초과정_커리큘럼_2026.pdf', ext: 'pdf', size: '1.2MB' },
+    { name: '강사소개서_제55기.hwp',       ext: 'hwp', size: '340KB' },
+  ],
+};
+
+const CourseDetail = {
+  data: null,
+
+  async load() {
+    try {
+      /*
+       * [개발자 연동]
+       * this.data = await AdminHttp.get(ADMIN_API.url('courses', _id));
+       */
+      this.data = SAMPLE_DETAIL;
+      this.render(this.data);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  render(d) {
+    document.getElementById('dCourseName').textContent  = d.courseName;
+    document.getElementById('dCohort').textContent      = d.cohort || '—';
+    document.getElementById('dStatus').innerHTML        = `<span class="badge ${d.statusBadge}">${d.statusLabel}</span>`;
+    document.getElementById('dEduStart').textContent    = d.eduStart;
+    document.getElementById('dEduEnd').textContent      = d.eduEnd;
+    document.getElementById('dApplyStart').textContent  = d.applyStart;
+    document.getElementById('dApplyEnd').textContent    = d.applyEnd;
+    document.getElementById('dLessonCount').textContent = d.lessonCount || '—';
+    document.getElementById('dEduHours').textContent    = d.eduHours    || '—';
+    document.getElementById('dFileRequired').innerHTML  = d.fileRequired
+      ? '<span class="badge-on">✓ 사용</span>' : '<span class="badge-off">미사용</span>';
+    document.getElementById('dCertIssue').innerHTML     = d.certIssue
+      ? '<span class="badge-on">✓ 발급</span>' : '<span class="badge-off">미발급</span>';
+    document.getElementById('dEnrolled').textContent    = d.enrolled;
+    document.getElementById('dCapacity').textContent    = d.capacity;
+    document.getElementById('dRegDate').textContent     = d.regDate;
+    document.getElementById('dContent').textContent     = d.content;
+
+    const pct = d.capacity ? Math.round(d.enrolled / d.capacity * 100) : 0;
+    const bar = document.getElementById('dProgressBar');
+    bar.style.width = `${pct}%`;
+    if (pct >= 100) bar.classList.add('full');
+    document.getElementById('dProgressPct').textContent = `${pct}%`;
+
+    /* 첨부파일 */
+    const fileList = document.getElementById('dFileList');
+    fileList.innerHTML = d.files?.length
+      ? d.files.map(f => `
+          <div class="file-item">
+            <div class="file-item-icon ${f.ext}">${f.ext.toUpperCase()}</div>
+            <span class="file-item-name">${f.name}</span>
+            <span class="file-item-size">${f.size}</span>
+            <button class="btn-download" onclick="CourseDetail.downloadFile('${f.name}')">
+              다운로드
+            </button>
+          </div>`).join('')
+      : '<span class="detail-val muted" style="padding:16px">첨부파일 없음</span>';
+  },
+
+  _backUrl() {
+    const q = new URLSearchParams();
+    if (_type !== 'basic') q.set('type', _type);
+    if (_tab) q.set('tab', _tab);
+    const qs = q.toString();
+    return `courses.html${qs ? '?' + qs : ''}`;
+  },
+
+  goList() { location.href = this._backUrl(); },
+
+  goEdit() {
+    const q = new URLSearchParams();
+    if (_type !== 'basic') q.set('type', _type);
+    if (_tab) q.set('tab', _tab);
+    if (_id)  q.set('id', _id);
+    location.href = `course-edit.html?${q.toString()}`;
+  },
+
+  async deleteCourse() {
+    if (!confirm('이 강좌를 삭제하시겠습니까?\n삭제 후에는 복구가 불가합니다.')) return;
+    try {
+      /*
+       * [개발자 연동]
+       * await AdminHttp.del(ADMIN_API.url('courses', _id));
+       */
+      App.toast('강좌가 삭제되었습니다.', 'success');
+      setTimeout(() => { location.href = this._backUrl(); }, 900);
+    } catch (e) {
+      App.toast(e.message, 'error');
+    }
+  },
+
+  downloadApplicants() {
+    /*
+     * [개발자 연동]
+     * AdminHttp.downloadExcel(ADMIN_API.courseExcel, { courseId: _id });
+     */
+    alert('신청자 목록 엑셀 다운로드 — 실제 구현 시 서버 API와 연동됩니다.');
+  },
+
+  downloadFile(name) {
+    /*
+     * [개발자 연동]
+     * window.location.href = ADMIN_API.url('courses', _id) + '/files/' + encodeURIComponent(name);
+     */
+    alert(`${name} 다운로드 — 실제 구현 시 서버 파일 경로와 연동됩니다.`);
+  },
+};
+
+/* instructor 타입 분기 */
+if (_type === 'instructor') {
+  document.getElementById('pageTitle').textContent = '강사과정 상세';
+  document.title = '강사과정 상세 | 관리자 | 한국숲해설가협회';
+  /* 기수 칸 숨김 */
+  const cohortLabel = document.getElementById('dCohortLabel');
+  const cohortWrap  = document.getElementById('dCohortWrap');
+  if (cohortLabel) cohortLabel.style.display = 'none';
+  if (cohortWrap)  cohortWrap.style.display  = 'none';
+  /* 수료증 → 활동확인서 */
+  const certLabel = document.getElementById('dCertIssueLabel');
+  if (certLabel) certLabel.textContent = '활동확인서 발급';
+}
+
+AdminSidebar.mount(NAV_KEY_MAP[_type] || 'course-basic');
+CourseDetail.load();
+</script>
+</body>
+</html>
