@@ -28,7 +28,7 @@
           <th>제목</th>
           <th class="text-center" style="width:100px;">상태</th>
           <th class="text-center" style="width:120px;">작성일</th>
-          <th style="width:80px;"></th>
+          <th style="width:80px;">관리</th>
         </tr>
       </thead>
       <tbody>

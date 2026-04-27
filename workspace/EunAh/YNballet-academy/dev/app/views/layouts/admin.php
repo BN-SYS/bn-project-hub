@@ -9,18 +9,20 @@
 <?php if (!empty($extraCss)) echo $extraCss; ?>
 </head>
 <body>
+
+<!-- 모바일 사이드바 오버레이 -->
+<div class="admin-overlay" id="adminOverlay"></div>
+
 <div class="admin-wrap">
 
   <!-- 사이드바 -->
-  <nav class="admin-sidebar">
-    <a class="admin-sidebar-logo" href="<?= BASE_PATH ?>/admin/notice">
-      YN 관리자
-    </a>
+  <nav class="admin-sidebar" id="adminSidebar">
+    <a class="admin-sidebar-logo" href="<?= BASE_PATH ?>/admin/notice">YN 관리자</a>
 
     <div class="admin-nav-group">
       <span class="admin-nav-label">사이트</span>
-      <a class="nav-link<?= ($adminActive ?? '') === 'banner'  ? ' active' : '' ?>" href="<?= BASE_PATH ?>/admin/banner">배너 관리</a>
-      <a class="nav-link<?= ($adminActive ?? '') === 'popup'   ? ' active' : '' ?>" href="<?= BASE_PATH ?>/admin/popup">팝업 관리</a>
+      <a class="nav-link<?= ($adminActive ?? '') === 'banner' ? ' active' : '' ?>" href="<?= BASE_PATH ?>/admin/banner">배너 관리</a>
+      <a class="nav-link<?= ($adminActive ?? '') === 'popup'  ? ' active' : '' ?>" href="<?= BASE_PATH ?>/admin/popup">팝업 관리</a>
     </div>
 
     <div class="admin-nav-group">
@@ -56,8 +58,15 @@
 
     <!-- 상단 바 -->
     <header class="admin-topbar">
+      <button class="admin-menu-toggle" id="adminMenuToggle" aria-label="메뉴 열기">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
       <span class="admin-topbar-title"><?= e($pageTitle ?? '') ?></span>
-      <span style="font-size:.78rem;color:var(--admin-text-muted);"><?= e(SITE_NAME) ?> 관리</span>
+      <span class="admin-topbar-sub"><?= e(SITE_NAME) ?> 관리</span>
     </header>
 
     <!-- 콘텐츠 -->

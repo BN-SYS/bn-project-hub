@@ -22,7 +22,7 @@
           <th style="width:100px;">미리보기</th>
           <th>제목 / 부제목</th>
           <th class="text-center" style="width:100px;">상태</th>
-          <th style="width:80px;"></th>
+          <th style="width:80px;">관리</th>
         </tr>
       </thead>
       <tbody>
@@ -39,12 +39,14 @@
             <?php endif; ?>
           </td>
           <td>
-            <a href="<?= BASE_PATH ?>/admin/banner/<?= (int)$b['id'] ?>/edit" class="text-dark text-decoration-none fw-medium">
-              <?= $b['title'] ? e($b['title']) : '<span class="text-muted">(제목 없음)</span>' ?>
-            </a>
-            <?php if ($b['subtitle']): ?>
-            <p class="text-muted small mb-0 mt-1"><?= e(mb_strimwidth($b['subtitle'], 0, 40, '…')) ?></p>
-            <?php endif; ?>
+            <div>
+              <a href="<?= BASE_PATH ?>/admin/banner/<?= (int)$b['id'] ?>/edit" class="text-dark text-decoration-none fw-medium">
+                <?= $b['title'] ? e($b['title']) : '<span class="text-muted">(제목 없음)</span>' ?>
+              </a>
+              <?php if ($b['subtitle']): ?>
+              <p class="text-muted small mb-0 mt-1"><?= e(mb_strimwidth($b['subtitle'], 0, 40, '…')) ?></p>
+              <?php endif; ?>
+            </div>
           </td>
           <td class="text-center">
             <button class="btn btn-sm toggle-btn <?= $b['is_active'] ? 'btn-success' : 'btn-outline-secondary' ?>"

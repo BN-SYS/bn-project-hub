@@ -1,13 +1,23 @@
 <!-- SCREEN: 회원 관리 | PATH: /admin/member -->
 <?php
-$qs = ($search ? '&search=' . urlencode($search) : '') . ($classId !== null ? '&class_id=' . $classId : '');
+$statusParam = $isActive !== null ? '&status=' . $isActive : '';
+$qs = ($search ? '&search=' . urlencode($search) : '')
+    . ($classId !== null ? '&class_id=' . $classId : '')
+    . $statusParam;
 $baseUrl = BASE_PATH . '/admin/member?per_page=' . $perPage . $qs;
+$exportUrl = BASE_PATH . '/admin/member/export?'
+    . ($search   ? 'search='   . urlencode($search)  . '&' : '')
+    . ($classId !== null ? 'class_id=' . $classId . '&' : '')
+    . ($isActive !== null ? 'status='  . $isActive  . '&' : '');
 ?>
 
 <div class="p-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h4 fw-bold mb-0">회원 관리</h1>
-    <a href="<?= BASE_PATH ?>/admin/member/write" class="btn btn-dark btn-sm">+ 회원 등록</a>
+    <div class="d-flex gap-2">
+      <a href="<?= rtrim($exportUrl, '&?') ?>" class="btn btn-outline-secondary btn-sm">↓ 엑셀 저장</a>
+      <a href="<?= BASE_PATH ?>/admin/member/write" class="btn btn-dark btn-sm">+ 회원 등록</a>
+    </div>
   </div>
 
   <!-- 검색/필터 -->
@@ -15,7 +25,7 @@ $baseUrl = BASE_PATH . '/admin/member?per_page=' . $perPage . $qs;
     <input type="hidden" name="per_page" value="<?= $perPage ?>">
     <div class="col-auto">
       <input type="text" name="search" class="form-control form-control-sm"
-        placeholder="이름 또는 연락처" value="<?= e($search) ?>" style="width:180px;">
+        placeholder="이름 또는 연락처" value="<?= e($search) ?>" style="width:160px;">
     </div>
     <div class="col-auto">
       <select name="class_id" class="form-select form-select-sm" style="width:auto;">
@@ -23,6 +33,13 @@ $baseUrl = BASE_PATH . '/admin/member?per_page=' . $perPage . $qs;
         <?php foreach ($classes as $c): ?>
         <option value="<?= (int)$c['id'] ?>" <?= $classId === (int)$c['id'] ? 'selected' : '' ?>><?= e($c['name']) ?></option>
         <?php endforeach; ?>
+      </select>
+    </div>
+    <div class="col-auto">
+      <select name="status" class="form-select form-select-sm" style="width:auto;">
+        <option value="">전체 상태</option>
+        <option value="1" <?= $isActive === 1 ? 'selected' : '' ?>>활성</option>
+        <option value="0" <?= $isActive === 0 ? 'selected' : '' ?>>비활성</option>
       </select>
     </div>
     <div class="col-auto">
@@ -54,7 +71,7 @@ $baseUrl = BASE_PATH . '/admin/member?per_page=' . $perPage . $qs;
           <th class="text-end">월 원비</th>
           <th class="text-center">상태</th>
           <th class="text-center">등록일</th>
-          <th style="width:90px;"></th>
+          <th style="width:90px;">관리</th>
         </tr>
       </thead>
       <tbody>

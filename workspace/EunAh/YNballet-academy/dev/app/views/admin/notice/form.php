@@ -48,6 +48,7 @@
       <button type="submit" class="btn btn-dark">저장</button>
     </div>
   </form>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>

@@ -13,15 +13,17 @@ class AdminMemberController extends Controller {
     }
 
     public function index(): void {
-        $perPage = (int)$this->get('per_page', self::DEFAULT_PER_PAGE);
+        $perPage  = (int)$this->get('per_page', self::DEFAULT_PER_PAGE);
         if (!in_array($perPage, self::VALID_PER_PAGES, true)) $perPage = self::DEFAULT_PER_PAGE;
-        $page    = max(1, (int)$this->get('page', 1));
-        $search  = trim($this->get('search', ''));
-        $classId = $this->get('class_id', '') !== '' ? (int)$this->get('class_id') : null;
+        $page     = max(1, (int)$this->get('page', 1));
+        $search   = trim($this->get('search', ''));
+        $classId  = $this->get('class_id', '') !== '' ? (int)$this->get('class_id') : null;
+        $statusRaw = $this->get('status', '');
+        $isActive  = $statusRaw !== '' ? (int)$statusRaw : null;
 
         $model   = new MemberModel();
-        $items   = $model->paginate($page, $perPage, $search ?: null, $classId);
-        $total   = $model->countAll($search ?: null, $classId);
+        $items   = $model->paginate($page, $perPage, $search ?: null, $classId, $isActive);
+        $total   = $model->countAll($search ?: null, $classId, $isActive);
 
         $this->render('layouts/admin', [
             'pageTitle'     => '회원 관리',
@@ -34,8 +36,47 @@ class AdminMemberController extends Controller {
             'validPerPages' => self::VALID_PER_PAGES,
             'search'        => $search,
             'classId'       => $classId,
+            'isActive'      => $isActive,
             'classes'       => (new ClassGroupModel())->getAll(),
         ]);
+    }
+
+    public function export(): void {
+        $search   = trim($this->get('search', ''));
+        $classId  = $this->get('class_id', '') !== '' ? (int)$this->get('class_id') : null;
+        $statusRaw = $this->get('status', '');
+        $isActive  = $statusRaw !== '' ? (int)$statusRaw : null;
+
+        $items = (new MemberModel())->getAll($search ?: null, $classId, $isActive);
+
+        $filename = '회원목록_' . date('Ymd') . '.csv';
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . rawurlencode($filename) . '"');
+        header('Cache-Control: no-cache');
+
+        $out = fopen('php://output', 'w');
+        fputs($out, "\xEF\xBB\xBF"); // UTF-8 BOM (Excel 한글 깨짐 방지)
+
+        fputcsv($out, ['이름', '성별', '연락처', '이메일', '생년월일', '클래스', '월 원비', '상태', '등록일', '휴원일', '메모']);
+
+        foreach ($items as $m) {
+            fputcsv($out, [
+                $m['name'],
+                $m['gender'] === 'M' ? '남' : ($m['gender'] === 'F' ? '여' : ''),
+                $m['phone'] ?? '',
+                $m['email'] ?? '',
+                $m['birth_date'] ?? '',
+                $m['class_name'] ?? '',
+                $m['class_fee'] ? number_format((int)$m['class_fee']) : '',
+                $m['is_active'] ? '활성' : '비활성',
+                $m['joined_at'] ?? '',
+                $m['suspended_at'] ?? '',
+                $m['memo'] ?? '',
+            ]);
+        }
+
+        fclose($out);
+        exit;
     }
 
     public function create(): void {

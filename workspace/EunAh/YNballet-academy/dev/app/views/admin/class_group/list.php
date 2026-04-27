@@ -20,7 +20,7 @@
           <th class="text-end">월 원비</th>
           <th class="text-center">활성 회원수</th>
           <th class="text-center">상태</th>
-          <th style="width:90px;"></th>
+          <th style="width:90px;">관리</th>
         </tr>
       </thead>
       <tbody>

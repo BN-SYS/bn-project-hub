@@ -17,7 +17,7 @@
           <th>카테고리명</th>
           <th class="text-center" style="width:110px;">사용 과정 수</th>
           <th class="text-center" style="width:90px;">정렬 순서</th>
-          <th style="width:140px;"></th>
+          <th style="width:140px;">관리</th>
         </tr>
       </thead>
       <tbody>

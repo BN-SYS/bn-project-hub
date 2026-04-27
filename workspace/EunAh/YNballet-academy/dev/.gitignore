@@ -1,0 +1,13 @@
+# 환경 설정 (비밀번호 포함 — 절대 커밋 금지)
+config/config.php
+
+# 업로드 파일
+uploads/*
+!uploads/.htaccess
+
+# 진단 스크립트
+upload_test.php
+
+# 시스템
+.DS_Store
+Thumbs.db

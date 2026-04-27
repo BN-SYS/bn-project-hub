@@ -41,11 +41,21 @@ class TuitionModel {
         );
         $created = 0;
         foreach ($members as $m) {
+            // 등록일 이전 월에는 원비 생성 안함
+            if (!empty($m['joined_at'])) {
+                [$jy, $jm] = explode('-', $m['joined_at']);
+                if ($year * 100 + $month < (int)$jy * 100 + (int)$jm) continue;
+            }
             $fee = (int)($m['class_fee'] ?? 0);
             $stmt->execute([$m['id'], $m['class_id'] ?: null, $year, $month, $fee, $fee]);
             if ($stmt->rowCount() > 0) $created++;
         }
         return $created;
+    }
+
+    public function delete(int $id): void {
+        $stmt = $this->db->prepare('DELETE FROM tuition WHERE id = ?');
+        $stmt->execute([$id]);
     }
 
     public function markPaid(int $id, string $paidAt): void {

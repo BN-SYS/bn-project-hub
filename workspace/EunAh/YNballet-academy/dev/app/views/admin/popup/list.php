@@ -30,7 +30,7 @@
           <th style="width:220px;">노출 기간</th>
           <th class="text-center" style="width:90px;">사용</th>
           <th class="text-center" style="width:120px;">등록일</th>
-          <th style="width:140px;"></th>
+          <th style="width:140px;">관리</th>
         </tr>
       </thead>
       <tbody>

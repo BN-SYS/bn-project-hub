@@ -33,12 +33,14 @@ class AdminUploadController extends Controller {
             'image/gif'  => 'gif',
             'image/webp' => 'webp',
         };
-        $filename = uniqid('img_', true) . '.' . $ext;
+        $filename = 'img_' . date('YmdHis') . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
         $destPath = UPLOAD_DIR . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $destPath)) {
             $this->json(['error' => '파일 저장 실패'], 500);
         }
+
+        chmod($destPath, 0644);
 
         $this->json(['url' => UPLOAD_URL . $filename]);
     }

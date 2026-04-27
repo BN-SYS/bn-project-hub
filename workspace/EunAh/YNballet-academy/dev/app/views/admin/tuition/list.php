@@ -16,15 +16,19 @@ $statusBadge  = [
   <!-- 헤더 -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h4 fw-bold mb-0">원비 관리</h1>
-    <a href="<?= BASE_PATH ?>/admin/tuition/stats" class="btn btn-outline-secondary btn-sm">매출 통계</a>
+    <div class="d-flex gap-2">
+      <a href="<?= BASE_PATH ?>/admin/tuition/export?year=<?= $year ?>&month=<?= $month ?>"
+         class="btn btn-outline-secondary btn-sm">↓ 엑셀 저장</a>
+      <a href="<?= BASE_PATH ?>/admin/tuition/stats" class="btn btn-outline-secondary btn-sm">매출 통계</a>
+    </div>
   </div>
 
   <!-- 월 네비게이션 -->
-  <div class="d-flex align-items-center gap-3 mb-4">
-    <a href="<?= $monthUrl($prevMonth['y'], $prevMonth['m']) ?>" class="btn btn-outline-secondary btn-sm">← 이전달</a>
-    <h2 class="h5 fw-bold mb-0"><?= $year ?>년 <?= $month ?>월</h2>
-    <a href="<?= $monthUrl($nextMonth['y'], $nextMonth['m']) ?>" class="btn btn-outline-secondary btn-sm">다음달 →</a>
-    <form method="GET" action="<?= BASE_PATH ?>/admin/tuition" class="d-flex gap-2 ms-3">
+  <div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
+    <a href="<?= $monthUrl($prevMonth['y'], $prevMonth['m']) ?>" class="btn btn-outline-secondary btn-sm text-nowrap">← 이전달</a>
+    <h2 class="h5 fw-bold mb-0 text-nowrap"><?= $year ?>년 <?= $month ?>월</h2>
+    <a href="<?= $monthUrl($nextMonth['y'], $nextMonth['m']) ?>" class="btn btn-outline-secondary btn-sm text-nowrap">다음달 →</a>
+    <form method="GET" action="<?= BASE_PATH ?>/admin/tuition" class="d-flex gap-2">
       <select name="year" class="form-select form-select-sm" style="width:90px;">
         <?php for ($y = (int)date('Y') + 1; $y >= 2020; $y--): ?>
         <option value="<?= $y ?>" <?= $year === $y ? 'selected' : '' ?>><?= $y ?>년</option>
@@ -98,7 +102,7 @@ $statusBadge  = [
           <th class="text-center">납부 상태</th>
           <th class="text-center">납부일</th>
           <th class="text-muted small">메모</th>
-          <th style="width:120px;"></th>
+          <th style="width:120px;">관리</th>
         </tr>
       </thead>
       <tbody>
@@ -119,6 +123,10 @@ $statusBadge  = [
                 data-token="<?= e(Auth::csrfToken()) ?>">납부</button>
               <?php endif; ?>
               <a href="<?= BASE_PATH ?>/admin/tuition/<?= (int)$t['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">수정</a>
+              <button class="btn btn-outline-danger btn-sm del-tuition-btn"
+                data-url="<?= BASE_PATH ?>/admin/tuition/<?= (int)$t['id'] ?>/delete"
+                data-token="<?= e(Auth::csrfToken()) ?>"
+                data-name="<?= e($t['member_name']) ?>">삭제</button>
             </div>
           </td>
         </tr>
@@ -149,6 +157,22 @@ document.getElementById('gen-btn').addEventListener('click', function () {
       alert('생성 실패'); btn.disabled = false;
     }
   }).catch(() => { alert('오류'); btn.disabled = false; });
+});
+
+// 원비 삭제
+document.querySelectorAll('.del-tuition-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    if (!confirm(btn.dataset.name + ' 회원의 이 달 원비를 삭제하시겠습니까?')) return;
+    btn.disabled = true;
+    fetch(btn.dataset.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: '_token=' + encodeURIComponent(btn.dataset.token),
+    }).then(r => r.json()).then(d => {
+      if (d.ok) btn.closest('tr').remove();
+      else { alert('삭제 실패'); btn.disabled = false; }
+    }).catch(() => { alert('오류'); btn.disabled = false; });
+  });
 });
 
 // 납부 완료 처리

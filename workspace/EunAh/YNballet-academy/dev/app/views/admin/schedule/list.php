@@ -38,7 +38,7 @@
           <th>일정명</th>
           <th class="text-center" style="width:72px;">색상</th>
           <th class="text-center" style="width:72px;">공휴일</th>
-          <th style="width:120px;"></th>
+          <th style="width:120px;">관리</th>
         </tr>
       </thead>
       <tbody>
@@ -59,13 +59,15 @@
             <span class="badge" style="background:#fee2e2;color:#c0392b;font-size:.72rem;">공휴일</span>
             <?php endif; ?>
           </td>
-          <td class="d-flex gap-2">
-            <a href="<?= BASE_PATH ?>/admin/schedule/<?= (int)$s['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">수정</a>
-            <button class="btn btn-outline-danger btn-sm delete-btn"
-              data-id="<?= (int)$s['id'] ?>"
-              data-title="<?= e($s['title']) ?>"
-              data-url="<?= BASE_PATH ?>/admin/schedule/<?= (int)$s['id'] ?>/delete"
-              data-token="<?= e(Auth::csrfToken()) ?>">삭제</button>
+          <td>
+            <div class="d-flex gap-2">
+              <a href="<?= BASE_PATH ?>/admin/schedule/<?= (int)$s['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">수정</a>
+              <button class="btn btn-outline-danger btn-sm delete-btn"
+                data-id="<?= (int)$s['id'] ?>"
+                data-title="<?= e($s['title']) ?>"
+                data-url="<?= BASE_PATH ?>/admin/schedule/<?= (int)$s['id'] ?>/delete"
+                data-token="<?= e(Auth::csrfToken()) ?>">삭제</button>
+            </div>
           </td>
         </tr>
         <?php endforeach; ?>

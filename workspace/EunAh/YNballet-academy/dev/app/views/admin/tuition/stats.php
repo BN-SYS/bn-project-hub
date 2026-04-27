@@ -13,7 +13,11 @@ $totalUnpaid   = array_sum(array_column($monthly, 'unpaid_count'));
 <div class="p-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h4 fw-bold mb-0">매출 통계</h1>
-    <a href="<?= BASE_PATH ?>/admin/tuition" class="btn btn-outline-secondary btn-sm">← 원비 관리</a>
+    <div class="d-flex gap-2">
+      <a href="<?= BASE_PATH ?>/admin/tuition/stats/export?year=<?= $year ?>"
+         class="btn btn-outline-secondary btn-sm">↓ 엑셀 저장</a>
+      <a href="<?= BASE_PATH ?>/admin/tuition" class="btn btn-outline-secondary btn-sm">← 원비 관리</a>
+    </div>
   </div>
 
   <!-- 연도 선택 -->
@@ -30,7 +34,7 @@ $totalUnpaid   = array_sum(array_column($monthly, 'unpaid_count'));
   <?php if (!empty($summary) && (int)$summary['total'] > 0): ?>
   <div class="mb-4 p-3 rounded" style="background:#f8f9fa;">
     <p class="fw-medium small text-muted mb-2"><?= date('n') ?>월 현재 현황</p>
-    <div class="d-flex gap-4 flex-wrap">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem 1.5rem;">
       <div><span class="text-muted small">납부완료</span> <strong class="text-success ms-1"><?= (int)$summary['paid'] ?>명</strong></div>
       <div><span class="text-muted small">미납</span> <strong class="text-danger ms-1"><?= (int)$summary['unpaid'] ?>명</strong></div>
       <div><span class="text-muted small">유예</span> <strong class="text-warning ms-1"><?= (int)$summary['deferred'] ?>명</strong></div>

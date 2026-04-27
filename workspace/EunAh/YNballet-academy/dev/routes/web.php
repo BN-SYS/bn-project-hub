@@ -96,6 +96,7 @@ $router->post('/admin/class-group/:id/delete',      'AdminClassGroupController@d
 $router->get('/admin/member',                       'AdminMemberController@index');
 $router->get('/admin/member/write',                 'AdminMemberController@create');
 $router->post('/admin/member/write',                'AdminMemberController@store');
+$router->get('/admin/member/export',                'AdminMemberController@export');
 $router->get('/admin/member/:id/edit',              'AdminMemberController@edit');
 $router->post('/admin/member/:id/edit',             'AdminMemberController@update');
 $router->post('/admin/member/:id/delete',           'AdminMemberController@delete');
@@ -103,10 +104,13 @@ $router->post('/admin/member/:id/delete',           'AdminMemberController@delet
 // 원비 관리
 $router->get('/admin/tuition',                      'AdminTuitionController@index');
 $router->get('/admin/tuition/stats',                'AdminTuitionController@stats');
+$router->get('/admin/tuition/export',               'AdminTuitionController@export');
+$router->get('/admin/tuition/stats/export',         'AdminTuitionController@exportStats');
 $router->post('/admin/tuition/generate',            'AdminTuitionController@generate');
 $router->get('/admin/tuition/:id/edit',             'AdminTuitionController@edit');
 $router->post('/admin/tuition/:id/edit',            'AdminTuitionController@update');
 $router->post('/admin/tuition/:id/paid',            'AdminTuitionController@markPaid');
+$router->post('/admin/tuition/:id/delete',          'AdminTuitionController@delete');
 
 // 계정 설정
 $router->get('/admin/settings/profile',  'AdminSettingsController@showProfile');

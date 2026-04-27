@@ -1,5 +1,8 @@
 RewriteEngine On
-RewriteBase /YNballet-academy/
+RewriteBase /
+
+# 업로드 파일 직접 서빙 (리라이트 제외)
+RewriteRule ^uploads/ - [L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

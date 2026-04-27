@@ -3,6 +3,3 @@
     Order Deny,Allow
     Deny from all
 </FilesMatch>
-
-# PHP 핸들러 무력화
-php_flag engine off

@@ -1,0 +1,508 @@
+/* YN발레아카데미 — 관리자 스타일 v3 */
+
+/* ─── CSS 변수 ──────────────────────────────────────── */
+:root {
+  --sidebar-w:      240px;
+  --sidebar-bg:     #1a1a1a;
+  --topbar-h:       56px;
+  --accent:         #2c3d50;
+  --accent-hover:   #1e2d3d;
+  --border:         #e5e7eb;
+  --bg:             #f4f5f7;
+  --card-bg:        #ffffff;
+  --text:           #1f2937;
+  --text-muted:     #6b7280;
+  --sidebar-z:      300;
+  --overlay-z:      290;
+  --topbar-z:       200;
+  --content-max:    960px;
+  --transition:     .25s ease;
+}
+
+/* ─── Reset ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-size: .875rem;
+  font-family: 'Noto Sans KR', -apple-system, sans-serif;
+}
+
+/* ─── 레이아웃 래퍼 ──────────────────────────────────── */
+.admin-wrap {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── 모바일 오버레이 ────────────────────────────────── */
+.admin-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: var(--overlay-z);
+}
+
+.admin-overlay.open { display: block; }
+
+/* ─── 사이드바 ───────────────────────────────────────── */
+.admin-sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--sidebar-bg);
+  color: #ccc;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 0;
+  z-index: var(--sidebar-z);
+  transition: transform var(--transition);
+}
+
+.admin-sidebar-logo {
+  color: #fff;
+  font-size: .95rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  padding: 0 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  margin-bottom: .75rem;
+  text-decoration: none;
+  display: block;
+}
+
+.admin-sidebar-logo:hover { color: #fff; }
+
+.admin-nav-group {
+  padding: 0 .75rem;
+  margin-bottom: .25rem;
+}
+
+.admin-nav-label {
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  color: #555;
+  text-transform: uppercase;
+  padding: .6rem .5rem .25rem;
+  display: block;
+}
+
+.admin-sidebar .nav-link {
+  color: #aaa;
+  border-radius: .375rem;
+  padding: .5rem .75rem;
+  font-size: .825rem;
+  display: block;
+  transition: background .15s, color .15s;
+  text-decoration: none;
+}
+
+.admin-sidebar .nav-link:hover {
+  color: #fff;
+  background: rgba(255,255,255,.08);
+}
+
+.admin-sidebar .nav-link.active {
+  color: #fff;
+  background: rgba(255,255,255,.15);
+}
+
+.admin-sidebar-bottom {
+  margin-top: auto;
+  padding: 1rem .75rem 0;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+/* ─── 메인 영역 ──────────────────────────────────────── */
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── 상단 바 ────────────────────────────────────────── */
+.admin-topbar {
+  height: var(--topbar-h);
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: var(--topbar-z);
+  gap: 1rem;
+}
+
+/* 모바일 햄버거 버튼 */
+.admin-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: .25rem;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.admin-menu-toggle svg { display: block; }
+
+.admin-topbar-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+
+.admin-topbar-sub {
+  font-size: .78rem;
+  color: var(--text-muted);
+}
+
+/* ─── 콘텐츠 영역 ────────────────────────────────────── */
+.admin-body {
+  flex: 1;
+  padding: 1.75rem 2rem;
+  max-width: var(--content-max);
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* 기존 .p-4 뷰 파일 지원 */
+.admin-main > div.p-4 {
+  max-width: var(--content-max);
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.75rem 2rem !important;
+}
+
+/* ─── 페이지 헤더 ────────────────────────────────────── */
+.admin-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-page-header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ─── 카드 ────────────────────────────────────────────── */
+.admin-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-card-title {
+  font-size: .875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 1rem;
+  padding-bottom: .75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ─── 테이블 ─────────────────────────────────────────── */
+.table { font-size: .85rem; }
+
+.table thead th {
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: #fafafa;
+  border-bottom: 2px solid var(--border);
+  padding: .75rem 1rem;
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: .8rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.table td.col-title,
+.table td.col-content,
+.table td.col-name {
+  white-space: normal;
+  word-break: break-word;
+}
+
+.table tbody tr:hover { background: #fafafa; }
+
+.table-responsive {
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── 폼 ─────────────────────────────────────────────── */
+.admin-form-wrap {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: 1.75rem;
+}
+
+.form-label {
+  font-size: .825rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: .35rem;
+}
+
+.form-control, .form-select {
+  font-size: .875rem;
+  border-color: #d1d5db;
+  border-radius: .375rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(44,61,80,.1);
+}
+
+textarea.form-control { resize: vertical; }
+
+/* ─── 버튼 ────────────────────────────────────────────── */
+.btn-dark {
+  background: var(--accent);
+  border-color: var(--accent);
+  font-size: .825rem;
+  padding: .45rem 1.25rem;
+}
+
+.btn-dark:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.btn-outline-secondary {
+  font-size: .825rem;
+  padding: .45rem 1.25rem;
+  color: #6b7280;
+  border-color: #d1d5db;
+}
+
+.btn-sm {
+  font-size: .775rem;
+  padding: .3rem .75rem;
+}
+
+/* 버튼 텍스트 개행 금지 (전역) */
+.admin-main .btn { white-space: nowrap; }
+
+/* ─── 뱃지 ────────────────────────────────────────────── */
+.badge {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+
+/* ─── 에디터 영역 ────────────────────────────────────── */
+.admin-editor-wrap { max-width: 100%; }
+
+/* ─── 알림 ───────────────────────────────────────────── */
+.alert {
+  font-size: .85rem;
+  border-radius: .375rem;
+}
+
+/* ─── 페이지네이션 ───────────────────────────────────── */
+.pagination .page-link {
+  font-size: .8rem;
+  padding: .35rem .7rem;
+}
+
+/* ─── 브레드크럼 ─────────────────────────────────────── */
+.admin-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .8rem;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.admin-breadcrumb a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.admin-breadcrumb a:hover { color: var(--text); }
+.admin-breadcrumb span { color: #ccc; }
+
+/* ─── 문의 뷰 ────────────────────────────────────────── */
+.admin-meta-table th {
+  width: 110px;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: #fafafa;
+}
+
+/* ─── 반응형 — 태블릿 ───────────────────────────────── */
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 200px; }
+
+  .admin-body,
+  .admin-main > div.p-4 {
+    padding: 1.25rem !important;
+  }
+}
+
+/* ─── 반응형 — 모바일 ───────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* 사이드바: 고정 오프스크린 → 열릴 때 슬라이드 */
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transform: translateX(-100%);
+  }
+
+  .admin-sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0,0,0,.3);
+  }
+
+  .admin-menu-toggle { display: flex; }
+  .admin-topbar { padding: 0 1rem; }
+
+  .admin-body,
+  .admin-main > div.p-4 {
+    padding: 1rem !important;
+    max-width: 100%;
+  }
+
+  /* 버튼 그룹 줄 바꿈 */
+  .admin-page-header { flex-direction: column; align-items: flex-start; }
+  .admin-page-header .d-flex { flex-wrap: wrap; }
+
+  /* 검색 폼 1열 */
+  .row.g-2 .col-auto { width: 100%; }
+  .admin-per-page-wrap { display: none; }
+
+  /* 페이지 헤더 (뷰파일 d-flex.justify-content-between) → 세로 스택 */
+  .admin-main > div.p-4 > .d-flex.justify-content-between {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: .5rem;
+  }
+
+  /* ── 테이블: 카드형 스택 레이아웃 (가로 스크롤 없음) ── */
+  .table-responsive {
+    overflow: visible;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .table-responsive .table { border: none; margin: 0; }
+
+  .table-responsive .table thead { display: none; }
+
+  /* 행 → 카드 */
+  .table-responsive .table tbody tr {
+    display: block;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: .5rem;
+    margin-bottom: .625rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+
+  .table-responsive .table tbody tr:hover       { background: var(--card-bg); }
+  .table-responsive .table tbody tr[onclick]     { cursor: pointer; }
+  .table-responsive .table tbody tr[onclick]:hover { background: #f9fafb; }
+
+  /* 셀 → [레이블] [값] 한 줄 */
+  .table-responsive .table tbody td {
+    display: flex;
+    align-items: flex-start;
+    gap: .625rem;
+    padding: .55rem .875rem;
+    border-bottom: 1px solid #f3f4f6;
+    /* Bootstrap/인라인 정렬·overflow 초기화 */
+    text-align: left !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    max-width: none !important;
+    width: 100% !important;
+    /* 셀 자체의 white-space는 normal (줄바꿈 허용) */
+    white-space: normal;
+  }
+
+  .table-responsive .table tbody td:last-child { border-bottom: none; }
+
+  /* 레이블 (JS가 data-label 자동 주입) */
+  .table-responsive .table tbody td::before {
+    content: attr(data-label);
+    display: block;
+    width: 78px;
+    min-width: 78px;
+    flex-shrink: 0;
+    font-size: .66rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    line-height: 1.6;
+    padding-top: .12rem;
+    /* 레이블은 줄바꿈 방지 */
+    white-space: nowrap;
+  }
+
+  /* 값 영역: 링크·래퍼 div는 나머지 공간 채움, span(뱃지·아이콘)은 자연 크기 유지 */
+  .table-responsive .table tbody td > a,
+  .table-responsive .table tbody td > div { flex: 1; }
+
+  /* 관리 버튼 컬럼 — 레이블 좌측, 버튼 div 우측 */
+  .table-responsive .table tbody td[data-label="관리"] {
+    justify-content: space-between;
+    gap: .375rem;
+    padding: .5rem .875rem;
+  }
+}
+
+/* ─── 반응형 — 소형 (480px 이하) ───────────────────── */
+@media (max-width: 480px) {
+  .admin-topbar-sub { display: none; }
+
+  .table-responsive .table tbody td {
+    padding: .45rem .75rem;
+    font-size: .8rem;
+  }
+
+  .table-responsive .table tbody td::before {
+    width: 64px;
+    min-width: 64px;
+    font-size: .63rem;
+  }
+}

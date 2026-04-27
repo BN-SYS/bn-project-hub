@@ -73,6 +73,93 @@ class AdminTuitionController extends Controller {
         $this->redirect(BASE_PATH . '/admin/tuition?year=' . $tuition['year'] . '&month=' . $tuition['month']);
     }
 
+    public function delete(string $id): void {
+        Auth::csrfVerify();
+        $model   = new TuitionModel();
+        $tuition = $model->find((int)$id);
+        if (!$tuition) { $this->json(['ok' => false]); return; }
+        $model->delete((int)$id);
+        $this->json(['ok' => true]);
+    }
+
+    public function export(): void {
+        $year  = (int)$this->get('year',  date('Y'));
+        $month = (int)$this->get('month', date('n'));
+        if ($month < 1 || $month > 12) $month = (int)date('n');
+
+        $items = (new TuitionModel())->getByMonth($year, $month);
+
+        $statusLabels = [0 => '미납', 1 => '납부완료', 2 => '유예'];
+        $filename = "원비_{$year}년{$month}월_" . date('Ymd') . '.csv';
+
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . rawurlencode($filename) . '"');
+        header('Cache-Control: no-cache');
+
+        $out = fopen('php://output', 'w');
+        fputs($out, "\xEF\xBB\xBF");
+
+        fputcsv($out, ['회원명', '클래스', '기본 원비', '실납부금액', '상태', '납부일', '메모']);
+
+        foreach ($items as $t) {
+            fputcsv($out, [
+                $t['member_name'],
+                $t['class_name'] ?? '',
+                number_format((int)$t['base_fee']),
+                number_format((int)$t['actual_fee']),
+                $statusLabels[(int)$t['status']] ?? '',
+                $t['paid_at'] ?? '',
+                $t['memo'] ?? '',
+            ]);
+        }
+
+        fclose($out);
+        exit;
+    }
+
+    public function exportStats(): void {
+        $year    = (int)$this->get('year', date('Y'));
+        $monthly = (new TuitionModel())->getMonthlyStats($year);
+
+        $filename = "매출통계_{$year}년_" . date('Ymd') . '.csv';
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . rawurlencode($filename) . '"');
+        header('Cache-Control: no-cache');
+
+        $out = fopen('php://output', 'w');
+        fputs($out, "\xEF\xBB\xBF");
+
+        fputcsv($out, ['월', '전체 인원', '납부', '미납', '유예', '예상 매출', '실 매출', '달성률(%)']);
+
+        $monthNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+        $byMonth = [];
+        foreach ($monthly as $row) $byMonth[(int)$row['month']] = $row;
+
+        for ($m = 1; $m <= 12; $m++) {
+            $row = $byMonth[$m] ?? null;
+            if ($row) {
+                $rate = $row['expected_revenue'] > 0
+                    ? round($row['actual_revenue'] / $row['expected_revenue'] * 100)
+                    : 0;
+                fputcsv($out, [
+                    $monthNames[$m - 1],
+                    (int)$row['total_count'],
+                    (int)$row['paid_count'],
+                    (int)$row['unpaid_count'],
+                    (int)$row['deferred_count'],
+                    number_format((int)$row['expected_revenue']),
+                    number_format((int)$row['actual_revenue']),
+                    $rate,
+                ]);
+            } else {
+                fputcsv($out, [$monthNames[$m - 1], 0, 0, 0, 0, 0, 0, 0]);
+            }
+        }
+
+        fclose($out);
+        exit;
+    }
+
     public function stats(): void {
         $year    = (int)$this->get('year', date('Y'));
         $model   = new TuitionModel();

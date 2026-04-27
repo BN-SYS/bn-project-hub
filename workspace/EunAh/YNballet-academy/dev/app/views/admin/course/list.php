@@ -31,7 +31,7 @@
           <th style="width:100px;">레벨</th>
           <th class="text-center" style="width:60px;">순서</th>
           <th class="text-center" style="width:100px;">상태</th>
-          <th style="width:80px;"></th>
+          <th style="width:80px;">관리</th>
         </tr>
       </thead>
       <tbody>
