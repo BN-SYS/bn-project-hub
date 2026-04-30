@@ -1,0 +1,122 @@
+[
+  {
+    "id": "U01",
+    "section": "user",
+    "group": "A_인증",
+    "name": "작성자 로그인",
+    "path": "../outputs/U01_작성자_로그인.html",
+    "img": "U01_작성자_로그인.png",
+    "tags": [],
+    "desc": "작성자 이메일·비밀번호 로그인"
+  },
+  {
+    "id": "U02",
+    "section": "user",
+    "group": "B_원고입력",
+    "name": "원고 입력 폼",
+    "path": "../outputs/U02_원고_입력폼.html",
+    "img": "U02_원고_입력폼.png",
+    "tags": [],
+    "desc": "제목·작성자·본문(Quill.js)·이미지·캡션 구조화 입력 + 파일 파싱 (docx/txt)"
+  },
+  {
+    "id": "U03",
+    "section": "user",
+    "group": "B_원고입력",
+    "name": "내 원고 목록",
+    "path": "../outputs/U03_내_원고목록.html",
+    "img": "U03_내_원고목록.png",
+    "tags": [],
+    "desc": "작성자 본인의 제출 원고 목록 및 상태 확인"
+  },
+  {
+    "id": "A01",
+    "section": "admin",
+    "group": "C_관리자인증",
+    "name": "관리자 로그인",
+    "path": "../admin/A01_관리자_로그인.html",
+    "img": "A01_관리자_로그인.png",
+    "tags": [],
+    "desc": "관리자 전용 로그인 (단일 계정)"
+  },
+  {
+    "id": "A02",
+    "section": "admin",
+    "group": "D_대시보드",
+    "name": "대시보드",
+    "path": "../admin/A02_대시보드.html",
+    "img": "A02_대시보드.png",
+    "tags": [],
+    "desc": "현재 회지 진행 현황·미확인 원고 알림·빠른 이동 링크"
+  },
+  {
+    "id": "A03",
+    "section": "admin",
+    "group": "E_회지관리",
+    "name": "회지 목록",
+    "path": "../admin/A03_회지_목록.html",
+    "img": "A03_회지_목록.png",
+    "tags": [],
+    "desc": "전체 회지 호수 목록 — 생성·상태 변경·삭제"
+  },
+  {
+    "id": "A04",
+    "section": "admin",
+    "group": "F_원고관리",
+    "name": "원고 목록",
+    "path": "../admin/A04_원고_목록.html",
+    "img": "A04_원고_목록.png",
+    "tags": [],
+    "desc": "선택 회지 기준 전체 원고 목록 — 상태 필터·상태 변경·삭제"
+  },
+  {
+    "id": "A05",
+    "section": "admin",
+    "group": "F_원고관리",
+    "name": "원고 편집",
+    "path": "../admin/A05_원고_편집.html",
+    "img": "A05_원고_편집.png",
+    "tags": [],
+    "desc": "Quill.js 에디터 + ♣♥★●■◈ 태그 삽입 버튼 (핵심 화면)"
+  },
+  {
+    "id": "A06",
+    "section": "admin",
+    "group": "G_순서채번",
+    "name": "원고 순서 관리",
+    "path": "../admin/A06_원고_순서관리.html",
+    "img": "A06_원고_순서관리.png",
+    "tags": [],
+    "desc": "SortableJS 드래그로 원고 순서 조정 + 사진 번호 자동 재채번"
+  },
+  {
+    "id": "A07",
+    "section": "admin",
+    "group": "G_순서채번",
+    "name": "이미지 관리",
+    "path": "../admin/A07_이미지_관리.html",
+    "img": "A07_이미지_관리.png",
+    "tags": [],
+    "desc": "♣번호-이미지 파일명 매핑 목록·추가·삭제·ZIP 다운로드"
+  },
+  {
+    "id": "A08",
+    "section": "admin",
+    "group": "H_Export",
+    "name": "Export",
+    "path": "../admin/A08_Export.html",
+    "img": "A08_Export.png",
+    "tags": [],
+    "desc": "최종 .docx 취합본 생성 다운로드 + 이미지 ZIP 다운로드"
+  },
+  {
+    "id": "A09",
+    "section": "admin",
+    "group": "I_계정관리",
+    "name": "작성자 계정 관리",
+    "path": "../admin/A09_작성자_계정관리.html",
+    "img": "A09_작성자_계정관리.png",
+    "tags": [],
+    "desc": "작성자 계정 목록·생성·수정·비활성화"
+  }
+]

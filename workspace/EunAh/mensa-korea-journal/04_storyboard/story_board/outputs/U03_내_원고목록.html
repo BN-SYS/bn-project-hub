@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[U03] 내 원고 목록 — 멘사코리아 회지</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- assets/css/common.css -->
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <!-- assets/css/u03-my-articles.css -->
+  <style>
+.gnb { background: var(--color-primary); color: #fff; padding: 0 var(--content-padding); display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.gnb__logo { font-size: 18px; font-weight: 800; letter-spacing: -.5px; }
+.gnb__nav a { color: rgba(255,255,255,.8); text-decoration: none; font-size: 14px; margin-left: 20px; }
+.gnb__nav a:hover { color: #fff; }
+.page-content { padding: 32px 0 60px; }
+.article-card { border: 1px solid var(--color-border); border-radius: var(--radius); padding: 20px 24px; background: var(--color-white); display: flex; align-items: center; justify-content: space-between; gap: 16px; transition: box-shadow .15s; }
+.article-card:hover { box-shadow: var(--shadow); }
+.article-card__title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.article-card__meta  { font-size: 12px; color: var(--color-muted); display: flex; gap: 12px; }
+.article-card__actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+.article-card__restrict { font-size: 11px; color: var(--color-muted); }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [U03] 내 원고 목록
+  PATH   : /my/articles
+  SPEC   : data/specs/U03.js
+  APIs   : GET /api/my/articles?page=1
+  NOTE   : 로그인한 작성자 본인의 원고만 노출.
+           상태: submitted(제출완료) / review(검토중) / confirmed(확정)
+           수정 버튼: submitted 상태에서만 노출.
+           review/confirmed 상태에서는 수정 버튼 숨기고 사유 안내 표시.
+============================================================ -->
+
+<!-- LAYOUT: main.php — 작성자 레이아웃 -->
+
+<!-- [SECTION: GNB] ───────────────────────────────────────── -->
+<header class="gnb">
+  <span class="gnb__logo">멘사코리아 회지</span>
+  <nav class="gnb__nav">
+    <a href="U03_내_원고목록.html" style="color:#fff; font-weight:700;">내 원고</a>
+    <a href="#">로그아웃</a>
+  </nav>
+</header>
+<!-- [/SECTION: GNB] -->
+
+<div class="container page-content">
+
+  <!-- [SECTION: PAGE-HEADER] 제목 + 원고 작성 버튼 -->
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;" data-sb-anno="page-header">
+    <h2 class="page-title" style="margin-bottom:0;">내 원고</h2>
+    <a href="U02_원고_입력폼.html" class="btn-m btn--primary">+ 원고 작성</a>
+  </div>
+  <!-- [/SECTION: PAGE-HEADER] -->
+
+  <!-- [SECTION: ARTICLE-LIST] 원고 목록
+    API    : GET /api/my/articles?page=1&size=20
+    Response: { articles: [{id, title, role, submitted_at, status}], total, page }
+    빈 상태: "제출한 원고가 없습니다." 메시지 + 작성 버튼
+    오류 시: "데이터를 불러올 수 없습니다." + 재시도 버튼
+  ────────────────────────────────────────────────── -->
+  <div style="display:flex; flex-direction:column; gap:12px;" data-sb-anno="article-list">
+
+    <!-- [API-DATA] GET /api/my/articles — 더미 데이터 (SNS위원회 원고 기준) -->
+
+    <!-- 원고 카드 1 — 제출완료: 수정 버튼 노출 -->
+    <div class="article-card">
+      <div>
+        <p class="article-card__title">SNS위원회 인터뷰 — 최주은 위원장·정대한 부위원장</p>
+        <div class="article-card__meta">
+          <span>최주은 멘산</span>
+          <span>SNS위원장</span>
+          <span>제출일: 2026-04-28</span>
+        </div>
+      </div>
+      <div class="article-card__actions">
+        <span class="badge badge-submitted">제출완료</span>
+        <!-- submitted 상태에서만 수정 버튼 노출 -->
+        <a href="U02_원고_입력폼.html?mode=edit&id=1" class="btn-s btn--outline">수정</a>
+      </div>
+    </div>
+
+    <!-- 원고 카드 2 — 검토중: 내용 보기만 가능 -->
+    <div class="article-card">
+      <div>
+        <p class="article-card__title">2024년 멘사코리아 주요 활동 회고</p>
+        <div class="article-card__meta">
+          <span>홍길동 멘산</span>
+          <span>편집위원</span>
+          <span>제출일: 2026-04-25</span>
+        </div>
+      </div>
+      <div class="article-card__actions">
+        <span class="badge badge-review">검토중</span>
+        <a href="U02_원고_입력폼.html?mode=view&status=review&id=2" class="btn-s btn--ghost">보기</a>
+      </div>
+    </div>
+
+    <!-- 원고 카드 3 — 확정: 내용 보기만 가능 -->
+    <div class="article-card">
+      <div>
+        <p class="article-card__title">봄 정기 모임 후기</p>
+        <div class="article-card__meta">
+          <span>김멘사 멘산</span>
+          <span>행사위원회</span>
+          <span>제출일: 2026-04-20</span>
+        </div>
+      </div>
+      <div class="article-card__actions">
+        <span class="badge badge-confirmed">확정</span>
+        <a href="U02_원고_입력폼.html?mode=view&status=confirmed&id=3" class="btn-s btn--ghost">보기</a>
+      </div>
+    </div>
+
+  </div>
+  <!-- [/SECTION: ARTICLE-LIST] -->
+
+  <!-- [SECTION: PAGINATION] 페이지네이션 -->
+  <div class="c-table__bottom" style="margin-top:24px;" data-sb-anno="pagination">
+    <span style="font-size:12px; color:var(--color-muted);">총 3건</span>
+    <ul class="pagination">
+      <li><a class="page__link on">1</a></li>
+    </ul>
+  </div>
+  <!-- [/SECTION: PAGINATION] -->
+
+</div>
+
+</body>
+</html>

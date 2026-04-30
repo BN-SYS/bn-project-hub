@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[U02] 원고 입력 폼 — 멘사코리아 회지</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.7/quill.snow.css">
+  <!-- assets/css/common.css -->
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <!-- assets/css/u02-article-form.css -->
+  <style>
+.gnb { background: var(--color-primary); color: #fff; padding: 0 var(--content-padding); display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.gnb__logo { font-size: 18px; font-weight: 800; letter-spacing: -.5px; }
+.gnb__nav a { color: rgba(255,255,255,.8); text-decoration: none; font-size: 14px; margin-left: 20px; }
+.gnb__nav a:hover { color: #fff; }
+.page-content { padding: 32px 0 60px; }
+/* 파일 파싱 */
+.parse-zone { border: 2px dashed var(--color-border); border-radius: var(--radius); padding: 20px; text-align: center; background: #F9FAFB; margin-bottom: 6px; cursor: pointer; transition: border-color .2s; }
+.parse-zone:hover { border-color: var(--color-primary); }
+.parse-zone__icon { font-size: 28px; margin-bottom: 8px; }
+.parse-zone__desc { color: var(--color-muted); font-size: 13px; }
+/* Quill */
+.ql-container.ql-snow { min-height: 320px; font-size: 14px; font-family: 'Noto Sans KR', sans-serif; }
+.ql-editor { min-height: 320px; }
+/* 이미지 첨부 */
+.img-upload-list { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.img-upload-item { position: relative; width: 100px; height: 100px; border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; background: #F3F4F6; }
+.img-upload-item .remove-img { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,.5); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.img-caption-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.img-caption-row span { font-size: 12px; color: var(--color-muted); white-space: nowrap; }
+.img-caption-row input { flex: 1; }
+/* 섹션 구분 */
+.section-divider { border: none; border-top: 1px solid var(--color-border); margin: 24px 0; }
+.section-label { font-size: 13px; font-weight: 700; color: var(--color-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 18px; }
+/* 크레딧 라디오 */
+.credit-options { display: flex; gap: 20px; flex-wrap: wrap; padding-top: 4px; }
+.credit-option { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+.credit-option input[type="radio"] { accent-color: var(--color-primary); width: 16px; height: 16px; cursor: pointer; }
+/* 꼬리말 미리보기 */
+.footer-preview { background: #F9FAFB; border: 1px solid var(--color-border); border-left: 3px solid var(--color-primary); border-radius: var(--radius); padding: 16px 20px; margin-top: 16px; }
+.footer-preview__heading { font-size: 11px; color: var(--color-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .06em; }
+.footer-preview__body { font-size: 13px; line-height: 1.9; }
+.footer-preview__credit { color: var(--color-muted); }
+.footer-preview__name { font-weight: 700; color: var(--color-text); }
+.footer-preview__role { color: var(--color-muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [U02] 원고 입력 폼 (신규 작성 / 수정)
+  PATH   : /my/articles/new          ← 신규 작성
+           /my/articles/{id}/edit    ← 수정 (submitted 상태에서만 접근 허용)
+  SPEC   : data/specs/U02.js
+  APIs   : POST /api/articles              (신규 제출)
+           PUT  /api/articles/{id}         (수정 저장 — submitted 상태 전용)
+           POST /api/articles/parse        (파일 파싱 — docx/txt)
+           POST /api/articles/images       (이미지 업로드)
+           DELETE /api/articles/images/{id} (이미지 삭제)
+  NOTE   : Quill.js 에디터. 파일 파싱 후 에디터에 자동 삽입.
+           수정 모드: review/confirmed 상태 접근 시 403 → U03 리다이렉트.
+           꼬리말(credit_type·author·affiliation)은 Export 시 고정 포맷으로 자동 생성.
+           HWP 파싱: 서버에서 LibreOffice --headless 로 docx 변환 후 PHPWord 처리.
+             hwp / hwpx 모두 허용. 변환 실패 시 "변환할 수 없습니다. docx/txt로 다시 시도해주세요." 표시.
+  PROTO  : 수정 모드(?mode=edit)로 시연. 신규 작성은 동일 레이아웃, 타이틀·버튼만 다름.
+============================================================ -->
+
+<!-- [SECTION: GNB] ───────────────────────────────────────── -->
+<header class="gnb">
+  <span class="gnb__logo">멘사코리아 회지</span>
+  <nav class="gnb__nav">
+    <a href="U03_내_원고목록.html">내 원고</a>
+    <a href="#">로그아웃</a>
+  </nav>
+</header>
+<!-- [/SECTION: GNB] -->
+
+<div class="container page-content">
+<div style="max-width:900px; margin:0 auto;">
+
+  <!-- [SECTION: EDIT-MODE-BANNER] 수정 모드 상태 안내
+    submitted: 표시 / review·confirmed: 403 리다이렉트이므로 미표시
+    API: GET /api/articles/{id} → { status, category, title, credit_type, author, affiliation, content, images }
+  ──────────────────────────────────────────────── -->
+  <div style="margin-bottom:16px; padding:12px 16px; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:var(--radius); display:flex; align-items:center; gap:10px; font-size:13px;" data-sb-anno="edit-mode-banner">
+    <span style="font-size:16px;">✏️</span>
+    <div>
+      <strong style="color:#1D4ED8;">원고 수정 중</strong>
+      <span style="color:#374151; margin-left:8px;">현재 상태: <span class="badge badge-submitted" style="font-size:11px;">제출완료</span></span>
+      <span style="color:var(--color-muted); margin-left:8px; font-size:12px;">— 관리자가 검토를 시작하면 수정이 잠깁니다.</span>
+    </div>
+  </div>
+  <!-- [/SECTION: EDIT-MODE-BANNER] -->
+
+  <h2 class="page-title">원고 수정</h2>
+
+  <!-- [FORM: article-form]
+    신규 API : POST /api/articles
+    수정 API : PUT  /api/articles/{id}
+    Fields:
+      - category     : 분류/위원회명 (required, 최대 50자)
+      - title        : 원고 제목 (required, 최대 200자)
+      - content      : 본문 — Quill Delta JSON (required)
+      - images[]     : 이미지 (optional)
+      - captions[]   : 캡션 (optional)
+      - credit_type  : 크레딧 표기 (required: 글|글·사진|글·사진·그림|글·그림)
+      - author       : 작성자명 (required, 최대 50자)
+      - affiliation  : 소속 (optional, 최대 50자)
+    Error: 필드별 인라인 에러 메시지
+    Success(신규): alert("원고가 제출되었습니다.") → /my/articles
+    Success(수정): alert("원고가 수정되었습니다.") → /my/articles
+  ──────────────────────────────────────────────── -->
+  <form id="article-form" class="common__form" autocomplete="off" novalidate data-sb-anno="article-form">
+    <div class="card">
+      <div class="card__body">
+
+        <!-- ── 기본 정보 ─────────────────────────────────── -->
+        <!-- [SECTION: BASIC-INFO] 분류 + 원고 제목 -->
+        <p class="section-label">기본 정보</p>
+
+        <div class="common-input__wrap">
+          <label for="category" class="common-box__label">분류 <span class="important__star">*</span></label>
+          <div class="common-box__input">
+            <div class="input__inner">
+              <input type="text" id="category" name="category" placeholder="예: 국제교류위원회, SNS위원회" maxlength="50" required value="SNS위원회">
+            </div>
+            <span class="input-error__message" id="category-error">분류를 입력하세요.</span>
+          </div>
+        </div>
+
+        <div class="common-input__wrap">
+          <label for="title" class="common-box__label">원고 제목 <span class="important__star">*</span></label>
+          <div class="common-box__input">
+            <div class="input__inner">
+              <input type="text" id="title" name="title" placeholder="원고 제목을 입력하세요" maxlength="200" required value="SNS위원회 인터뷰 — 최주은 위원장·정대한 부위원장">
+            </div>
+            <span class="input-error__message" id="title-error">제목을 입력하세요.</span>
+          </div>
+        </div>
+        <!-- [/SECTION: BASIC-INFO] -->
+
+        <hr class="section-divider">
+
+        <!-- ── 파일 불러오기 ─────────────────────────────── -->
+        <!-- [SECTION: FILE-PARSE] 파일에서 텍스트 추출
+          API    : POST /api/articles/parse
+          Request: multipart/form-data { file: File }
+          Response: { text: "추출된 텍스트" }
+          동작   : 업로드 즉시 파싱 → 응답 텍스트를 에디터에 삽입
+          지원   : .hwp, .hwpx, .docx, .txt
+          HWP    : 서버에서 LibreOffice --headless 변환 → PHPWord 파싱
+          오류   : "변환할 수 없습니다. docx/txt로 다시 시도해주세요." 표시
+        ──────────────────────────────────────────────── -->
+        <div style="margin-bottom:20px;">
+          <label class="common-box__label" style="display:block; margin-bottom:8px;">파일에서 불러오기 <span style="color:var(--color-muted); font-weight:400; font-size:12px;">(선택)</span></label>
+          <div class="parse-zone" id="parse-zone" data-sb-anno="file-parse">
+            <div class="parse-zone__icon">📄</div>
+            <p style="font-weight:600; font-size:14px; margin-bottom:4px;">파일을 드래그하거나 클릭하여 업로드</p>
+            <p class="parse-zone__desc">hwp · hwpx · docx · txt 지원 · 업로드 시 텍스트 자동 추출 후 본문에 삽입됩니다</p>
+            <input type="file" id="parse-file" accept=".hwp,.hwpx,.docx,.txt" style="display:none;">
+          </div>
+          <span class="input-error__message" id="parse-error"></span>
+        </div>
+        <!-- [/SECTION: FILE-PARSE] -->
+
+        <!-- ── 본문 에디터 ───────────────────────────────── -->
+        <!-- [SECTION: EDITOR] Quill.js 에디터
+          에디터 내용 → Delta JSON → hidden input #content
+          빈 상태: placeholder 표시
+        ──────────────────────────────────────────────── -->
+        <div style="margin-bottom:20px;">
+          <label class="common-box__label" style="display:block; margin-bottom:8px;">본문 <span class="important__star">*</span></label>
+          <div id="editor" data-sb-anno="quill-editor"></div>
+          <input type="hidden" id="content" name="content" required>
+          <span class="input-error__message" id="content-error">본문을 입력하세요.</span>
+
+          <div style="margin-top:8px; padding:10px 12px; background:#EFF6FF; border-radius:var(--radius); font-size:12px; color:#1D4ED8;">
+            💡 <strong>스타일 태그 안내</strong> — 아래 기호를 사용하면 담당자가 서식을 적용합니다.<br>
+            ♣ 사진 삽입 위치 · ♥ 소제목 강조 · ★ 질문/인터뷰 · ● 볼드 · ■ 강조A · ◈ 강조B
+          </div>
+        </div>
+        <!-- [/SECTION: EDITOR] -->
+
+        <!-- ── 이미지 첨부 ───────────────────────────────── -->
+        <!-- [SECTION: IMAGE-UPLOAD]
+          API    : POST /api/articles/images
+          Request: { files: File[], article_id: null }
+          Response: { images: [{id, url, filename}] }
+          동작   : 첨부 즉시 업로드 → 썸네일 + 캡션 입력 표시
+          제한   : jpg/png/gif, 개당 10MB, 최대 20개
+          삭제   : DELETE /api/articles/images/{id}
+        ──────────────────────────────────────────────── -->
+        <div style="margin-bottom:24px;">
+          <label class="common-box__label" style="display:block; margin-bottom:8px;">이미지 첨부 <span style="color:var(--color-muted); font-weight:400; font-size:12px;">(선택 · jpg, png, gif · 최대 10MB)</span></label>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <label class="btn-m btn--outline" for="img-upload" style="cursor:pointer;">📷 이미지 선택</label>
+            <span style="color:var(--color-muted); font-size:12px;">여러 장 선택 가능</span>
+          </div>
+          <input type="file" id="img-upload" accept="image/*" multiple style="display:none;" data-sb-anno="image-upload">
+          <!-- [API-DATA] 업로드 이미지 목록 -->
+          <div class="img-upload-list" id="img-preview-list">
+            <div class="img-upload-item">
+              <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--color-muted);">🖼</div>
+              <button class="remove-img" type="button">×</button>
+            </div>
+          </div>
+          <div style="margin-top:12px;" id="caption-area" data-sb-anno="caption-area">
+            <div class="img-caption-row">
+              <span>사진 1</span>
+              <div class="input__inner"><input type="text" name="captions[]" placeholder="캡션 입력 (선택)"></div>
+            </div>
+          </div>
+        </div>
+        <!-- [/SECTION: IMAGE-UPLOAD] -->
+
+        <hr class="section-divider">
+
+        <!-- ── 꼬리말 ─────────────────────────────────────── -->
+        <!-- [SECTION: ARTICLE-FOOTER] 꼬리말 (고정 형식)
+          Export 시 서버에서 아래 형식으로 자동 생성:
+            {credit_type}
+            {author}
+            {affiliation}
+          Fields:
+            credit_type : 글|글·사진|글·사진·그림|글·그림 (radio, required)
+            author      : 작성자명 (required)
+            affiliation : 소속 (optional)
+        ──────────────────────────────────────────────── -->
+        <p class="section-label">꼬리말</p>
+
+        <!-- 크레딧 표기 -->
+        <div class="common-input__wrap">
+          <label class="common-box__label">크레딧 표기 <span class="important__star">*</span></label>
+          <div class="common-box__input">
+            <div class="credit-options" data-sb-anno="credit-type">
+              <label class="credit-option">
+                <input type="radio" name="credit_type" value="글" id="credit-text"> 글
+              </label>
+              <label class="credit-option">
+                <input type="radio" name="credit_type" value="글·사진" id="credit-photo" checked> 글·사진
+              </label>
+              <label class="credit-option">
+                <input type="radio" name="credit_type" value="글·사진·그림" id="credit-photo-illus"> 글·사진·그림
+              </label>
+              <label class="credit-option">
+                <input type="radio" name="credit_type" value="글·그림" id="credit-illus"> 글·그림
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 작성자명 -->
+        <div class="common-input__wrap">
+          <label for="author" class="common-box__label">작성자명 <span class="important__star">*</span></label>
+          <div class="common-box__input">
+            <div class="input__inner">
+              <input type="text" id="author" name="author" placeholder="예: 홍길동 멘산" maxlength="50" required value="최주은 멘산">
+            </div>
+            <span class="input-error__message" id="author-error">작성자명을 입력하세요.</span>
+          </div>
+        </div>
+
+        <!-- 소속 -->
+        <div class="common-input__wrap">
+          <label class="common-box__label">소속</label>
+          <div class="common-box__input">
+            <div class="input__inner">
+              <input type="text" id="affiliation" name="affiliation" placeholder="예: SNS위원장 (선택 입력)" maxlength="50" value="SNS위원장">
+            </div>
+          </div>
+        </div>
+
+        <!-- 꼬리말 미리보기 -->
+        <div class="common-input__wrap" style="align-items:flex-start;">
+          <span class="common-box__label" style="padding-top:0;">미리보기</span>
+          <div class="common-box__input">
+            <div class="footer-preview" data-sb-anno="footer-preview">
+              <div class="footer-preview__heading">Export 시 자동 생성되는 꼬리말</div>
+              <div class="footer-preview__body">
+                <div class="footer-preview__credit" id="preview-credit">글·사진</div>
+                <div class="footer-preview__name" id="preview-name">최주은 멘산</div>
+                <div class="footer-preview__role" id="preview-role">SNS위원장</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- [/SECTION: ARTICLE-FOOTER] -->
+
+        <!-- ── 제출 버튼 ─────────────────────────────────── -->
+        <!-- [SECTION: SUBMIT] -->
+        <div style="display:flex; justify-content:flex-end; gap:10px; padding-top:16px; border-top:1px solid var(--color-border);" data-sb-anno="submit-area">
+          <a href="U03_내_원고목록.html" class="btn-m btn--outline">취소</a>
+          <button type="submit" class="submit__btn btn-m" disabled>수정 저장</button>
+        </div>
+        <!-- [/SECTION: SUBMIT] -->
+
+      </div>
+    </div>
+  </form>
+  <!-- [/FORM: article-form] -->
+
+</div><!-- /.form-centered-wrapper -->
+</div>
+
+<!-- assets/js/u02-article-form.js -->
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<script>
+const isEditMode = new URLSearchParams(location.search).get('mode') === 'edit';
+
+// Quill 초기화
+const quill = new Quill('#editor', {
+  theme: 'snow',
+  placeholder: '본문을 입력하거나 위 파일에서 불러오세요.\n\n예시) ★ 질문 내용\n- 답변...',
+  modules: {
+    toolbar: [
+      [{ header: [2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['clean']
+    ]
+  }
+});
+
+// 꼬리말 미리보기 업데이트
+function updateFooterPreview() {
+  const credit = document.querySelector('[name="credit_type"]:checked')?.value || '';
+  const author = document.querySelector('#author').value.trim() || '작성자명';
+  const affiliation = document.querySelector('#affiliation').value.trim();
+
+  document.querySelector('#preview-credit').textContent = credit;
+  document.querySelector('#preview-name').textContent = author;
+  const roleEl = document.querySelector('#preview-role');
+  if (affiliation) {
+    roleEl.textContent = affiliation;
+    roleEl.style.display = '';
+  } else {
+    roleEl.style.display = 'none';
+  }
+}
+
+document.querySelectorAll('[name="credit_type"]').forEach(r => r.addEventListener('change', updateFooterPreview));
+document.querySelector('#author').addEventListener('input', updateFooterPreview);
+document.querySelector('#affiliation').addEventListener('input', updateFooterPreview);
+updateFooterPreview();
+
+// 폼 검증: 분류 + 제목 + 본문 + 작성자명 필수
+const form = document.querySelector('#article-form');
+const submitBtn = form.querySelector('.submit__btn');
+
+function checkForm() {
+  const category = document.querySelector('#category').value.trim();
+  const title = document.querySelector('#title').value.trim();
+  const author = document.querySelector('#author').value.trim();
+  const content = quill.getText().trim();
+  submitBtn.disabled = !(category && title && author && content);
+}
+['#category', '#title', '#author'].forEach(sel => document.querySelector(sel).addEventListener('input', checkForm));
+quill.on('text-change', checkForm);
+checkForm();
+
+// 파일 파싱
+const parseZone = document.querySelector('#parse-zone');
+parseZone.addEventListener('click', () => document.querySelector('#parse-file').click());
+parseZone.addEventListener('dragover', e => { e.preventDefault(); parseZone.style.borderColor = 'var(--color-primary)'; });
+parseZone.addEventListener('dragleave', () => { parseZone.style.borderColor = ''; });
+parseZone.addEventListener('drop', e => {
+  e.preventDefault();
+  parseZone.style.borderColor = '';
+  quill.setText('[파일에서 추출된 텍스트가 여기에 삽입됩니다]\n');
+});
+
+// 모드별 초기값
+if (isEditMode) {
+  quill.setText('★ 안녕하세요 위원장님, 자기소개 부탁드립니다.\n멘사코리아 SNS위원회 위원장 최주은입니다...\n\n♣01\n');
+  checkForm();
+  document.querySelector('.submit__btn').textContent = '수정 저장';
+  document.querySelector('.page-title').textContent = '원고 수정';
+  document.querySelector('[data-sb-anno="edit-mode-banner"]').style.display = 'flex';
+} else {
+  document.querySelector('[data-sb-anno="edit-mode-banner"]').style.display = 'none';
+  document.querySelector('.page-title').textContent = '원고 작성';
+  document.querySelector('.submit__btn').textContent = '원고 제출';
+}
+
+// 제출
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  alert(isEditMode ? '원고가 수정되었습니다.' : '원고가 제출되었습니다.');
+  window.location.href = 'U03_내_원고목록.html';
+});
+</script>
+</body>
+</html>

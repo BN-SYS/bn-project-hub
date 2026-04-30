@@ -10,6 +10,7 @@ $annoScript = Join-Path $scriptDir "anno_gen.ps1"
 $logFile = Join-Path $scriptDir "anno_run.log"
 $stateFile = Join-Path $scriptDir "data\.anno_state.json"
 $bsFile = Join-Path $scriptDir "data\.build_state.json"
+$psCli = if ($env:OS -eq "Windows_NT") { "powershell" } else { "pwsh" }
 
 function Save-BuildState($f,$d){$l="$f.lock";$w=0;while((Test-Path $l)-and $w -lt 10){Start-Sleep -Milliseconds 500;$w+=0.5};New-Item $l -ItemType File -Force|Out-Null;try{$d|ConvertTo-Json -Depth 10|Set-Content $f -Encoding UTF8}finally{Remove-Item $l -Force -ErrorAction SilentlyContinue}}
 function Load-BuildState($f){$l="$f.lock";$w=0;while((Test-Path $l)-and $w -lt 10){Start-Sleep -Milliseconds 500;$w+=0.5};if(Test-Path $f){try{return(Get-Content $f -Encoding UTF8|Out-String|ConvertFrom-Json -AsHashtable)}catch{return @{pages=@{}}}};return @{pages=@{}}}
@@ -38,7 +39,7 @@ foreach($page in $targets){
   if(-not(Test-Path $htmlPath)){Log "[$id] SKIP HTML없음";$skipCount++;continue}
   $html=Get-Content $htmlPath -Encoding UTF8 -Raw;if($html -notmatch "data-sb-anno"){Log "[$id] SKIP anno없음";$skipCount++;continue}
   try{
-    if(Test-Path $annoScript){& powershell -ExecutionPolicy Bypass -File $annoScript -pageId $id -path $page.path 2>&1|Out-Null}
+    if(Test-Path $annoScript){& $psCli -ExecutionPolicy Bypass -File $annoScript -pageId $id -path $page.path 2>&1|Out-Null}
     if($LASTEXITCODE -eq 0){Log "[$id] OK";$okCount++;$state[$id]=(Get-Date -Format "yyyy-MM-dd HH:mm");if(-not $bs.pages.ContainsKey($id)){$bs.pages[$id]=@{}};$bs.pages[$id]["anno"]="OK"}
     else{Log "[$id] FAIL";$failCount++;if(-not $bs.pages.ContainsKey($id)){$bs.pages[$id]=@{}};$bs.pages[$id]["anno"]="FAIL"}
   }catch{Log "[$id] FAIL: $_";$failCount++;if(-not $bs.pages.ContainsKey($id)){$bs.pages[$id]=@{}};$bs.pages[$id]["anno"]="FAIL"}

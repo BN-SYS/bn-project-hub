@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko" data-layout="semibox" data-sidebar-visibility="show"
+      data-topbar="light" data-sidebar="light" data-sidebar-size="lg"
+      data-sidebar-image="none" data-preloader="disable">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[A06] 원고 순서 관리 — 멘사코리아 회지 관리자</title>
+  <script src="assets/js/layout.js"></script>
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/icons.min.css" rel="stylesheet">
+  <link href="assets/css/app.min.css" rel="stylesheet">
+  <link href="assets/css/custom.min.css" rel="stylesheet">
+  <style>
+.sortable-item { display:flex; align-items:center; gap:14px; padding:14px 16px; background:#fff; border:1px solid #dee2e6; border-radius:6px; margin-bottom:8px; cursor:grab; transition:box-shadow .15s, border-color .15s; }
+.sortable-item:active { cursor:grabbing; }
+.sortable-item.sortable-chosen { box-shadow:0 4px 16px rgba(0,0,0,.12); border-color:#1B4F8A; }
+.sortable-item.sortable-ghost  { opacity:.4; }
+.drag-handle { color:#adb5bd; font-size:20px; cursor:grab; flex-shrink:0; }
+.order-num   { width:36px; height:36px; border-radius:50%; background:#1B4F8A; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; }
+.article-info { flex:1; min-width:0; }
+.article-info__title { font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.article-info__meta  { font-size:12px; color:#6c757d; margin-top:2px; }
+.photo-nums { display:flex; gap:4px; flex-wrap:wrap; }
+.photo-num-tag { background:#EFF6FF; color:#1D4ED8; border-radius:3px; padding:1px 6px; font-size:11px; font-weight:700; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [A06] 원고 순서 관리
+  PATH   : /admin/journals/{id}/order
+  SPEC   : data/specs/A06.js
+  APIs   : GET  /admin/api/journals/{id}/articles/order
+           POST /admin/api/journals/{id}/articles/order (순서 저장 + 재채번 트리거)
+  NOTE   : SortableJS 드래그로 순서 조정.
+           "순서 저장" 클릭 시 서버에서 전체 ♣ 번호 자동 재채번 처리.
+============================================================ -->
+<div id="layout-wrapper">
+  <header id="page-topbar"><div class="layout-width"><div class="navbar-header">
+    <div class="d-flex align-items-center gap-3">
+      <button type="button" class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger"><span class="hamburger-icon"><span></span><span></span><span></span></span></button>
+      <span class="fw-bold" style="color:#1B4F8A; font-size:15px;">멘사코리아 회지 관리</span>
+    </div>
+    <div class="d-flex align-items-center gap-2"><button type="button" class="btn btn-sm btn-outline-secondary">로그아웃</button></div>
+  </div></div></header>
+  <div class="app-menu navbar-menu">
+    <div class="navbar-brand-box"><a href="A02_대시보드.html" class="logo logo-light"><span class="logo-lg" style="font-size:14px; font-weight:800; color:#1B4F8A;">회지 관리</span></a></div>
+    <div data-simplebar class="h-100"><ul class="navbar-nav">
+      <li class="nav-item"><a class="nav-link" href="A02_대시보드.html"><i class="ri-dashboard-line"></i><span>대시보드</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A03_회지_목록.html"><i class="ri-book-open-line"></i><span>회지 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A04_원고_목록.html"><i class="ri-file-text-line"></i><span>원고 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link active" href="A06_원고_순서관리.html"><i class="ri-drag-move-line"></i><span>순서 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A07_이미지_관리.html"><i class="ri-image-2-line"></i><span>이미지 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A08_Export.html"><i class="ri-download-2-line"></i><span>Export</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A09_작성자_계정관리.html"><i class="ri-user-settings-line"></i><span>작성자 관리</span></a></li>
+    </ul></div>
+  </div>
+  <div class="vertical-overlay"></div>
+
+  <div class="main-content"><div class="page-content"><div class="container-fluid">
+
+    <div class="row"><div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0">원고 순서 관리</h4>
+        <div class="page-title-right"><ol class="breadcrumb m-0">
+          <li class="breadcrumb-item"><a href="A04_원고_목록.html">원고 목록</a></li>
+          <li class="breadcrumb-item active">순서 관리</li>
+        </ol></div>
+      </div>
+    </div></div>
+
+    <div class="row">
+      <!-- 드래그 목록 -->
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="card-title mb-0">멘사코리아 회지 제 45호 — 원고 순서</h5>
+            <small class="text-muted">드래그하여 순서를 변경하세요</small>
+          </div>
+          <div class="card-body">
+
+            <!-- [SECTION: SORTABLE-LIST] 드래그 정렬 목록
+              API    : GET /admin/api/journals/{id}/articles/order
+              Response: { articles: [{id, order, title, author, photo_count, photo_nums}] }
+              드래그: SortableJS 라이브러리
+              저장  : POST /admin/api/journals/{id}/articles/order → { order: [id1, id2, ...] }
+                     → 서버에서 전체 ♣ 번호 재채번 후 새 채번 결과 반환
+            ──────────────────────────────────────────────── -->
+            <div id="sortable-list" data-sb-anno="sortable-list">
+
+              <div class="sortable-item" data-id="art-1">
+                <span class="drag-handle ri-drag-move-2-fill"></span>
+                <div class="order-num">1</div>
+                <div class="article-info">
+                  <div class="article-info__title">SNS위원회 인터뷰 — 최주은 위원장·정대한 부위원장</div>
+                  <div class="article-info__meta">최주은 멘산 · 이미지 1장</div>
+                </div>
+                <div class="photo-nums"><span class="photo-num-tag">♣01</span></div>
+              </div>
+
+              <div class="sortable-item" data-id="art-2">
+                <span class="drag-handle ri-drag-move-2-fill"></span>
+                <div class="order-num">2</div>
+                <div class="article-info">
+                  <div class="article-info__title">봄 정기 모임 후기</div>
+                  <div class="article-info__meta">김멘사 멘산 · 이미지 3장</div>
+                </div>
+                <div class="photo-nums">
+                  <span class="photo-num-tag">♣02</span>
+                  <span class="photo-num-tag">♣03</span>
+                  <span class="photo-num-tag">♣04</span>
+                </div>
+              </div>
+
+              <div class="sortable-item" data-id="art-3">
+                <span class="drag-handle ri-drag-move-2-fill"></span>
+                <div class="order-num">3</div>
+                <div class="article-info">
+                  <div class="article-info__title">회장 인사말</div>
+                  <div class="article-info__meta">이회장 멘산 · 이미지 없음</div>
+                </div>
+                <div class="photo-nums"><span class="text-muted" style="font-size:11px;">이미지 없음</span></div>
+              </div>
+
+              <div class="sortable-item" data-id="art-4">
+                <span class="drag-handle ri-drag-move-2-fill"></span>
+                <div class="order-num">4</div>
+                <div class="article-info">
+                  <div class="article-info__title">2025년 하반기 활동 보고</div>
+                  <div class="article-info__meta">박위원 멘산 · 이미지 2장</div>
+                </div>
+                <div class="photo-nums">
+                  <span class="photo-num-tag">♣05</span>
+                  <span class="photo-num-tag">♣06</span>
+                </div>
+              </div>
+
+            </div>
+            <!-- [/SECTION: SORTABLE-LIST] -->
+
+            <div class="mt-3 d-flex gap-2 justify-content-end">
+              <a href="A04_원고_목록.html" class="btn btn-light">취소</a>
+              <button type="button" id="save-order-btn" class="btn btn-primary">
+                <i class="ri-save-line me-1"></i>순서 저장 및 사진 번호 재채번
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 채번 결과 미리보기 -->
+      <!-- [SECTION: PHOTO-PREVIEW] 재채번 결과 미리보기
+        순서 저장 후 서버 응답: { photo_mapping: [{article, photos: [{num, filename}]}] }
+      ──────────────────────────────────────────────── -->
+      <div class="col-lg-4" data-sb-anno="photo-preview">
+        <div class="card">
+          <div class="card-header"><h5 class="card-title mb-0">사진 채번 미리보기</h5></div>
+          <div class="card-body">
+            <p class="text-muted mb-3" style="font-size:12px;">순서 저장 후 아래 번호로 자동 재채번됩니다.</p>
+            <div style="display:flex; flex-direction:column; gap:8px; font-size:13px;">
+              <div><span class="badge bg-primary me-2">원고 1</span>SNS위원회 인터뷰</div>
+              <div class="ms-3 text-muted">→ ♣01 (QR코드_SNS.jpg)</div>
+              <div><span class="badge bg-secondary me-2">원고 2</span>봄 정기 모임 후기</div>
+              <div class="ms-3 text-muted">→ ♣02, ♣03, ♣04</div>
+              <div><span class="badge bg-secondary me-2">원고 3</span>회장 인사말</div>
+              <div class="ms-3 text-muted">→ (이미지 없음)</div>
+              <div><span class="badge bg-secondary me-2">원고 4</span>2025년 하반기 활동 보고</div>
+              <div class="ms-3 text-muted">→ ♣05, ♣06</div>
+            </div>
+            <div class="alert alert-info mt-3 mb-0 p-2" style="font-size:12px;">
+              <i class="ri-information-line me-1"></i>
+              총 <strong>6장</strong> 이미지 채번 예정
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 저장 완료 토스트 (저장 후 표시) -->
+    <div id="save-toast" class="position-fixed bottom-0 end-0 p-3" style="z-index:9999; display:none;">
+      <div class="toast show align-items-center text-bg-success border-0">
+        <div class="d-flex">
+          <div class="toast-body">✅ 순서 저장 및 사진 번호 재채번 완료!</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="document.querySelector('#save-toast').style.display='none'"></button>
+        </div>
+      </div>
+    </div>
+
+  </div></div>
+  <footer class="footer"><div class="container-fluid"><div class="row"><div class="col-sm-6">© 2026 멘사코리아 회지 제작 시스템</div></div></div></footer>
+  </div>
+</div>
+
+<script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/libs/simplebar/simplebar.min.js"></script>
+<script src="assets/libs/node-waves/waves.min.js"></script>
+<script src="assets/libs/feather-icons/feather.min.js"></script>
+<script src="assets/js/plugins.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script src="assets/js/app.js"></script>
+<!-- assets/js/pages/A06.init.js -->
+<script>
+// SortableJS 초기화
+const list = document.querySelector('#sortable-list');
+const sortable = Sortable.create(list, {
+  handle: '.drag-handle',
+  animation: 150,
+  onEnd: updateOrderNums
+});
+
+function updateOrderNums() {
+  list.querySelectorAll('.sortable-item').forEach((item, i) => {
+    item.querySelector('.order-num').textContent = i + 1;
+  });
+}
+
+// 순서 저장 버튼
+document.querySelector('#save-order-btn').addEventListener('click', () => {
+  const order = [...list.querySelectorAll('.sortable-item')].map(el => el.dataset.id);
+  // POST /admin/api/journals/{id}/articles/order → { order: [...] }
+  // → 서버에서 전체 ♣ 번호 재채번
+  document.querySelector('#save-toast').style.display = 'block';
+  setTimeout(() => { document.querySelector('#save-toast').style.display = 'none'; }, 3000);
+});
+</script>
+</body></html>

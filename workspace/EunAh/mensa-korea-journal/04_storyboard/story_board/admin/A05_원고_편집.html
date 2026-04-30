@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko" data-layout="semibox" data-sidebar-visibility="show"
+      data-topbar="light" data-sidebar="light" data-sidebar-size="lg"
+      data-sidebar-image="none" data-preloader="disable">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[A05] 원고 편집 — 멘사코리아 회지 관리자</title>
+  <script src="assets/js/layout.js"></script>
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/icons.min.css" rel="stylesheet">
+  <link href="assets/css/app.min.css" rel="stylesheet">
+  <link href="assets/css/custom.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.7/quill.snow.css">
+  <style>
+/* 태그 버튼 툴바 */
+.tag-toolbar { display:flex; align-items:center; gap:8px; padding:10px 14px; background:#F8F9FA; border:1px solid #dee2e6; border-bottom:none; border-radius:6px 6px 0 0; flex-wrap:wrap; }
+.tag-toolbar__label { font-size:12px; color:#6c757d; font-weight:600; margin-right:4px; }
+.tag-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 12px; border:1px solid #dee2e6; border-radius:4px; background:#fff; font-size:13px; cursor:pointer; font-family: inherit; transition: background .12s, border-color .12s; }
+.tag-btn:hover { background:#EFF6FF; border-color:#3B82F6; }
+.tag-btn--photo    { color:#1D4ED8; }
+.tag-btn--subtitle { color:#7C3AED; }
+.tag-btn--question { color:#D97706; }
+.tag-btn--bold     { color:#111827; font-weight:700; }
+.tag-btn--empha    { color:#059669; }
+.tag-btn--empha2   { color:#374151; }
+/* Quill */
+.ql-container.ql-snow { min-height:400px; border-radius:0 0 6px 6px; font-size:14px; font-family:'맑은 고딕','Malgun Gothic','Noto Sans KR',sans-serif; }
+.ql-editor { min-height:400px; line-height:1.9; }
+/* 채번 표시 */
+.photo-num-badge { display:inline-block; background:#EFF6FF; color:#1D4ED8; border-radius:3px; padding:0 6px; font-size:12px; font-weight:700; margin:0 2px; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [A05] 원고 편집
+  PATH   : /admin/articles/{id}/edit
+  SPEC   : data/specs/A05.js
+  APIs   : GET  /admin/api/articles/{id}
+           PUT  /admin/api/articles/{id}
+           POST /admin/api/articles/{id}/images
+  NOTE   : 핵심 화면. Quill.js 에디터 + ♣♥★●■◈ 태그 삽입 버튼.
+           ♣ 삽입 시 현재 회지 내 사진 순번 자동 표시.
+           저장 시 PUT /admin/api/articles/{id} — Quill Delta JSON 전송.
+============================================================ -->
+<div id="layout-wrapper">
+  <header id="page-topbar"><div class="layout-width"><div class="navbar-header">
+    <div class="d-flex align-items-center gap-3">
+      <button type="button" class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger"><span class="hamburger-icon"><span></span><span></span><span></span></span></button>
+      <span class="fw-bold" style="color:#1B4F8A; font-size:15px;">멘사코리아 회지 관리</span>
+    </div>
+    <div class="d-flex align-items-center gap-2"><button type="button" class="btn btn-sm btn-outline-secondary">로그아웃</button></div>
+  </div></div></header>
+  <div class="app-menu navbar-menu">
+    <div class="navbar-brand-box"><a href="A02_대시보드.html" class="logo logo-light"><span class="logo-lg" style="font-size:14px; font-weight:800; color:#1B4F8A;">회지 관리</span></a></div>
+    <div data-simplebar class="h-100"><ul class="navbar-nav">
+      <li class="nav-item"><a class="nav-link" href="A02_대시보드.html"><i class="ri-dashboard-line"></i><span>대시보드</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A03_회지_목록.html"><i class="ri-book-open-line"></i><span>회지 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link active" href="A04_원고_목록.html"><i class="ri-file-text-line"></i><span>원고 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A06_원고_순서관리.html"><i class="ri-drag-move-line"></i><span>순서 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A07_이미지_관리.html"><i class="ri-image-2-line"></i><span>이미지 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A08_Export.html"><i class="ri-download-2-line"></i><span>Export</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A09_작성자_계정관리.html"><i class="ri-user-settings-line"></i><span>작성자 관리</span></a></li>
+    </ul></div>
+  </div>
+  <div class="vertical-overlay"></div>
+
+  <div class="main-content"><div class="page-content"><div class="container-fluid">
+
+    <div class="row"><div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0">원고 편집</h4>
+        <div class="page-title-right"><ol class="breadcrumb m-0">
+          <li class="breadcrumb-item"><a href="A04_원고_목록.html">원고 목록</a></li>
+          <li class="breadcrumb-item active">편집</li>
+        </ol></div>
+      </div>
+    </div></div>
+
+    <!-- [SECTION: ARTICLE-EDIT] 원고 편집 폼 (패턴 B) -->
+    <!-- [FORM: article-edit-form]
+      API  : PUT /admin/api/articles/{id}
+      Fields: title(required), author(required), role, content(required, Quill Delta JSON), status
+    ──────────────────────────────────────── -->
+    <form id="article-edit-form" data-sb-anno="article-edit-form">
+      <div class="row">
+
+        <!-- 메인 편집 영역 (col-8) -->
+        <div class="col-lg-8">
+
+          <!-- 기본 정보 -->
+          <div class="card mb-3">
+            <div class="card-header"><h5 class="card-title mb-0">기본 정보</h5></div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label">원고 제목 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="edit-title" value="SNS위원회 인터뷰 — 최주은 위원장·정대한 부위원장" required>
+                <div class="invalid-feedback">제목을 입력하세요.</div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <label class="form-label">작성자명 <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" value="최주은 멘산" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">역할/소속</label>
+                  <input type="text" class="form-control" value="SNS위원장">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 본문 편집 — 태그 버튼 + Quill.js -->
+          <!-- [SECTION: EDITOR-WITH-TAGS] 태그 삽입 UI + Quill 에디터
+            태그 버튼 클릭 → 커서 위치에 기호 삽입
+            ♣ 삽입 시: 전체 원고 순번 기준 현재 채번 번호를 자동 부여 (♣01, ♣02...)
+            저장 시: 본문에 태그 기호가 텍스트로 포함된 상태로 DB 저장
+          ──────────────────────────────────── -->
+          <div class="card mb-3" data-sb-anno="editor-with-tags">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <h5 class="card-title mb-0">본문 편집</h5>
+              <small class="text-muted">스타일 태그를 삽입하면 디자이너가 서식을 적용합니다</small>
+            </div>
+            <div class="card-body p-0">
+
+              <!-- 스타일 태그 버튼 바 -->
+              <div class="tag-toolbar" data-sb-anno="tag-buttons">
+                <span class="tag-toolbar__label">태그 삽입</span>
+                <button type="button" class="tag-btn tag-btn--photo"    data-tag="♣" data-type="photo">♣ 사진</button>
+                <button type="button" class="tag-btn tag-btn--subtitle" data-tag="♥" data-type="subtitle">♥ 소제목강조</button>
+                <button type="button" class="tag-btn tag-btn--question" data-tag="★" data-type="question">★ 질문</button>
+                <button type="button" class="tag-btn tag-btn--bold"     data-tag="●" data-type="bold">● 진하게</button>
+                <button type="button" class="tag-btn tag-btn--empha"    data-tag="■" data-type="empha">■ 강조A</button>
+                <button type="button" class="tag-btn tag-btn--empha2"   data-tag="◈" data-type="empha2">◈ 강조B</button>
+                <div style="margin-left:auto; font-size:11px; color:#6c757d;">
+                  현재 ♣ 채번: <span id="photo-count-display" class="fw-bold text-primary">♣01 ~ ♣01</span>
+                </div>
+              </div>
+
+              <!-- Quill 에디터 (태그 툴바 없이 직접 작성) -->
+              <div id="article-editor" data-sb-anno="quill-editor">
+                <!-- 프로토타입 더미 — SNS위원회 원고 샘플 기준 -->
+              </div>
+
+            </div>
+          </div>
+          <!-- [/SECTION: EDITOR-WITH-TAGS] -->
+
+          <!-- 원문 보기 (접기/펼치기) -->
+          <div class="card mb-3" data-sb-anno="original-view">
+            <div class="card-header d-flex align-items-center justify-content-between" style="cursor:pointer;" onclick="this.nextElementSibling.classList.toggle('d-none')">
+              <h5 class="card-title mb-0">원문 보기 (작성자 제출본)</h5>
+              <i class="ri-arrow-down-s-line"></i>
+            </div>
+            <div class="card-body d-none">
+              <div style="background:#F9FAFB; border-radius:4px; padding:16px; font-size:13px; line-height:1.8; color:#374151; white-space:pre-wrap;">[위원회 소개]
+
+SNS위원회
+
+1. 안녕하세요 SNS위원장님, 부위원장님! 자기소개 부탁드립니다.
+
+-안녕하세요, SNS 위원장을 맡고 있는 최주은 멘산입니다. 22년도에 멘사에 입회했고, 현재 영업•마케팅 분야에서 일하고 있습니다.
+원래 '오늘의 멘산밈'이라는 비공식 계정을 재미 삼아 운영하고 있었는데요...</div>
+            </div>
+          </div>
+
+          <!-- 저장 버튼 -->
+          <div class="text-end mb-3">
+            <a href="A04_원고_목록.html" class="btn btn-light me-1">목록으로</a>
+            <button type="submit" class="btn btn-primary w-sm">저장</button>
+          </div>
+
+        </div>
+
+        <!-- 사이드바 (col-4) -->
+        <div class="col-lg-4">
+
+          <!-- 원고 상태 -->
+          <div class="card mb-3" data-sb-anno="article-status">
+            <div class="card-header"><h5 class="card-title mb-0">원고 상태</h5></div>
+            <div class="card-body">
+              <select class="form-select" id="article-status">
+                <option value="submitted">제출완료</option>
+                <option value="review" selected>검토중</option>
+                <option value="confirmed">확정</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 첨부 이미지 -->
+          <!-- [SECTION: ATTACHED-IMAGES] 첨부 이미지 목록
+            API: GET /admin/api/articles/{id}/images → [{id, url, photo_num, caption}]
+          ──────────────────────────────────────────────── -->
+          <div class="card mb-3" data-sb-anno="attached-images">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <h5 class="card-title mb-0">첨부 이미지</h5>
+              <label class="btn btn-sm btn-soft-secondary" for="add-img-input" style="cursor:pointer; margin-bottom:0;">+ 추가</label>
+              <input type="file" id="add-img-input" accept="image/*" style="display:none;">
+            </div>
+            <div class="card-body">
+              <!-- [API-DATA] GET /admin/api/articles/{id}/images -->
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px; padding:8px; border:1px solid #dee2e6; border-radius:4px;">
+                  <span class="badge bg-primary-subtle text-primary" style="min-width:32px;">♣01</span>
+                  <div style="width:48px; height:48px; background:#F3F4F6; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">📸</div>
+                  <div style="flex:1; font-size:12px;">
+                    <div class="text-muted">QR코드_SNS.jpg</div>
+                    <input type="text" class="form-control form-control-sm mt-1" placeholder="캡션" value="">
+                  </div>
+                  <button type="button" class="btn btn-sm btn-soft-danger p-1"><i class="ri-delete-bin-line"></i></button>
+                </div>
+              </div>
+              <p class="text-muted mt-2 mb-0" style="font-size:11px;">♣ 기호의 번호는 순서 관리에서 자동 재채번됩니다.</p>
+            </div>
+          </div>
+
+          <!-- 태그 사용 현황 -->
+          <div class="card" data-sb-anno="tag-summary">
+            <div class="card-header"><h5 class="card-title mb-0">이 원고의 태그 현황</h5></div>
+            <div class="card-body">
+              <div style="display:flex; flex-direction:column; gap:6px; font-size:13px;">
+                <div class="d-flex justify-content-between"><span class="tag-btn--photo">♣ 사진</span><span class="badge bg-primary-subtle text-primary">1개 (♣01)</span></div>
+                <div class="d-flex justify-content-between"><span class="tag-btn--question">★ 질문</span><span class="badge bg-warning-subtle text-warning">7개</span></div>
+                <div class="d-flex justify-content-between"><span class="tag-btn--subtitle">♥ 소제목강조</span><span class="badge bg-secondary-subtle text-secondary">0개</span></div>
+                <div class="d-flex justify-content-between"><span>● ■ ◈ 강조</span><span class="badge bg-secondary-subtle text-secondary">0개</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </form>
+    <!-- [/SECTION: ARTICLE-EDIT] -->
+
+  </div></div>
+  <footer class="footer"><div class="container-fluid"><div class="row"><div class="col-sm-6">© 2026 멘사코리아 회지 제작 시스템</div></div></div></footer>
+  </div>
+</div>
+
+<script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/libs/simplebar/simplebar.min.js"></script>
+<script src="assets/libs/node-waves/waves.min.js"></script>
+<script src="assets/libs/feather-icons/feather.min.js"></script>
+<script src="assets/js/plugins.js"></script>
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<script src="assets/js/app.js"></script>
+<!-- assets/js/pages/A05.init.js -->
+<script>
+// Quill 초기화 (툴바 최소화 — 태그 버튼이 주 편집 도구)
+const quill = new Quill('#article-editor', {
+  theme: 'snow',
+  modules: { toolbar: [['bold','italic','underline'], [{ list:'ordered' }, { list:'bullet' }], ['clean']] }
+});
+
+// 샘플 원고 더미 데이터 (SNS위원회 기준)
+quill.setText(`[위원회 소개]\nSNS위원회\n\n★ 1. 안녕하세요 SNS위원장님, 부위원장님! 자기소개 부탁드립니다.\n\n- 안녕하세요, SNS 위원장을 맡고 있는 최주은 멘산입니다. 22년도에 멘사에 입회했고, 현재 영업·마케팅 분야에서 일하고 있습니다.\n원래 '오늘의 멘산밈'이라는 비공식 계정을 재미 삼아 운영하고 있었는데요, 조회수가 잘 나오다 보니 다들 관심을 가지고 지켜봐주신 것 같습니다. 해당 계정을 계기로 위원장을 맡게 되었습니다.\n\n- 안녕하세요, SNS 부위원장을 맡고 있는 정대한 멘산입니다. 저는 19년도에 멘사에 입회했으며 활동을 안하던중 작년 SNS 위원회 모집 공고를 보고 단순히 재미있겠다는 생각에 활동을 시작하게 되었습니다.\n\n★ 2. SNS위원회는 설립된지 오래 되지는 않은걸로 알고 있습니다. 설립 계기와 취지가 어떻게 되나요?\n\n사실 멘사의 사회적 인지도나, 설립 기간만큼 온라인상에서의 홍보 활동이 활발하지는 않은 편입니다...\n\n♣01\n\n글\n최주은 멘산\nSNS위원장\n\n정대한 멘산\nSNS위원회 부위원장\n`);
+
+// 사진 채번 카운터 (현재 원고의 ♣ 개수 기준 예시)
+let globalPhotoStart = 1; // API에서 전달받는 이 원고의 시작 채번
+function updatePhotoCount() {
+  const text = quill.getText();
+  const count = (text.match(/♣/g) || []).length;
+  const end = globalPhotoStart + count - 1;
+  document.querySelector('#photo-count-display').textContent =
+    count === 0 ? '없음' : `♣${String(globalPhotoStart).padStart(2,'0')} ~ ♣${String(end).padStart(2,'0')}`;
+}
+quill.on('text-change', updatePhotoCount);
+updatePhotoCount();
+
+// 태그 버튼 클릭 → 커서 위치에 기호 삽입
+document.querySelectorAll('.tag-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tag = btn.dataset.tag;
+    const range = quill.getSelection(true);
+    if (tag === '♣') {
+      // ♣는 채번 포함 삽입
+      const text = quill.getText();
+      const existingCount = (text.match(/♣/g) || []).length;
+      const num = String(globalPhotoStart + existingCount).padStart(2, '0');
+      quill.insertText(range.index, `♣${num}`, 'user');
+    } else {
+      quill.insertText(range.index, tag, 'user');
+    }
+    quill.setSelection(range.index + 1 + (tag === '♣' ? 2 : 0));
+    updatePhotoCount();
+  });
+});
+
+// 저장
+document.querySelector('#article-edit-form').addEventListener('submit', e => {
+  e.preventDefault();
+  // PUT /admin/api/articles/{id} — Quill Delta JSON + 기타 필드
+  alert('저장되었습니다.');
+  window.location.href = 'A04_원고_목록.html';
+});
+</script>
+</body></html>

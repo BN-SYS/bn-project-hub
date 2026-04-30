@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>비엔시스템 견적서 생성기</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy: #1B3A6B;
+  --blue: #2563EB;
+  --blue-lt: #EFF4FF;
+  --gray1: #F8FAFC;
+  --gray2: #E9EEF5;
+  --gray3: #94A3B8;
+  --gray4: #475569;
+  --dark: #1E293B;
+  --white: #FFFFFF;
+  --border: #D1D9E6;
+  --accent: #E53E3E;
+}
+
+body {
+  font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  background: #EEF2F9;
+  min-height: 100vh;
+}
+
+/* ── 화면 레이아웃 ── */
+.app-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  min-height: 100vh;
+}
+
+/* ── 입력 패널 ── */
+.input-panel {
+  background: var(--navy);
+  padding: 32px 24px;
+  overflow-y: auto;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.panel-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.logo-badge {
+  background: var(--blue);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.section-group {
+  margin-bottom: 24px;
+}
+
+.section-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.field {
+  margin-bottom: 10px;
+}
+
+.field label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 5px;
+  letter-spacing: .02em;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: white;
+  outline: none;
+  transition: border-color .15s, background .15s;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: rgba(255,255,255,0.25);
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.11);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+/* 일수 입력 그리드 */
+.days-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.days-item label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 4px;
+  display: block;
+}
+
+.days-item input {
+  width: 100%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: white;
+  outline: none;
+  text-align: center;
+  transition: border-color .15s;
+}
+
+.days-item input:focus {
+  border-color: rgba(255,255,255,0.4);
+}
+
+/* 등급 선택 */
+.grade-select-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.grade-btn {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.5);
+  font-size: 11.5px;
+  font-family: inherit;
+  font-weight: 500;
+  padding: 7px 4px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+}
+
+.grade-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.8);
+}
+
+.grade-btn.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: white;
+  font-weight: 600;
+}
+
+/* 인건비 소계 표시 */
+.labor-summary {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.labor-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 4px;
+}
+
+.labor-summary-row:last-child {
+  margin-bottom: 0;
+  color: rgba(255,255,255,0.8);
+  font-weight: 600;
+  font-size: 13px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: 4px;
+}
+
+.labor-summary-row span:last-child {
+  color: #93C5FD;
+}
+
+.labor-summary-row:last-child span:last-child {
+  color: white;
+}
+
+/* 제경비 토글 */
+.expense-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.toggle-label {
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.55);
+}
+
+.toggle-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.15);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform .2s;
+}
+
+.toggle-switch input:checked + .toggle-track {
+  background: var(--blue);
+}
+
+.toggle-switch input:checked + .toggle-track::after {
+  transform: translateX(16px);
+}
+
+/* 버튼 */
+.action-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn {
+  flex: 1;
+  padding: 11px;
+  border: none;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.btn-reset {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.6);
+}
+
+.btn-reset:hover {
+  background: rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.9);
+}
+
+.btn-print {
+  background: var(--blue);
+  color: white;
+  letter-spacing: .02em;
+}
+
+.btn-print:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* ── 미리보기 영역 ── */
+.preview-area {
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.preview-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray3);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  align-self: flex-start;
+}
+
+/* ── 실제 견적서 ── */
+.estimate-doc {
+  background: white;
+  width: 100%;
+  max-width: 740px;
+  padding: 50px 56px;
+  box-shadow: 0 8px 40px rgba(27,58,107,.12);
+  border-radius: 4px;
+}
+
+/* 로고/헤더 */
+.est-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.est-logo-box {
+  background: var(--navy);
+  color: white;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  padding: 6px 12px;
+  border-radius: 3px;
+}
+
+.est-logo-sub {
+  font-size: 11px;
+  color: var(--gray4);
+  font-weight: 500;
+}
+
+.est-title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: .35em;
+  color: var(--dark);
+  margin-bottom: 28px;
+  padding-bottom: 0;
+}
+
+/* 2단 메타 정보 */
+.est-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid #ccc;
+  margin-bottom: 28px;
+  font-size: 12.5px;
+}
+
+.est-meta-left, .est-meta-right {
+  padding: 14px 18px;
+}
+
+.est-meta-right {
+  border-left: 1px solid #ccc;
+}
+
+.est-meta-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 5px;
+  line-height: 1.5;
+}
+
+.est-meta-row:last-child { margin-bottom: 0; }
+
+.meta-key {
+  font-weight: 600;
+  color: var(--dark);
+  white-space: nowrap;
+  min-width: 64px;
+}
+
+.meta-val {
+  color: var(--gray4);
+}
+
+.meta-val.highlight {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: 13px;
+}
+
+/* 견적 내역 테이블 */
+.sec-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+
+.sec-num {
+  color: var(--navy);
+  margin-right: 6px;
+}
+
+.est-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  font-size: 12.5px;
+}
+
+.est-table th {
+  background: var(--navy);
+  color: white;
+  padding: 9px 12px;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: .04em;
+  font-size: 12px;
+}
+
+.est-table td {
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.est-table .col-item { text-align: center; font-weight: 700; background: var(--gray1); }
+.est-table .col-name { text-align: left; padding-left: 16px; }
+.est-table .col-amount { text-align: right; font-weight: 700; color: var(--navy); padding-right: 14px; }
+.est-table .col-total-label { text-align: right; font-weight: 600; padding-right: 12px; background: var(--gray1); }
+.est-table .col-subtotal { text-align: right; font-weight: 700; padding-right: 14px; }
+
+.est-table .row-subtotal td { background: #F0F4FA; }
+.est-table .row-expense td { }
+.est-table .row-grand td {
+  background: var(--navy);
+  color: white;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 11px 14px;
+}
+
+.est-table .row-grand .col-amount {
+  color: white;
+  font-size: 14px;
+  letter-spacing: .02em;
+}
+
+.footnote {
+  font-size: 11.5px;
+  color: var(--gray3);
+  margin-top: -16px;
+  margin-bottom: 24px;
+  padding-left: 2px;
+}
+
+/* 기간 / 세부내역 섹션 */
+.est-section {
+  margin-bottom: 22px;
+}
+
+.est-section-body {
+  font-size: 12.5px;
+  color: var(--gray4);
+  line-height: 1.9;
+  padding-left: 4px;
+}
+
+.est-section-body b {
+  color: var(--dark);
+  font-weight: 600;
+}
+
+/* 견적조건 */
+.condition-list {
+  list-style: none;
+  font-size: 12px;
+  color: var(--gray4);
+  line-height: 2;
+  padding-left: 4px;
+}
+
+.condition-list li::before {
+  content: counter(item) ') ';
+  counter-increment: item;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.condition-list { counter-reset: item; }
+
+/* 단가표 */
+.rate-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.rate-table th {
+  background: var(--gray2);
+  color: var(--dark);
+  padding: 7px 10px;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid #ddd;
+}
+
+.rate-table td {
+  border: 1px solid #ddd;
+  padding: 7px 10px;
+  text-align: center;
+  color: var(--gray4);
+}
+
+.rate-note {
+  font-size: 11px;
+  color: var(--gray3);
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* 끝 */
+.est-end {
+  text-align: right;
+  font-size: 12.5px;
+  color: var(--gray3);
+  margin-top: 12px;
+}
+
+/* ── 인쇄 ── */
+@media print {
+  .input-panel, .preview-label { display: none !important; }
+  .app-layout { display: block; }
+  .preview-area { padding: 0; }
+  .estimate-doc { 
+    box-shadow: none; 
+    padding: 20px 28px;
+    max-width: 100%;
+    border-radius: 0;
+  }
+  body { background: white; }
+  .est-table .row-grand td,
+  .est-table th {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .est-logo-box {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ── 입력 패널 ── -->
+  <div class="input-panel">
+
+    <div class="panel-logo">
+      <div class="logo-badge">BN</div>
+      <div class="panel-title">견적서 생성기</div>
+    </div>
+
+    <!-- 기본 정보 -->
+    <div class="section-group">
+      <div class="section-group-label">기본 정보</div>
+
+      <div class="field">
+        <label>문서번호</label>
+        <input type="text" id="docNo" placeholder="예: BN-260413-E03" oninput="render()">
+      </div>
+
+      <div class="field">
+        <label>수신 (고객사명)</label>
+        <input type="text" id="clientName" placeholder="예: 코비인사이트(주)" oninput="render()">
+      </div>
+
+      <div class="field">
+        <label>건명 (프로젝트명)</label>
+        <input type="text" id="projectName" placeholder="예: 홈페이지 내 오프라인 강의 신청 결제 기능" oninput="render()">
+      </div>
+    </div>
+
+    <!-- 계약 조건 -->
+    <div class="section-group">
+      <div class="section-group-label">계약 조건</div>
+
+      <div class="field">
+        <label>결제조건</label>
+        <input type="text" id="paymentTerm" value="계좌이체(계약금50%, 잔금50%)" oninput="render()">
+      </div>
+
+      <div class="field">
+        <label>기간</label>
+        <input type="text" id="period" placeholder="예: 협의  /  2026년 5월 ~ 6월" oninput="render()">
+      </div>
+    </div>
+
+    <!-- 인건비 단가 등급 -->
+    <div class="section-group">
+      <div class="section-group-label">SW기술자 단가 기준 (2018 KOSA)</div>
+
+      <div class="days-grid" style="margin-bottom:12px;">
+        <div class="days-item">
+          <label>기획·PM 단가</label>
+          <input type="text" id="pricepm" value="239,748" oninput="formatAndRender(this)">
+        </div>
+        <div class="days-item">
+          <label>디자인·퍼블 단가</label>
+          <input type="text" id="pricedesign" value="239,748" oninput="formatAndRender(this)">
+        </div>
+        <div class="days-item">
+          <label>개발 단가</label>
+          <input type="text" id="pricedev" value="305,433" oninput="formatAndRender(this)">
+        </div>
+        <div class="days-item">
+          <label>검수 단가</label>
+          <input type="text" id="priceqa" value="239,748" oninput="formatAndRender(this)">
+        </div>
+      </div>
+
+      <div class="section-group-label" style="margin-bottom:8px;">투입 일수</div>
+      <div class="days-grid">
+        <div class="days-item">
+          <label>기획·PM (일)</label>
+          <input type="number" id="dayspm" value="0" min="0" step="0.5" oninput="render()">
+        </div>
+        <div class="days-item">
+          <label>디자인·퍼블 (일)</label>
+          <input type="number" id="daysdesign" value="0" min="0" step="0.5" oninput="render()">
+        </div>
+        <div class="days-item">
+          <label>개발 (일)</label>
+          <input type="number" id="daysdev" value="0" min="0" step="0.5" oninput="render()">
+        </div>
+        <div class="days-item">
+          <label>검수 (일)</label>
+          <input type="number" id="daysqa" value="0" min="0" step="0.5" oninput="render()">
+        </div>
+      </div>
+    </div>
+
+    <!-- 인건비 소계 표시 -->
+    <div class="labor-summary" id="laborSummaryBox">
+      <div class="labor-summary-row"><span>기획·PM</span><span id="s-pm">0</span></div>
+      <div class="labor-summary-row"><span>디자인·퍼블</span><span id="s-design">0</span></div>
+      <div class="labor-summary-row"><span>개발</span><span id="s-dev">0</span></div>
+      <div class="labor-summary-row"><span>검수</span><span id="s-qa">0</span></div>
+      <div class="labor-summary-row"><span>인건비 소계</span><span id="s-labor">0 원</span></div>
+    </div>
+
+    <!-- 제경비 -->
+    <div class="section-group">
+      <div class="expense-toggle">
+        <label class="toggle-switch">
+          <input type="checkbox" id="expenseAuto" checked onchange="render()">
+          <span class="toggle-track"></span>
+        </label>
+        <span class="toggle-label">제경비 자동 (인건비 × 10%)</span>
+      </div>
+
+      <div class="field" id="expenseManualWrap" style="display:none;">
+        <label>제경비 직접 입력 (원)</label>
+        <input type="text" id="expenseManual" placeholder="0" oninput="formatAndRender(this)">
+      </div>
+    </div>
+
+    <!-- 세부 내역 메모 -->
+    <div class="section-group">
+      <div class="section-group-label">세부 내역 (비고)</div>
+      <div class="field">
+        <textarea id="detailMemo" placeholder="세부 작업 내용을 입력하세요&#10;예: ◦ KG이니시스 일반결제 연동&#10;◦ 강의사이트 상단메뉴 추가" oninput="render()"></textarea>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-reset" onclick="resetAll()">초기화</button>
+      <button class="btn btn-print" onclick="printDoc()">🖨 PDF 저장</button>
+    </div>
+
+  </div>
+
+  <!-- ── 미리보기 ── -->
+  <div class="preview-area">
+    <div class="preview-label">미리보기 · 실시간 반영</div>
+    <div class="estimate-doc" id="estimateDoc">
+      <!-- JS로 렌더링 -->
+    </div>
+  </div>
+
+</div>
+
+<script>
+// 단가 데이터
+const RATES = {
+  고급: { pm: 305433, design: 305433, dev: 305433, qa: 305433 },
+  중급: { pm: 239748, design: 239748, dev: 239748, qa: 239748 },
+  초급: { pm: 215681, design: 215681, dev: 215681, qa: 215681 },
+};
+
+function fmt(n) {
+  if (!n && n !== 0) return '0';
+  return Math.round(n).toLocaleString('ko-KR');
+}
+
+function parseNum(val) {
+  return parseFloat((val || '').replace(/,/g, '')) || 0;
+}
+
+function formatAndRender(el) {
+  const raw = el.value.replace(/[^0-9]/g, '');
+  el.value = raw ? Number(raw).toLocaleString() : '';
+  render();
+}
+
+document.getElementById('expenseAuto').addEventListener('change', function() {
+  document.getElementById('expenseManualWrap').style.display = this.checked ? 'none' : 'block';
+  render();
+});
+
+function getValues() {
+  const pricepm     = parseNum(document.getElementById('pricepm').value);
+  const pricedesign = parseNum(document.getElementById('pricedesign').value);
+  const pricedev    = parseNum(document.getElementById('pricedev').value);
+  const priceqa     = parseNum(document.getElementById('priceqa').value);
+
+  const dayspm     = parseFloat(document.getElementById('dayspm').value) || 0;
+  const daysdesign = parseFloat(document.getElementById('daysdesign').value) || 0;
+  const daysdev    = parseFloat(document.getElementById('daysdev').value) || 0;
+  const daysqa     = parseFloat(document.getElementById('daysqa').value) || 0;
+
+  const amtpm     = Math.round(pricepm * dayspm);
+  const amtdesign = Math.round(pricedesign * daysdesign);
+  const amtdev    = Math.round(pricedev * daysdev);
+  const amtqa     = Math.round(priceqa * daysqa);
+
+  const labor = amtpm + amtdesign + amtdev + amtqa;
+
+  const autoExpense = document.getElementById('expenseAuto').checked;
+  const expense = autoExpense
+    ? Math.round(labor * 0.1)
+    : parseNum(document.getElementById('expenseManual').value);
+
+  const total = labor + expense;
+
+  return { pricepm, pricedesign, pricedev, priceqa,
+           dayspm, daysdesign, daysdev, daysqa,
+           amtpm, amtdesign, amtdev, amtqa,
+           labor, expense, total };
+}
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}년 ${String(d.getMonth()+1).padStart(2,'0')}월 ${String(d.getDate()).padStart(2,'0')}일`;
+}
+
+function render() {
+  const v = getValues();
+
+  // 패널 소계 업데이트
+  document.getElementById('s-pm').textContent     = fmt(v.amtpm);
+  document.getElementById('s-design').textContent = fmt(v.amtdesign);
+  document.getElementById('s-dev').textContent    = fmt(v.amtdev);
+  document.getElementById('s-qa').textContent     = fmt(v.amtqa);
+  document.getElementById('s-labor').textContent  = fmt(v.labor) + ' 원';
+
+  const docNo       = document.getElementById('docNo').value || 'BN-______-E__';
+  const client      = document.getElementById('clientName').value || '(고객사명)';
+  const project     = document.getElementById('projectName').value || '(건명)';
+  const payTerm     = document.getElementById('paymentTerm').value || '계좌이체(계약금50%, 잔금50%)';
+  const period      = document.getElementById('period').value || '협의';
+  const detailMemo  = document.getElementById('detailMemo').value;
+
+  const totalWon = `일금 ${Math.floor(v.total / 10000)}만원`;
+
+  // 세부 내역 HTML 변환
+  const memoHtml = detailMemo
+    ? detailMemo.split('\n').map(l => l ? `<div>${escHtml(l)}</div>` : '<div style="height:6px"></div>').join('')
+    : '<div style="color:#aaa">입력된 세부 내역이 없습니다.</div>';
+
+  document.getElementById('estimateDoc').innerHTML = `
+    <div class="est-logo-row">
+      <div class="est-logo-box">BNSYSTEM</div>
+      <div class="est-logo-sub">주식회사 비엔시스템</div>
+    </div>
+
+    <div class="est-title">견 &nbsp; 적 &nbsp; 서</div>
+
+    <div class="est-meta-grid">
+      <div class="est-meta-left">
+        <div class="est-meta-row"><span class="meta-key">문서번호</span><span class="meta-val">${escHtml(docNo)}</span></div>
+        <div class="est-meta-row"><span class="meta-key">작성일</span><span class="meta-val">${todayStr()}</span></div>
+        <div class="est-meta-row"><span class="meta-key">수&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;신</span><span class="meta-val"><b>${escHtml(client)}</b> 귀중</span></div>
+        <div class="est-meta-row"><span class="meta-key">건&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;명</span><span class="meta-val">${escHtml(project)}</span></div>
+        <div class="est-meta-row"><span class="meta-key">공급가액</span><span class="meta-val highlight">${totalWon} (${fmt(v.total)}원, 부가가치세 별도)</span></div>
+        <div class="est-meta-row"><span class="meta-key">결제조건</span><span class="meta-val">${escHtml(payTerm)}</span></div>
+        <div class="est-meta-row"><span class="meta-key">기&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;간</span><span class="meta-val">${escHtml(period)}</span></div>
+      </div>
+      <div class="est-meta-right">
+        <div class="est-meta-row"><span class="meta-key">사업자등록번호</span><span class="meta-val">787-87-01752</span></div>
+        <div class="est-meta-row"><span class="meta-key">상&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;호</span><span class="meta-val">주식회사 비엔시스템 &nbsp; 대표: 엄 요 한</span></div>
+        <div class="est-meta-row"><span class="meta-key">업&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;태</span><span class="meta-val">정보통신업</span></div>
+        <div class="est-meta-row"><span class="meta-key">주&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;소</span><span class="meta-val">서울 노원구 화랑로 419-7 3층 전관</span></div>
+        <div class="est-meta-row" style="margin-top:8px;"><span class="meta-key">담당자</span><span class="meta-val">엄 요 한</span></div>
+        <div class="est-meta-row"><span class="meta-key">이메일</span><span class="meta-val">best@bn-system.com</span></div>
+        <div class="est-meta-row"><span class="meta-key">전&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;화</span><span class="meta-val">050-7737-4560 / 010-2308-3853</span></div>
+      </div>
+    </div>
+
+    <div class="est-section">
+      <div class="sec-title"><span class="sec-num">1.</span> 견적내역</div>
+      <table class="est-table">
+        <thead>
+          <tr>
+            <th style="width:60px">항목</th>
+            <th>직무</th>
+            <th>인원(명)</th>
+            <th>기간(일)</th>
+            <th>투입률</th>
+            <th>일용가(원)</th>
+            <th>합계(원)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${v.dayspm > 0 ? `<tr>
+            <td class="col-item" rowspan="${rowspan(v)}" style="font-size:12px">인건비</td>
+            <td class="col-name">PM/기획</td>
+            <td>1</td><td>${v.dayspm}</td><td>100%</td>
+            <td style="text-align:right; padding-right:14px;">${fmt(v.pricepm)}</td>
+            <td class="col-amount">${fmt(v.amtpm)}</td>
+          </tr>` : ''}
+          ${v.daysdesign > 0 ? `<tr>
+            ${v.dayspm === 0 ? `<td class="col-item" rowspan="${rowspan(v)}" style="font-size:12px">인건비</td>` : ''}
+            <td class="col-name">디자인 및 퍼블리싱</td>
+            <td>1</td><td>${v.daysdesign}</td><td>100%</td>
+            <td style="text-align:right; padding-right:14px;">${fmt(v.pricedesign)}</td>
+            <td class="col-amount">${fmt(v.amtdesign)}</td>
+          </tr>` : ''}
+          ${v.daysdev > 0 ? `<tr>
+            ${v.dayspm === 0 && v.daysdesign === 0 ? `<td class="col-item" rowspan="${rowspan(v)}" style="font-size:12px">인건비</td>` : ''}
+            <td class="col-name">개발</td>
+            <td>1</td><td>${v.daysdev}</td><td>100%</td>
+            <td style="text-align:right; padding-right:14px;">${fmt(v.pricedev)}</td>
+            <td class="col-amount">${fmt(v.amtdev)}</td>
+          </tr>` : ''}
+          ${v.daysqa > 0 ? `<tr>
+            ${v.dayspm === 0 && v.daysdesign === 0 && v.daysdev === 0 ? `<td class="col-item" rowspan="${rowspan(v)}" style="font-size:12px">인건비</td>` : ''}
+            <td class="col-name">검수</td>
+            <td>1</td><td>${v.daysqa}</td><td>100%</td>
+            <td style="text-align:right; padding-right:14px;">${fmt(v.priceqa)}</td>
+            <td class="col-amount">${fmt(v.amtqa)}</td>
+          </tr>` : ''}
+          <tr class="row-subtotal">
+            <td colspan="5" class="col-total-label">소계</td>
+            <td></td>
+            <td class="col-subtotal">${fmt(v.labor)}</td>
+          </tr>
+          <tr class="row-expense">
+            <td class="col-item" style="font-size:12px">기타</td>
+            <td class="col-name" colspan="5">제경비</td>
+            <td class="col-subtotal">${fmt(v.expense)}</td>
+          </tr>
+          <tr class="row-grand">
+            <td colspan="6" style="text-align:center; letter-spacing:.04em;">총 합계 &nbsp;(공급가액, 부가가치세 별도)</td>
+            <td class="col-amount">${fmt(v.total)} 원</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="footnote">* 휴일 제외 업무일(월20일) 기준</div>
+    </div>
+
+    <div class="est-section">
+      <div class="sec-title"><span class="sec-num">2.</span> 기간</div>
+      <div class="est-section-body">◦ 기간: <b>${escHtml(period)}</b></div>
+    </div>
+
+    <div class="est-section">
+      <div class="sec-title"><span class="sec-num">3.</span> 세부내역</div>
+      <div class="est-section-body">${memoHtml}</div>
+    </div>
+
+    <div class="est-section">
+      <div class="sec-title"><span class="sec-num">4.</span> 견적조건</div>
+      <ul class="condition-list">
+        <li>본 견적은 작성일자로부터 20일 간 유효함</li>
+        <li>본 견적은 요구사항을 기준으로 했음, 요구사항이 변경될 경우 변동될 수 있음</li>
+        <li>본 견적은 2018년 한국소프트웨어산업협회 단가를 기준으로 산정함</li>
+      </ul>
+
+      <div style="margin-top:14px; font-size:12px; color:var(--gray4); text-align:center;">※ 2018년 SW기술자 평균임금 – 등급별 &nbsp;&nbsp;&nbsp; (단위: 원)</div>
+      <table class="rate-table">
+        <thead>
+          <tr><th>구분</th><th>일평균임금 (M/D)</th><th>월평균임금 (M/M)</th><th>시간평균임금 (M/H)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>고급기술자</td><td>305,433</td><td>6,353,006</td><td>38,179</td></tr>
+          <tr><td>중급기술자</td><td>239,748</td><td>4,986,758</td><td>29,969</td></tr>
+          <tr><td>초급기술자</td><td>215,681</td><td>4,486,165</td><td>26,960</td></tr>
+        </tbody>
+      </table>
+      <div class="rate-note">* 한국소프트웨어산업협회</div>
+    </div>
+
+    <div class="est-end">(이상)</div>
+  `;
+}
+
+// 인건비 항목 rowspan 계산
+function rowspan(v) {
+  let cnt = 0;
+  if (v.dayspm > 0) cnt++;
+  if (v.daysdesign > 0) cnt++;
+  if (v.daysdev > 0) cnt++;
+  if (v.daysqa > 0) cnt++;
+  return Math.max(cnt, 1);
+}
+
+function escHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function resetAll() {
+  if (!confirm('모든 입력값을 초기화 하시겠습니까?')) return;
+  document.getElementById('docNo').value = '';
+  document.getElementById('clientName').value = '';
+  document.getElementById('projectName').value = '';
+  document.getElementById('paymentTerm').value = '계좌이체(계약금50%, 잔금50%)';
+  document.getElementById('period').value = '';
+  document.getElementById('pricepm').value = '239,748';
+  document.getElementById('pricedesign').value = '239,748';
+  document.getElementById('pricedev').value = '305,433';
+  document.getElementById('priceqa').value = '239,748';
+  document.getElementById('dayspm').value = '0';
+  document.getElementById('daysdesign').value = '0';
+  document.getElementById('daysdev').value = '0';
+  document.getElementById('daysqa').value = '0';
+  document.getElementById('expenseAuto').checked = true;
+  document.getElementById('expenseManualWrap').style.display = 'none';
+  document.getElementById('expenseManual').value = '';
+  document.getElementById('detailMemo').value = '';
+  render();
+}
+
+function printDoc() {
+  window.print();
+}
+
+// 초기 렌더
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko" data-layout="semibox" data-sidebar-visibility="show"
+      data-topbar="light" data-sidebar="light" data-sidebar-size="lg"
+      data-sidebar-image="none" data-preloader="disable">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[A09] 작성자 계정 관리 — 멘사코리아 회지 관리자</title>
+  <script src="assets/js/layout.js"></script>
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/icons.min.css" rel="stylesheet">
+  <link href="assets/css/app.min.css" rel="stylesheet">
+  <link href="assets/css/custom.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [A09] 작성자 계정 관리
+  PATH   : /admin/users
+  SPEC   : data/specs/A09.js
+  APIs   : GET   /admin/api/users
+           POST  /admin/api/users               (신규 등록)
+           PATCH /admin/api/users/{id}           (정보 수정)
+           PATCH /admin/api/users/{id}/status    (활성/비활성 전환)
+  NOTE   : 작성자 계정만 관리 (관리자 계정은 서버 설정으로 처리).
+           임시 비밀번호 발급 후 첫 로그인 시 변경 유도.
+============================================================ -->
+<div id="layout-wrapper">
+  <header id="page-topbar"><div class="layout-width"><div class="navbar-header">
+    <div class="d-flex align-items-center gap-3">
+      <button type="button" class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger"><span class="hamburger-icon"><span></span><span></span><span></span></span></button>
+      <span class="fw-bold" style="color:#1B4F8A; font-size:15px;">멘사코리아 회지 관리</span>
+    </div>
+    <div class="d-flex align-items-center gap-2"><button type="button" class="btn btn-sm btn-outline-secondary">로그아웃</button></div>
+  </div></div></header>
+  <div class="app-menu navbar-menu">
+    <div class="navbar-brand-box"><a href="A02_대시보드.html" class="logo logo-light"><span class="logo-lg" style="font-size:14px; font-weight:800; color:#1B4F8A;">회지 관리</span></a></div>
+    <div data-simplebar class="h-100"><ul class="navbar-nav">
+      <li class="nav-item"><a class="nav-link" href="A02_대시보드.html"><i class="ri-dashboard-line"></i><span>대시보드</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A03_회지_목록.html"><i class="ri-book-open-line"></i><span>회지 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A04_원고_목록.html"><i class="ri-file-text-line"></i><span>원고 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A06_원고_순서관리.html"><i class="ri-drag-move-line"></i><span>순서 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A07_이미지_관리.html"><i class="ri-image-2-line"></i><span>이미지 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A08_Export.html"><i class="ri-download-2-line"></i><span>Export</span></a></li>
+      <li class="nav-item"><a class="nav-link active" href="A09_작성자_계정관리.html"><i class="ri-user-settings-line"></i><span>작성자 관리</span></a></li>
+    </ul></div>
+  </div>
+  <div class="vertical-overlay"></div>
+
+  <div class="main-content"><div class="page-content"><div class="container-fluid">
+
+    <div class="row"><div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0">작성자 계정 관리</h4>
+        <div class="page-title-right"><ol class="breadcrumb m-0">
+          <li class="breadcrumb-item"><a href="A02_대시보드.html">대시보드</a></li>
+          <li class="breadcrumb-item active">작성자 관리</li>
+        </ol></div>
+      </div>
+    </div></div>
+
+    <!-- [SECTION: USER-LIST] 작성자 목록 (패턴 A)
+      API    : GET /admin/api/users
+      Response: { users: [{id, name, email, role, status, article_count, created_at, last_login_at}] }
+      빈 상태: "등록된 작성자가 없습니다." 메시지 표시
+    ──────────────────────────────────────────────── -->
+    <div class="row" data-sb-anno="user-list">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-header border-0">
+            <div class="row align-items-center gy-3">
+              <div class="col-sm"><h5 class="card-title mb-0">작성자 목록</h5></div>
+              <div class="col-sm-auto">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                  <i class="ri-user-add-line me-1"></i>작성자 등록
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 상태 필터 탭 -->
+          <!-- [SECTION: STATUS-FILTER] 활성 상태 필터 -->
+          <div class="card-body border border-dashed border-end-0 border-start-0 py-2" data-sb-anno="status-filter">
+            <div class="d-flex gap-1 flex-wrap">
+              <button class="btn btn-sm btn-primary">전체 (5)</button>
+              <button class="btn btn-sm btn-soft-secondary">활성 (4)</button>
+              <button class="btn btn-sm btn-soft-secondary">비활성 (1)</button>
+            </div>
+          </div>
+          <!-- [/SECTION: STATUS-FILTER] -->
+
+          <div class="card-body pt-0">
+            <div class="table-responsive table-card">
+              <!-- [API-DATA] GET /admin/api/users -->
+              <table class="table table-nowrap align-middle">
+                <thead class="text-muted table-light">
+                  <tr class="text-uppercase fs-13">
+                    <th>작성자명</th>
+                    <th>이메일</th>
+                    <th>소속/역할</th>
+                    <th>원고 수</th>
+                    <th>최근 로그인</th>
+                    <th>등록일</th>
+                    <th>상태</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="fw-semibold">최주은 멘산</td>
+                    <td class="text-muted">sns@mensa.kr</td>
+                    <td><small>SNS위원장</small></td>
+                    <td><span class="badge bg-info-subtle text-info">1</span></td>
+                    <td class="text-muted">2026-04-28</td>
+                    <td class="text-muted">2026-03-10</td>
+                    <td><span class="badge bg-success-subtle text-success">활성</span></td>
+                    <td>
+                      <ul class="list-inline hstack gap-2 mb-0">
+                        <li class="list-inline-item"><a href="#" class="text-primary d-inline-block" title="정보 수정" data-bs-toggle="modal" data-bs-target="#editUserModal"><i class="ri-pencil-fill fs-16"></i></a></li>
+                        <li class="list-inline-item"><a href="#" class="text-warning d-inline-block" title="비활성화" data-bs-toggle="modal" data-bs-target="#deactivateModal"><i class="ri-forbid-line fs-16"></i></a></li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">김멘사 멘산</td>
+                    <td class="text-muted">event@mensa.kr</td>
+                    <td><small>행사위원회</small></td>
+                    <td><span class="badge bg-info-subtle text-info">3</span></td>
+                    <td class="text-muted">2026-04-20</td>
+                    <td class="text-muted">2026-03-10</td>
+                    <td><span class="badge bg-success-subtle text-success">활성</span></td>
+                    <td>
+                      <ul class="list-inline hstack gap-2 mb-0">
+                        <li class="list-inline-item"><a href="#" class="text-primary d-inline-block" title="정보 수정" data-bs-toggle="modal" data-bs-target="#editUserModal"><i class="ri-pencil-fill fs-16"></i></a></li>
+                        <li class="list-inline-item"><a href="#" class="text-warning d-inline-block" title="비활성화" data-bs-toggle="modal" data-bs-target="#deactivateModal"><i class="ri-forbid-line fs-16"></i></a></li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">이회장 멘산</td>
+                    <td class="text-muted">president@mensa.kr</td>
+                    <td><small>회장</small></td>
+                    <td><span class="badge bg-info-subtle text-info">1</span></td>
+                    <td class="text-muted">2026-04-15</td>
+                    <td class="text-muted">2026-03-10</td>
+                    <td><span class="badge bg-success-subtle text-success">활성</span></td>
+                    <td>
+                      <ul class="list-inline hstack gap-2 mb-0">
+                        <li class="list-inline-item"><a href="#" class="text-primary d-inline-block" title="정보 수정" data-bs-toggle="modal" data-bs-target="#editUserModal"><i class="ri-pencil-fill fs-16"></i></a></li>
+                        <li class="list-inline-item"><a href="#" class="text-warning d-inline-block" title="비활성화" data-bs-toggle="modal" data-bs-target="#deactivateModal"><i class="ri-forbid-line fs-16"></i></a></li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">박위원 멘산</td>
+                    <td class="text-muted">activity@mensa.kr</td>
+                    <td><small>활동위원회</small></td>
+                    <td><span class="badge bg-info-subtle text-info">2</span></td>
+                    <td class="text-muted">2026-04-18</td>
+                    <td class="text-muted">2026-03-15</td>
+                    <td><span class="badge bg-success-subtle text-success">활성</span></td>
+                    <td>
+                      <ul class="list-inline hstack gap-2 mb-0">
+                        <li class="list-inline-item"><a href="#" class="text-primary d-inline-block" title="정보 수정" data-bs-toggle="modal" data-bs-target="#editUserModal"><i class="ri-pencil-fill fs-16"></i></a></li>
+                        <li class="list-inline-item"><a href="#" class="text-warning d-inline-block" title="비활성화" data-bs-toggle="modal" data-bs-target="#deactivateModal"><i class="ri-forbid-line fs-16"></i></a></li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr class="text-muted">
+                    <td class="fw-semibold">정멘산 멘산</td>
+                    <td>old@mensa.kr</td>
+                    <td><small>—</small></td>
+                    <td><span class="badge bg-secondary-subtle text-secondary">0</span></td>
+                    <td>—</td>
+                    <td>2025-10-01</td>
+                    <td><span class="badge bg-danger-subtle text-danger">비활성</span></td>
+                    <td>
+                      <ul class="list-inline hstack gap-2 mb-0">
+                        <li class="list-inline-item"><a href="#" class="text-primary d-inline-block" title="정보 수정" data-bs-toggle="modal" data-bs-target="#editUserModal"><i class="ri-pencil-fill fs-16"></i></a></li>
+                        <li class="list-inline-item"><a href="#" class="text-success d-inline-block" title="활성화" data-bs-toggle="modal" data-bs-target="#activateModal"><i class="ri-check-line fs-16"></i></a></li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- [/SECTION: USER-LIST] -->
+
+    <!-- [MODAL: addUserModal] 작성자 신규 등록
+      POST /admin/api/users → { name, email, role, temp_password }
+    ──────────────────────────────────────────────── -->
+    <!-- [FORM: addUserForm]
+      name        : required, maxlength=50
+      email       : required, format=email, unique
+      role        : optional, maxlength=50
+      temp_password: required, minlength=8
+    -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">작성자 등록</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">이름 <span class="text-danger">*</span></label>
+              <input type="text" id="add-name" class="form-control" placeholder="홍길동 멘산" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">이메일 <span class="text-danger">*</span></label>
+              <input type="email" id="add-email" class="form-control" placeholder="example@mensa.kr" required>
+              <div class="form-text text-muted">로그인 ID로 사용됩니다.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">소속/역할</label>
+              <input type="text" id="add-role" class="form-control" placeholder="예: SNS위원장">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">임시 비밀번호 <span class="text-danger">*</span></label>
+              <input type="text" id="add-temp-pw" class="form-control" placeholder="8자 이상" required>
+              <div class="form-text text-muted">작성자에게 직접 전달하세요. 첫 로그인 후 변경을 안내하세요.</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
+            <button type="button" class="btn btn-primary" id="add-user-submit-btn" disabled>등록</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [MODAL: editUserModal] 작성자 정보 수정
+      PATCH /admin/api/users/{id} → { name, role, new_password? }
+    ──────────────────────────────────────────────── -->
+    <!-- [FORM: editUserForm]
+      name        : required, maxlength=50
+      role        : optional, maxlength=50
+      new_password: optional, minlength=8 (입력 시에만 변경)
+    -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">작성자 정보 수정</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">이름 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" value="최주은 멘산" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">이메일</label>
+              <input type="email" class="form-control" value="sns@mensa.kr" disabled>
+              <div class="form-text text-muted">이메일(로그인 ID)은 변경할 수 없습니다.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">소속/역할</label>
+              <input type="text" class="form-control" value="SNS위원장">
+            </div>
+            <div class="mb-0">
+              <label class="form-label">비밀번호 재설정 <span class="text-muted fw-normal">(선택)</span></label>
+              <input type="text" class="form-control" placeholder="새 비밀번호 입력 (8자 이상, 비워두면 변경 안 됨)">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
+            <button type="button" class="btn btn-primary">저장</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [MODAL: deactivateModal] 계정 비활성화 확인
+      PATCH /admin/api/users/{id}/status → { status: "inactive" }
+    ──────────────────────────────────────────────── -->
+    <div class="modal fade" id="deactivateModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">계정 비활성화</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <i class="ri-forbid-line fs-1 text-warning"></i>
+            <p class="mt-3 mb-1"><strong>최주은 멘산</strong> 계정을 비활성화하시겠습니까?</p>
+            <small class="text-muted">비활성화된 계정은 로그인이 불가능합니다.<br>기존 원고 데이터는 유지됩니다.</small>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
+            <button type="button" class="btn btn-warning">비활성화</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [MODAL: activateModal] 계정 활성화 확인
+      PATCH /admin/api/users/{id}/status → { status: "active" }
+    ──────────────────────────────────────────────── -->
+    <div class="modal fade" id="activateModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">계정 활성화</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center">
+            <i class="ri-check-line fs-1 text-success"></i>
+            <p class="mt-3 mb-1"><strong>정멘산 멘산</strong> 계정을 다시 활성화하시겠습니까?</p>
+            <small class="text-muted">활성화하면 해당 작성자가 다시 로그인할 수 있습니다.</small>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
+            <button type="button" class="btn btn-success">활성화</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div></div>
+  <footer class="footer"><div class="container-fluid"><div class="row"><div class="col-sm-6">© 2026 멘사코리아 회지 제작 시스템</div></div></div></footer>
+  </div>
+</div>
+<script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/libs/simplebar/simplebar.min.js"></script>
+<script src="assets/libs/node-waves/waves.min.js"></script>
+<script src="assets/libs/feather-icons/feather.min.js"></script>
+<script src="assets/js/plugins.js"></script>
+<script src="assets/js/app.js"></script>
+<!-- assets/js/pages/A09.init.js -->
+<script>
+// 등록 버튼 활성화: 이름·이메일·임시비밀번호 모두 입력 시
+const addFields = ['add-name', 'add-email', 'add-temp-pw'];
+const addBtn = document.querySelector('#add-user-submit-btn');
+addFields.forEach(id => {
+  document.querySelector('#' + id).addEventListener('input', () => {
+    const allFilled = addFields.every(f => document.querySelector('#' + f).value.trim() !== '');
+    addBtn.disabled = !allFilled;
+  });
+});
+</script>
+</body></html>

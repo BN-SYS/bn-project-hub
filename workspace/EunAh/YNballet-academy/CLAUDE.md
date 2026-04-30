@@ -41,5 +41,5 @@
 - URL 베이스: http://localhost/yn_ballet (dev/public/ 기준)
 
 ## 환경
-- 스토리보드 캡처: Windows PowerShell 5.1+
-- Chrome: 자동 탐색
+- 스토리보드 캡처: PowerShell 7+ (Windows: `powershell` / Mac: `pwsh`)
+- Chrome: 자동 탐색 (Windows 경로 + Mac /Applications/ + PATH)

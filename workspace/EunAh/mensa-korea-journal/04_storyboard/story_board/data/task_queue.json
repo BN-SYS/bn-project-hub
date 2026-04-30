@@ -1,0 +1,14 @@
+[
+  { "id": "U01", "name": "작성자 로그인",    "group": "A_인증",      "status": "sb_done", "lockedBy": null, "flags": [], "history": [{"action":"sb_done","at":"2026-04-30"}] },
+  { "id": "U02", "name": "원고 입력 폼",     "group": "B_원고입력",   "status": "sb_done", "lockedBy": null, "flags": [], "history": [{"action":"sb_done","at":"2026-04-30"}] },
+  { "id": "U03", "name": "내 원고 목록",     "group": "B_원고입력",   "status": "sb_done", "lockedBy": null, "flags": [], "history": [{"action":"sb_done","at":"2026-04-30"}] },
+  { "id": "A01", "name": "관리자 로그인",    "group": "C_관리자인증",  "status": "sb_done", "lockedBy": null, "flags": [], "history": [{"action":"sb_done","at":"2026-04-30"}] },
+  { "id": "A02", "name": "대시보드",         "group": "D_대시보드",   "status": "sb_done", "lockedBy": null, "flags": [], "history": [{"action":"sb_done","at":"2026-04-30"}] },
+  { "id": "A03", "name": "회지 목록",        "group": "E_회지관리",   "status": "sb_done", "lockedBy": null, "flags": [], "history": [{"action":"sb_done","at":"2026-04-30"}] },
+  { "id": "A04", "name": "원고 목록",        "group": "F_원고관리",   "status": "sb_done", "lockedBy": null, "flags": [], "history": [{"action":"sb_done","at":"2026-04-30"}] },
+  { "id": "A05", "name": "원고 편집",        "group": "F_원고관리",   "status": "sb_done", "lockedBy": null, "flags": [], "history": [{"action":"sb_done","at":"2026-04-30"}] },
+  { "id": "A06", "name": "원고 순서 관리",   "group": "G_순서채번",   "status": "sb_done", "lockedBy": null, "flags": [], "history": [{"action":"sb_done","at":"2026-04-30"}] },
+  { "id": "A07", "name": "이미지 관리",      "group": "G_순서채번",   "status": "sb_done", "lockedBy": null, "flags": [], "history": [{"action":"sb_done","at":"2026-04-30"}] },
+  { "id": "A08", "name": "Export",           "group": "H_Export",    "status": "sb_done", "lockedBy": null, "flags": [], "history": [{"action":"sb_done","at":"2026-04-30"}] },
+  { "id": "A09", "name": "작성자 계정 관리", "group": "I_계정관리",   "status": "sb_done", "lockedBy": null, "flags": [], "history": [{"action":"sb_done","at":"2026-04-30"}] }
+]

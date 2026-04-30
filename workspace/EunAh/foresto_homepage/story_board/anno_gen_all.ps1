@@ -9,6 +9,7 @@ param([string]$section = "all")
 
 $baseDir = $PSScriptRoot
 $script  = Join-Path $baseDir "anno_gen.ps1"
+$psCli   = if ($env:OS -eq "Windows_NT") { "powershell" } else { "pwsh" }
 
 # ── 페이지 목록 (capture.ps1과 동일하게 유지) ──────────────
 $userPages = @(
@@ -152,7 +153,7 @@ foreach ($pg in $targets) {
   }
 
   Write-Host "RUN   $($pg.id)  $($pg.path)" -ForegroundColor Cyan
-  $result = & powershell -ExecutionPolicy Bypass -File $script -pageId $pg.id -path $pg.path 2>&1
+  $result = & $psCli -ExecutionPolicy Bypass -File $script -pageId $pg.id -path $pg.path 2>&1
   if ($LASTEXITCODE -eq 0 -or ($result -match "갱신 완료")) {
     Write-Host "  OK" -ForegroundColor Green
     $ok++

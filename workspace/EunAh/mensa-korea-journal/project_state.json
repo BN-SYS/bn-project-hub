@@ -3,22 +3,38 @@
   "client": "멘사코리아",
   "pm": "eunahp86@gmail.com",
   "created_at": "2026-04-30",
-  "currentPhase": "01_rfp",
+  "currentPhase": "04_storyboard",
   "lastUpdated": "2026-04-30",
-  "overview": "회지 제작 자동화 시스템. 원고 수신~디자이너 전달까지 단일 워크플로우. PHP/MySQL/Velzon 4.4.1. 원고 입력·서식정제·태그관리·사진채번·docx Export. Phase 1 우선 구축.",
+  "overview": "회지 제작 자동화 시스템. 원고 수신~디자이너 전달 단일 워크플로우. PHP MVC / MySQL / Velzon 4.4.1 / Quill.js / PHPWord. 화면 12개(U01~U03, A01~A09). Phase 1 우선: 원고입력·파일파싱·서식정제·태그UI·사진채번·순서관리·docx Export.",
   "tech_stack": {
     "backend": "PHP (MVC)",
     "db": "MySQL",
     "admin_ui": "Velzon 4.4.1",
     "editor": "Quill.js",
-    "diff": "diff-match-patch",
+    "drag": "SortableJS",
     "export": "PHPWord (docx)"
   },
   "phases": {
-    "01_rfp": { "status": "in_progress" },
-    "02_planning": { "status": "pending" },
-    "03_requirements": { "status": "pending" },
-    "04_storyboard": { "status": "pending" },
+    "01_rfp": {
+      "status": "done",
+      "completedAt": "2026-04-30",
+      "summary": "기능 16개 도출. 리스크 5개(hwp파싱·Quill커스텀·docx매핑·재채번·보안). 확인필요 5개(Q1~Q5)."
+    },
+    "02_planning": {
+      "status": "done",
+      "completedAt": "2026-04-30",
+      "summary": "기획서·WBS·마일스톤 작성 완료. 태스크 47개, 예상 D+88일. M1~M7 마일스톤 확정."
+    },
+    "03_requirements": {
+      "status": "done",
+      "completedAt": "2026-04-30",
+      "summary": "요구사항_정의서 완료. 사용자 3개(U01~U03), 관리자 9개(A01~A09), 총 12개 화면. 그룹: A_인증·B_원고입력·C_관리자인증·D_대시보드·E_회지관리·F_원고관리·G_순서채번·H_Export·I_계정관리."
+    },
+    "04_storyboard": {
+      "status": "in_progress",
+      "startedAt": "2026-04-30",
+      "summary": "12개 화면 HTML 프로토타입 전체 완료(U01~U03, A01~A09). SNS위원회 샘플 원고 반영. specs 생성 및 캡처 파이프라인 실행 대기."
+    },
     "05_dev_handoff": { "status": "pending" },
     "06_qa": { "status": "pending" },
     "07_delivery": { "status": "pending" },

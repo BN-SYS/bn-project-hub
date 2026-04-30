@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko" data-layout="semibox" data-sidebar-visibility="show"
+      data-topbar="light" data-sidebar="light" data-sidebar-size="lg"
+      data-sidebar-image="none" data-preloader="disable">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[A01] 관리자 로그인 — 멘사코리아 회지</title>
+  <script src="assets/js/layout.js"></script>
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/icons.min.css" rel="stylesheet">
+  <link href="assets/css/app.min.css" rel="stylesheet">
+  <link href="assets/css/custom.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [A01] 관리자 로그인
+  PATH   : /admin/login
+  SPEC   : data/specs/A01.js
+  APIs   : POST /admin/api/auth/login
+  NOTE   : 관리자 단일 계정. 로그인 성공 시 /admin/dashboard 이동.
+           일반 작성자 로그인(/login)과 완전히 분리.
+============================================================ -->
+
+<!-- [SECTION: LOGIN-PAGE] 관리자 로그인 ─────────────────── -->
+<div class="auth-page-wrapper auth-bg-cover py-5 d-flex justify-content-center align-items-center min-vh-100">
+  <div class="bg-overlay"></div>
+  <div class="auth-page-content overflow-hidden pt-lg-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card overflow-hidden card-bg-fill galaxy-border-none">
+            <div class="row g-0">
+
+              <!-- 좌측 브랜드 배너 -->
+              <div class="col-lg-6" style="background: #1B4F8A; padding: 40px; display:flex; flex-direction:column; justify-content:center;">
+                <div class="text-white">
+                  <h1 class="fw-bold mb-2" style="font-size:28px;">멘사코리아</h1>
+                  <h2 class="fw-semibold mb-3" style="font-size:20px; opacity:.85;">회지 제작 자동화 시스템</h2>
+                  <p style="opacity:.7; font-size:14px; line-height:1.7;">
+                    원고 수신부터 디자이너 전달까지<br>
+                    수작업을 시스템으로 대체합니다.
+                  </p>
+                  <div class="mt-4 pt-2" style="opacity:.5; font-size:12px;">관리자 전용 페이지</div>
+                </div>
+              </div>
+
+              <!-- 우측 로그인 폼 -->
+              <div class="col-lg-6">
+                <div class="p-lg-5 p-4">
+                  <div class="mb-4">
+                    <h5 class="text-primary">관리자 로그인</h5>
+                    <p class="text-muted">담당자 계정으로 로그인하세요.</p>
+                  </div>
+
+                  <!-- [FORM: admin-login-form] 관리자 로그인
+                    API  : POST /admin/api/auth/login
+                    Fields:
+                      - email    : 관리자 이메일 (required)
+                      - password : 관리자 비밀번호 (required)
+                    Error: 401 → "이메일 또는 비밀번호가 올바르지 않습니다."
+                    Success: /admin/dashboard 리다이렉트
+                  ──────────────────────────────────────── -->
+                  <form id="admin-login-form" data-sb-anno="admin-login-form">
+                    <div class="mb-3">
+                      <label for="admin-email" class="form-label">이메일 <span class="text-danger">*</span></label>
+                      <input type="email" class="form-control" id="admin-email" placeholder="관리자 이메일" required>
+                      <div class="invalid-feedback">올바른 이메일 형식을 입력하세요.</div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="admin-pw" class="form-label">비밀번호 <span class="text-danger">*</span></label>
+                      <div class="position-relative auth-pass-inputgroup">
+                        <input type="password" class="form-control pe-5 password-input" id="admin-pw" placeholder="비밀번호" required>
+                        <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button">
+                          <i class="ri-eye-fill align-middle"></i>
+                        </button>
+                      </div>
+                      <div class="invalid-feedback">비밀번호를 입력하세요.</div>
+                    </div>
+
+                    <div id="login-alert" class="alert alert-danger d-none" role="alert">
+                      이메일 또는 비밀번호가 올바르지 않습니다.
+                    </div>
+
+                    <div class="mt-4">
+                      <button class="btn btn-primary w-100" type="submit" id="login-btn" disabled>로그인</button>
+                    </div>
+                  </form>
+                  <!-- [/FORM: admin-login-form] -->
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- [/SECTION: LOGIN-PAGE] -->
+
+<script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/app.js"></script>
+<!-- assets/js/pages/A01.init.js -->
+<script>
+const form = document.querySelector('#admin-login-form');
+const btn = document.querySelector('#login-btn');
+const fields = form.querySelectorAll('[required]');
+
+function check() {
+  btn.disabled = ![...fields].every(f => f.value.trim());
+}
+fields.forEach(f => f.addEventListener('input', check));
+check();
+
+// 비밀번호 표시 토글
+document.querySelector('.password-addon').addEventListener('click', function() {
+  const inp = document.querySelector('#admin-pw');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+});
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  // POST /admin/api/auth/login → 성공 시 /admin/dashboard 이동 (프로토타입)
+  window.location.href = 'A02_대시보드.html';
+});
+</script>
+</body>
+</html>

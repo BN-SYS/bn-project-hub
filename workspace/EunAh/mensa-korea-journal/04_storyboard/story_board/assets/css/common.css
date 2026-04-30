@@ -1,0 +1,134 @@
+/* ============================================================
+   멘사코리아 회지 제작 자동화 시스템 — 공통 CSS (사용자 영역)
+   Velzon 관리자 화면은 admin/assets/css/app.min.css 사용
+   BN_STYLE_GUIDE 기반
+   ============================================================ */
+
+:root {
+  /* 색상 — 멘사 브랜드 컬러 (추후 확정 시 변경) */
+  --color-primary:       #1B4F8A;
+  --color-primary-hover: #153E6E;
+  --color-danger:        #EF4444;
+  --color-success:       #22C55E;
+  --color-warning:       #F59E0B;
+  --color-text:          #111827;
+  --color-muted:         #6B7280;
+  --color-border:        #E5E7EB;
+  --color-bg:            #F9FAFB;
+  --color-white:         #FFFFFF;
+
+  /* 타이포그래피 */
+  --font-size-sm:   12px;
+  --font-size-base: 14px;
+  --font-size-lg:   16px;
+  --font-size-xl:   20px;
+  --font-size-h2:   22px;
+  --font-size-h1:   28px;
+  --font-family:    'Noto Sans KR', sans-serif;
+
+  /* 레이아웃 */
+  --content-max-width: 1200px;
+  --content-padding:   24px;
+  --radius:            6px;
+  --shadow-sm:         0 1px 2px rgba(0,0,0,0.05);
+  --shadow:            0 1px 3px rgba(0,0,0,0.10);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-family); font-size: var(--font-size-base); color: var(--color-text); background: var(--color-bg); }
+
+/* ── 레이아웃 ─────────────────────────────── */
+.container       { max-width: var(--content-max-width); margin: 0 auto; padding: 0 var(--content-padding); }
+.page-title      { font-size: var(--font-size-h2); font-weight: 700; margin-bottom: 20px; }
+.card            { background: var(--color-white); border: 1px solid var(--color-border); border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+.card__body      { padding: 24px; }
+
+/* ── 상태 배지 ───────────────────────────── */
+.badge           { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: var(--font-size-sm); font-weight: 600; }
+.badge-submitted { background: #EFF6FF; color: #1D4ED8; }
+.badge-review    { background: #FEF9C3; color: #92400E; }
+.badge-confirmed { background: #F0FDF4; color: #166534; }
+.badge-inactive  { background: #F3F4F6; color: #6B7280; }
+
+/* ── 빈 상태 ─────────────────────────────── */
+.empty-state     { text-align: center; padding: 60px 20px; color: var(--color-muted); }
+.empty-state p   { margin-top: 8px; font-size: var(--font-size-base); }
+
+/* ── 폼 — BN_STYLE_GUIDE ────────────────── */
+.common__form           { width: 100%; }
+.common-input__wrap     { display: flex; align-items: flex-start; margin-bottom: 18px; gap: 16px; }
+.common-box__label      { width: 140px; flex-shrink: 0; padding-top: 8px; font-weight: 600; font-size: var(--font-size-base); }
+.common-box__input      { flex: 1; }
+.input__inner           { width: 100%; }
+.input__inner input,
+.input__inner select,
+.input__inner textarea  { width: 100%; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: var(--radius); font-size: var(--font-size-base); font-family: var(--font-family); color: var(--color-text); background: var(--color-white); }
+.input__inner input:focus,
+.input__inner textarea:focus,
+.input__inner select:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(27,79,138,0.12); }
+.input-error__message   { display: none; color: var(--color-danger); font-size: var(--font-size-sm); margin-top: 4px; }
+.input-error__message.show { display: block; }
+.important__star        { color: var(--color-danger); margin-left: 2px; }
+
+/* ── 테이블 — BN_STYLE_GUIDE ────────────── */
+.c-table            { width: 100%; }
+.c-table--flex table { width: 100%; border-collapse: collapse; }
+.c-table--flex th,
+.c-table--flex td   { padding: 12px 14px; border-bottom: 1px solid var(--color-border); font-size: var(--font-size-base); text-align: left; }
+.c-table--flex th   { background: #F3F4F6; font-weight: 600; color: var(--color-muted); font-size: var(--font-size-sm); text-transform: uppercase; letter-spacing: .04em; }
+.c-table__top       { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 12px; }
+.c-table__bottom    { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
+
+/* ── 페이지네이션 ────────────────────────── */
+.pagination       { display: flex; gap: 4px; list-style: none; }
+.page__link       { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--color-border); border-radius: var(--radius); font-size: var(--font-size-sm); color: var(--color-text); text-decoration: none; cursor: pointer; }
+.page__link:hover,
+.page__link.on    { background: var(--color-primary); color: var(--color-white); border-color: var(--color-primary); }
+
+/* ── 버튼 — BN_STYLE_GUIDE ─────────────── */
+.btn-l, .btn-m, .btn-s { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; border-radius: var(--radius); font-size: var(--font-size-base); font-family: var(--font-family); cursor: pointer; font-weight: 600; transition: background .15s, opacity .15s; text-decoration: none; }
+.btn-l { height: 44px; padding: 0 24px; min-width: 135px; }
+.btn-m { height: 38px; padding: 0 18px; min-width: 120px; }
+.btn-s { height: 32px; padding: 0 14px; min-width: 100px; font-size: var(--font-size-sm); }
+.btn--primary        { background: var(--color-primary); color: var(--color-white); }
+.btn--primary:hover  { background: var(--color-primary-hover); }
+.btn--danger         { background: var(--color-danger); color: var(--color-white); }
+.btn--danger:hover   { background: #DC2626; }
+.btn--outline        { background: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); }
+.btn--outline:hover  { background: rgba(27,79,138,0.06); }
+.btn--ghost          { background: transparent; color: var(--color-muted); border: 1px solid var(--color-border); }
+.btn--ghost:hover    { background: var(--color-bg); color: var(--color-text); }
+.submit__btn         { background: var(--color-primary); color: var(--color-white); }
+.submit__btn:disabled { background: var(--color-border); color: var(--color-muted); cursor: not-allowed; opacity: .7; }
+
+/* ── 모달 — BN_STYLE_GUIDE ─────────────── */
+.modal-layer        { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; }
+.modal-layer.show   { display: flex; }
+.modal-layer__window { background: var(--color-white); border-radius: var(--radius); width: 480px; max-width: 90vw; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.modal-header       { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--color-border); }
+.modal-header-title { font-size: var(--font-size-lg); font-weight: 700; }
+.modal-header .close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-muted); line-height: 1; }
+.modal-body         { padding: 24px 20px; }
+.modal-body__inner  { display: flex; flex-direction: column; gap: 12px; }
+.modal-footer       { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--color-border); }
+
+/* ── 탭 — BN_STYLE_GUIDE (jQuery 기반 사용) */
+.tabs__link         { display: inline-block; padding: 8px 18px; border-bottom: 2px solid transparent; font-weight: 600; cursor: pointer; font-size: var(--font-size-base); color: var(--color-muted); text-decoration: none; }
+.tabs__link.on      { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+.name-tab__content  { display: none; }
+.name-tab__content.on { display: block; }
+
+/* ── 로그인 화면 전용 ────────────────────── */
+.login-wrap         { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--color-bg); }
+.login-box          { width: 400px; }
+.login-box__logo    { text-align: center; margin-bottom: 32px; }
+.login-box__logo h1 { font-size: var(--font-size-xl); font-weight: 800; color: var(--color-primary); }
+.login-box__logo p  { color: var(--color-muted); font-size: var(--font-size-sm); margin-top: 4px; }
+
+/* ── 스타일 태그 미리보기 (원고 내) ────── */
+.tag-photo   { color: #2563EB; font-weight: 700; }
+.tag-subtitle{ color: #7C3AED; font-weight: 700; }
+.tag-question{ color: #D97706; font-weight: 700; }
+.tag-bold    { font-weight: 700; }
+.tag-empha   { font-weight: 700; color: #059669; font-family: Georgia, serif; }
+.tag-empha2  { font-weight: 700; }

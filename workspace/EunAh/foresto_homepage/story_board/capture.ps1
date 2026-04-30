@@ -117,7 +117,23 @@ $adminPages = @(
 # ══════════════════════════════════════════════════════
 
 # ── 설정 ──────────────────────────────────────────────
-$chrome   = "C:\Program Files\Google\Chrome\Application\chrome.exe"
+$chrome   = $null
+foreach ($c in @(
+  "$env:LOCALAPPDATA\Google\Chrome\Application\chrome.exe",
+  "C:\Program Files\Google\Chrome\Application\chrome.exe",
+  "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "/Applications/Chromium.app/Contents/MacOS/Chromium",
+  "/usr/bin/google-chrome",
+  "/opt/homebrew/bin/google-chrome"
+)) { if ($c -and (Test-Path $c)) { $chrome = $c; break } }
+if (-not $chrome) {
+  foreach ($n in @("chrome","google-chrome","chromium")) {
+    $f = Get-Command $n -ErrorAction SilentlyContinue
+    if ($f) { $chrome = $f.Source; break }
+  }
+}
+if (-not $chrome) { Write-Host "FAIL: Chrome 없음" -ForegroundColor Red; exit 1 }
 $baseDir  = $PSScriptRoot
 $outDir   = Join-Path $baseDir "..\outputs"
 $imgDir   = Join-Path $baseDir "images"
@@ -338,7 +354,7 @@ function Start-CaptureAll {
       continue
     }
 
-    $fileUri = "file:///" + ((Resolve-Path $filePath).Path -replace '\\','/')
+    $fileUri = "file:///" + ((Resolve-Path $filePath).Path -replace '\\','/' -replace '^/','')
     $imgPath = Join-Path $imgDir "$name.png"
 
     Start-CDPCapture -Name $name -FileUri $fileUri -ImgPath $imgPath

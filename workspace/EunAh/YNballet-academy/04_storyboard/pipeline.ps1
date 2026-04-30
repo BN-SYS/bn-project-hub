@@ -1,7 +1,7 @@
-# pipeline.ps1 — 스토리보드 파이프라인 (v2.0.1)
+# pipeline.ps1 — 스토리보드 파이프라인 (v2.1)
 # capture → anno → extract 3단계만 실행.
 # qa_precheck는 포함하지 않음 — storyboard-agent가 스펙 생성 완료 후 별도 실행.
-# 사용법: powershell -ExecutionPolicy Bypass -File pipeline.ps1 [-pageId U03] [-skipCapture] [-fullRebuild]
+# 사용법: pwsh -File pipeline.ps1 (Mac) / powershell -ExecutionPolicy Bypass -File pipeline.ps1 (Windows)
 
 param(
   [string]$pageId      = "",
@@ -12,6 +12,7 @@ $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $bsFile    = Join-Path $scriptDir "data\.build_state.json"
 $logFile   = Join-Path $scriptDir "pipeline_run.log"
+$psCli     = if ($env:OS -eq "Windows_NT") { "powershell" } else { "pwsh" }
 
 function Log($msg) {
   $ts = Get-Date -Format "HH:mm:ss"
@@ -34,7 +35,7 @@ function Run-Step($name, $script, [hashtable]$params = @{}) {
         $argList += "$($kv.Value)"
       }
     }
-    $result = & powershell @argList 2>&1
+    $result = & $psCli @argList 2>&1
     $result | ForEach-Object { Log "  $_" }
     if ($LASTEXITCODE -ne 0) {
       Log "✗ $name FAIL (exit=$LASTEXITCODE)"

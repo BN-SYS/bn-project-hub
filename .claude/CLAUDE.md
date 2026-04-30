@@ -95,7 +95,10 @@ RFP원문 → 기능목록.json → 기획서 → 요구사항_정의서 → pag
 - background 에이전트: 메인 체인 블로킹 없이 병렬 처리
 
 ## 환경
-- 스토리보드 캡처: Windows PowerShell 5.1+ (PS 7+ 권장)
+- 스토리보드 캡처: PowerShell 7+ 필수 (Windows: `powershell` / Mac: `pwsh`)
+  - Windows: `powershell -ExecutionPolicy Bypass -File pipeline.ps1`
+  - Mac: `pwsh -File pipeline.ps1` (PowerShell 7+ 설치 필요: https://aka.ms/install-powershell)
+- Chrome: 자동 탐색 (Windows 표준 경로 + Mac `/Applications/Google Chrome.app` + PATH 순서)
 - 기타 모듈: OS 무관
 - 버전: PM 자동화 v2.1
 

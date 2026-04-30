@@ -38,7 +38,23 @@ $adminPages = @(
   @{name="A33_팝업_등록수정"; path="admin/popup-edit.html"}
 )
 
-$chrome  = "C:\Program Files\Google\Chrome\Application\chrome.exe"
+$chrome  = $null
+foreach ($c in @(
+  "$env:LOCALAPPDATA\Google\Chrome\Application\chrome.exe",
+  "C:\Program Files\Google\Chrome\Application\chrome.exe",
+  "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "/Applications/Chromium.app/Contents/MacOS/Chromium",
+  "/usr/bin/google-chrome",
+  "/opt/homebrew/bin/google-chrome"
+)) { if ($c -and (Test-Path $c)) { $chrome = $c; break } }
+if (-not $chrome) {
+  foreach ($n in @("chrome","google-chrome","chromium")) {
+    $f = Get-Command $n -ErrorAction SilentlyContinue
+    if ($f) { $chrome = $f.Source; break }
+  }
+}
+if (-not $chrome) { Write-Host "FAIL: Chrome 없음" -ForegroundColor Red; exit 1 }
 $baseDir = $PSScriptRoot
 $outDir  = Join-Path $baseDir "..\outputs"
 $imgDir  = Join-Path $baseDir "images"
@@ -170,7 +186,7 @@ foreach ($pg in $adminPages) {
     Write-Host "  SKIP  $($pg.name) (파일 없음)" -ForegroundColor DarkYellow
     continue
   }
-  $uri = "file:///" + ((Resolve-Path $fp).Path -replace '\\','/')
+  $uri = "file:///" + ((Resolve-Path $fp).Path -replace '\\','/' -replace '^/','')
   $img = Join-Path $imgDir "$($pg.name).png"
   Start-CDPCapture -Name $pg.name -FileUri $uri -ImgPath $img
 }

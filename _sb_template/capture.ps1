@@ -1,6 +1,6 @@
-# capture.ps1 — 스토리보드 캡처 (v2.0)
+# capture.ps1 — 스토리보드 캡처 (v2.1)
 # PS 7+ 병렬 처리 / PS 5.1 직렬 폴백
-# 실행: powershell -ExecutionPolicy Bypass -File capture.ps1 [-pageId U03] [-fullRebuild]
+# 실행: pwsh -File capture.ps1 (Mac) / powershell -ExecutionPolicy Bypass -File capture.ps1 (Windows)
 
 param(
   [string]$pageId      = "",
@@ -32,11 +32,16 @@ function Load-BuildState($filePath) {
 
 $chromePath = $null
 $candidates = @(
-  (Get-Command "chrome.exe" -ErrorAction SilentlyContinue)?.Source,
-  (Get-Command "chrome" -ErrorAction SilentlyContinue)?.Source,
+  (Get-Command "chrome.exe"    -ErrorAction SilentlyContinue)?.Source,
+  (Get-Command "chrome"        -ErrorAction SilentlyContinue)?.Source,
+  (Get-Command "google-chrome" -ErrorAction SilentlyContinue)?.Source,
   "$env:LOCALAPPDATA\Google\Chrome\Application\chrome.exe",
   "C:\Program Files\Google\Chrome\Application\chrome.exe",
-  "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
+  "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "/Applications/Chromium.app/Contents/MacOS/Chromium",
+  "/usr/bin/google-chrome",
+  "/opt/homebrew/bin/google-chrome"
 )
 foreach ($c in $candidates) { if ($c -and (Test-Path $c)) { $chromePath = $c; break } }
 if (-not $chromePath) { Write-Host "FAIL: Chrome 없음"; exit 1 }
@@ -109,7 +114,7 @@ if ($psMajor -ge 7) {
     $htmlPath = Join-Path $outputsDir $page.path.TrimStart("../")
     if (-not (Test-Path $htmlPath)) { $captureResults[$page.id] = "SKIP"; return }
     $port = 9300 + ([System.Threading.Thread]::CurrentThread.ManagedThreadId % 100)
-    $fileUri = "file:///" + $htmlPath.Replace("\","/")
+    $fileUri = "file:///" + $htmlPath.TrimStart("/\").Replace("\","/")
     $imgPath = Join-Path $imagesDir $page.img
     $proc = Start-Process -FilePath $chromePath -ArgumentList @(
       "--headless=new","--remote-debugging-port=$port","--window-size=$viewport,900","--no-sandbox","--disable-gpu",$fileUri
@@ -137,7 +142,7 @@ if ($psMajor -ge 7) {
   foreach ($page in $pages) {
     $htmlPath = Join-Path $outputsDir $page.path.TrimStart("../")
     if (-not (Test-Path $htmlPath)) { $captureResults[$page.id] = "SKIP"; continue }
-    $result = Start-CDPCapture ("file:///" + $htmlPath.Replace("\","/")) (Join-Path $imagesDir $page.img) $page.name (Get-WaitMs $htmlPath)
+    $result = Start-CDPCapture ("file:///" + $htmlPath.TrimStart("/\").Replace("\","/")) (Join-Path $imagesDir $page.img) $page.name (Get-WaitMs $htmlPath)
     $captureResults[$page.id] = $result
     if ($result -eq "OK") { $syncState[$page.id] = (Get-Date -Format "yyyy-MM-dd HH:mm") }
   }

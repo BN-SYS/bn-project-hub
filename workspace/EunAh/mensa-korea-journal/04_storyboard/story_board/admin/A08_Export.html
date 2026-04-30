@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko" data-layout="semibox" data-sidebar-visibility="show"
+      data-topbar="light" data-sidebar="light" data-sidebar-size="lg"
+      data-sidebar-image="none" data-preloader="disable">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[A08] Export — 멘사코리아 회지 관리자</title>
+  <script src="assets/js/layout.js"></script>
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/icons.min.css" rel="stylesheet">
+  <link href="assets/css/app.min.css" rel="stylesheet">
+  <link href="assets/css/custom.min.css" rel="stylesheet">
+  <style>
+.tag-mapping-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #f0f0f0; font-size:13px; }
+.tag-mapping-row:last-child { border-bottom:none; }
+.tag-symbol { font-size:16px; width:28px; text-align:center; flex-shrink:0; }
+.tag-name   { width:100px; color:#6c757d; }
+.tag-word   { flex:1; color:#374151; font-size:12px; }
+</style>
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [A08] Export
+  PATH   : /admin/journals/{id}/export
+  SPEC   : data/specs/A08.js
+  APIs   : GET  /admin/api/journals/{id}/export/preview (취합 현황 확인)
+           POST /admin/api/journals/{id}/export/docx    (.docx 생성 + 다운로드)
+           GET  /admin/api/journals/{id}/export/images  (이미지 ZIP 다운로드)
+  NOTE   : PHPWord로 .docx 생성. 태그→Word 스타일 매핑 서버 처리.
+           이미지는 별도 ZIP으로 제공 (Q4 기본값).
+============================================================ -->
+<div id="layout-wrapper">
+  <header id="page-topbar"><div class="layout-width"><div class="navbar-header">
+    <div class="d-flex align-items-center gap-3">
+      <button type="button" class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger"><span class="hamburger-icon"><span></span><span></span><span></span></span></button>
+      <span class="fw-bold" style="color:#1B4F8A; font-size:15px;">멘사코리아 회지 관리</span>
+    </div>
+    <div class="d-flex align-items-center gap-2"><button type="button" class="btn btn-sm btn-outline-secondary">로그아웃</button></div>
+  </div></div></header>
+  <div class="app-menu navbar-menu">
+    <div class="navbar-brand-box"><a href="A02_대시보드.html" class="logo logo-light"><span class="logo-lg" style="font-size:14px; font-weight:800; color:#1B4F8A;">회지 관리</span></a></div>
+    <div data-simplebar class="h-100"><ul class="navbar-nav">
+      <li class="nav-item"><a class="nav-link" href="A02_대시보드.html"><i class="ri-dashboard-line"></i><span>대시보드</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A03_회지_목록.html"><i class="ri-book-open-line"></i><span>회지 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A04_원고_목록.html"><i class="ri-file-text-line"></i><span>원고 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A06_원고_순서관리.html"><i class="ri-drag-move-line"></i><span>순서 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A07_이미지_관리.html"><i class="ri-image-2-line"></i><span>이미지 관리</span></a></li>
+      <li class="nav-item"><a class="nav-link active" href="A08_Export.html"><i class="ri-download-2-line"></i><span>Export</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="A09_작성자_계정관리.html"><i class="ri-user-settings-line"></i><span>작성자 관리</span></a></li>
+    </ul></div>
+  </div>
+  <div class="vertical-overlay"></div>
+
+  <div class="main-content"><div class="page-content"><div class="container-fluid">
+
+    <div class="row"><div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0">Export</h4>
+        <div class="page-title-right"><ol class="breadcrumb m-0">
+          <li class="breadcrumb-item"><a href="A02_대시보드.html">대시보드</a></li>
+          <li class="breadcrumb-item active">Export</li>
+        </ol></div>
+      </div>
+    </div></div>
+
+    <div class="row">
+
+      <!-- 취합 현황 확인 -->
+      <!-- [SECTION: EXPORT-SUMMARY] Export 전 현황 확인
+        API: GET /admin/api/journals/{id}/export/preview
+        Response: { total_articles, confirmed, pending, total_images, photo_count }
+      ──────────────────────────────────────────────── -->
+      <div class="col-lg-8">
+        <div class="card mb-3" data-sb-anno="export-summary">
+          <div class="card-header"><h5 class="card-title mb-0">멘사코리아 회지 제 45호 — Export 현황</h5></div>
+          <div class="card-body">
+
+            <div class="row g-3 mb-4">
+              <div class="col-md-3 col-6">
+                <div class="p-3 border rounded text-center">
+                  <div class="fs-2 fw-bold text-primary">12</div>
+                  <div class="text-muted fs-13">전체 원고</div>
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="p-3 border rounded text-center">
+                  <div class="fs-2 fw-bold text-success">7</div>
+                  <div class="text-muted fs-13">확정 원고</div>
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="p-3 border rounded text-center">
+                  <div class="fs-2 fw-bold text-warning">5</div>
+                  <div class="text-muted fs-13">미확정 원고</div>
+                </div>
+              </div>
+              <div class="col-md-3 col-6">
+                <div class="p-3 border rounded text-center">
+                  <div class="fs-2 fw-bold text-info">6</div>
+                  <div class="text-muted fs-13">이미지 (♣01~♣06)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 미확정 원고 경고 -->
+            <div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+              <i class="ri-alert-line fs-18"></i>
+              <div>
+                <strong>5개 원고가 아직 확정되지 않았습니다.</strong><br>
+                <small>미확정 원고도 포함하여 Export하거나, 확정 원고만 Export할 수 있습니다.</small>
+              </div>
+            </div>
+
+            <!-- Export 옵션 -->
+            <div class="mb-4" data-sb-anno="export-options">
+              <label class="form-label fw-semibold">Export 범위</label>
+              <div class="d-flex flex-column gap-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="export-scope" id="scope-all" value="all" checked>
+                  <label class="form-check-label" for="scope-all">전체 원고 (확정 + 미확정, 12개)</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="export-scope" id="scope-confirmed" value="confirmed">
+                  <label class="form-check-label" for="scope-confirmed">확정 원고만 (7개)</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Export 버튼 -->
+            <!-- [SECTION: EXPORT-BUTTONS] Export 실행 버튼
+              POST /admin/api/journals/{id}/export/docx → Binary (.docx) 다운로드
+              GET  /admin/api/journals/{id}/export/images → ZIP 다운로드
+            ──────────────────────────────────────────────── -->
+            <div class="d-flex gap-3 flex-wrap" data-sb-anno="export-buttons">
+              <button type="button" class="btn btn-primary btn-lg" id="docx-export-btn">
+                <i class="ri-file-word-line me-2"></i>워드(.docx) Export
+              </button>
+              <a href="#" class="btn btn-success btn-lg" id="img-zip-btn">
+                <i class="ri-folder-zip-line me-2"></i>이미지 ZIP 다운로드
+              </a>
+            </div>
+
+            <!-- 처리 중 표시 (Export 클릭 후) -->
+            <div id="export-loading" class="mt-3 d-none">
+              <div class="d-flex align-items-center gap-2 text-primary">
+                <div class="spinner-border spinner-border-sm"></div>
+                <span>.docx 파일 생성 중입니다... 잠시 기다려 주세요.</span>
+              </div>
+            </div>
+
+            <!-- Export 완료 표시 -->
+            <div id="export-success" class="alert alert-success mt-3 d-none">
+              <i class="ri-checkbox-circle-line me-1"></i>
+              <strong>Export 완료!</strong> 파일이 자동으로 다운로드됩니다.
+              <small class="d-block text-muted mt-1">mensa_journal_45_2026-04-30.docx</small>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Export 이력 -->
+        <!-- [SECTION: EXPORT-HISTORY] Export 이력
+          API: GET /admin/api/journals/{id}/export/history
+        ──────────────────────────────────────────────── -->
+        <div class="card" data-sb-anno="export-history">
+          <div class="card-header"><h5 class="card-title mb-0">Export 이력</h5></div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <!-- [API-DATA] GET /admin/api/journals/{id}/export/history -->
+              <table class="table table-nowrap align-middle mb-0">
+                <thead class="text-muted table-light">
+                  <tr class="text-uppercase fs-13">
+                    <th>일시</th><th>범위</th><th>파일명</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>2026-04-25 14:32</td>
+                    <td><span class="badge bg-warning-subtle text-warning">전체(10개)</span></td>
+                    <td class="text-muted">mensa_journal_45_2026-04-25.docx</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 태그→Word 매핑 안내 -->
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header"><h5 class="card-title mb-0">스타일 태그 → Word 매핑</h5></div>
+          <div class="card-body">
+            <p class="text-muted mb-3" style="font-size:12px;">Export 시 아래 규칙대로 Word 서식이 자동 적용됩니다.</p>
+            <div>
+              <div class="tag-mapping-row"><span class="tag-symbol" style="color:#1D4ED8;">♣</span><span class="tag-name">사진 위치</span><span class="tag-word">→ "♣01 [사진]" 텍스트 삽입</span></div>
+              <div class="tag-mapping-row"><span class="tag-symbol" style="color:#7C3AED;">♥</span><span class="tag-name">소제목강조</span><span class="tag-word">→ 제목2 스타일 적용</span></div>
+              <div class="tag-mapping-row"><span class="tag-symbol" style="color:#D97706;">★</span><span class="tag-name">질문</span><span class="tag-word">→ 인터뷰 질문 스타일 (이탤릭+볼드)</span></div>
+              <div class="tag-mapping-row"><span class="tag-symbol">●</span><span class="tag-name">진하게</span><span class="tag-word">→ Bold 처리</span></div>
+              <div class="tag-mapping-row"><span class="tag-symbol" style="color:#059669;">■</span><span class="tag-name">강조A</span><span class="tag-word">→ 다른 폰트 + 색상 + Bold</span></div>
+              <div class="tag-mapping-row"><span class="tag-symbol">◈</span><span class="tag-name">강조B</span><span class="tag-word">→ Bold만 적용</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div></div>
+  <footer class="footer"><div class="container-fluid"><div class="row"><div class="col-sm-6">© 2026 멘사코리아 회지 제작 시스템</div></div></div></footer>
+  </div>
+</div>
+<script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/libs/simplebar/simplebar.min.js"></script>
+<script src="assets/libs/node-waves/waves.min.js"></script>
+<script src="assets/libs/feather-icons/feather.min.js"></script>
+<script src="assets/js/plugins.js"></script>
+<script src="assets/js/app.js"></script>
+<!-- assets/js/pages/A08.init.js -->
+<script>
+document.querySelector('#docx-export-btn').addEventListener('click', function() {
+  document.querySelector('#export-loading').classList.remove('d-none');
+  // POST /admin/api/journals/{id}/export/docx → Binary 다운로드
+  setTimeout(() => {
+    document.querySelector('#export-loading').classList.add('d-none');
+    document.querySelector('#export-success').classList.remove('d-none');
+  }, 2000);
+});
+</script>
+</body></html>

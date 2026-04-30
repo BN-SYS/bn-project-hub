@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[U01] 작성자 로그인 — 멘사코리아 회지</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- assets/css/common.css -->
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <!-- assets/css/u01-login.css -->
+</head>
+<body>
+<!-- ============================================================
+  SCREEN : [U01] 작성자 로그인
+  PATH   : /login
+  SPEC   : data/specs/U01.js
+  APIs   : POST /api/auth/login
+  NOTE   : 이 HTML은 기획용 프로토타입입니다.
+           실제 구현 시 data/specs/U01.js 스펙을 반드시 참조하세요.
+============================================================ -->
+
+<!-- LAYOUT: main.php — GNB 없음, 로그인 전용 레이아웃 -->
+
+<!-- [SECTION: LOGIN-PAGE] 로그인 전체 래퍼 ───────────────── -->
+<div class="login-wrap">
+  <div class="login-box card">
+    <div class="card__body">
+
+      <!-- [SECTION: LOGO] 로고 영역 -->
+      <div class="login-box__logo">
+        <h1>멘사코리아</h1>
+        <p>회지 제작 시스템 — 원고 작성자 로그인</p>
+      </div>
+      <!-- [/SECTION: LOGO] -->
+
+      <!-- [FORM: login-form] 로그인 폼
+        API  : POST /api/auth/login
+        Fields:
+          - email    : 이메일 형식 검증 (required)
+          - password : 8자 이상 (required)
+        Error: 인라인 에러 메시지 표시 (401 → "이메일 또는 비밀번호가 올바르지 않습니다.")
+        Success: /my/articles 리다이렉트
+      ────────────────────────────────────────── -->
+      <form id="login-form" class="common__form" autocomplete="off" novalidate data-sb-anno="login-form">
+
+        <div class="common-input__wrap" style="flex-direction:column; gap:6px;">
+          <label for="email" class="common-box__label" style="width:auto;">이메일 <span class="important__star">*</span></label>
+          <div class="common-box__input" style="width:100%;">
+            <div class="input__inner">
+              <input type="email" id="email" name="email" placeholder="example@mensa.kr" required>
+            </div>
+            <span class="input-error__message" id="email-error">올바른 이메일 형식을 입력하세요.</span>
+          </div>
+        </div>
+
+        <div class="common-input__wrap" style="flex-direction:column; gap:6px; margin-bottom:24px;">
+          <label for="password" class="common-box__label" style="width:auto;">비밀번호 <span class="important__star">*</span></label>
+          <div class="common-box__input" style="width:100%;">
+            <div class="input__inner">
+              <input type="password" id="password" name="password" placeholder="비밀번호 입력" required>
+            </div>
+            <span class="input-error__message" id="pw-error">비밀번호를 입력하세요.</span>
+          </div>
+        </div>
+
+        <!-- 로그인 실패 에러 -->
+        <div class="input-error__message" id="login-error" style="margin-bottom:12px; font-size:13px; text-align:center;">
+          이메일 또는 비밀번호가 올바르지 않습니다.
+        </div>
+
+        <button type="submit" class="submit__btn btn-l" style="width:100%;" disabled>로그인</button>
+      </form>
+      <!-- [/FORM: login-form] -->
+
+    </div>
+  </div>
+</div>
+<!-- [/SECTION: LOGIN-PAGE] -->
+
+<!-- assets/js/u01-login.js -->
+<script>
+const form = document.querySelector('#login-form');
+const submitBtn = form.querySelector('.submit__btn');
+const requiredFields = form.querySelectorAll('[required]');
+
+function checkForm() {
+  submitBtn.disabled = ![...requiredFields].every(f => f.value.trim() !== '');
+}
+requiredFields.forEach(f => f.addEventListener('input', checkForm));
+checkForm();
+
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  // POST /api/auth/login → 성공 시 /my/articles 이동 (프로토타입: 링크 이동)
+  window.location.href = 'U03_내_원고목록.html';
+});
+</script>
+</body>
+</html>
