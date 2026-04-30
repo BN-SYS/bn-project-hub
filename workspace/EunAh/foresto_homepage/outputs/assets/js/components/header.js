@@ -231,22 +231,28 @@ const Header = {
             class="btn btn-primary btn-sm">회원가입</a>`;
 
     /* ── 모바일 내비 */
-    const mobileNavHtml = NAV_DATA.map((n, i) => {
-      const subHtml = n.children
-        ? `<div class="mobile-sub-wrap" id="msub${i}">
-             ${n.children.map(c =>
-          `<a href="${root}${c.href}"
-                   class="mobile-sub-item">${c.label}</a>`
-        ).join('')}
-           </div>`
-        : '';
-      return `
-        <div class="mobile-nav-item ${n.label === activePage ? 'active' : ''}"
-             onclick="Header.toggleMobileSub('msub${i}', this)">
-          ${n.label}
-          ${n.children ? '<span class="arrow"></span>' : ''}
+    const mobileNavHtml = NAV_DATA.map((n, ni) => {
+      if (!n.children) {
+        return `<a href="${root}${n.href}" class="mnav-1item-flat">${n.label}</a>`;
+      }
+      const l2Html = n.children.map((c, ci) => {
+        if (!c.children) {
+          return `<a href="${root}${c.href}" class="mnav-2item">${c.label}</a>`;
+        }
+        const id = `m3_${ni}_${ci}`;
+        const visibleL3 = c.children.filter(gc => !gc.hideLnb);
+        const l3Html = visibleL3.map(gc =>
+          `<a href="${root}${gc.href}" class="mnav-3item">${gc.label}</a>`
+        ).join('');
+        return `<div class="mnav-2item has-sub" onclick="Header.toggle3depth('${id}', this)">
+            ${c.label}<span class="arrow"></span>
+          </div>
+          <div class="mnav-3wrap" id="${id}">${l3Html}</div>`;
+      }).join('');
+      return `<div class="mnav-1item" onclick="Header.toggle2depth('m2_${ni}', this)">
+          ${n.label}<span class="arrow"></span>
         </div>
-        ${subHtml}`;
+        <div class="mnav-2wrap" id="m2_${ni}">${l2Html}</div>`;
     }).join('');
 
     /* ── 모바일 하단 인증 영역 */
@@ -368,6 +374,24 @@ const Header = {
     const open = sub.classList.toggle('open');
     const arrow = el.querySelector('.arrow');
     if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : '';
+  },
+
+  toggle2depth(id, el) {
+    const wrap = document.getElementById(id);
+    if (!wrap) return;
+    const open = wrap.classList.toggle('open');
+    el.classList.toggle('open', open);
+    const arrow = el.querySelector('.arrow');
+    if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+  },
+
+  toggle3depth(id, el) {
+    const wrap = document.getElementById(id);
+    if (!wrap) return;
+    const open = wrap.classList.toggle('open');
+    el.classList.toggle('open', open);
+    const arrow = el.querySelector('.arrow');
+    if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
   },
 };
 

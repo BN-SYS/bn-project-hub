@@ -339,8 +339,8 @@ const CalendarCtrl = {
         club: { label: '동아리', cls: 'evt-club', dotColor: '#9c27b0' },
     },
 
-    _year: 2026,
-    _month: 2,
+    _year: new Date().getFullYear(),
+    _month: new Date().getMonth(),
     _view: 'month',
     _filter: { edu: true, activity: true, meeting: true, club: true },
 
@@ -451,7 +451,7 @@ const CalendarCtrl = {
             ].join('');
 
             html += `
-        <div class="full-cell${isToday ? ' today' : ''}" style="cursor:pointer"
+        <div class="full-cell${isToday ? ' today' : ''}${evts.length ? ' has-event' : ''}" style="cursor:pointer"
              onclick="CalendarCtrl.selectDay(${y}, ${m}, ${d})">
           <div class="${dateNumCls}">${d}</div>
           <div class="evt-container">${evtTags}</div>
@@ -467,6 +467,18 @@ const CalendarCtrl = {
         const pad = n => String(n).padStart(2, '0');
         const dateStr = `${y}-${pad(m + 1)}-${pad(d)}`;
         const label = `${m + 1}월 ${d}일 일정`;
+
+        /* 선택 셀 하이라이트 */
+        document.querySelectorAll('#fullCalGrid .full-cell.selected')
+            .forEach(el => el.classList.remove('selected'));
+        /* 클릭된 셀 찾기: onclick 속성의 인수로 매칭 */
+        const cells = document.querySelectorAll('#fullCalGrid .full-cell');
+        const target = Array.from(cells).find(el => {
+            const attr = el.getAttribute('onclick') || '';
+            return attr.includes(`selectDay(${y}, ${m}, ${d})`);
+        });
+        if (target) target.classList.add('selected');
+
         if (typeof renderDaySchedule === 'function') renderDaySchedule(dateStr, label);
     },
 

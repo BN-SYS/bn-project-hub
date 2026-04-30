@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python *)",
+      "Bash(php *)",
+      "PowerShell(& \"C:\\\\xampp\\\\php\\\\php.exe\" -r \"echo password_hash\\('admin', PASSWORD_BCRYPT, ['cost' => 12]\\);\")"
+    ]
+  }
+}

@@ -32,3 +32,6 @@ Thumbs.db
 
 # ── Claude Code 로컬 설정 (머신별, 커밋 제외) ──────────
 .claude/settings.local.json
+
+# ── 운영 소스 (배포 제외) ──────────────────────────────
+workspace/EunAh/foresto_homepage/한국숲해설가협회_운영소스/

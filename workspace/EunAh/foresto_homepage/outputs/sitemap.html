@@ -196,14 +196,15 @@
       font-size: 1.2em;
     }
 
-    @media (max-width: 768px) {
-      .sitemap-grid {
-        display: none;
-      }
+    .sitemap-mobile { display: none; }
 
-      .sitemap-accordion {
-        display: block;
-      }
+    @media (max-width: 768px) {
+      .sitemap-wrap { padding: 0; margin: 0; }
+      .sitemap-grid { display: none; }
+      .sitemap-accordion { display: none; }
+      .sitemap-mobile { display: block; }
+      /* 모바일뷰에서 mnav-1item 커서 기본으로 */
+      .sitemap-mobile .mnav-1item { cursor: default; }
     }
   </style>
 </head>
@@ -221,8 +222,10 @@
   <div class="sitemap-wrap">
     <!-- PC 그리드 -->
     <div class="sitemap-grid" id="sitemapGrid"></div>
-    <!-- 모바일 아코디언 -->
+    <!-- 모바일 아코디언 (미사용) -->
     <div class="sitemap-accordion" id="sitemapAccordion"></div>
+    <!-- 모바일 전체펼침 (햄버거 CSS 기준) -->
+    <div class="sitemap-mobile" id="sitemapMobile"></div>
   </div>
 
   <div id="ftr"></div>
@@ -295,6 +298,26 @@
       const item = document.getElementById('smItem' + i);
       if (item) item.classList.toggle('open');
     }
+
+    /* ── 모바일 전체펼침 렌더 (햄버거 mnav-* CSS 기준, 모두 open) */
+    document.getElementById('sitemapMobile').innerHTML = NAV_DATA.map((n, ni) => {
+      if (!n.children) {
+        return `<a href="${root}${n.href}" class="mnav-1item-flat">${n.label}</a>`;
+      }
+      const l2Html = n.children.map((c, ci) => {
+        if (!c.children) {
+          return `<a href="${root}${c.href}" class="mnav-2item">${c.label}</a>`;
+        }
+        const visibleL3 = c.children.filter(n3 => !n3.hideLnb);
+        const l3Html = visibleL3.map(gc =>
+          `<a href="${root}${gc.href}" class="mnav-3item">${gc.label}</a>`
+        ).join('');
+        return `<div class="mnav-2item">${c.label}</div>
+          <div class="mnav-3wrap open">${l3Html}</div>`;
+      }).join('');
+      return `<div class="mnav-1item open" style="pointer-events:none">${n.label}</div>
+        <div class="mnav-2wrap open">${l2Html}</div>`;
+    }).join('');
   </script>
 </body>
 

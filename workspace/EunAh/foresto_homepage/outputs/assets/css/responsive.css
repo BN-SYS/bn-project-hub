@@ -272,6 +272,14 @@
   }
 }
 
+/* ── 폼 입력 2열 → 1열 (≤ 768px 전체 공통) */
+@media (max-width: 768px) {
+  .form-col2,
+  .form-row-2,
+  .form-grid,
+  .pw-grid { grid-template-columns: 1fr; }
+}
+
 /* ── 모바일 (≤ 480px) */
 @media (max-width: 480px) {
   .tabs {
