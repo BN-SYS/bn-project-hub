@@ -196,50 +196,6 @@ checkForm();
 
 ---
 
-### 표준 리치 텍스트 에디터 — QEditor (전 프로젝트 공통)
-폼에 WYSIWYG 에디터가 필요한 모든 화면은 **QEditor**를 사용한다. 다른 에디터(CKEditor, TinyMCE 등) 사용 금지.
-
-**에셋 경로:** project_state.json `bnRoot` 기준
-```
-{bnRoot}/_shared/editor/qeditor.css
-{bnRoot}/_shared/editor/qeditor.js
-```
-프로토타입 HTML에서는 `assets/libs/qeditor/` 경로로 로드 (pm-assistant 초기화 시 복사됨).
-
-**HTML 삽입 패턴:**
-```html
-<!-- head -->
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
-<link href="assets/libs/qeditor/qeditor.css" rel="stylesheet">
-
-<!-- 에디터 마운트 포인트 -->
-<div id="editor"></div>
-
-<!-- body 끝 -->
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<script src="assets/libs/qeditor/qeditor.js"></script>
-<script>
-  QEditor.init('editor', {
-    uploadUrl : '/api/upload/image',
-    mockUpload: true,
-    minHeight : '450px',
-  });
-</script>
-```
-
-**값 수집 (폼 제출 시):**
-```js
-const content = QEditor.getValue('editor');
-if (QEditor.isEmpty('editor')) { alert('내용을 입력해주세요.'); return; }
-```
-
-**수정 페이지 (기존 값 주입):**
-```js
-QEditor.setValue('editor', savedHtml);
-```
-
----
-
 ## 0-e. 관리자 페이지 템플릿 (Velzon 4.4.1)
 
 `pages.json`에서 `group: "admin"` 또는 `section: "admin"` 화면은 Velzon 4.4.1 Bootstrap Admin Template 기반 생성.  
@@ -494,20 +450,6 @@ cp -r "{bnRoot}/_shared/Velzon_4.4.1/html_admin_preview/HTML/Admin/dist/corporat
 | 탭 | `nav nav-tabs nav-tabs-custom nav-success` > `nav-item` > `nav-link [active]` |
 | 배지 | `badge bg-success` / `badge bg-warning-subtle text-warning` / `badge bg-danger` |
 | 아이콘 | Remix Icons `ri-*` (버튼/액션) + Boxicons `bx bx-*` (대시보드 카드) |
-
-### 에디터 — admin 화면도 QEditor 사용
-Velzon admin 화면에서도 WYSIWYG 에디터는 QEditor 사용 (CKEditor 사용 금지).
-Quill CSS는 Velzon assets에 이미 포함되어 있으므로 그대로 활용:
-```html
-<!-- head -->
-<link href="assets/libs/quill/quill.snow.css" rel="stylesheet">
-<link href="assets/libs/qeditor/qeditor.css" rel="stylesheet">
-
-<!-- body 끝 (plugins.js 이후) -->
-<script src="assets/libs/quill/quill.min.js"></script>
-<script src="assets/libs/qeditor/qeditor.js"></script>
-```
-`assets/libs/qeditor/` = admin/assets 복사 후 `{bnRoot}/_shared/editor/` 파일 추가 복사.
 
 ### BN_STYLE_GUIDE 클래스 혼용 금지
 admin 화면에서 BN_STYLE_GUIDE 클래스(`c-table`, `modal-layer`, `common__form`, `btn-m` 등) 사용 금지.

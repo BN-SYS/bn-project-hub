@@ -38,6 +38,9 @@ BN_SYSTEM/
 - --auto 모드: PM 필수 개입 지점(WBS 검토, pages_draft 승격, 고객 피드백, 납품) 외 자동 진행
 - 자동 승인: build_state failCount==0 이면 04→05 자동 전환
 
+## 역할 경계 · CSS/JS 분리 원칙
+상세 규칙: `.claude/CLAUDE.md` — View 작업 경계, CSS/JS 분리, 고객 피드백 반영 규칙 참조.
+
 ## 개발자 산출물 기준
 - 프로토타입 HTML: 화면헤더·섹션·폼·API 주석 필수 (storyboard-agent 규칙 참조)
 - api_spec.md: Request/Response 예시 + 에러 케이스 표 포함 (dev-qa-agent 규칙 참조)

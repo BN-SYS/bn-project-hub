@@ -1,0 +1,28 @@
+{
+  "project": "mensa-korea-journal",
+  "client": "멘사코리아",
+  "pm": "eunahp86@gmail.com",
+  "created_at": "2026-04-30",
+  "currentPhase": "01_rfp",
+  "lastUpdated": "2026-04-30",
+  "overview": "회지 제작 자동화 시스템. 원고 수신~디자이너 전달까지 단일 워크플로우. PHP/MySQL/Velzon 4.4.1. 원고 입력·서식정제·태그관리·사진채번·docx Export. Phase 1 우선 구축.",
+  "tech_stack": {
+    "backend": "PHP (MVC)",
+    "db": "MySQL",
+    "admin_ui": "Velzon 4.4.1",
+    "editor": "Quill.js",
+    "diff": "diff-match-patch",
+    "export": "PHPWord (docx)"
+  },
+  "phases": {
+    "01_rfp": { "status": "in_progress" },
+    "02_planning": { "status": "pending" },
+    "03_requirements": { "status": "pending" },
+    "04_storyboard": { "status": "pending" },
+    "05_dev_handoff": { "status": "pending" },
+    "06_qa": { "status": "pending" },
+    "07_delivery": { "status": "pending" },
+    "08_feedback": { "status": "pending" },
+    "09_comms": { "status": "pending" }
+  }
+}

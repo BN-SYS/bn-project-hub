@@ -1,0 +1,98 @@
+[
+  {
+    "phase": "기획",
+    "startDay": 1,
+    "endDay": 8,
+    "tasks": [
+      { "id": "T001", "name": "RFP 분석 및 기능목록 도출", "duration": "2일", "assignee": "PM", "dependency": null },
+      { "id": "T002", "name": "기획서·WBS 작성", "duration": "2일", "assignee": "PM", "dependency": "T001" },
+      { "id": "T003", "name": "요구사항 정의서 및 pages_draft 작성", "duration": "2일", "assignee": "PM", "dependency": "T002" },
+      { "id": "T004", "name": "PM 검토·확인 사항 회신 대기", "duration": "2일", "assignee": "PM", "dependency": "T003" }
+    ]
+  },
+  {
+    "phase": "프로토타입",
+    "startDay": 9,
+    "endDay": 28,
+    "tasks": [
+      { "id": "T005", "name": "U01 로그인 (작성자) 프로토타입", "duration": "1일", "assignee": "PM", "dependency": "T004" },
+      { "id": "T006", "name": "U02 원고 입력 폼 프로토타입", "duration": "2일", "assignee": "PM", "dependency": "T005" },
+      { "id": "T007", "name": "U03 내 원고 목록 프로토타입", "duration": "1일", "assignee": "PM", "dependency": "T005" },
+      { "id": "T008", "name": "A01 관리자 로그인 프로토타입", "duration": "0.5일", "assignee": "PM", "dependency": "T004" },
+      { "id": "T009", "name": "A02 대시보드 프로토타입", "duration": "2일", "assignee": "PM", "dependency": "T008" },
+      { "id": "T010", "name": "A03 회지 목록 프로토타입", "duration": "1.5일", "assignee": "PM", "dependency": "T008" },
+      { "id": "T011", "name": "A04 원고 목록 프로토타입", "duration": "1.5일", "assignee": "PM", "dependency": "T008" },
+      { "id": "T012", "name": "A05 원고 편집(태그 UI) 프로토타입", "duration": "2.5일", "assignee": "PM", "dependency": "T011" },
+      { "id": "T013", "name": "A06 원고 순서 관리 프로토타입", "duration": "1.5일", "assignee": "PM", "dependency": "T011" },
+      { "id": "T014", "name": "A07 이미지 관리 프로토타입", "duration": "1일", "assignee": "PM", "dependency": "T011" },
+      { "id": "T015", "name": "A08 Export 화면 프로토타입", "duration": "1일", "assignee": "PM", "dependency": "T011" },
+      { "id": "T016", "name": "A09 작성자 계정 관리 프로토타입", "duration": "1.5일", "assignee": "PM", "dependency": "T008" },
+      { "id": "T017", "name": "프로토타입 검수 및 고객 시연 준비", "duration": "1일", "assignee": "PM", "dependency": "T016" }
+    ]
+  },
+  {
+    "phase": "디자인조정",
+    "startDay": 29,
+    "endDay": 43,
+    "tasks": [
+      { "id": "T018", "name": "고객 프로토타입 시연 및 피드백 수집", "duration": "2일", "assignee": "PM", "dependency": "T017" },
+      { "id": "T019", "name": "피드백 반영 1차 수정", "duration": "5일", "assignee": "PM", "dependency": "T018" },
+      { "id": "T020", "name": "2차 확인 및 최종 컨펌", "duration": "3일", "assignee": "PM", "dependency": "T019" },
+      { "id": "T021", "name": "개발 전달 문서 확정", "duration": "5일", "assignee": "PM", "dependency": "T020" }
+    ]
+  },
+  {
+    "phase": "퍼블리싱",
+    "startDay": 44,
+    "endDay": 65,
+    "tasks": [
+      { "id": "T022", "name": "공통 레이아웃 (Velzon) 세팅", "duration": "2일", "assignee": "개발자", "dependency": "T021" },
+      { "id": "T023", "name": "작성자 영역 퍼블리싱 (U01~U03)", "duration": "3일", "assignee": "개발자", "dependency": "T022" },
+      { "id": "T024", "name": "관리자 영역 퍼블리싱 (A01~A09)", "duration": "8일", "assignee": "개발자", "dependency": "T022" },
+      { "id": "T025", "name": "Quill.js 태그 버튼 UI 구현", "duration": "3일", "assignee": "개발자", "dependency": "T023" },
+      { "id": "T026", "name": "SortableJS 드래그 UI 구현", "duration": "2일", "assignee": "개발자", "dependency": "T023" },
+      { "id": "T027", "name": "퍼블리싱 검수", "duration": "2일", "assignee": "PM", "dependency": "T026" }
+    ]
+  },
+  {
+    "phase": "백엔드개발",
+    "startDay": 44,
+    "endDay": 72,
+    "tasks": [
+      { "id": "T028", "name": "DB 설계 및 마이그레이션", "duration": "2일", "assignee": "개발자", "dependency": "T021" },
+      { "id": "T029", "name": "PHP MVC 기본 구조 세팅", "duration": "1일", "assignee": "개발자", "dependency": "T028" },
+      { "id": "T030", "name": "인증 (세션·로그인·로그아웃)", "duration": "2일", "assignee": "개발자", "dependency": "T029" },
+      { "id": "T031", "name": "원고 CRUD API", "duration": "4일", "assignee": "개발자", "dependency": "T030" },
+      { "id": "T032", "name": "파일 파싱 (docx/txt → 텍스트 추출)", "duration": "3일", "assignee": "개발자", "dependency": "T031" },
+      { "id": "T033", "name": "서식 자동 정제 로직", "duration": "2일", "assignee": "개발자", "dependency": "T032" },
+      { "id": "T034", "name": "이미지 업로드 및 번호 매핑 API", "duration": "2일", "assignee": "개발자", "dependency": "T031" },
+      { "id": "T035", "name": "원고 순서 관리 및 사진 재채번 API", "duration": "2일", "assignee": "개발자", "dependency": "T031" },
+      { "id": "T036", "name": "회지 호수 관리 API", "duration": "2일", "assignee": "개발자", "dependency": "T030" },
+      { "id": "T037", "name": "작성자 계정 관리 API", "duration": "2일", "assignee": "개발자", "dependency": "T030" },
+      { "id": "T038", "name": "워드(.docx) Export 구현 (PHPWord)", "duration": "4일", "assignee": "개발자", "dependency": "T035" },
+      { "id": "T039", "name": "대시보드 집계 API", "duration": "2일", "assignee": "개발자", "dependency": "T031" },
+      { "id": "T040", "name": "백엔드 통합 검수", "duration": "2일", "assignee": "개발자", "dependency": "T039" }
+    ]
+  },
+  {
+    "phase": "QA",
+    "startDay": 73,
+    "endDay": 82,
+    "tasks": [
+      { "id": "T041", "name": "단위 테스트 시나리오 실행", "duration": "3일", "assignee": "PM", "dependency": "T040" },
+      { "id": "T042", "name": "파일 파싱 엣지케이스 테스트", "duration": "2일", "assignee": "PM", "dependency": "T041" },
+      { "id": "T043", "name": "Export .docx 검수 (태그 서식 확인)", "duration": "2일", "assignee": "PM", "dependency": "T041" },
+      { "id": "T044", "name": "결함 수정 및 재검수", "duration": "3일", "assignee": "개발자+PM", "dependency": "T043" }
+    ]
+  },
+  {
+    "phase": "납품",
+    "startDay": 83,
+    "endDay": 88,
+    "tasks": [
+      { "id": "T045", "name": "납품 패키지 구성 (소스·DB·매뉴얼)", "duration": "2일", "assignee": "PM", "dependency": "T044" },
+      { "id": "T046", "name": "운영 환경 배포 및 사용자 교육", "duration": "2일", "assignee": "개발자+PM", "dependency": "T045" },
+      { "id": "T047", "name": "최종 납품 확인", "duration": "2일", "assignee": "PM", "dependency": "T046" }
+    ]
+  }
+]

@@ -64,11 +64,6 @@ $editorDst = Join-Path $projectDir "dev/public/assets/libs/qeditor"
 New-Item -ItemType Directory -Path $editorDst -Force | Out-Null
 Copy-Item "$editorSrc/qeditor.css" $editorDst -Force
 Copy-Item "$editorSrc/qeditor.js"  $editorDst -Force
-
-$sbEditorDst = Join-Path $projectDir "04_storyboard/story_board/assets/libs/qeditor"
-New-Item -ItemType Directory -Path $sbEditorDst -Force | Out-Null
-Copy-Item "$editorSrc/qeditor.css" $sbEditorDst -Force
-Copy-Item "$editorSrc/qeditor.js"  $sbEditorDst -Force
 ```
 
 ### Step 3: project_state.json 생성
@@ -188,7 +183,7 @@ pending → planning_done → sb_ready → sb_done → dev_ready → dev_done �
 
   담당자: <담당자명>
   경로: workspace/<담당자명>/<프로젝트명>/
-  에이전트: 6개 복사 완료 / SB 템플릿: 복사 완료 / QEditor: dev/public/assets/libs/qeditor/ + 04_storyboard/story_board/assets/libs/qeditor/ 복사 완료
+  에이전트: 6개 복사 완료 / SB 템플릿: 복사 완료 / QEditor: dev/public/assets/libs/qeditor/ 복사 완료
 
   ▶ 즉시 시작하려면:
     1. CLAUDE.md에 클라이언트명·기술스택 입력 (선택)
