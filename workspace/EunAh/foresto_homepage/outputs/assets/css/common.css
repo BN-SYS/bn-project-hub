@@ -171,9 +171,26 @@ body {
 /* ── 헤더 액션 */
 .header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
 .header-username {
+  display: inline-flex; align-items: center; gap: 6px;
   font-size: var(--text-lg);
-  color: var(--gray-mid); white-space: nowrap;
+  color: var(--gray-dark); white-space: nowrap;
 }
+.header-username strong { font-weight: 700; }
+.header-nim { font-size: var(--text-sm); color: var(--gray-mid); }
+
+/* ── 헤더 회원등급 배지 */
+.header-grade-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.header-grade-badge.grade-normal { background: #DCEEFF; color: #2A56A0; }
+.header-grade-badge.grade-full   { background: #E8F5DC; color: #3D7A4E; }
+.header-grade-badge.grade-admin  { background: #FFF3E0; color: #E96218; }
 
 /* ── 글자 크기 버튼 (REQ-003) */
 .font-ctrl {

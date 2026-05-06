@@ -212,10 +212,14 @@ const Header = {
       </div>`;
     }).join('');
 
+    /* ── 회원등급 → CSS 클래스 매핑 */
+    const gradeClassMap = { '일반회원': 'normal', '정회원': 'full', '관리자': 'admin' };
+    const gradeClass = gradeClassMap[App.user.grade] || 'normal';
+
     /* ── 로그인 여부에 따른 우측 버튼 분기 */
     const authHtml = App.user.isLoggedIn
       ? `<span class="header-username">
-           ${App.user.name} (${App.user.grade})
+           <span class="header-grade-badge grade-${gradeClass}">${App.user.grade}</span><strong>${App.user.name}</strong><span class="header-nim">님</span>
          </span>
          <a href="${root}mypage/index.html"
             class="btn btn-primary btn-sm">마이페이지</a>
