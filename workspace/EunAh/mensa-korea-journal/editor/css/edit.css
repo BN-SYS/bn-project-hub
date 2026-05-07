@@ -184,26 +184,11 @@
   border-bottom: 1px solid var(--c-border);
   font-size: 13px;
 }
-.spell-list { max-height: 260px; overflow-y: auto; padding: 4px 20px; }
-.spell-item {
-  padding: 10px 0;
-  border-bottom: 1px solid #f1f5f9;
-}
-.spell-item:last-child { border-bottom: none; }
-.spell-tokens { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 14px; }
-.spell-arrow { color: var(--c-muted); }
-.spell-orig { color: var(--c-danger); font-weight: 600; }
-.spell-fix  { color: var(--c-success); font-weight: 600; }
-.spell-help { font-size: 11px; color: var(--c-muted); margin-bottom: 6px; }
-.spell-btns { display: flex; gap: 6px; }
-.spell-cands {
-  font-size: 12px;
-  padding: 3px 6px;
-  border: 1px solid var(--c-border);
-  border-radius: 4px;
-  background: #fff;
-}
-.spell-done-msg { font-size: 12px; color: var(--c-muted); }
+.spell-section { padding: 14px 20px 16px; }
+.spell-section-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.spell-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: #f1f5f9; color: var(--c-muted); }
+.spell-badge.active { background: #dcfce7; color: #166534; }
+.spell-desc { font-size: 13px; color: var(--c-muted); line-height: 1.6; }
 
 /* ── 드롭 영역 ───────────────────────────────────────────── */
 .img-drop {

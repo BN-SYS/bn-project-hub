@@ -58,6 +58,7 @@ function initQuill() {
       ],
     },
   });
+  quill.root.setAttribute('spellcheck', 'true');
 }
 
 // ─── 데이터 로드 ──────────────────────────────────────────
