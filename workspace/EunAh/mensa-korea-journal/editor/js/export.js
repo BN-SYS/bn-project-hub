@@ -18,18 +18,29 @@ function exportToDocx() {
 
   for (let i = 0; i < articles.length; i++) {
     const art = articles[i];
-    if (i > 0) body += '<hr style="margin:20pt 0;border:none;border-top:1px solid #aaa">';
+    if (i > 0) body += '<hr style="margin:20pt 0;border:none;border-top:1px solid #ccc">';
 
-    body += `<h2 style="font-size:15pt;font-weight:bold;border-bottom:2px solid #333;padding-bottom:4pt;margin-bottom:8pt">
-               [${i + 1}] ${esc(art.title || '(제목 없음)')}
-             </h2>`;
-
-    if (art.author) {
-      body += `<p style="color:#555;font-style:italic;margin:0 0 10pt">${esc(art.author)} 글</p>`;
+    // 원고 분류 (좌측 정렬)
+    if (art.category) {
+      body += `<p style="text-align:left;font-size:10pt;color:#888;margin:0 0 6pt">${esc(art.category)}</p>`;
     }
+
+    // 원고 제목 (중앙 정렬)
+    body += `<h2 style="font-size:16pt;font-weight:bold;text-align:center;margin:0 0 16pt;border:none;padding:0">${esc(art.title || '(제목 없음)')}</h2>`;
 
     // 본문 HTML — ♣01 등 위치 태그 그대로 포함
     body += `<div style="line-height:1.9;margin-bottom:14pt">${art.content || '<p>(내용 없음)</p>'}</div>`;
+
+    // 작성자 정보 (우측 정렬)
+    const contributors = getArticleContributors(art);
+    if (contributors.length > 0) {
+      const contribHtml = contributors.map(c => {
+        let line = c.type ? `${esc(c.type)} ${esc(c.name)}` : esc(c.name);
+        if (c.info) line += `<br>${esc(c.info)}`;
+        return `<p style="text-align:right;font-size:10pt;margin:2pt 0">${line}</p>`;
+      }).join('');
+      body += `<div style="margin-top:10pt">${contribHtml}</div>`;
+    }
   }
 
   const fullHtml = `<!DOCTYPE html>
@@ -94,6 +105,12 @@ async function exportImages() {
 }
 
 // ─── 유틸 ────────────────────────────────────────────────
+function getArticleContributors(art) {
+  if (art.contributors && art.contributors.length > 0) return art.contributors;
+  if (art.author) return [{ type: '글', name: art.author, info: '' }];
+  return [];
+}
+
 function esc(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }

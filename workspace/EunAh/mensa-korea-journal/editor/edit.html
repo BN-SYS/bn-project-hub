@@ -25,16 +25,14 @@
   <!-- 기본 정보 -->
   <div class="card">
     <div class="card-header">원고 정보</div>
-    <div class="card-body">
-      <div class="form-row">
-        <div class="form-group">
-          <label>제목 *</label>
-          <input type="text" id="field-title" placeholder="원고 제목">
-        </div>
-        <div class="form-group" style="max-width:200px">
-          <label>작성자</label>
-          <input type="text" id="field-author" placeholder="이름">
-        </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label>원고 분류</label>
+        <input type="text" id="field-category" placeholder="예: 권두언, 특집, 기고 등">
+      </div>
+      <div class="form-group">
+        <label>원고 제목 *</label>
+        <input type="text" id="field-title" placeholder="원고 제목">
       </div>
     </div>
   </div>
@@ -50,6 +48,18 @@
 
     <!-- Quill 에디터 -->
     <div id="quill-editor"></div>
+  </div>
+
+  <!-- 작성자 정보 -->
+  <div class="card">
+    <div class="card-header">
+      작성자 정보
+      <button class="btn btn-outline btn-sm" onclick="addContributorRow('field-contributors')">+ 작성자 추가</button>
+    </div>
+    <div class="card-body">
+      <div id="field-contributors"></div>
+      <p class="text-muted" id="contributors-empty" style="font-size:13px">작성자를 추가하려면 위 버튼을 누르세요.</p>
+    </div>
   </div>
 
   <!-- 이미지 -->

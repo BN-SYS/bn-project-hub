@@ -41,9 +41,17 @@ function initQuill() {
 
 // ─── 데이터 로드 ──────────────────────────────────────────
 function loadData() {
+  document.getElementById('field-category').value = article.category || '';
   document.getElementById('field-title').value = article.title || '';
-  document.getElementById('field-author').value = article.author || '';
   updateHeaderTitle(article.title);
+
+  // 구버전 author 필드 마이그레이션
+  const contributors = article.contributors && article.contributors.length > 0
+    ? article.contributors
+    : (article.author ? [{ type: '글', name: article.author, info: '' }] : []);
+  contributors.forEach(c => addContributorRow('field-contributors', c));
+  const empty = document.getElementById('contributors-empty');
+  if (empty) empty.style.display = contributors.length > 0 ? 'none' : '';
 
   if (article.content) {
     quill.clipboard.dangerouslyPasteHTML(0, article.content);
@@ -62,8 +70,14 @@ function updateHeaderTitle(t) {
 function insertTag(symbol) {
   quill.focus();
   const range = quill.getSelection(true);
-  quill.insertText(range.index, symbol, 'user');
-  quill.setSelection(range.index + symbol.length, 0);
+  if (range.length > 0) {
+    quill.insertText(range.index + range.length, symbol, 'user');
+    quill.insertText(range.index, symbol, 'user');
+    quill.setSelection(range.index, range.length + symbol.length * 2);
+  } else {
+    quill.insertText(range.index, symbol, 'user');
+    quill.setSelection(range.index + symbol.length, 0);
+  }
 }
 
 // ─── 저장 ─────────────────────────────────────────────────
@@ -73,15 +87,56 @@ function saveArticle() {
 
   const updated = {
     ...article,
+    category: document.getElementById('field-category').value.trim(),
     title,
-    author: document.getElementById('field-author').value.trim(),
+    contributors: readContributors('field-contributors'),
     content: quill.root.innerHTML,
     updatedAt: new Date().toISOString(),
   };
+  delete updated.author;
 
   upsertArticle(updated);
   article = updated;
   showToast('저장되었습니다.');
+}
+
+// ─── 작성자 행 유틸 ──────────────────────────────────────
+function addContributorRow(containerId, data = {}) {
+  const container = document.getElementById(containerId);
+  const empty = document.getElementById('contributors-empty');
+  if (empty) empty.style.display = 'none';
+  const row = document.createElement('div');
+  row.className = 'contributor-row';
+  row.innerHTML = `
+    <select class="contributor-type">
+      <option value=""${!data.type ? ' selected' : ''}>—</option>
+      <option value="글"${data.type === '글' ? ' selected' : ''}>글</option>
+      <option value="글·사진"${data.type === '글·사진' ? ' selected' : ''}>글·사진</option>
+      <option value="사진"${data.type === '사진' ? ' selected' : ''}>사진</option>
+    </select>
+    <input type="text" class="contributor-name" placeholder="이름" value="${esc(data.name || '')}">
+    <input type="text" class="contributor-info" placeholder="이메일, 소속 등" value="${esc(data.info || '')}">
+    <button type="button" class="contributor-del" onclick="removeContributorRow(this)">×</button>`;
+  container.appendChild(row);
+}
+
+function removeContributorRow(btn) {
+  btn.closest('.contributor-row').remove();
+  const container = document.getElementById('field-contributors');
+  const empty = document.getElementById('contributors-empty');
+  if (empty && container.querySelectorAll('.contributor-row').length === 0) {
+    empty.style.display = '';
+  }
+}
+
+function readContributors(containerId) {
+  return [...document.getElementById(containerId).querySelectorAll('.contributor-row')]
+    .map(row => ({
+      type: row.querySelector('.contributor-type').value,
+      name: row.querySelector('.contributor-name').value.trim(),
+      info: row.querySelector('.contributor-info').value.trim(),
+    }))
+    .filter(c => c.name);
 }
 
 // ─── 이미지 업로드 (원본 품질 그대로) ──────────────────────
@@ -149,9 +204,6 @@ async function renderImages() {
         <div class="img-info">
           ${img.photoLabel ? `<div class="img-label">${img.photoLabel}</div>` : ''}
           <div class="img-name" title="${esc(img.name)}">${esc(img.name)}</div>
-          <input class="caption-inp" type="text" placeholder="캡션 입력"
-            value="${esc(img.caption || '')}"
-            onchange="updateCaption('${img.id}', this.value)">
         </div>
       </div>`;
   }).join('');
@@ -165,10 +217,6 @@ async function deleteImage(imgId) {
   renderImages();
 }
 
-function updateCaption(imgId, caption) {
-  const img = (article.images || []).find(i => i.id === imgId);
-  if (img) { img.caption = caption; upsertArticle(article); }
-}
 
 function initImageDrop() {
   const area = document.getElementById('img-drop');

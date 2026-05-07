@@ -120,6 +120,53 @@ input[type="text"]:focus, textarea:focus {
 .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
 .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 
+/* ── select ─────────────────────────────────────────────── */
+select {
+  padding: 8px 12px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--c-text);
+  background: #fff;
+  outline: none;
+  transition: border-color .14s;
+  cursor: pointer;
+}
+select:focus {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+}
+
+/* ── 모달 넓이 변형 ──────────────────────────────────────── */
+.modal-lg { width: 620px; }
+
+/* ── 작성자 정보 행 ──────────────────────────────────────── */
+.contributor-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.contributor-row .contributor-type { flex: 0 0 82px; width: 82px; }
+.contributor-row .contributor-name { flex: 1; min-width: 0; }
+.contributor-row .contributor-info { flex: 2; min-width: 0; }
+.contributor-del {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--c-border);
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--c-muted);
+  line-height: 1;
+  transition: background .12s;
+  padding: 0;
+}
+.contributor-del:hover { background: #fee2e2; color: var(--c-danger); border-color: #fca5a5; }
+
 /* ── 유틸 ───────────────────────────────────────────────── */
 .hidden      { display: none !important; }
 .text-muted  { color: var(--c-muted); }

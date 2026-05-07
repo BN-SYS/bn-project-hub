@@ -34,13 +34,18 @@ function render() {
   list.innerHTML = articles.map((a, i) => {
     const pc = countPhotos(a.content);
     const ic = (a.images || []).length;
+    const contribs = a.contributors && a.contributors.length > 0
+      ? a.contributors
+      : (a.author ? [{ name: a.author }] : []);
+    const authorLine = contribs.map(c => c.name).filter(Boolean).join(' · ') || '—';
+    const catHtml = a.category ? `<span class="article-category">${esc(a.category)} ·</span> ` : '';
     return `
       <div class="article-card" data-id="${a.id}">
         <span class="drag-handle" title="드래그로 순서 변경">⠿</span>
         <div class="order-badge">${i + 1}</div>
         <div class="article-info">
-          <div class="article-title">${esc(a.title || '(제목 없음)')}</div>
-          <div class="article-author">${esc(a.author || '—')}</div>
+          <div class="article-title">${catHtml}${esc(a.title || '(제목 없음)')}</div>
+          <div class="article-author">${esc(authorLine)}</div>
         </div>
         <div class="article-meta">
           ${pc > 0 ? `<span class="badge badge-blue">♣ ${pc}</span>` : ''}
@@ -93,22 +98,31 @@ async function runExport() {
 
 // ─── 새 원고 모달 ─────────────────────────────────────────
 function openNewModal() {
+  document.getElementById('new-category').value = '';
   document.getElementById('new-title').value = '';
-  document.getElementById('new-author').value = '';
+  document.getElementById('new-content').value = '';
+  document.getElementById('new-contributors').innerHTML = '';
   show('modal-new');
-  setTimeout(() => document.getElementById('new-title').focus(), 80);
+  setTimeout(() => document.getElementById('new-category').focus(), 80);
 }
 
 function closeNewModal() { hide('modal-new'); }
 
 function createNew() {
   const title = document.getElementById('new-title').value.trim();
-  if (!title) { alert('제목을 입력해주세요.'); return; }
+  if (!title) { alert('제목을 입력해주세요.'); document.getElementById('new-title').focus(); return; }
+
+  const raw = document.getElementById('new-content').value.trim();
+  const htmlContent = raw
+    ? '<p>' + raw.split(/\n\n+/).map(p => p.trim().replace(/\n/g, '<br>')).join('</p><p>') + '</p>'
+    : '';
+
   const art = {
     id: newId(),
+    category: document.getElementById('new-category').value.trim(),
     title,
-    author: document.getElementById('new-author').value.trim(),
-    content: '',
+    contributors: readContributors('new-contributors'),
+    content: htmlContent,
     images: [],
     order: getArticles().length + 1,
     createdAt: new Date().toISOString(),
@@ -118,6 +132,34 @@ function createNew() {
   location.href = 'edit.html?id=' + art.id;
 }
 
+// ─── 작성자 행 유틸 ──────────────────────────────────────
+function addContributorRow(containerId, data = {}) {
+  const container = document.getElementById(containerId);
+  const row = document.createElement('div');
+  row.className = 'contributor-row';
+  row.innerHTML = `
+    <select class="contributor-type">
+      <option value=""${!data.type ? ' selected' : ''}>—</option>
+      <option value="글"${data.type === '글' ? ' selected' : ''}>글</option>
+      <option value="글·사진"${data.type === '글·사진' ? ' selected' : ''}>글·사진</option>
+      <option value="사진"${data.type === '사진' ? ' selected' : ''}>사진</option>
+    </select>
+    <input type="text" class="contributor-name" placeholder="이름" value="${esc(data.name || '')}">
+    <input type="text" class="contributor-info" placeholder="이메일, 소속 등" value="${esc(data.info || '')}">
+    <button type="button" class="contributor-del" onclick="this.closest('.contributor-row').remove()">×</button>`;
+  container.appendChild(row);
+}
+
+function readContributors(containerId) {
+  return [...document.getElementById(containerId).querySelectorAll('.contributor-row')]
+    .map(row => ({
+      type: row.querySelector('.contributor-type').value,
+      name: row.querySelector('.contributor-name').value.trim(),
+      info: row.querySelector('.contributor-info').value.trim(),
+    }))
+    .filter(c => c.name);
+}
+
 // ─── 가져오기 모달 ────────────────────────────────────────
 function openImportModal() {
   pendingFiles = [];
@@ -125,6 +167,7 @@ function openImportModal() {
   document.getElementById('file-input').value = '';
   document.getElementById('file-list').innerHTML = '';
   document.getElementById('paste-text').value = '';
+  document.getElementById('paste-category').value = '';
   document.getElementById('paste-title').value = '';
   document.getElementById('paste-author').value = '';
   switchTab('tab-file');
@@ -154,9 +197,11 @@ async function confirmImport() {
     const text = document.getElementById('paste-text').value.trim();
     if (!text) { alert('내용을 붙여넣어주세요.'); return; }
     const title = document.getElementById('paste-title').value.trim() || '붙여넣기 원고';
-    const author = document.getElementById('paste-author').value.trim();
+    const category = document.getElementById('paste-category').value.trim();
+    const authorName = document.getElementById('paste-author').value.trim();
+    const contributors = authorName ? [{ type: '글', name: authorName, info: '' }] : [];
     const content = '<p>' + text.split(/\n\n+/).map(p => p.trim().replace(/\n/g, '<br>')).join('</p><p>') + '</p>';
-    upsertArticle({ id: newId(), title, author, content, images: [], order: getArticles().length + 1, createdAt: new Date().toISOString() });
+    upsertArticle({ id: newId(), category, title, contributors, content, images: [], order: getArticles().length + 1, createdAt: new Date().toISOString() });
     closeImportModal();
     render();
     showAlert('원고 1개를 추가했습니다.', 'success');
@@ -178,8 +223,9 @@ async function confirmImport() {
       }
       upsertArticle({
         id: newId(),
+        category: '',
         title: file.name.replace(/\.(docx?|txt|hwpx?)$/i, ''),
-        author: '',
+        contributors: [],
         content,
         images: [],
         order: getArticles().length + 1,

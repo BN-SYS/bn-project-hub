@@ -46,16 +46,25 @@
 
 <!-- ── 원고 추가 모달 ─────────────────────────────────── -->
 <div class="modal-overlay hidden" id="modal-new">
-  <div class="modal">
+  <div class="modal modal-lg">
     <div class="modal-title">새 원고 추가</div>
-    <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:68vh">
+      <div class="form-group">
+        <label>원고 분류</label>
+        <input type="text" id="new-category" placeholder="예: 권두언, 특집, 기고 등">
+      </div>
       <div class="form-group">
         <label>원고 제목 *</label>
         <input type="text" id="new-title" placeholder="제목 입력">
       </div>
       <div class="form-group">
-        <label>작성자</label>
-        <input type="text" id="new-author" placeholder="이름">
+        <label>본문 <span class="text-muted" style="font-size:11px;font-weight:400">(선택 — 편집 화면에서 계속 작성 가능)</span></label>
+        <textarea id="new-content" rows="4" placeholder="내용 입력 (선택 사항)"></textarea>
+      </div>
+      <div class="form-group">
+        <label>작성자 정보</label>
+        <div id="new-contributors"></div>
+        <button type="button" class="btn btn-outline btn-sm" style="margin-top:8px" onclick="addContributorRow('new-contributors')">+ 작성자 추가</button>
       </div>
     </div>
     <div class="modal-footer">
@@ -97,6 +106,10 @@
     <div id="tab-paste" class="hidden">
       <div style="display:flex;flex-direction:column;gap:12px">
         <div class="form-row">
+          <div class="form-group" style="max-width:160px">
+            <label>분류</label>
+            <input type="text" id="paste-category" placeholder="원고 분류">
+          </div>
           <div class="form-group">
             <label>제목</label>
             <input type="text" id="paste-title" placeholder="원고 제목">
