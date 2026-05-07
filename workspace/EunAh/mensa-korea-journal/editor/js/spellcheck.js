@@ -20,8 +20,8 @@ function renderSpellPanel() {
     </div>
     <div class="spell-section" style="border-top:1px solid var(--c-border);padding-top:14px">
       <div class="spell-section-title">② 네이버 맞춤법 검사기 <span class="spell-badge">띄어쓰기 포함</span></div>
-      <p class="spell-desc">더 정밀한 검사(띄어쓰기·문법)는 네이버에서 확인할 수 있습니다.<br>아래 버튼을 누르면 본문이 복사되고 검사 페이지가 열립니다.</p>
-      <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="openNaverSpell()">본문 복사 후 네이버 검사기 열기</button>
+      <p class="spell-desc">더 정밀한 검사(띄어쓰기·문법)는 나라인포테크 맞춤법 검사기에서 확인할 수 있습니다.<br>아래 버튼을 누르면 본문이 복사되고 검사 페이지가 열립니다.</p>
+      <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="openNaverSpell()">본문 복사 후 검사 사이트 열기</button>
     </div>`;
 }
 
@@ -33,7 +33,7 @@ function openNaverSpell() {
       .then(() => showToast('복사됐습니다. 네이버에 붙여넣기 하세요.'))
       .catch(() => {});
   }
-  window.open('https://search.naver.com/search.naver?where=nexearch&query=맞춤법+검사기', '_blank');
+  window.open('https://nara-speller.co.kr/', '_blank');
 }
 
 function closeSpellPanel() {
