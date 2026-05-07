@@ -870,6 +870,57 @@ function todayStr() {
   return `${d.getFullYear()}년 ${String(d.getMonth()+1).padStart(2,'0')}월 ${String(d.getDate()).padStart(2,'0')}일`;
 }
 
+function deltaToPreviewHtml(delta) {
+  if (!delta || !delta.ops) return '';
+  const szStyle = { small: 'font-size:11px', large: 'font-size:16px', huge: 'font-size:20px' };
+  const lines = [];
+  let curRuns = [];
+  for (const op of delta.ops) {
+    if (typeof op.insert !== 'string') continue;
+    const parts = op.insert.split('\n');
+    const isParaOp = op.insert.replace(/\n/g, '').length === 0;
+    parts.forEach((text, i) => {
+      if (text) {
+        const a = op.attributes || {};
+        let h = escHtml(text);
+        if (a.bold)      h = `<strong>${h}</strong>`;
+        if (a.italic)    h = `<em>${h}</em>`;
+        if (a.underline) h = `<u>${h}</u>`;
+        if (a.size && szStyle[a.size]) h = `<span style="${szStyle[a.size]}">${h}</span>`;
+        curRuns.push(h);
+      }
+      if (i < parts.length - 1) {
+        const pa = isParaOp ? (op.attributes || {}) : {};
+        lines.push({ html: curRuns.join(''), list: pa.list || null, indent: pa.indent || 0 });
+        curRuns = [];
+      }
+    });
+  }
+  if (curRuns.length) lines.push({ html: curRuns.join(''), list: null, indent: 0 });
+
+  const ordCnt = {};
+  let out = '';
+  for (const { html, list, indent } of lines) {
+    if (!list) {
+      Object.keys(ordCnt).forEach(k => delete ordCnt[k]);
+      out += `<div>${html || '&nbsp;'}</div>`;
+    } else if (list === 'bullet') {
+      const off = indent * 18;
+      out += `<div style="padding-left:${18+off}px;position:relative"><span style="position:absolute;left:${off}px">•</span>${html || '&nbsp;'}</div>`;
+    } else {
+      ordCnt[indent] = (ordCnt[indent] || 0) + 1;
+      Object.keys(ordCnt).forEach(k => { if (+k > indent) delete ordCnt[k]; });
+      const n = ordCnt[indent];
+      const label = indent === 0 ? n + '.'
+        : indent === 1 ? String.fromCharCode(96 + n) + '.'
+        : (['i','ii','iii','iv','v','vi','vii','viii','ix','x'][n-1] || n) + '.';
+      const off = indent * 18;
+      out += `<div style="padding-left:${22+off}px;position:relative"><span style="position:absolute;left:${off}px;min-width:18px;display:inline-block;text-align:right">${label}</span>${html || '&nbsp;'}</div>`;
+    }
+  }
+  return out;
+}
+
 function render() {
   const v = getValues();
 
@@ -887,10 +938,10 @@ function render() {
   const period      = document.getElementById('period').value || '협의';
   const totalWon = `일금 ${Math.floor(v.total / 10000)}만원`;
 
-  // 세부 내역 HTML (Quill)
-  const memoHtml = (window.quillMemo && window.quillMemo.getText().trim())
-    ? window.quillMemo.root.innerHTML
-    : '<div style="color:#aaa">입력된 세부 내역이 없습니다.</div>';
+  // 세부 내역 HTML (delta → inline 스타일 변환)
+  const _memoDelta = window.quillMemo ? window.quillMemo.getContents() : null;
+  const _memoBody  = deltaToPreviewHtml(_memoDelta);
+  const memoHtml   = _memoBody || '<div style="color:#aaa">입력된 세부 내역이 없습니다.</div>';
 
   document.getElementById('estimateDoc').innerHTML = `
     <div class="est-logo-row">
@@ -1236,35 +1287,43 @@ async function exportToWord() {
       if (!delta || !delta.ops) return [pr([tx('(없음)',{sz:22,c:C.g3})], AlignmentType.LEFT, 0, 30)];
       const paras = [];
       let runs = [];
-      let orderedIdx = 0;
-      const flush = (listType) => {
+      const ordByLvl = {};
+      const flush = (listType, indent) => {
+        const lvl = indent || 0;
         let prefix = [];
         if (listType === 'bullet') {
+          Object.keys(ordByLvl).forEach(k => delete ordByLvl[k]);
           prefix = [new TextRun({ text: '• ', font: F, size: 22, color: C.g4 })];
         } else if (listType === 'ordered') {
-          orderedIdx++;
-          prefix = [new TextRun({ text: `${orderedIdx}. `, font: F, size: 22, color: C.g4 })];
+          ordByLvl[lvl] = (ordByLvl[lvl] || 0) + 1;
+          Object.keys(ordByLvl).forEach(k => { if (+k > lvl) delete ordByLvl[k]; });
+          const n = ordByLvl[lvl];
+          const label = lvl === 0 ? `${n}. `
+            : lvl === 1 ? `${String.fromCharCode(96+n)}. `
+            : `${(['i','ii','iii','iv','v','vi','vii','viii','ix','x'][n-1]||n)}. `;
+          prefix = [new TextRun({ text: label, font: F, size: 22, color: C.g4 })];
         } else {
-          orderedIdx = 0;
+          Object.keys(ordByLvl).forEach(k => delete ordByLvl[k]);
         }
         const children = [...prefix, ...(runs.length ? runs : [new TextRun({ text: ' ', font: F, size: 22 })])];
-        paras.push(new Paragraph({ children, alignment: AlignmentType.LEFT, spacing: { before: 0, after: 30 }, indent: listType ? { left: 220 } : undefined }));
+        paras.push(new Paragraph({ children, alignment: AlignmentType.LEFT, spacing: { before: 0, after: 30 }, indent: listType ? { left: 220 + lvl * 220 } : undefined }));
         runs = [];
       };
       for (const op of delta.ops) {
         if (typeof op.insert !== 'string') continue;
         const isParaOp = op.insert.replace(/\n/g, '').length === 0;
         const opListType = isParaOp ? (op.attributes && op.attributes.list) : null;
+        const opIndent  = isParaOp ? ((op.attributes && op.attributes.indent) || 0) : 0;
         const parts = op.insert.split('\n');
         parts.forEach((text, i) => {
           if (text) {
             const a = op.attributes || {};
             runs.push(new TextRun({ text, font: F, size: sizeMap[a.size] || 22, bold: !!a.bold, italics: !!a.italic, underline: a.underline ? {} : undefined, color: C.g4 }));
           }
-          if (i < parts.length - 1) flush(opListType);
+          if (i < parts.length - 1) flush(opListType, opIndent);
         });
       }
-      if (runs.length) flush(null);
+      if (runs.length) flush(null, 0);
       return paras.length ? paras : [pr([tx('(없음)',{sz:22,c:C.g3})], AlignmentType.LEFT, 0, 30)];
     })();
 
