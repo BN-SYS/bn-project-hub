@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>비엔시스템 견적서 생성기</title>
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
 
@@ -579,18 +581,34 @@ body {
   margin-top: 12px;
 }
 
+/* 인쇄 로고 (평소 숨김) */
+.print-logo-header { display: none; }
+
+/* Quill 에디터 */
+.ql-container.ql-snow { border-radius: 0 0 6px 6px; border-color: #d1d5db; font-family: 'Noto Sans KR', sans-serif; }
+.ql-toolbar.ql-snow { border-radius: 6px 6px 0 0; border-color: #d1d5db; background: #f8fafc; }
+.ql-editor { min-height: 120px; font-size: 13px; line-height: 1.7; }
+.ql-editor.ql-blank::before { font-style: normal; color: #adb5bd; }
+
 /* ── 인쇄 ── */
 @media print {
   .input-panel, .preview-label { display: none !important; }
   .app-layout { display: block; }
   .preview-area { padding: 0; }
-  .estimate-doc { 
-    box-shadow: none; 
-    padding: 20px 28px;
+  .estimate-doc {
+    box-shadow: none;
+    padding: 65px 28px 20px;
     max-width: 100%;
     border-radius: 0;
   }
   body { background: white; }
+  .est-logo-row { display: none !important; }
+  .print-logo-header {
+    display: block;
+    position: fixed;
+    top: 14px;
+    left: 28px;
+  }
   .est-table .row-grand td,
   .est-table th {
     -webkit-print-color-adjust: exact;
@@ -604,6 +622,10 @@ body {
 </style>
 </head>
 <body>
+
+<div class="print-logo-header">
+  <img src="_shared/etc/logo-removebg-preview.png" alt="비엔시스템 로고" style="height:40px; width:auto;">
+</div>
 
 <div class="app-layout">
 
@@ -745,7 +767,7 @@ body {
     <div class="section-group">
       <div class="section-group-label">세부 내역 (비고)</div>
       <div class="field">
-        <textarea id="detailMemo" placeholder="세부 작업 내용을 입력하세요&#10;예: ◦ KG이니시스 일반결제 연동&#10;◦ 강의사이트 상단메뉴 추가" oninput="render()"></textarea>
+        <div id="detailMemo-editor"></div>
       </div>
     </div>
 
@@ -856,13 +878,11 @@ function render() {
   const project     = document.getElementById('projectName').value || '(건명)';
   const payTerm     = document.getElementById('paymentTerm').value || '계좌이체(계약금50%, 잔금50%)';
   const period      = document.getElementById('period').value || '협의';
-  const detailMemo  = document.getElementById('detailMemo').value;
-
   const totalWon = `일금 ${Math.floor(v.total / 10000)}만원`;
 
-  // 세부 내역 HTML 변환
-  const memoHtml = detailMemo
-    ? detailMemo.split('\n').map(l => l ? `<div>${escHtml(l)}</div>` : '<div style="height:6px"></div>').join('')
+  // 세부 내역 HTML (Quill)
+  const memoHtml = (window.quillMemo && window.quillMemo.getText().trim())
+    ? window.quillMemo.root.innerHTML
     : '<div style="color:#aaa">입력된 세부 내역이 없습니다.</div>';
 
   document.getElementById('estimateDoc').innerHTML = `
@@ -1036,7 +1056,7 @@ function resetAll() {
   document.getElementById('discountWrap').style.display = 'none';
   document.getElementById('discountLabel').value = '특별할인';
   document.getElementById('discountAmount').value = '';
-  document.getElementById('detailMemo').value = '';
+  if (window.quillMemo) window.quillMemo.setText('');
   render();
 }
 
@@ -1053,12 +1073,12 @@ async function exportToWord() {
     if (!window.docx) {
       await new Promise((res, rej) => {
         const s = document.createElement('script');
-        s.src = 'https://unpkg.com/docx@8.5.0/build/index.min.js';
+        s.src = 'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js';
         s.onload = res; s.onerror = rej;
         document.head.appendChild(s);
       });
     }
-    const { Document, Packer, Paragraph, Table, TableRow, TableCell,
+    const { Document, Packer, Paragraph, Header, Table, TableRow, TableCell,
             TextRun, ImageRun, AlignmentType, BorderStyle,
             WidthType, VerticalAlign, ShadingType } = window.docx;
 
@@ -1069,7 +1089,7 @@ async function exportToWord() {
       project: document.getElementById('projectName').value || '(건명)',
       payTerm: document.getElementById('paymentTerm').value || '계좌이체(계약금50%, 잔금50%)',
       period:  document.getElementById('period').value || '협의',
-      memo:    document.getElementById('detailMemo').value,
+      memoDelta: window.quillMemo ? window.quillMemo.getContents() : null,
     };
     const totalLabel = `일금 ${Math.floor(v.total/10000)}만원 (${fmt(v.total)}원, 부가가치세 별도)`;
 
@@ -1125,7 +1145,7 @@ async function exportToWord() {
         children: [
           tx('상    호', { b: true, sz: 20 }),
           tx('  주식회사 비엔시스템   대표: 엄 요 한  ', { sz: 20, c: C.g4 }),
-          ...(stampBuf ? [new ImageRun({ data: stampBuf, transformation: { width: 34, height: 34 }, type: 'jpeg' })] : [])
+          ...(stampBuf ? [new ImageRun({ data: stampBuf, transformation: { width: 34, height: 34 }, type: 'jpg' })] : [])
         ], spacing: { before: 30, after: 30 }
       }),
       pr([tx('업    태', { b: true, sz: 20 }), tx('  정보통신업', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
@@ -1202,9 +1222,38 @@ async function exportToWord() {
 
     const secTitle = (num, title) => pr([tx(num+'. ',{b:true,sz:26,c:C.navy}), tx(title,{b:true,sz:26})], AlignmentType.LEFT, 200, 100);
 
-    const memoParas = inp.memo
-      ? inp.memo.split('\n').map(line => pr([tx(line||' ',{sz:22,c:C.g4})], AlignmentType.LEFT, 0, 30))
-      : [pr([tx('(없음)',{sz:22,c:C.g3})], AlignmentType.LEFT, 0, 30)];
+    // Quill delta → docx 단락 변환
+    const sizeMap = { small: 18, large: 28, huge: 36 };
+    const memoParas = (() => {
+      const delta = inp.memoDelta;
+      if (!delta || !delta.ops) return [pr([tx('(없음)',{sz:22,c:C.g3})], AlignmentType.LEFT, 0, 30)];
+      const paras = [];
+      let runs = [];
+      for (const op of delta.ops) {
+        if (typeof op.insert !== 'string') continue;
+        const parts = op.insert.split('\n');
+        parts.forEach((text, i) => {
+          if (text) {
+            const a = op.attributes || {};
+            runs.push(new TextRun({
+              text,
+              font: F,
+              size: sizeMap[a.size] || 22,
+              bold: !!a.bold,
+              italics: !!a.italic,
+              underline: a.underline ? {} : undefined,
+              color: C.g4,
+            }));
+          }
+          if (i < parts.length - 1) {
+            paras.push(new Paragraph({ children: runs.length ? runs : [new TextRun({text:' ',font:F,size:22})], alignment: AlignmentType.LEFT, spacing: {before:0,after:30} }));
+            runs = [];
+          }
+        });
+      }
+      if (runs.length) paras.push(new Paragraph({ children: runs, alignment: AlignmentType.LEFT, spacing: {before:0,after:30} }));
+      return paras.length ? paras : [pr([tx('(없음)',{sz:22,c:C.g3})], AlignmentType.LEFT, 0, 30)];
+    })();
 
     const condParas = [
       '본 견적은 작성일자로부터 20일 간 유효함',
@@ -1226,11 +1275,16 @@ async function exportToWord() {
       ]
     });
 
+    const logoHeaderPara = logoBuf
+      ? new Paragraph({ children: [new ImageRun({ data: logoBuf, transformation: { width: 110, height: 37 }, type: 'png' })], spacing: { before: 0, after: 0 } })
+      : new Paragraph({ children: [tx('주식회사 비엔시스템', { b: true, sz: 24, c: C.navy })], spacing: { before: 0, after: 0 } });
+
     const wordDoc = new Document({
-      styles: { default: { document: { run: { font: F, size: 22 } } } },
-      sections: [{ properties: { page: { margin: { top:1000, bottom:1000, left:1200, right:1200 } } },
+      sections: [{
+        headers: { default: new Header({ children: [logoHeaderPara] }) },
+        properties: { page: { margin: { top:1000, bottom:1000, left:1200, right:1200 } } },
         children: [
-          logoPara, titlePara, metaTable,
+          titlePara, metaTable,
           pr([tx('')], AlignmentType.LEFT, 0, 0),
           secTitle('1','견적내역'),
           estTable,
@@ -1266,6 +1320,21 @@ async function exportToWord() {
     btn.disabled = false;
   }
 }
+
+// Quill 에디터 초기화
+window.quillMemo = new Quill('#detailMemo-editor', {
+  theme: 'snow',
+  modules: {
+    toolbar: [
+      ['bold', 'italic', 'underline'],
+      [{ size: ['small', false, 'large', 'huge'] }],
+      [{ list: 'bullet' }],
+      ['clean']
+    ]
+  },
+  placeholder: '세부 작업 내용을 입력하세요\n예: ◦ KG이니시스 일반결제 연동\n◦ 강의사이트 상단메뉴 추가',
+});
+window.quillMemo.on('text-change', render);
 
 // 초기 렌더
 render();
