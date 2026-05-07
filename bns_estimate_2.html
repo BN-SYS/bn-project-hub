@@ -523,6 +523,13 @@ body {
   color: var(--dark);
   font-weight: 600;
 }
+.est-section-body ul,
+.est-section-body ol {
+  padding-left: 18px;
+  margin: 0;
+}
+.est-section-body li { margin: 0; padding: 0; }
+.est-section-body p  { margin: 0; }
 
 /* 견적조건 */
 .condition-list {
@@ -1222,36 +1229,42 @@ async function exportToWord() {
 
     const secTitle = (num, title) => pr([tx(num+'. ',{b:true,sz:26,c:C.navy}), tx(title,{b:true,sz:26})], AlignmentType.LEFT, 200, 100);
 
-    // Quill delta → docx 단락 변환
+    // Quill delta → docx 단락 변환 (list 지원)
     const sizeMap = { small: 18, large: 28, huge: 36 };
     const memoParas = (() => {
       const delta = inp.memoDelta;
       if (!delta || !delta.ops) return [pr([tx('(없음)',{sz:22,c:C.g3})], AlignmentType.LEFT, 0, 30)];
       const paras = [];
       let runs = [];
+      let orderedIdx = 0;
+      const flush = (listType) => {
+        let prefix = [];
+        if (listType === 'bullet') {
+          prefix = [new TextRun({ text: '• ', font: F, size: 22, color: C.g4 })];
+        } else if (listType === 'ordered') {
+          orderedIdx++;
+          prefix = [new TextRun({ text: `${orderedIdx}. `, font: F, size: 22, color: C.g4 })];
+        } else {
+          orderedIdx = 0;
+        }
+        const children = [...prefix, ...(runs.length ? runs : [new TextRun({ text: ' ', font: F, size: 22 })])];
+        paras.push(new Paragraph({ children, alignment: AlignmentType.LEFT, spacing: { before: 0, after: 30 }, indent: listType ? { left: 220 } : undefined }));
+        runs = [];
+      };
       for (const op of delta.ops) {
         if (typeof op.insert !== 'string') continue;
+        const isParaOp = op.insert.replace(/\n/g, '').length === 0;
+        const opListType = isParaOp ? (op.attributes && op.attributes.list) : null;
         const parts = op.insert.split('\n');
         parts.forEach((text, i) => {
           if (text) {
             const a = op.attributes || {};
-            runs.push(new TextRun({
-              text,
-              font: F,
-              size: sizeMap[a.size] || 22,
-              bold: !!a.bold,
-              italics: !!a.italic,
-              underline: a.underline ? {} : undefined,
-              color: C.g4,
-            }));
+            runs.push(new TextRun({ text, font: F, size: sizeMap[a.size] || 22, bold: !!a.bold, italics: !!a.italic, underline: a.underline ? {} : undefined, color: C.g4 }));
           }
-          if (i < parts.length - 1) {
-            paras.push(new Paragraph({ children: runs.length ? runs : [new TextRun({text:' ',font:F,size:22})], alignment: AlignmentType.LEFT, spacing: {before:0,after:30} }));
-            runs = [];
-          }
+          if (i < parts.length - 1) flush(opListType);
         });
       }
-      if (runs.length) paras.push(new Paragraph({ children: runs, alignment: AlignmentType.LEFT, spacing: {before:0,after:30} }));
+      if (runs.length) flush(null);
       return paras.length ? paras : [pr([tx('(없음)',{sz:22,c:C.g3})], AlignmentType.LEFT, 0, 30)];
     })();
 
