@@ -39,7 +39,10 @@
 
   <!-- 본문 에디터 -->
   <div class="card">
-    <div class="card-header">본문</div>
+    <div class="card-header">
+      본문
+      <button id="spell-btn" class="btn btn-outline btn-sm" onclick="checkSpelling()">맞춤법 검사</button>
+    </div>
 
     <!-- 스타일 태그 버튼 (JS로 생성) -->
     <div class="tag-toolbar" id="tag-toolbar">
@@ -48,6 +51,9 @@
 
     <!-- Quill 에디터 -->
     <div id="quill-editor"></div>
+
+    <!-- 맞춤법 검사 결과 -->
+    <div id="spell-panel" class="hidden"></div>
   </div>
 
   <!-- 작성자 정보 -->
@@ -91,6 +97,7 @@
 <script src="js/tags.js"></script>
 <script src="js/import.js"></script>
 <script src="js/edit.js"></script>
+<script src="js/spellcheck.js"></script>
 
 </body>
 </html>

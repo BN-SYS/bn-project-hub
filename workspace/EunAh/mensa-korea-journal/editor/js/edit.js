@@ -29,6 +29,7 @@ function initTocMode() {
 
   initQuill();
   document.getElementById('tag-toolbar').style.display = 'none';
+  document.getElementById('spell-btn').style.display = 'none';
 
   const toc = getToc();
   if (toc.content) quill.clipboard.dangerouslyPasteHTML(0, toc.content);
