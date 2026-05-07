@@ -2,7 +2,8 @@ let sortable = null;
 let pendingFiles = [];
 let pasteMode = false;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await migrateImageData(); // 구버전 localStorage 이미지 데이터 정리
   render();
   initDropZone();
 });

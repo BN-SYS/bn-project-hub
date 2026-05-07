@@ -46,17 +46,3 @@ async function parseHwp(file) {
   return null; // 실패 시 null — 호출부에서 붙여넣기 안내
 }
 
-async function compressImage(dataUrl, maxWidth = 1200, quality = 0.82) {
-  return new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => {
-      let w = img.width, h = img.height;
-      if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL('image/jpeg', quality));
-    };
-    img.src = dataUrl;
-  });
-}

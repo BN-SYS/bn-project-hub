@@ -10,13 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initQuill();
   loadData();
-  renderImages();
+  renderImages();   // async — IndexedDB에서 이미지 로드
   initImageDrop();
 });
 
 // ─── Quill 초기화 ─────────────────────────────────────────
 function initQuill() {
-  // 스타일 태그 버튼 생성
   const toolbar = document.getElementById('tag-toolbar');
   STYLE_TAGS.forEach(tag => {
     const btn = document.createElement('button');
@@ -40,7 +39,7 @@ function initQuill() {
   });
 }
 
-// ─── 데이터 로드 ─────────────────────────────────────────
+// ─── 데이터 로드 ──────────────────────────────────────────
 function loadData() {
   document.getElementById('field-title').value = article.title || '';
   document.getElementById('field-author').value = article.author || '';
@@ -85,18 +84,24 @@ function saveArticle() {
   showToast('저장되었습니다.');
 }
 
-// ─── 이미지 업로드 ───────────────────────────────────────
+// ─── 이미지 업로드 (원본 품질 그대로) ──────────────────────
 async function handleImageUpload(files) {
   if (!article.images) article.images = [];
 
   for (const file of Array.from(files)) {
     if (!file.type.startsWith('image/')) continue;
+
+    const id = newId();
     const dataUrl = await readAsDataUrl(file);
-    const compressed = await compressImage(dataUrl);
+
+    // IndexedDB에 원본 데이터 저장 (압축 없음)
+    await idbSave(id, dataUrl);
+
+    // 아티클에는 메타데이터만 저장 (dataUrl 제외 → localStorage 부담 없음)
     article.images.push({
-      id: newId(),
+      id,
       name: file.name,
-      dataUrl: compressed,
+      type: file.type,
       photoLabel: '',
       caption: '',
       createdAt: new Date().toISOString(),
@@ -110,14 +115,14 @@ async function handleImageUpload(files) {
 function readAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = e => resolve(e.target.result);
+    reader.onload  = e => resolve(e.target.result);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
 }
 
-// ─── 이미지 렌더링 ───────────────────────────────────────
-function renderImages() {
+// ─── 이미지 렌더링 (IndexedDB에서 로드) ──────────────────
+async function renderImages() {
   const imgs = article.images || [];
   const grid = document.getElementById('image-grid');
 
@@ -126,22 +131,35 @@ function renderImages() {
     return;
   }
 
-  grid.innerHTML = imgs.map(img => `
-    <div class="img-item" data-img-id="${img.id}">
-      <img src="${img.dataUrl}" alt="${esc(img.name)}">
-      <button class="img-del" onclick="deleteImage('${img.id}')" title="삭제">×</button>
-      <div class="img-info">
-        ${img.photoLabel ? `<div class="img-label">${img.photoLabel}</div>` : ''}
-        <div class="img-name" title="${esc(img.name)}">${esc(img.name)}</div>
-        <input class="caption-inp" type="text" placeholder="캡션 입력"
-          value="${esc(img.caption || '')}"
-          onchange="updateCaption('${img.id}', this.value)">
-      </div>
-    </div>`).join('');
+  // 로딩 표시
+  grid.innerHTML = '<p class="text-muted" style="font-size:13px">이미지 로딩 중...</p>';
+
+  // IndexedDB에서 dataUrl 일괄 조회
+  const dataMap = await idbGetAll(imgs.map(i => i.id));
+
+  grid.innerHTML = imgs.map(img => {
+    const src = dataMap[img.id] || '';
+    return `
+      <div class="img-item" data-img-id="${img.id}">
+        ${src
+          ? `<img src="${src}" alt="${esc(img.name)}">`
+          : `<div style="height:110px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:12px;color:#94a3b8">미리보기 없음</div>`
+        }
+        <button class="img-del" onclick="deleteImage('${img.id}')" title="삭제">×</button>
+        <div class="img-info">
+          ${img.photoLabel ? `<div class="img-label">${img.photoLabel}</div>` : ''}
+          <div class="img-name" title="${esc(img.name)}">${esc(img.name)}</div>
+          <input class="caption-inp" type="text" placeholder="캡션 입력"
+            value="${esc(img.caption || '')}"
+            onchange="updateCaption('${img.id}', this.value)">
+        </div>
+      </div>`;
+  }).join('');
 }
 
-function deleteImage(imgId) {
+async function deleteImage(imgId) {
   if (!confirm('이미지를 삭제하시겠습니까?')) return;
+  await idbDelete(imgId);
   article.images = (article.images || []).filter(i => i.id !== imgId);
   upsertArticle(article);
   renderImages();
@@ -169,7 +187,7 @@ function showToast(msg) {
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'toast';
-    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 22px;border-radius:8px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.25);pointer-events:none;';
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 22px;border-radius:8px;font-size:14px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.25);pointer-events:none;transition:opacity .3s';
     document.body.appendChild(toast);
   }
   toast.textContent = msg;
