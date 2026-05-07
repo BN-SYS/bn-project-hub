@@ -91,14 +91,9 @@ function autoGenerateToc() {
   const articles = getArticles();
   if (!articles.length) { alert('원고가 없습니다.'); return; }
   const lines = articles.map((a, i) => {
-    const contribs = a.contributors && a.contributors.length > 0
-      ? a.contributors
-      : (a.author ? [{ name: a.author }] : []);
-    const authorStr = contribs.map(c => c.name).filter(Boolean).join('·');
-    const num = String(i + 1).padStart(2, '0');
-    const cat = a.category ? `[${esc(a.category)}] ` : '';
-    const author = authorStr ? ` — ${esc(authorStr)}` : '';
-    return `<p>${num}. ${cat}<strong>${esc(a.title || '(제목 없음)')}</strong>${author}</p>`;
+    const num = i + 1;
+    const cat = a.category ? `${esc(a.category)} ` : '';
+    return `<p>${num}. ${cat}${esc(a.title || '(제목 없음)')}</p>`;
   });
   saveToc({ content: lines.join('') });
   renderToc();
