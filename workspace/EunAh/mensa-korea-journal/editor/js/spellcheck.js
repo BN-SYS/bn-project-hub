@@ -19,7 +19,7 @@ function renderSpellPanel() {
       <p class="spell-desc">오탈자는 본문에 <span style="text-decoration:underline wavy #e53e3e;text-underline-offset:2px">빨간 밑줄</span>로 표시됩니다.<br>밑줄 단어에서 <strong>우클릭 → 수정 제안</strong>을 선택하세요.</p>
     </div>
     <div class="spell-section" style="border-top:1px solid var(--c-border);padding-top:14px">
-      <div class="spell-section-title">② 네이버 맞춤법 검사기 <span class="spell-badge">띄어쓰기 포함</span></div>
+      <div class="spell-section-title">② 나라인포테크 맞춤법 검사기 <span class="spell-badge">띄어쓰기 포함</span></div>
       <p class="spell-desc">더 정밀한 검사(띄어쓰기·문법)는 나라인포테크 맞춤법 검사기에서 확인할 수 있습니다.<br>아래 버튼을 누르면 본문이 복사되고 검사 페이지가 열립니다.</p>
       <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="openNaverSpell()">본문 복사 후 검사 사이트 열기</button>
     </div>`;
