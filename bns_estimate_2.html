@@ -321,6 +321,13 @@ body {
   transform: translateY(-1px);
 }
 
+.btn-word {
+  background: rgba(37,99,235,0.65);
+  color: white;
+}
+.btn-word:hover { background: rgba(37,99,235,0.9); }
+.btn-word:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
 /* ── 미리보기 영역 ── */
 .preview-area {
   padding: 40px 32px;
@@ -395,6 +402,8 @@ body {
 
 .est-meta-left, .est-meta-right {
   padding: 14px 18px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .est-meta-right {
@@ -742,6 +751,7 @@ body {
 
     <div class="action-row">
       <button class="btn btn-reset" onclick="resetAll()">초기화</button>
+      <button class="btn btn-word" onclick="exportToWord()">Word 저장</button>
       <button class="btn btn-print" onclick="printDoc()">🖨 PDF 저장</button>
     </div>
 
@@ -865,21 +875,21 @@ function render() {
     <div class="est-meta-grid">
       <div class="est-meta-left">
         <div class="est-meta-row"><span class="meta-key">문서번호</span><span class="meta-val">${escHtml(docNo)}</span></div>
-        <div class="est-meta-row"><span class="meta-key">작성일</span><span class="meta-val">${todayStr()}</span></div>
-        <div class="est-meta-row"><span class="meta-key">수&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;신</span><span class="meta-val"><b>${escHtml(client)}</b> 귀중</span></div>
-        <div class="est-meta-row"><span class="meta-key">건&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;명</span><span class="meta-val">${escHtml(project)}</span></div>
-        <div class="est-meta-row"><span class="meta-key">공급가액</span><span class="meta-val highlight">${totalWon} (${fmt(v.total)}원, 부가가치세 별도)</span></div>
+        <div class="est-meta-row"><span class="meta-key">작&nbsp;&nbsp;성&nbsp;&nbsp;일</span><span class="meta-val">${todayStr()}</span></div>
+        <div class="est-meta-row"><span class="meta-key">수&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;신</span><span class="meta-val"><b>${escHtml(client)}</b> 귀중</span></div>
+        <div class="est-meta-row"><span class="meta-key">건&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;명</span><span class="meta-val">${escHtml(project)}</span></div>
+        <div class="est-meta-row"><span class="meta-key">공급가액</span><span class="meta-val highlight">${totalWon} <br>(${fmt(v.total)}원, 부가가치세 별도)</span></div>
         <div class="est-meta-row"><span class="meta-key">결제조건</span><span class="meta-val">${escHtml(payTerm)}</span></div>
-        <div class="est-meta-row"><span class="meta-key">기&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;간</span><span class="meta-val">${escHtml(period)}</span></div>
+        <div class="est-meta-row"><span class="meta-key">기&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;간</span><span class="meta-val">${escHtml(period)}</span></div>
       </div>
       <div class="est-meta-right">
         <div class="est-meta-row"><span class="meta-key">사업자등록번호</span><span class="meta-val">787-87-01752</span></div>
-        <div class="est-meta-row" style="overflow:visible;"><span class="meta-key">상&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;호</span><span class="meta-val" style="display:flex; align-items:center; gap:6px; white-space:nowrap; flex-wrap:nowrap; flex-shrink:0;">주식회사 비엔시스템 &nbsp; 대표: 엄 요 한 <img src="_shared/etc/stamp.jpg" alt="도장" style="height:36px; width:36px; object-fit:contain; flex-shrink:0;"></span></div>
-        <div class="est-meta-row"><span class="meta-key">업&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;태</span><span class="meta-val">정보통신업</span></div>
-        <div class="est-meta-row"><span class="meta-key">주&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;소</span><span class="meta-val">서울 노원구 화랑로 419-7 3층 전관</span></div>
-        <div class="est-meta-row" style="margin-top:8px;"><span class="meta-key">담당자</span><span class="meta-val">엄 요 한</span></div>
-        <div class="est-meta-row"><span class="meta-key">이메일</span><span class="meta-val">best@bn-system.com</span></div>
-        <div class="est-meta-row"><span class="meta-key">전&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;화</span><span class="meta-val">050-7737-4560 / 010-2308-3853</span></div>
+        <div class="est-meta-row" style="align-items:flex-start;"><span class="meta-key">상&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;호</span><span class="meta-val" style="display:flex; flex-direction:column; gap:3px;"><span>&nbsp;&nbsp;&nbsp;주식회사 비엔시스템</span><span style="display:flex; align-items:center; gap:6px;">&nbsp;&nbsp;&nbsp;대표: 엄 요 한 <img src="_shared/etc/stamp.jpg" alt="도장" style="height:36px; width:36px; object-fit:contain; flex-shrink:0;"></span></span></div>
+        <div class="est-meta-row"><span class="meta-key">업&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;태</span><span class="meta-val">&nbsp;&nbsp;정보통신업</span></div>
+        <div class="est-meta-row"><span class="meta-key">주&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;소</span><span class="meta-val">&nbsp;&nbsp;서울 도봉구 마들로11가길 12, 401호</span></div>
+        <div class="est-meta-row" style="margin-top:8px;"><span class="meta-key">담&nbsp;&nbsp;당&nbsp;&nbsp;자</span><span class="meta-val">&nbsp;&nbsp;&nbsp;엄 요 한</span></div>
+        <div class="est-meta-row"><span class="meta-key">이&nbsp;&nbsp;메&nbsp;&nbsp;일</span><span class="meta-val">&nbsp;&nbsp;&nbsp;best@bn-system.com</span></div>
+        <div class="est-meta-row"><span class="meta-key">전&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;화</span><span class="meta-val">&nbsp;&nbsp;&nbsp;050-7737-4560 / 010-2308-3853</span></div>
       </div>
     </div>
 
@@ -1032,6 +1042,229 @@ function resetAll() {
 
 function printDoc() {
   window.print();
+}
+
+async function exportToWord() {
+  const btn = document.querySelector('.btn-word');
+  const orig = btn.textContent;
+  btn.textContent = '생성 중...';
+  btn.disabled = true;
+  try {
+    if (!window.docx) {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://unpkg.com/docx@8.5.0/build/index.min.js';
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+    const { Document, Packer, Paragraph, Table, TableRow, TableCell,
+            TextRun, ImageRun, AlignmentType, BorderStyle,
+            WidthType, VerticalAlign, ShadingType } = window.docx;
+
+    const v = getValues();
+    const inp = {
+      docNo:   document.getElementById('docNo').value || 'BN-______-E__',
+      client:  document.getElementById('clientName').value || '(고객사명)',
+      project: document.getElementById('projectName').value || '(건명)',
+      payTerm: document.getElementById('paymentTerm').value || '계좌이체(계약금50%, 잔금50%)',
+      period:  document.getElementById('period').value || '협의',
+      memo:    document.getElementById('detailMemo').value,
+    };
+    const totalLabel = `일금 ${Math.floor(v.total/10000)}만원 (${fmt(v.total)}원, 부가가치세 별도)`;
+
+    let stampBuf = null, logoBuf = null;
+    try { stampBuf = await (await fetch('_shared/etc/stamp.jpg')).arrayBuffer(); } catch(e){}
+    try { logoBuf  = await (await fetch('_shared/etc/logo-removebg-preview.png')).arrayBuffer(); } catch(e){}
+
+    const F = 'Malgun Gothic';
+    const C = { navy:'1B3A6B', dark:'1E293B', g4:'475569', g1:'F8FAFC', g2:'E9EEF5', white:'FFFFFF', red:'C0392B', g3:'94A3B8' };
+    const bdrLine = (c='CCCCCC') => ({ style: BorderStyle.SINGLE, size: 4, color: c });
+    const bdrAll  = (c='CCCCCC') => ({ top: bdrLine(c), bottom: bdrLine(c), left: bdrLine(c), right: bdrLine(c) });
+    const sh = (color) => ({ type: ShadingType.SOLID, color, fill: color });
+    const tx = (text, o={}) => new TextRun({ text: String(text??''), font: F, size: o.sz||22, bold:!!o.b, color: o.c||C.dark });
+    const pr = (content, align=AlignmentType.LEFT, bef=50, aft=50) => new Paragraph({
+      children: Array.isArray(content) ? content : [content],
+      alignment: align, spacing: { before: bef, after: aft }
+    });
+    const tc = (children, o={}) => {
+      const cell = {
+        children: Array.isArray(children) ? children : [children],
+        verticalAlign: o.va || VerticalAlign.CENTER,
+        margins: { top: 60, bottom: 60, left: 100, right: 100 },
+      };
+      if (o.cs) cell.columnSpan = o.cs;
+      if (o.rs) cell.rowSpan    = o.rs;
+      if (o.sh) cell.shading    = sh(o.sh);
+      if (o.w !== undefined) cell.width = { size: o.w, type: WidthType.PERCENTAGE };
+      return new TableCell(cell);
+    };
+
+    // 로고
+    const logoPara = logoBuf
+      ? new Paragraph({ children: [new ImageRun({ data: logoBuf, transformation: { width: 130, height: 44 }, type: 'png' })], spacing: { before: 0, after: 300 } })
+      : pr([tx('주식회사 비엔시스템', { b: true, sz: 28, c: C.navy })], AlignmentType.LEFT, 0, 300);
+
+    // 제목
+    const titlePara = pr([tx('견    적    서', { b: true, sz: 64 })], AlignmentType.CENTER, 0, 300);
+
+    // 메타 테이블 (좌/우 2열)
+    const leftParas = [
+      ['문서번호', inp.docNo,   false],
+      ['작성일',   todayStr(),  false],
+      ['수    신',  inp.client + ' 귀중', false],
+      ['건    명',  inp.project, false],
+      ['공급가액', totalLabel,  true],
+      ['결제조건', inp.payTerm, false],
+      ['기    간',  inp.period,  false],
+    ].map(([k, val, hi]) => pr([tx(k, { b: true, sz: 20 }), tx('  '+val, { sz: 20, c: hi ? C.navy : C.g4, b: hi })], AlignmentType.LEFT, 30, 30));
+
+    const rightParas = [
+      pr([tx('사업자등록번호', { b: true, sz: 20 }), tx('  787-87-01752', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
+      new Paragraph({
+        children: [
+          tx('상    호', { b: true, sz: 20 }),
+          tx('  주식회사 비엔시스템   대표: 엄 요 한  ', { sz: 20, c: C.g4 }),
+          ...(stampBuf ? [new ImageRun({ data: stampBuf, transformation: { width: 34, height: 34 }, type: 'jpeg' })] : [])
+        ], spacing: { before: 30, after: 30 }
+      }),
+      pr([tx('업    태', { b: true, sz: 20 }), tx('  정보통신업', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
+      pr([tx('주    소', { b: true, sz: 20 }), tx('  서울 노원구 화랑로 419-7 3층 전관', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
+      pr([tx('담 당 자', { b: true, sz: 20 }), tx('  엄 요 한', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 80, 30),
+      pr([tx('이 메 일', { b: true, sz: 20 }), tx('  best@bn-system.com', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
+      pr([tx('전    화', { b: true, sz: 20 }), tx('  050-7737-4560 / 010-2308-3853', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
+    ];
+
+    const metaTable = new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: bdrAll(),
+      rows: [new TableRow({ children: [
+        tc(leftParas,  { va: VerticalAlign.TOP, w: 50 }),
+        tc(rightParas, { va: VerticalAlign.TOP, w: 50 }),
+      ]})]
+    });
+
+    // 견적 테이블
+    const jobs = [];
+    if (v.dayspm     > 0) jobs.push({ name: 'PM/기획',           days: v.dayspm,     price: v.pricepm,     amt: v.amtpm });
+    if (v.daysdesign > 0) jobs.push({ name: '디자인 및 퍼블리싱', days: v.daysdesign, price: v.pricedesign, amt: v.amtdesign });
+    if (v.daysdev    > 0) jobs.push({ name: '개발',               days: v.daysdev,    price: v.pricedev,    amt: v.amtdev });
+    if (v.daysqa     > 0) jobs.push({ name: '검수',               days: v.daysqa,     price: v.priceqa,     amt: v.amtqa });
+    const nJobs = Math.max(jobs.length, 1);
+
+    const hdrRow = new TableRow({ children:
+      ['항목','직무','인원(명)','기간(일)','투입률','일용가(원)','합계(원)'].map(h =>
+        tc(pr([tx(h, { b: true, sz: 20, c: C.white })], AlignmentType.CENTER, 50, 50), { sh: C.navy })
+      )
+    });
+
+    const jobRows = jobs.length === 0
+      ? [new TableRow({ children: [
+          tc(pr([tx('인건비',{b:true,sz:20})], AlignmentType.CENTER,50,50), { sh: C.g1 }),
+          tc(pr([tx('-')], AlignmentType.CENTER,50,50)),
+          tc(pr([tx('-')], AlignmentType.CENTER,50,50)),
+          tc(pr([tx('-')], AlignmentType.CENTER,50,50)),
+          tc(pr([tx('-')], AlignmentType.CENTER,50,50)),
+          tc(pr([tx('-')], AlignmentType.RIGHT, 50,50)),
+          tc(pr([tx('0')], AlignmentType.RIGHT, 50,50)),
+        ]})]
+      : jobs.map((job, i) => new TableRow({ children: [
+          ...(i===0 ? [tc(pr([tx('인건비',{b:true,sz:20})], AlignmentType.CENTER,50,50), { sh: C.g1, rs: nJobs, va: VerticalAlign.CENTER })] : []),
+          tc(pr([tx(job.name,{sz:20})],         AlignmentType.LEFT,   50, 50)),
+          tc(pr([tx('1',{sz:20})],              AlignmentType.CENTER, 50, 50)),
+          tc(pr([tx(String(job.days),{sz:20})], AlignmentType.CENTER, 50, 50)),
+          tc(pr([tx('100%',{sz:20})],           AlignmentType.CENTER, 50, 50)),
+          tc(pr([tx(fmt(job.price),{sz:20})],   AlignmentType.RIGHT,  50, 50)),
+          tc(pr([tx(fmt(job.amt),{b:true,sz:20,c:C.navy})], AlignmentType.RIGHT, 50, 50)),
+        ]}));
+
+    const subtotalRow = new TableRow({ children: [
+      tc(pr([tx('소계',{b:true,sz:20})],        AlignmentType.RIGHT,  50, 50), { cs:5, sh: C.g1 }),
+      tc(pr([tx('')],                            AlignmentType.CENTER, 50, 50)),
+      tc(pr([tx(fmt(v.labor),{b:true,sz:20})],  AlignmentType.RIGHT,  50, 50)),
+    ]});
+    const expenseRow = new TableRow({ children: [
+      tc(pr([tx('기타',{b:true,sz:20})],         AlignmentType.CENTER, 50, 50), { sh: C.g1 }),
+      tc(pr([tx('제경비',{sz:20})],              AlignmentType.LEFT,   50, 50), { cs:5 }),
+      tc(pr([tx(fmt(v.expense),{b:true,sz:20})], AlignmentType.RIGHT,  50, 50)),
+    ]});
+    const discountRows = (v.discountOn && v.discount > 0) ? [new TableRow({ children: [
+      tc(pr([tx('기타',{b:true,sz:20,c:C.red})],          AlignmentType.CENTER, 50, 50)),
+      tc(pr([tx(v.discountLabel,{b:true,sz:20,c:C.red})],  AlignmentType.LEFT,  50, 50), { cs:5 }),
+      tc(pr([tx('▼ '+fmt(v.discount),{b:true,sz:20,c:C.red})], AlignmentType.RIGHT, 50, 50)),
+    ]})] : [];
+    const grandRow = new TableRow({ children: [
+      tc(pr([tx('총 합계  (공급가액, 부가가치세 별도)',{b:true,sz:22,c:C.white})], AlignmentType.CENTER,80,80), { cs:6, sh: C.navy }),
+      tc(pr([tx(fmt(v.total)+' 원',{b:true,sz:24,c:C.white})], AlignmentType.RIGHT,80,80), { sh: C.navy }),
+    ]});
+    const estTable = new Table({ width: { size:100, type: WidthType.PERCENTAGE },
+      rows: [hdrRow, ...jobRows, subtotalRow, expenseRow, ...discountRows, grandRow] });
+
+    const secTitle = (num, title) => pr([tx(num+'. ',{b:true,sz:26,c:C.navy}), tx(title,{b:true,sz:26})], AlignmentType.LEFT, 200, 100);
+
+    const memoParas = inp.memo
+      ? inp.memo.split('\n').map(line => pr([tx(line||' ',{sz:22,c:C.g4})], AlignmentType.LEFT, 0, 30))
+      : [pr([tx('(없음)',{sz:22,c:C.g3})], AlignmentType.LEFT, 0, 30)];
+
+    const condParas = [
+      '본 견적은 작성일자로부터 20일 간 유효함',
+      '본 견적은 요구사항을 기준으로 했음, 요구사항이 변경될 경우 변동될 수 있음',
+      '본 견적은 2018년 한국소프트웨어산업협회 단가를 기준으로 산정함',
+    ].map((c, i) => pr([tx(`${i+1}) ${c}`,{sz:22,c:C.g4})], AlignmentType.LEFT, 0, 30));
+
+    const rateTable = new Table({ width: { size:100, type: WidthType.PERCENTAGE },
+      rows: [
+        new TableRow({ children: ['구분','일평균임금 (M/D)','월평균임금 (M/M)','시간평균임금 (M/H)'].map(h =>
+          tc(pr([tx(h,{b:true,sz:20})], AlignmentType.CENTER,50,50), { sh: C.g2 })
+        )}),
+        ...[ ['고급기술자','305,433','6,353,006','38,179'],
+             ['중급기술자','239,748','4,986,758','29,969'],
+             ['초급기술자','215,681','4,486,165','26,960'],
+        ].map(row => new TableRow({ children: row.map(val =>
+          tc(pr([tx(val,{sz:20,c:C.g4})], AlignmentType.CENTER,50,50))
+        )}))
+      ]
+    });
+
+    const wordDoc = new Document({
+      styles: { default: { document: { run: { font: F, size: 22 } } } },
+      sections: [{ properties: { page: { margin: { top:1000, bottom:1000, left:1200, right:1200 } } },
+        children: [
+          logoPara, titlePara, metaTable,
+          pr([tx('')], AlignmentType.LEFT, 0, 0),
+          secTitle('1','견적내역'),
+          estTable,
+          pr([tx('* 휴일 제외 업무일(월20일) 기준',{sz:18,c:C.g3})], AlignmentType.LEFT, 60, 200),
+          secTitle('2','기간'),
+          pr([tx('◦ 기간: ',{sz:22}), tx(inp.period,{b:true,sz:22})], AlignmentType.LEFT, 0, 200),
+          secTitle('3','세부내역'),
+          ...memoParas,
+          pr([tx('')], AlignmentType.LEFT, 100, 0),
+          secTitle('4','견적조건'),
+          ...condParas,
+          pr([tx('※ 2018년 SW기술자 평균임금 – 등급별  (단위: 원)',{sz:20,c:C.g4})], AlignmentType.CENTER, 200, 80),
+          rateTable,
+          pr([tx('* 한국소프트웨어산업협회',{sz:18,c:C.g3})], AlignmentType.RIGHT, 60, 200),
+          pr([tx('(이상)',{sz:22,c:C.g3})], AlignmentType.RIGHT, 0, 0),
+        ]
+      }]
+    });
+
+    const blob = await Packer.toBlob(wordDoc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `견적서_${inp.docNo}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+  } catch(e) {
+    console.error('Word 변환 오류:', e);
+    alert('Word 변환 중 오류가 발생했습니다:\n' + e.message);
+  } finally {
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
 }
 
 // 초기 렌더
