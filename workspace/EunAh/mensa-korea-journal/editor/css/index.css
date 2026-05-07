@@ -94,6 +94,13 @@
 
 .sortable-ghost { opacity: .4; background: #eff6ff; }
 
+/* ── 목차 카드 ───────────────────────────────────────────── */
+.toc-card {
+  border-style: dashed;
+  background: #f8fafc;
+  margin-bottom: 16px;
+}
+
 /* ── 빈 상태 ─────────────────────────────────────────────── */
 .empty-state {
   text-align: center;

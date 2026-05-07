@@ -41,6 +41,20 @@
   </div>
 
   <div id="alert-area"></div>
+
+  <!-- 목차 카드 (0번 고정) -->
+  <div class="article-card toc-card">
+    <div class="order-badge" style="background:#94a3b8">0</div>
+    <div class="article-info">
+      <div class="article-title">목차</div>
+      <div class="article-author" id="toc-status">—</div>
+    </div>
+    <div class="article-actions">
+      <button class="btn btn-outline btn-sm" onclick="autoGenerateToc()">↻ 자동 생성</button>
+      <a href="edit.html?id=__toc__" class="btn btn-outline btn-sm">편집</a>
+    </div>
+  </div>
+
   <div class="article-list" id="article-list"></div>
 </main>
 

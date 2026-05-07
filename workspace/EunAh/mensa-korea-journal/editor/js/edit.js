@@ -5,14 +5,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const id = new URLSearchParams(location.search).get('id');
   if (!id) { location.href = 'index.html'; return; }
 
+  if (id === '__toc__') {
+    initTocMode();
+    return;
+  }
+
   article = getArticle(id);
   if (!article) { alert('원고를 찾을 수 없습니다.'); location.href = 'index.html'; return; }
 
   initQuill();
   loadData();
-  renderImages();   // async — IndexedDB에서 이미지 로드
+  renderImages();
   initImageDrop();
 });
+
+// ─── 목차 편집 모드 ───────────────────────────────────────
+function initTocMode() {
+  document.getElementById('header-title').textContent = '목차 편집';
+  ['card-info', 'card-contributors', 'card-images'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  initQuill();
+  document.getElementById('tag-toolbar').style.display = 'none';
+
+  const toc = getToc();
+  if (toc.content) quill.clipboard.dangerouslyPasteHTML(0, toc.content);
+}
 
 // ─── Quill 초기화 ─────────────────────────────────────────
 function initQuill() {
@@ -82,6 +102,12 @@ function insertTag(symbol) {
 
 // ─── 저장 ─────────────────────────────────────────────────
 function saveArticle() {
+  if (new URLSearchParams(location.search).get('id') === '__toc__') {
+    saveToc({ content: quill.root.innerHTML });
+    showToast('목차가 저장됐습니다.');
+    return;
+  }
+
   const title = document.getElementById('field-title').value.trim();
   if (!title) { alert('제목을 입력해주세요.'); document.getElementById('field-title').focus(); return; }
 
@@ -101,23 +127,39 @@ function saveArticle() {
 }
 
 // ─── 작성자 행 유틸 ──────────────────────────────────────
+const CONTRIB_PRESET = ['', '글', '글·사진', '사진'];
+
 function addContributorRow(containerId, data = {}) {
   const container = document.getElementById(containerId);
   const empty = document.getElementById('contributors-empty');
   if (empty) empty.style.display = 'none';
+  const isCustom = data.type && !CONTRIB_PRESET.includes(data.type);
   const row = document.createElement('div');
   row.className = 'contributor-row';
   row.innerHTML = `
-    <select class="contributor-type">
-      <option value=""${!data.type ? ' selected' : ''}>—</option>
+    <select class="contributor-type" onchange="toggleCustomType(this)">
+      <option value="">—</option>
       <option value="글"${data.type === '글' ? ' selected' : ''}>글</option>
       <option value="글·사진"${data.type === '글·사진' ? ' selected' : ''}>글·사진</option>
       <option value="사진"${data.type === '사진' ? ' selected' : ''}>사진</option>
+      <option value="__custom__"${isCustom ? ' selected' : ''}>직접 입력</option>
     </select>
+    <input type="text" class="contributor-type-custom${isCustom ? '' : ' hidden'}" placeholder="유형 입력" value="${esc(isCustom ? data.type : '')}">
     <input type="text" class="contributor-name" placeholder="이름" value="${esc(data.name || '')}">
     <input type="text" class="contributor-info" placeholder="이메일, 소속 등" value="${esc(data.info || '')}">
     <button type="button" class="contributor-del" onclick="removeContributorRow(this)">×</button>`;
   container.appendChild(row);
+}
+
+function toggleCustomType(sel) {
+  const customInp = sel.closest('.contributor-row').querySelector('.contributor-type-custom');
+  if (sel.value === '__custom__') {
+    customInp.classList.remove('hidden');
+    customInp.focus();
+  } else {
+    customInp.classList.add('hidden');
+    customInp.value = '';
+  }
 }
 
 function removeContributorRow(btn) {
@@ -131,11 +173,16 @@ function removeContributorRow(btn) {
 
 function readContributors(containerId) {
   return [...document.getElementById(containerId).querySelectorAll('.contributor-row')]
-    .map(row => ({
-      type: row.querySelector('.contributor-type').value,
-      name: row.querySelector('.contributor-name').value.trim(),
-      info: row.querySelector('.contributor-info').value.trim(),
-    }))
+    .map(row => {
+      const sel = row.querySelector('.contributor-type');
+      const customInp = row.querySelector('.contributor-type-custom');
+      const type = sel.value === '__custom__' ? customInp.value.trim() : sel.value;
+      return {
+        type,
+        name: row.querySelector('.contributor-name').value.trim(),
+        info: row.querySelector('.contributor-info').value.trim(),
+      };
+    })
     .filter(c => c.name);
 }
 
@@ -176,26 +223,28 @@ function readAsDataUrl(file) {
   });
 }
 
-// ─── 이미지 렌더링 (IndexedDB에서 로드) ──────────────────
+// ─── 이미지 렌더링 (IndexedDB에서 로드, 드래그 정렬) ─────
+let imgSortable = null;
+
 async function renderImages() {
   const imgs = article.images || [];
   const grid = document.getElementById('image-grid');
 
   if (imgs.length === 0) {
     grid.innerHTML = '<p class="text-muted" style="font-size:13px">이미지가 없습니다.</p>';
+    if (imgSortable) { imgSortable.destroy(); imgSortable = null; }
     return;
   }
 
-  // 로딩 표시
   grid.innerHTML = '<p class="text-muted" style="font-size:13px">이미지 로딩 중...</p>';
 
-  // IndexedDB에서 dataUrl 일괄 조회
   const dataMap = await idbGetAll(imgs.map(i => i.id));
 
   grid.innerHTML = imgs.map(img => {
     const src = dataMap[img.id] || '';
     return `
       <div class="img-item" data-img-id="${img.id}">
+        <div class="img-drag-handle" title="드래그로 순서 변경">⠿</div>
         ${src
           ? `<img src="${src}" alt="${esc(img.name)}">`
           : `<div style="height:110px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:12px;color:#94a3b8">미리보기 없음</div>`
@@ -207,6 +256,20 @@ async function renderImages() {
         </div>
       </div>`;
   }).join('');
+
+  if (imgSortable) imgSortable.destroy();
+  imgSortable = new Sortable(grid, {
+    handle: '.img-drag-handle',
+    animation: 150,
+    ghostClass: 'img-ghost',
+    onEnd() {
+      const newOrder = [...grid.querySelectorAll('.img-item')].map(el => el.dataset.imgId);
+      const imgMap = {};
+      (article.images || []).forEach(img => { imgMap[img.id] = img; });
+      article.images = newOrder.filter(id => imgMap[id]).map(id => imgMap[id]);
+      upsertArticle(article);
+    }
+  });
 }
 
 async function deleteImage(imgId) {

@@ -149,6 +149,7 @@ select:focus {
   margin-bottom: 6px;
 }
 .contributor-row .contributor-type { flex: 0 0 82px; width: 82px; }
+.contributor-row .contributor-type-custom { flex: 0 0 80px; width: 80px; }
 .contributor-row .contributor-name { flex: 1; min-width: 0; }
 .contributor-row .contributor-info { flex: 2; min-width: 0; }
 .contributor-del {

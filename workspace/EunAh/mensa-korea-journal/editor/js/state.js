@@ -64,6 +64,27 @@ function newId() {
   return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
+// ─── 목차 ────────────────────────────────────────────────
+const TOC_KEY = 'mensa_journal_toc_v1';
+
+function getToc() {
+  try {
+    const s = localStorage.getItem(TOC_KEY);
+    return s ? JSON.parse(s) : { content: '' };
+  } catch {
+    return { content: '' };
+  }
+}
+
+function saveToc(data) {
+  data.updatedAt = new Date().toISOString();
+  try {
+    localStorage.setItem(TOC_KEY, JSON.stringify(data));
+  } catch {
+    alert('저장 공간이 부족합니다.');
+  }
+}
+
 // 구버전 데이터 마이그레이션:
 // localStorage에 남아있는 이미지 dataUrl → IndexedDB로 이동 후 제거
 async function migrateImageData() {

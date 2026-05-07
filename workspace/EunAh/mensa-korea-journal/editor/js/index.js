@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ─── 렌더링 ───────────────────────────────────────────────
 function render() {
+  renderToc();
   const articles = getArticles();
   document.getElementById('stat-count').textContent = articles.length;
   document.getElementById('stat-photos').textContent = getTotalPhotos();
@@ -69,6 +70,39 @@ function render() {
       render();
     }
   });
+}
+
+// ─── 목차 ────────────────────────────────────────────────
+function renderToc() {
+  const status = document.getElementById('toc-status');
+  if (!status) return;
+  const toc = getToc();
+  if (toc.content) {
+    const d = toc.updatedAt
+      ? new Date(toc.updatedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+      : '';
+    status.textContent = d ? `수정: ${d}` : '내용 있음';
+  } else {
+    status.textContent = '내용 없음 — 자동 생성 또는 직접 편집';
+  }
+}
+
+function autoGenerateToc() {
+  const articles = getArticles();
+  if (!articles.length) { alert('원고가 없습니다.'); return; }
+  const lines = articles.map((a, i) => {
+    const contribs = a.contributors && a.contributors.length > 0
+      ? a.contributors
+      : (a.author ? [{ name: a.author }] : []);
+    const authorStr = contribs.map(c => c.name).filter(Boolean).join('·');
+    const num = String(i + 1).padStart(2, '0');
+    const cat = a.category ? `[${esc(a.category)}] ` : '';
+    const author = authorStr ? ` — ${esc(authorStr)}` : '';
+    return `<p>${num}. ${cat}<strong>${esc(a.title || '(제목 없음)')}</strong>${author}</p>`;
+  });
+  saveToc({ content: lines.join('') });
+  renderToc();
+  showAlert('목차가 자동 생성됐습니다.', 'success');
 }
 
 // ─── 삭제 ────────────────────────────────────────────────
@@ -133,30 +167,51 @@ function createNew() {
 }
 
 // ─── 작성자 행 유틸 ──────────────────────────────────────
+const CONTRIB_PRESET = ['', '글', '글·사진', '사진'];
+
 function addContributorRow(containerId, data = {}) {
   const container = document.getElementById(containerId);
+  const isCustom = data.type && !CONTRIB_PRESET.includes(data.type);
   const row = document.createElement('div');
   row.className = 'contributor-row';
   row.innerHTML = `
-    <select class="contributor-type">
-      <option value=""${!data.type ? ' selected' : ''}>—</option>
+    <select class="contributor-type" onchange="toggleCustomType(this)">
+      <option value="">—</option>
       <option value="글"${data.type === '글' ? ' selected' : ''}>글</option>
       <option value="글·사진"${data.type === '글·사진' ? ' selected' : ''}>글·사진</option>
       <option value="사진"${data.type === '사진' ? ' selected' : ''}>사진</option>
+      <option value="__custom__"${isCustom ? ' selected' : ''}>직접 입력</option>
     </select>
+    <input type="text" class="contributor-type-custom${isCustom ? '' : ' hidden'}" placeholder="유형 입력" value="${esc(isCustom ? data.type : '')}">
     <input type="text" class="contributor-name" placeholder="이름" value="${esc(data.name || '')}">
     <input type="text" class="contributor-info" placeholder="이메일, 소속 등" value="${esc(data.info || '')}">
     <button type="button" class="contributor-del" onclick="this.closest('.contributor-row').remove()">×</button>`;
   container.appendChild(row);
 }
 
+function toggleCustomType(sel) {
+  const customInp = sel.closest('.contributor-row').querySelector('.contributor-type-custom');
+  if (sel.value === '__custom__') {
+    customInp.classList.remove('hidden');
+    customInp.focus();
+  } else {
+    customInp.classList.add('hidden');
+    customInp.value = '';
+  }
+}
+
 function readContributors(containerId) {
   return [...document.getElementById(containerId).querySelectorAll('.contributor-row')]
-    .map(row => ({
-      type: row.querySelector('.contributor-type').value,
-      name: row.querySelector('.contributor-name').value.trim(),
-      info: row.querySelector('.contributor-info').value.trim(),
-    }))
+    .map(row => {
+      const sel = row.querySelector('.contributor-type');
+      const customInp = row.querySelector('.contributor-type-custom');
+      const type = sel.value === '__custom__' ? customInp.value.trim() : sel.value;
+      return {
+        type,
+        name: row.querySelector('.contributor-name').value.trim(),
+        info: row.querySelector('.contributor-info').value.trim(),
+      };
+    })
     .filter(c => c.name);
 }
 

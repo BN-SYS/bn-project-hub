@@ -78,6 +78,9 @@
   padding: 10px 20px;
   background: #f8fafc;
   border-bottom: 1px solid var(--c-border);
+  position: sticky;
+  top: 56px;
+  z-index: 50;
 }
 .tag-toolbar-label {
   font-size: 11px;
@@ -107,7 +110,8 @@
 
 /* ── Quill 에디터 ─────────────────────────────────────────── */
 #quill-editor {
-  min-height: 380px;
+  height: calc(100vh - 360px);
+  min-height: 320px;
 }
 .ql-container.ql-snow {
   border: none;
@@ -135,6 +139,21 @@
   overflow: hidden;
   position: relative;
 }
+.img-drag-handle {
+  position: absolute;
+  top: 4px; left: 4px;
+  background: rgba(0,0,0,.45);
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 4px;
+  font-size: 14px;
+  cursor: grab;
+  line-height: 1.4;
+  z-index: 2;
+  user-select: none;
+}
+.img-drag-handle:active { cursor: grabbing; }
+.img-ghost { opacity: .4; }
 .img-item img { width: 100%; height: 110px; object-fit: cover; display: block; }
 .img-del {
   position: absolute;

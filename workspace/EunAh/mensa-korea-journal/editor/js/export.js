@@ -16,6 +16,17 @@ function exportToDocx() {
       <p style="font-size:10pt;color:#666;margin:6pt 0 0">생성일: ${date} &nbsp;|&nbsp; 총 원고: ${articles.length}편</p>
     </div>`;
 
+  const toc = getToc();
+  if (toc && toc.content) {
+    body += `
+      <hr style="margin:0 0 20pt;border:none;border-top:1px solid #aaa">
+      <div style="margin-bottom:24pt">
+        <p style="font-size:14pt;font-weight:bold;border-bottom:2px solid #333;padding-bottom:4pt;margin:0 0 10pt">목 차</p>
+        <div style="line-height:2">${toc.content}</div>
+      </div>
+      <hr style="margin:0 0 20pt;border:none;border-top:2px solid #555">`;
+  }
+
   for (let i = 0; i < articles.length; i++) {
     const art = articles[i];
     if (i > 0) body += '<hr style="margin:20pt 0;border:none;border-top:1px solid #ccc">';
@@ -34,11 +45,14 @@ function exportToDocx() {
     // 작성자 정보 (우측 정렬)
     const contributors = getArticleContributors(art);
     if (contributors.length > 0) {
-      const contribHtml = contributors.map(c => {
-        let line = c.type ? `${esc(c.type)} ${esc(c.name)}` : esc(c.name);
-        if (c.info) line += `<br>${esc(c.info)}`;
-        return `<p style="text-align:right;font-size:10pt;margin:2pt 0">${line}</p>`;
-      }).join('');
+      const contribBlocks = contributors.map(c => {
+        const lines = [];
+        if (c.type) lines.push(esc(c.type));
+        lines.push(esc(c.name));
+        if (c.info) lines.push(esc(c.info));
+        return `<p style="text-align:right;font-size:10pt;margin:0;line-height:1.7">${lines.join('<br>')}</p>`;
+      });
+      const contribHtml = contribBlocks.join('<p style="margin:0">&nbsp;</p>');
       body += `<div style="margin-top:10pt">${contribHtml}</div>`;
     }
   }
@@ -90,7 +104,7 @@ async function exportImages() {
     const dataUrl = dataMap[img.id];
     if (!dataUrl) { console.warn('이미지 없음:', img.name); continue; }
 
-    const label    = img.photoLabel ? img.photoLabel.replace('♣', '사진') + '_' : '';
+    const label    = img.photoLabel ? img.photoLabel.replace('♣', '') + '_' : '';
     const safeName = img.name.replace(/[\\/:*?"<>|]/g, '_');
 
     try {
