@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>원고 편집 — 멘사코리아 회지 편집기</title>
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="https://cdn.quilljs.com/1.3.7/quill.snow.css">
+<link rel="stylesheet" href="css/edit.css">
+</head>
+<body class="editor-page">
+
+<!-- ── 헤더 ───────────────────────────────────────────── -->
+<header class="editor-header">
+  <div class="editor-header-inner">
+    <a href="index.html" class="back-link">← 목록으로</a>
+    <span class="editor-header-name" id="header-title">원고 편집</span>
+    <button class="btn btn-primary" onclick="saveArticle()">저장</button>
+  </div>
+</header>
+
+<!-- ── 본문 ───────────────────────────────────────────── -->
+<main class="editor-body">
+
+  <!-- 기본 정보 -->
+  <div class="card">
+    <div class="card-header">원고 정보</div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>제목 *</label>
+          <input type="text" id="field-title" placeholder="원고 제목">
+        </div>
+        <div class="form-group" style="max-width:200px">
+          <label>작성자</label>
+          <input type="text" id="field-author" placeholder="이름">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 본문 에디터 -->
+  <div class="card">
+    <div class="card-header">본문</div>
+
+    <!-- 스타일 태그 버튼 (JS로 생성) -->
+    <div class="tag-toolbar" id="tag-toolbar">
+      <span class="tag-toolbar-label">태그 삽입</span>
+    </div>
+
+    <!-- Quill 에디터 -->
+    <div id="quill-editor"></div>
+  </div>
+
+  <!-- 이미지 -->
+  <div class="card">
+    <div class="card-header">
+      이미지
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('img-input').click()">+ 이미지 추가</button>
+      <input type="file" id="img-input" multiple accept="image/*" style="display:none"
+        onchange="handleImageUpload(this.files)">
+    </div>
+    <div class="card-body">
+      <div class="img-grid" id="image-grid"></div>
+      <div class="img-drop" id="img-drop"
+        onclick="document.getElementById('img-input').click()">
+        클릭하거나 이미지를 여기에 드래그하여 추가
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── CDN ────────────────────────────────────────────── -->
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
+<!-- ── 앱 스크립트 ────────────────────────────────────── -->
+<script src="js/state.js"></script>
+<script src="js/tags.js"></script>
+<script src="js/import.js"></script>
+<script src="js/edit.js"></script>
+
+</body>
+</html>

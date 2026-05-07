@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>멘사코리아 회지 편집기</title>
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+
+<!-- ── 헤더 ───────────────────────────────────────────── -->
+<header class="page-header">
+  <div class="header-inner">
+    <h1 class="header-title">멘사코리아 <em>회지 편집기</em></h1>
+    <button class="btn btn-outline" onclick="openImportModal()">📂 파일 가져오기</button>
+    <button class="btn btn-outline" onclick="runNumbering()">♣ 전체 채번</button>
+    <button class="btn btn-primary" onclick="runExport()">⬇ DOCX 내보내기</button>
+  </div>
+</header>
+
+<!-- ── 본문 ───────────────────────────────────────────── -->
+<main class="page-main">
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-label">원고 수</span>
+      <span class="stat-value" id="stat-count">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">사진 태그</span>
+      <span class="stat-value" id="stat-photos">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">마지막 채번</span>
+      <span class="stat-small text-muted" id="stat-numbered">—</span>
+    </div>
+    <div class="stats-actions">
+      <button class="btn btn-outline btn-sm" onclick="openNewModal()">+ 원고 추가</button>
+    </div>
+  </div>
+
+  <div id="alert-area"></div>
+  <div class="article-list" id="article-list"></div>
+</main>
+
+<!-- ── 원고 추가 모달 ─────────────────────────────────── -->
+<div class="modal-overlay hidden" id="modal-new">
+  <div class="modal">
+    <div class="modal-title">새 원고 추가</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label>원고 제목 *</label>
+        <input type="text" id="new-title" placeholder="제목 입력">
+      </div>
+      <div class="form-group">
+        <label>작성자</label>
+        <input type="text" id="new-author" placeholder="이름">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeNewModal()">취소</button>
+      <button class="btn btn-primary" onclick="createNew()">추가 후 편집</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 파일 가져오기 모달 ─────────────────────────────── -->
+<div class="modal-overlay hidden" id="modal-import">
+  <div class="modal">
+    <div class="modal-title">원고 가져오기</div>
+
+    <div class="tab-row">
+      <button class="tab-btn active" data-tab="tab-file" onclick="switchTab('tab-file')">파일 (DOCX · TXT)</button>
+      <button class="tab-btn" data-tab="tab-paste" onclick="switchTab('tab-paste')">텍스트 붙여넣기 (HWP 대용)</button>
+    </div>
+
+    <!-- 파일 탭 -->
+    <div id="tab-file">
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <div class="drop-zone-icon">📄</div>
+        <div class="drop-zone-text">
+          <strong>클릭하거나 파일을 드래그</strong><br>
+          DOCX, TXT 지원 · 여러 파일 동시 선택 가능
+        </div>
+      </div>
+      <input type="file" id="file-input" multiple accept=".docx,.doc,.txt,.hwp,.hwpx" style="display:none"
+        onchange="handleFileSelect(this.files)">
+      <div id="file-list" style="margin-top:10px"></div>
+      <div class="alert alert-info" style="margin-top:12px;margin-bottom:0;font-size:12px">
+        HWP 파일은 한컴오피스에서 <strong>파일 → 다른 이름으로 저장 → .docx</strong>로 저장 후 사용하거나,
+        '텍스트 붙여넣기' 탭을 이용해주세요.
+      </div>
+    </div>
+
+    <!-- 붙여넣기 탭 -->
+    <div id="tab-paste" class="hidden">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="form-row">
+          <div class="form-group">
+            <label>제목</label>
+            <input type="text" id="paste-title" placeholder="원고 제목">
+          </div>
+          <div class="form-group" style="max-width:160px">
+            <label>작성자</label>
+            <input type="text" id="paste-author" placeholder="이름">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>내용 (HWP에서 복사 후 붙여넣기)</label>
+          <textarea id="paste-text" rows="10" placeholder="한컴오피스에서 내용을 복사(Ctrl+A → Ctrl+C)한 뒤 여기에 붙여넣기(Ctrl+V)하세요."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeImportModal()">취소</button>
+      <button class="btn btn-primary" id="import-btn" onclick="confirmImport()">가져오기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CDN ────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.1/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+<!-- ── 앱 스크립트 ────────────────────────────────────── -->
+<script src="js/state.js"></script>
+<script src="js/tags.js"></script>
+<script src="js/numbering.js"></script>
+<script src="js/import.js"></script>
+<script src="js/export.js"></script>
+<script src="js/index.js"></script>
+
+</body>
+</html>

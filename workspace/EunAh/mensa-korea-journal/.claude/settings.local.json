@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Recurse \"C:\\\\Users\\\\BN659\\\\Desktop\\\\BN_SYS\\\\workspace\\\\EunAh\\\\mensa-korea-journal\\\\editor\")",
+      "Bash(Select-Object FullName)"
+    ]
+  }
+}
