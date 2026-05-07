@@ -1131,11 +1131,13 @@ async function exportToWord() {
     if (!window.docx) {
       await new Promise((res, rej) => {
         const s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js';
-        s.onload = res; s.onerror = rej;
+        s.src = 'https://cdn.jsdelivr.net/npm/docx@8.2.3/build/index.umd.js';
+        s.onload = res;
+        s.onerror = () => rej(new Error('docx 라이브러리 로드 실패 (네트워크 확인 필요)'));
         document.head.appendChild(s);
       });
     }
+    if (!window.docx) throw new Error('docx 라이브러리를 불러오지 못했습니다');
     const { Document, Packer, Paragraph, Header, Table, TableRow, TableCell,
             TextRun, ImageRun, AlignmentType, BorderStyle,
             WidthType, VerticalAlign, ShadingType } = window.docx;
@@ -1386,7 +1388,7 @@ async function exportToWord() {
 
   } catch(e) {
     console.error('Word 변환 오류:', e);
-    alert('Word 변환 중 오류가 발생했습니다:\n' + e.message);
+    alert('Word 변환 중 오류가 발생했습니다:\n' + (e?.message || String(e)));
   } finally {
     btn.textContent = orig;
     btn.disabled = false;
