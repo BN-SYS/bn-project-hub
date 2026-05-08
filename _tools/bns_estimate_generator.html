@@ -397,7 +397,6 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  border: 1px solid #ccc;
   margin-bottom: 28px;
   font-size: 12.5px;
 }
@@ -409,7 +408,8 @@ body {
 }
 
 .est-meta-right {
-  border-left: 1px solid #ccc;
+  position: relative;
+  border-left: 1px solid #f5f5f5;
   overflow: visible;
 }
 
@@ -962,12 +962,12 @@ function render() {
       </div>
       <div class="est-meta-right">
         <div class="est-meta-row"><span class="meta-key">사업자등록번호</span><span class="meta-val">787-87-01752</span></div>
-        <div class="est-meta-row" style="align-items:flex-start;"><span class="meta-key">상&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;호</span><span class="meta-val" style="display:flex; flex-direction:column; gap:3px;"><span>&nbsp;&nbsp;&nbsp;주식회사 비엔시스템</span><span style="display:flex; align-items:center; gap:6px;">&nbsp;&nbsp;&nbsp;대표: 엄 요 한 <img src="../_shared/etc/stamp.jpg" alt="도장" style="height:36px; width:36px; object-fit:contain; flex-shrink:0;"></span></span></div>
+        <div class="est-meta-row" style="align-items:center;"><span class="meta-key">상&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;호</span><span class="meta-val" style="display:inline-flex; align-items:center; gap:0; white-space:nowrap;">&nbsp;&nbsp;주식회사 비엔시스템&nbsp;<b>대표:&nbsp;</b>엄 요 한<img src="../_shared/etc/stamp.png" alt="도장" style="height:40px; width:40px; object-fit:contain; flex-shrink:0; margin-left:-2px;"></span></div>
         <div class="est-meta-row"><span class="meta-key">업&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;태</span><span class="meta-val">&nbsp;&nbsp;정보통신업</span></div>
         <div class="est-meta-row"><span class="meta-key">주&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;소</span><span class="meta-val">&nbsp;&nbsp;서울 도봉구 마들로11가길 12, 401호</span></div>
-        <div class="est-meta-row" style="margin-top:8px;"><span class="meta-key">담&nbsp;&nbsp;당&nbsp;&nbsp;자</span><span class="meta-val">&nbsp;&nbsp;&nbsp;엄 요 한</span></div>
-        <div class="est-meta-row"><span class="meta-key">이&nbsp;&nbsp;메&nbsp;&nbsp;일</span><span class="meta-val">&nbsp;&nbsp;&nbsp;best@bn-system.com</span></div>
-        <div class="est-meta-row"><span class="meta-key">전&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;화</span><span class="meta-val">&nbsp;&nbsp;&nbsp;050-7737-4560 / 010-2308-3853</span></div>
+        <div class="est-meta-row" style="margin-top:8px;"><span class="meta-key">담&nbsp;&nbsp;당&nbsp;&nbsp;자</span><span class="meta-val">&nbsp;&nbsp;엄 요 한</span></div>
+        <div class="est-meta-row"><span class="meta-key">이&nbsp;&nbsp;메&nbsp;&nbsp;일</span><span class="meta-val">&nbsp;&nbsp;best@bn-system.com</span></div>
+        <div class="est-meta-row"><span class="meta-key">전&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;화</span><span class="meta-val">&nbsp;&nbsp;050-7737-4560 / 010-2308-3853</span></div>
       </div>
     </div>
 
@@ -1140,7 +1140,8 @@ async function exportToWord() {
     if (!window.docx) throw new Error('docx 라이브러리를 불러오지 못했습니다');
     const { Document, Packer, Paragraph, Header, Table, TableRow, TableCell,
             TextRun, ImageRun, AlignmentType, BorderStyle,
-            WidthType, VerticalAlign, ShadingType } = window.docx;
+            WidthType, VerticalAlign, ShadingType,
+            TextWrappingType, HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom } = window.docx;
 
     const v = getValues();
     const inp = {
@@ -1154,7 +1155,7 @@ async function exportToWord() {
     const totalLabel = `일금 ${Math.floor(v.total/10000)}만원 (${fmt(v.total)}원, 부가가치세 별도)`;
 
     let stampBuf = null, logoBuf = null;
-    try { stampBuf = await (await fetch('../_shared/etc/stamp.jpg')).arrayBuffer(); } catch(e){}
+    try { stampBuf = await (await fetch('../_shared/etc/stamp.png')).arrayBuffer(); } catch(e){}
     try { logoBuf  = await (await fetch('../_shared/etc/logo-removebg-preview.png')).arrayBuffer(); } catch(e){}
 
     const F = 'Malgun Gothic';
@@ -1180,6 +1181,8 @@ async function exportToWord() {
       return new TableCell(cell);
     };
 
+    const noBdr = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+
     // 로고
     const logoPara = logoBuf
       ? new Paragraph({ children: [new ImageRun({ data: logoBuf, transformation: { width: 130, height: 44 }, type: 'png' })], spacing: { before: 0, after: 300 } })
@@ -1204,8 +1207,27 @@ async function exportToWord() {
       new Paragraph({
         children: [
           tx('상    호', { b: true, sz: 20 }),
-          tx('  주식회사 비엔시스템   대표: 엄 요 한  ', { sz: 20, c: C.g4 }),
-          ...(stampBuf ? [new ImageRun({ data: stampBuf, transformation: { width: 34, height: 34 }, type: 'jpg' })] : [])
+          tx('  주식회사 비엔시스템 ', { sz: 20, c: C.g4 }),
+          tx('대표:', { b: true, sz: 20, c: C.g4 }),
+          tx(' 엄 요 한', { sz: 20, c: C.g4 }),
+          ...(stampBuf ? [new ImageRun({
+            data: stampBuf,
+            transformation: { width: 40, height: 40 },
+            type: 'png',
+            floating: {
+              horizontalPosition: {
+                relative: HorizontalPositionRelativeFrom ? HorizontalPositionRelativeFrom.COLUMN : 'column',
+                align: 'right',
+              },
+              verticalPosition: {
+                relative: VerticalPositionRelativeFrom ? VerticalPositionRelativeFrom.PARAGRAPH : 'paragraph',
+                offset: -57300,
+              },
+              wrap: { type: TextWrappingType ? TextWrappingType.NONE : 'none' },
+              allowOverlap: true,
+              layoutInCell: true,
+            }
+          })] : [])
         ], spacing: { before: 30, after: 30 }
       }),
       pr([tx('업    태', { b: true, sz: 20 }), tx('  정보통신업', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
@@ -1217,7 +1239,7 @@ async function exportToWord() {
 
     const metaTable = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
-      borders: bdrAll(),
+      borders: { top: noBdr, bottom: noBdr, left: noBdr, right: noBdr, insideVertical: bdrLine('E8E8E8'), insideHorizontal: noBdr },
       rows: [new TableRow({ children: [
         tc(leftParas,  { va: VerticalAlign.TOP, w: 50 }),
         tc(rightParas, { va: VerticalAlign.TOP, w: 50 }),
