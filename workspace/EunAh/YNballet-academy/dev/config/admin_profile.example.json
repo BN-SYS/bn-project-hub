@@ -1,0 +1,8 @@
+{
+    "_comment": "이 파일을 admin_profile.json으로 복사 후 실제 값으로 교체하세요. admin_profile.json은 .gitignore에 포함됩니다.",
+    "_generate_hash": "PHP: password_hash('원하는비밀번호', PASSWORD_DEFAULT)",
+    "id": "admin",
+    "pass_hash": "BCRYPT_HASH_HERE",
+    "name": "관리자이름",
+    "contact": ""
+}

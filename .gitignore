@@ -6,10 +6,20 @@
 **/node_modules/
 **/vendor/
 
-# ── 환경 설정 (민감 정보) ──────────────────────────────
+# ── 환경 설정 · 키 파일 (민감 정보 — 절대 커밋 금지) ────
 **/.env
 **/.env.local
 **/.env.*.local
+
+# PHP 프로젝트 설정 파일 (DB 비밀번호·관리자 계정 포함)
+**/config/config.php
+**/config/admin_profile.json
+**/config/*.local.php
+**/config/*.local.json
+
+# 유료 라이선스 에셋 (Velzon 등)
+# → 신규 라이선스 파일은 _shared/_licensed/ 에 저장할 것
+_shared/_licensed/
 
 # ── 빌드 결과물 ────────────────────────────────────────
 **/dist/

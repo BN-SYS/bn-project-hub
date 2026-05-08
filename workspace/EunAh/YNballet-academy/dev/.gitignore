@@ -1,5 +1,8 @@
-# 환경 설정 (비밀번호 포함 — 절대 커밋 금지)
+# 환경 설정 (비밀번호·계정 정보 포함 — 절대 커밋 금지)
 config/config.php
+config/admin_profile.json
+config/*.local.php
+config/*.local.json
 
 # 업로드 파일
 uploads/*

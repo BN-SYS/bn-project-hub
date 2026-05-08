@@ -41,6 +41,13 @@ BN_SYSTEM/
 ## 역할 경계 · CSS/JS 분리 원칙
 상세 규칙: `.claude/CLAUDE.md` — View 작업 경계, CSS/JS 분리, 고객 피드백 반영 규칙 참조.
 
+## 키 파일 관리 원칙
+- DB 비밀번호·API 키·관리자 계정 등 민감 정보는 반드시 분리 저장 (절대 커밋 금지)
+- PHP: `config/config.php` (gitignore) + `config/config.example.php` (커밋) 쌍으로 관리
+- HTML/JS: `.env` (gitignore) + `.env.example` (커밋) 쌍으로 관리
+- 유료 라이선스 에셋: `_shared/_licensed/` 저장 (gitignore)
+- 상세 규칙: `.claude/CLAUDE.md` — 키 파일 관리 규칙 참조
+
 ## 개발자 산출물 기준
 - 프로토타입 HTML: 화면헤더·섹션·폼·API 주석 필수 (storyboard-agent 규칙 참조)
 - api_spec.md: Request/Response 예시 + 에러 케이스 표 포함 (dev-qa-agent 규칙 참조)
