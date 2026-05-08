@@ -631,7 +631,7 @@ body {
 <body>
 
 <div class="print-logo-header">
-  <img src="_shared/etc/logo-removebg-preview.png" alt="비엔시스템 로고" style="height:40px; width:auto;">
+  <img src="../_shared/etc/logo-removebg-preview.png" alt="비엔시스템 로고" style="height:40px; width:auto;">
 </div>
 
 <div class="app-layout">
@@ -945,7 +945,7 @@ function render() {
 
   document.getElementById('estimateDoc').innerHTML = `
     <div class="est-logo-row">
-      <img src="_shared/etc/logo-removebg-preview.png" alt="비엔시스템 로고" style="height:48px; width:auto; display:block;">
+      <img src="../_shared/etc/logo-removebg-preview.png" alt="비엔시스템 로고" style="height:48px; width:auto; display:block;">
     </div>
 
     <div class="est-title">견 &nbsp; 적 &nbsp; 서</div>
@@ -962,7 +962,7 @@ function render() {
       </div>
       <div class="est-meta-right">
         <div class="est-meta-row"><span class="meta-key">사업자등록번호</span><span class="meta-val">787-87-01752</span></div>
-        <div class="est-meta-row" style="align-items:flex-start;"><span class="meta-key">상&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;호</span><span class="meta-val" style="display:flex; flex-direction:column; gap:3px;"><span>&nbsp;&nbsp;&nbsp;주식회사 비엔시스템</span><span style="display:flex; align-items:center; gap:6px;">&nbsp;&nbsp;&nbsp;대표: 엄 요 한 <img src="_shared/etc/stamp.jpg" alt="도장" style="height:36px; width:36px; object-fit:contain; flex-shrink:0;"></span></span></div>
+        <div class="est-meta-row" style="align-items:flex-start;"><span class="meta-key">상&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;호</span><span class="meta-val" style="display:flex; flex-direction:column; gap:3px;"><span>&nbsp;&nbsp;&nbsp;주식회사 비엔시스템</span><span style="display:flex; align-items:center; gap:6px;">&nbsp;&nbsp;&nbsp;대표: 엄 요 한 <img src="../_shared/etc/stamp.jpg" alt="도장" style="height:36px; width:36px; object-fit:contain; flex-shrink:0;"></span></span></div>
         <div class="est-meta-row"><span class="meta-key">업&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;태</span><span class="meta-val">&nbsp;&nbsp;정보통신업</span></div>
         <div class="est-meta-row"><span class="meta-key">주&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;소</span><span class="meta-val">&nbsp;&nbsp;서울 도봉구 마들로11가길 12, 401호</span></div>
         <div class="est-meta-row" style="margin-top:8px;"><span class="meta-key">담&nbsp;&nbsp;당&nbsp;&nbsp;자</span><span class="meta-val">&nbsp;&nbsp;&nbsp;엄 요 한</span></div>
@@ -1154,8 +1154,8 @@ async function exportToWord() {
     const totalLabel = `일금 ${Math.floor(v.total/10000)}만원 (${fmt(v.total)}원, 부가가치세 별도)`;
 
     let stampBuf = null, logoBuf = null;
-    try { stampBuf = await (await fetch('_shared/etc/stamp.jpg')).arrayBuffer(); } catch(e){}
-    try { logoBuf  = await (await fetch('_shared/etc/logo-removebg-preview.png')).arrayBuffer(); } catch(e){}
+    try { stampBuf = await (await fetch('../_shared/etc/stamp.jpg')).arrayBuffer(); } catch(e){}
+    try { logoBuf  = await (await fetch('../_shared/etc/logo-removebg-preview.png')).arrayBuffer(); } catch(e){}
 
     const F = 'Malgun Gothic';
     const C = { navy:'1B3A6B', dark:'1E293B', g4:'475569', g1:'F8FAFC', g2:'E9EEF5', white:'FFFFFF', red:'C0392B', g3:'94A3B8' };

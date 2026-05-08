@@ -7,6 +7,7 @@ BN_SYSTEM/
 ├── _agents/              ← 에이전트 원본 6개
 ├── _sb_template/         ← 스토리보드 공통 세트
 ├── _shared/              ← 프로젝트 공통 에셋 (editor 등)
+├── _tools/               ← PM 공통 도구 (견적산정, 견적서생성 등)
 ├── workspace/            ← 담당자별 폴더
 │   └── <담당자명>/
 │       └── <프로젝트명>/

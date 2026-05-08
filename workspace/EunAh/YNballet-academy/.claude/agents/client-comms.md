@@ -1,7 +1,7 @@
 ---
 name: client-comms
 description: 클라이언트 이메일 작성, 회의록, 일정 안내, 피드백 회신 시 사용
-model: sonnet
+model: haiku
 tools: Read, Write, Edit
 ---
 

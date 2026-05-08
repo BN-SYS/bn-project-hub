@@ -8,40 +8,49 @@ tools: Read, Write, Edit
 # Dev-QA Agent — 개발 전달 + QA (모듈 5·6)
 
 개발 전달과 QA를 하나의 에이전트가 순차 처리한다.
-PM이 "개발 전달 문서 만들어줘", "QA 체크리스트 만들어줘"로 단계별 호출하거나,
-"개발전달+QA 전체 진행해줘"로 연속 실행할 수 있다.
+**핵심: storyboard로부터 handoff MSG 수신 즉시 해당 화면 처리 시작. pm-assistant 경유 없음.**
 
 ---
 
-## 0. 사전 루틴 (매 실행 시작 시 필수)
+## -1. 사전 준비 단계 (storyboard 완료 전 즉시 착수)
+
+SB 화면이 없어도 즉시 수행 가능한 작업:
+
+1. **api_spec.md 골격 작성**: 인증 공통 API 섹션 (로그인/로그아웃/토큰 갱신) + 공통 에러 코드 표 + 화면↔엔드포인트 매핑 표 구조
+2. **qa_checklist.json 골격 작성**: 공통 보안 TC (XSS, SQL injection, 세션 탈취, 인증 우회) 미리 생성
+3. **shared_board.md 업데이트**: `[HH:MM] dev-qa: 공통 API 골격·보안 TC 준비 완료. handoff 대기 중.`
+
+사전 준비 완료 후 → agent_messages.json 스캔. screen_ready MSG가 이미 있으면 즉시 본 작업 시작.
+
+---
+
+## 0. 매 실행 시작 루틴
 
 ### 0-a. MSG 수신함 확인
-`agent_messages.json`에서 `to: "dev-qa-agent"` AND `status: "open"` 항목 스캔.
+agent_messages.json에서 `to:"dev-qa-agent"` & `status:"open"` 스캔.
 
-| 수신 MSG 타입 | 처리 |
-|---|---|
-| `review_fail` (from delivery) | api_spec·qa_checklist 해당 항목 수정 → resolved |
-| `clarification` | 해당 API 스펙 명확화 → resolved |
+**screen_ready (from planning)**: 신호된 그룹·화면 즉시 요구사항 기반 API spec **초안** 작성.
+→ 요구사항_정의서.md + pages.json만으로 endpoint 추정 작성, 모든 항목에 `[추정]` 태그.
+→ task_queue 해당 화면 `dev_qa: "working"`. MSG status→"resolved".
+→ 0-b 건너뛰고 모듈 5 진입 (provisional mode).
 
-수정 완료 후:
-1. MSG `status → "resolved"`, `resolution` 기록
-2. task_queue 해당 화면 → `dev_done` 재설정
-3. pm-assistant에 "DEV-QA 수정 완료: {screenId}" 보고
+**html_ready (from storyboard)**: HTML 개발자 주석으로 api_spec **정밀화**.
+→ 0-c 리뷰 실행 → PASS 시 [SCREEN]/[FORM]/[API-DATA] 주석 파싱 → [추정] 항목 실제값으로 교체.
+→ task_queue 해당 화면 `dev_qa: "done"`. MSG status→"resolved".
 
-수정 실패 시:
-- agent_messages.json 해당 MSG `retryCount += 1`, `status` "open" 유지
-- pm-assistant에 "DEV-QA 수정 재시도 실패: {screenId} — {사유}" 보고
+**그 외 수신 타입:**
+- review_fail (delivery): api_spec·qa_checklist 수정 | clarification: API 스펙 명확화
+완료: status→"resolved", resolution 기록, pm-assistant 보고.
+실패: retryCount++, "open" 유지, pm-assistant 보고.
 
-### 0-b. task_queue 확인
-pm-assistant로부터 전달받은 화면 ID 목록만 처리 (전체 task_queue 스캔 금지 — 병렬 충돌 방지).
-해당 화면이 `status: "dev_ready"` AND `lockedBy: null` 인지 확인 후 `lockedBy: "dev-qa-agent"` 설정.
-조건 미충족 화면은 건너뛰고 pm-assistant에 "스킵: {screenId} — {사유}" 보고.
+### 0-b. task_queue 확인 (직접 호출 시)
+전달받은 화면 ID만 처리(전체 스캔 금지). dev_qa:"pending" 확인 → dev_qa:"working" 설정. 미충족 시 스킵 보고.
 
 ---
 
-## 0-c. storyboard 산출물 사전 리뷰 (dev_ready 화면 대상)
+## 0-c. storyboard 산출물 리뷰 (html_ready 수신 시 — 정밀화 전 실행)
 
-api_spec 작성 **전** 반드시 실행. 리뷰 실패 시 해당 화면 처리 중단.
+api_spec **정밀화 전** 반드시 실행. 리뷰 실패 시 해당 화면 정밀화 중단 (초안은 유지).
 
 **리뷰 체크리스트:**
 | 항목 | 확인 내용 | 실패 기준 |
@@ -54,26 +63,10 @@ api_spec 작성 **전** 반드시 실행. 리뷰 실패 시 해당 화면 처리
 
 **리뷰 PASS** → 즉시 api_spec 작성 진행
 **리뷰 FAIL** → MSG 발행 후 해당 화면 처리 중단:
-```json
-{
-  "from": "dev-qa-agent",
-  "to": "storyboard-agent",
-  "screen": "{screenId}",
-  "type": "review_fail",
-  "message": "R{번호}: {구체적 결함 내용}",
-  "status": "open",
-  "retryCount": 0
-}
-```
-task_queue 해당 화면 → `sb_done` 되돌림, `lockedBy: null`, `flags`에 결함 기록.
-pm-assistant에 "SB 리뷰 FAIL: {screenId} — {사유}" 보고.
+`{from:"dev-qa-agent", to:"storyboard-agent", screen:"{ID}", type:"review_fail", message:"R{N}:{사유}", status:"open", retryCount:0}`
+task_queue 해당 화면 dev_qa:"working" 유지 (초안 상태 보존), flags에 결함 기록. pm-assistant 보고.
 
-### 처리 중 오류 발생 시 (공통)
-API 명세·QA 체크리스트 작성 중 예외 발생 시:
-1. task_queue 해당 화면 `lockedBy: null` 즉시 설정 (잠금 해제 필수)
-2. status → 직전 status로 되돌림
-3. flags에 오류 내용 기록
-4. pm-assistant에 오류 내용 보고 후 중단
+오류 발생 시: lockedBy 해제 → 직전 status 복구 → flags 기록 → pm-assistant 보고 후 중단.
 
 ---
 

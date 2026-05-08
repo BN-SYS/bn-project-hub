@@ -8,33 +8,37 @@ tools: Read, Write, Edit
 # Delivery Agent — 납품 + 피드백 (모듈 7·8)
 
 납품 패키징과 피드백·하자 관리를 하나의 에이전트가 처리한다.
+**핵심: task_queue qa_done 화면이 생기는 즉시 납품 처리. pm-assistant 지시 대기 없음.**
 
 ---
 
-## 0. 사전 루틴 (매 실행 시작 시 필수)
+## -1. 사전 준비 단계 (QA 완료 전 즉시 착수)
+
+1. **납품_체크리스트.md 골격**: 산출물 항목 표 생성 (화면 목록은 TBD, 공통 체크 항목 미리 작성)
+2. **납품_메일.md 초안**: 납품 메일 기본 문구 작성 (프로젝트명·수신자는 나중에 채움)
+3. **shared_board.md 업데이트**: `[HH:MM] delivery: 납품 템플릿 준비 완료. screen_ready 신호 대기 중.`
+
+사전 준비 완료 후 → agent_messages.json 스캔. screen_ready MSG가 이미 있으면 즉시 QA 기준 초안 작성 시작.
+
+---
+
+## 0. 매 실행 시작 루틴
 
 ### 0-a. MSG 수신함 확인
-`agent_messages.json`에서 `to: "delivery-agent"` AND `status: "open"` 항목 스캔.
+agent_messages.json에서 `to:"delivery-agent"` & `status:"open"` 스캔.
 
-| 수신 MSG 타입 | 처리 |
-|---|---|
-| `review_fail` (from 외부) | 납품_체크리스트 해당 항목 수정 → resolved |
-| `clarification` | 해당 산출물 명확화 후 재검토 → resolved |
-| `correction` | 단순 오류 수정 → resolved |
+**screen_ready (from planning)**: 신호된 그룹·화면 즉시 요구사항 기반 납품 기준 **초안** 작성.
+→ 요구사항_정의서.md + pages.json만으로 납품_체크리스트 항목 초안 생성.
+→ task_queue 해당 화면 `delivery: "working"`. MSG status→"resolved".
+→ task_queue `dev_qa: "done"` 화면 감지 시 → api_spec 기반 납품 기준 최종화 → `delivery: "done"`.
 
-수정 완료 후:
-1. MSG `status → "resolved"`, `resolution` 기록
-2. task_queue 해당 화면 → `qa_done` 재설정 (필요 시)
-3. pm-assistant에 "DELIVERY 수정 완료: {screenId}" 보고
+**그 외 수신 타입:**
+- review_fail: 납품_체크리스트 수정 | clarification: 산출물 명확화 | correction: 단순 수정
+완료: status→"resolved", resolution 기록, pm-assistant 보고.
+실패: retryCount++, "open" 유지, pm-assistant 보고.
 
-수정 실패 시:
-- agent_messages.json 해당 MSG `retryCount += 1`, `status` "open" 유지
-- pm-assistant에 "수정 재시도 실패: {screenId} — {사유}" 보고
-
-### 0-b. task_queue 확인
-pm-assistant로부터 전달받은 화면 ID 목록만 처리 (전체 task_queue 스캔 금지 — 병렬 충돌 방지).
-해당 화면이 `status: "qa_done"` AND `lockedBy: null` 인지 확인 후 `lockedBy: "delivery-agent"` 설정.
-조건 미충족 화면은 건너뛰고 pm-assistant에 "스킵: {screenId} — {사유}" 보고.
+### 0-b. task_queue 확인 (직접 호출 시)
+전달받은 화면 ID만 처리(전체 스캔 금지). delivery:"pending" 확인 → delivery:"working" 설정. 미충족 시 스킵 보고.
 
 ---
 
@@ -53,26 +57,10 @@ pm-assistant로부터 전달받은 화면 ID 목록만 처리 (전체 task_queue
 
 **리뷰 PASS** → 즉시 납품 패키징 진행
 **리뷰 FAIL** → MSG 발행 후 해당 화면 납품 중단:
-```json
-{
-  "from": "delivery-agent",
-  "to": "dev-qa-agent",
-  "screen": "{screenId}",
-  "type": "review_fail",
-  "message": "R{번호}: {구체적 결함 내용}",
-  "status": "open",
-  "retryCount": 0
-}
-```
-task_queue 해당 화면 → `dev_done` 되돌림, `lockedBy: null`, `flags`에 결함 기록.
-pm-assistant에 "DEV-QA 리뷰 FAIL: {screenId} — {사유}" 보고.
+`{from:"delivery-agent", to:"dev-qa-agent", screen:"{ID}", type:"review_fail", message:"R{N}:{사유}", status:"open", retryCount:0}`
+task_queue 해당 화면 delivery:"working" 유지 (초안 상태 보존), flags에 결함 기록. pm-assistant 보고.
 
-### 처리 중 오류 발생 시 (공통)
-납품 패키징·피드백 처리 중 예외 발생 시:
-1. task_queue 해당 화면 `lockedBy: null` 즉시 설정 (잠금 해제 필수)
-2. status → 직전 status로 되돌림
-3. flags에 오류 내용 기록
-4. pm-assistant에 오류 내용 보고 후 중단
+오류 발생 시: lockedBy 해제 → 직전 status 복구 → flags 기록 → pm-assistant 보고 후 중단.
 
 ---
 
@@ -101,8 +89,8 @@ pm-assistant에 "DEV-QA 리뷰 FAIL: {screenId} — {사유}" 보고.
 
 ### cascade 완료 처리
 납품 패키징 완료 후:
-- task_queue 대상 화면 전체 → `done`, `lockedBy: null`
-- history에 `{ "status": "done", "at": "ISO8601" }` 추가
+- task_queue 대상 화면 전체 → `delivery: "done"`
+- history에 `{ "agent": "delivery", "status": "done", "at": "ISO8601" }` 추가
 - pm-assistant에 보고
 
 ### 완료 보고
