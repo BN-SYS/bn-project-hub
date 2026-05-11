@@ -217,11 +217,39 @@ textarea#memoInput {
   .estimate-table thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .summary-row.grand { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+.tool-nav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.tool-nav a {
+  display: block;
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray4);
+  text-decoration: none;
+  background: var(--gray1);
+  border: 1px solid var(--border);
+  transition: all .15s;
+  white-space: nowrap;
+}
+.tool-nav a:hover { background: var(--blue-lt); color: var(--blue); border-color: #c7d8f8; }
+.tool-nav a.active { background: var(--blue); border-color: var(--blue); color: white; }
 </style>
 </head>
 <body>
 
 <div class="card">
+  <nav class="tool-nav">
+    <a href="../index.html">홈</a>
+    <a href="bns_estimate_calculator.html" class="active">견적산정</a>
+    <a href="bns_estimate_generator.html">견적서</a>
+    <a href="bns_report_generator.html">완료보고서</a>
+  </nav>
   <div class="doc-header">
     <div class="doc-title">견적서 작성 요청서</div>
     <div class="doc-meta">
