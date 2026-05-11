@@ -34,8 +34,34 @@ body {
 /* ── 화면 레이아웃 ── */
 .app-layout {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 360px 6px 1fr;
   min-height: 100vh;
+}
+
+.resize-handle {
+  background: transparent;
+  cursor: col-resize;
+  position: relative;
+  z-index: 10;
+  transition: background .15s;
+  user-select: none;
+}
+
+.resize-handle:hover,
+.resize-handle.dragging {
+  background: rgba(37,99,235,0.35);
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 48px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.25);
 }
 
 /* ── 입력 패널 ── */
@@ -786,6 +812,9 @@ body {
 
   </div>
 
+  <!-- ── 리사이즈 핸들 ── -->
+  <div class="resize-handle" id="resizeHandle"></div>
+
   <!-- ── 미리보기 ── -->
   <div class="preview-area">
     <div class="preview-label">미리보기 · 실시간 반영</div>
@@ -1434,6 +1463,37 @@ window.quillMemo.on('text-change', render);
 
 // 초기 렌더
 render();
+
+// ── 패널 리사이즈 ──
+(function() {
+  const handle = document.getElementById('resizeHandle');
+  const layout = document.querySelector('.app-layout');
+  let dragging = false, startX = 0, startW = 0;
+
+  handle.addEventListener('mousedown', e => {
+    dragging = true;
+    startX = e.clientX;
+    startW = document.querySelector('.input-panel').offsetWidth;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const w = Math.min(Math.max(startW + e.clientX - startX, 260), 680);
+    layout.style.gridTemplateColumns = `${w}px 6px 1fr`;
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+})();
 </script>
 </body>
 </html>
