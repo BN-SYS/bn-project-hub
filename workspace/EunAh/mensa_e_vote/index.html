@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전자투표시스템 개선 내용 확인 요청 · 멘사코리아</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --surface-tint: #f0ede6;
+    --border: #d8d4cb;
+    --border-light: #e8e4dc;
+    --text-primary: #1a1714;
+    --text-secondary: #5a5650;
+    --text-muted: #8a8680;
+    --accent: #c0392b;
+    --accent-light: #f9eae8;
+    --accent-mid: #e8c4bf;
+    --confirm: #e67e22;
+    --confirm-light: #fdf3e7;
+    --green: #27ae60;
+    --green-light: #e8f5ee;
+    --blue: #2471a3;
+    --blue-light: #ebf4fb;
+    --gray-badge: #6c6a66;
+    --size-red: #c0392b;
+    --size-yellow: #d4880a;
+    --size-green: #27ae60;
+    --serif: 'Noto Serif KR', 'Georgia', serif;
+    --sans: 'Noto Sans KR', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: var(--sans);
+    color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 헤더 ── */
+  .doc-header {
+    background: var(--text-primary);
+    color: #fff;
+    padding: 48px 0 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .doc-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 20px,
+      rgba(255,255,255,0.015) 20px,
+      rgba(255,255,255,0.015) 40px
+    );
+  }
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+  }
+  .doc-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .doc-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  .doc-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .meta-item {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+  }
+  .meta-item strong {
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+  }
+
+  /* ── 레이아웃 ── */
+  .layout {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+  }
+
+  /* ── 안내 박스 ── */
+  .intro-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--text-primary);
+    margin: 32px 0;
+    padding: 22px 24px;
+    border-radius: 0 6px 6px 0;
+  }
+  .intro-box p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+  .intro-box p + p { margin-top: 8px; }
+  .intro-box .link-row {
+    margin-top: 14px;
+    font-size: 13px;
+  }
+  .intro-box .link-row a {
+    color: var(--blue);
+    text-decoration: none;
+    border-bottom: 1px solid var(--blue);
+    padding-bottom: 1px;
+  }
+
+  /* ── 섹션 타이틀 ── */
+  .section {
+    margin-top: 40px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--text-primary);
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .badge-confirm {
+    background: var(--confirm);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+  }
+  .badge-wip {
+    background: var(--text-muted);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── 카드 ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card + .card { margin-top: 0; }
+
+  .subsection-title {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .subsection-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  p { margin-bottom: 12px; font-size: 14px; color: var(--text-secondary); line-height: 1.8; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── 테이블 ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 14px 0;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead th {
+    background: var(--surface-tint);
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--surface-tint); }
+  td code, th code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--surface-tint);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  /* ── 확인 필요 박스 ── */
+  .confirm-box {
+    background: var(--confirm-light);
+    border: 1px solid #f0c080;
+    border-left: 4px solid var(--confirm);
+    border-radius: 0 6px 6px 0;
+    padding: 16px 18px;
+    margin: 16px 0;
+  }
+  .confirm-box .confirm-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--confirm);
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .confirm-box ol, .confirm-box ul {
+    padding-left: 18px;
+    font-size: 13.5px;
+    color: #7a5a20;
+    line-height: 1.8;
+  }
+  .confirm-box li + li { margin-top: 4px; }
+
+  /* ── 참고 박스 ── */
+  .note-box {
+    background: var(--blue-light);
+    border: 1px solid #aed4ee;
+    border-left: 4px solid var(--blue);
+    border-radius: 0 6px 6px 0;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 13.5px;
+    color: #1a4a6a;
+    line-height: 1.8;
+  }
+  .note-box strong { color: var(--blue); }
+
+  /* ── 개발 범위 박스 ── */
+  .dev-box {
+    background: var(--surface-tint);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+  }
+  .dev-box .dev-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .dev-meta { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+  .dev-row { display: flex; align-items: flex-start; gap: 10px; }
+  .dev-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    min-width: 60px;
+    padding-top: 2px;
+  }
+  .dev-value { color: var(--text-secondary); line-height: 1.6; }
+  .dev-value code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--text-primary);
+  }
+
+  /* ── 크기 뱃지 ── */
+  .size-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .size-large { background: #fde8e8; color: var(--size-red); }
+  .size-medium { background: #fdf0d8; color: var(--size-yellow); }
+  .size-small { background: var(--green-light); color: var(--size-green); }
+
+  /* ── 코드 블록 ── */
+  .code-block {
+    background: #1e1c18;
+    border-radius: 6px;
+    padding: 16px 18px;
+    margin: 14px 0;
+    overflow-x: auto;
+  }
+  .code-block pre {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #c8c4bc;
+    white-space: pre;
+  }
+  .code-block pre .comment { color: #6a6860; }
+  .code-block pre .arrow { color: #c0a070; }
+  .code-block pre .highlight { color: #a8c88a; }
+
+  /* ── 상태 흐름 ── */
+  .flow-diagram {
+    background: var(--surface-tint);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    margin: 14px 0;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 2;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+  .flow-node {
+    display: inline-block;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    padding: 4px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 4px;
+  }
+  .flow-node.active { border-color: var(--blue); color: var(--blue); }
+  .flow-node.new { border-color: var(--green); color: var(--green); }
+  .flow-node.removed { border-color: var(--accent); color: var(--accent); }
+  .flow-arr { color: var(--text-muted); font-size: 14px; }
+
+  /* ── 체크리스트 ── */
+  .checklist {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 14px;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    font-size: 11px;
+  }
+  .check-icon.done { background: var(--green); color: #fff; }
+  .check-icon.pending { background: var(--confirm-light); border: 2px solid var(--confirm); color: var(--confirm); }
+  .check-label { color: var(--text-primary); line-height: 1.6; }
+  .check-label.strikethrough { text-decoration: line-through; color: var(--text-muted); }
+
+  /* ── 작업 요약 테이블 ── */
+  .summary-table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-top: 16px;
+  }
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .summary-table thead th {
+    background: var(--text-primary);
+    color: rgba(255,255,255,0.7);
+    padding: 11px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .summary-table tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+  }
+  .summary-table tbody tr:last-child td { border-bottom: none; }
+  .summary-table tbody tr:hover td { background: var(--surface-tint); }
+
+  /* ── 인라인 요소 ── */
+  strong { font-weight: 600; color: var(--text-primary); }
+  .ok { color: var(--green); font-weight: 600; }
+  .no { color: var(--accent); font-weight: 600; }
+  .tag-new {
+    background: var(--green-light);
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+  }
+  .tag-keep {
+    background: var(--surface-tint);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+  }
+
+  /* ── 구분선 ── */
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  /* ── 박스 예시 화면 ── */
+  .mockup-box {
+    background: #fdfdfd;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 20px;
+    margin: 14px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .mockup-box .mockup-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .stat-cards {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    background: var(--surface-tint);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    min-width: 150px;
+  }
+  .stat-card .sc-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .stat-card .sc-value { font-size: 18px; font-weight: 700; color: var(--text-primary); font-family: var(--mono); }
+
+  .vote-bar { margin-bottom: 10px; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px; }
+  .bar-track { height: 10px; background: var(--border-light); border-radius: 5px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 5px; }
+  .bar-blue { background: var(--blue); }
+  .bar-red { background: var(--accent); }
+  .bar-gray { background: #b0aca6; }
+
+  /* ── 푸터 ── */
+  .doc-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+    padding: 24px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* ── 반응형 ── */
+  @media (max-width: 600px) {
+    .layout { padding: 0 16px 60px; }
+    .header-inner { padding: 0 16px; }
+    .doc-title { font-size: 20px; }
+    .doc-meta { flex-direction: column; gap: 6px; }
+    .section-header { flex-wrap: wrap; }
+    .stat-cards { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── 헤더 ── -->
+<div class="doc-header">
+  <div class="header-inner">
+    <div class="doc-label">BN System · Mensa Korea · 2026-05-13</div>
+    <div class="doc-title">전자투표시스템 개선 내용<br>확인 요청서</div>
+    <div class="doc-meta">
+      <div class="meta-item"><strong>작성</strong> 배은아</div>
+      <div class="meta-item"><strong>수신</strong> 멘사코리아</div>
+      <div class="meta-item"><strong>목적</strong> 개발 착수 전 개선 방향 최종 확인</div>
+      <div class="meta-item"><strong>버전</strong> v1.0</div>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- 안내 -->
+  <div class="intro-box">
+    <p>이번 문서는 전달해주신 수정·개선 요청 내용을 제가 이해한 방식대로 정리한 것입니다. 개발에 착수하기 전에 <strong>내용이 원하시는 방향과 일치하는지</strong> 다시 한번 확인해주시기 바랍니다.</p>
+    <p><strong>⚠ 확인 필요</strong> 표시가 있는 항목은 특히 주의해서 검토 부탁드립니다. 수정이 필요한 부분이 있으시면 항목 번호와 함께 피드백 주시면 반영하겠습니다.</p>
+    <div class="link-row">📋 요청사항 원본: <a href="https://docs.google.com/spreadsheets/d/1Ut4c-9TFle4Sb_XSbnt-HLXXmWxkbrpsL1iRMTcarVs/edit?gid=356987901#gid=356987901" target="_blank">Google 스프레드시트 바로가기</a></div>
+  </div>
+
+  <!-- ──────────────────────────────────────── -->
+  <!-- 결정 사항 -->
+  <!-- ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">DECISION</span>
+      <span class="section-title">개발 착수 전 결정이 필요한 사항</span>
+    </div>
+
+    <!-- 결정 1 -->
+    <div class="card">
+      <div class="subsection-title">결정 사항 1 · 투표자 인증 방식 및 모수 인정 기준 <span class="badge-confirm">확인 필요</span></div>
+
+      <p><strong>인증 방식 (현행 유지):</strong> 이름 + 전화번호 + 주문번호 끝 5자리를 그대로 유지합니다. 단, 인증 통과 여부와 별도로 <strong>기준인원 명단 포함 여부를 추가로 확인</strong>합니다.</p>
+
+      <div class="note-box">
+        <strong>현행 전제 조건:</strong> 투표에 직접 참여하려면 쇼핑몰 회원가입 + 티켓 구매가 선행되어야 합니다. 위임장을 제출한 비구매자는 직접 인증 없이, 수임인(티켓 구매자)이 대신 투표를 행사합니다.<br>
+        <strong>기준인원 명단 매칭 기준:</strong> 이름 + 회원번호 (전화번호는 변경될 수 있어 제외)
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>상황</th><th>처리</th></tr></thead>
+          <tbody>
+            <tr><td>인증 통과 + 회원번호가 기준인원 명단에 <strong>존재</strong></td><td><span class="ok">✅ 투표 가능, 모수에 포함</span></td></tr>
+            <tr><td>인증 통과 + 회원번호가 기준인원 명단에 <strong>없음</strong></td><td><span class="no">❌ 투표 화면 진입 불가, 모수 제외</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>향후 로드맵 (제안):</strong> 정회원 사이트 개발이 완료되는 시점에 맞춰, <strong>내년 총회부터는 정회원 로그인 인증으로 전환</strong>하는 방식을 제안드립니다.</p>
+
+      <div class="confirm-box">
+        <div class="confirm-title">⚠ 확인 필요</div>
+        <ol>
+          <li>이번에는 현재 주문번호 인증을 유지하되, 기준인원 명단 존재 여부를 추가 확인하는 방식으로 진행을 원하시는 게 맞을까요?</li>
+          <li>향후에는 정회원 로그인 인증으로 전환하는 로드맵에 동의하실까요?</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- 결정 2 -->
+    <div class="card">
+      <div class="subsection-title">결정 사항 2 · 득표율 계산 시 분모(모수) 기준 <span class="badge-confirm">확인 필요</span></div>
+
+      <p><strong>모수에 포함되는 기준 (이름 + 회원번호 매칭):</strong></p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>조건</th><th>포함 여부</th></tr></thead>
+          <tbody>
+            <tr><td>쇼핑몰 티켓 구매자 중 회원번호가 기준인원 명단에 있는 경우</td><td><span class="ok">✅ 포함</span></td></tr>
+            <tr><td>위임인의 이름+회원번호가 명단에 있고, 수임인도 명단에 있는 경우 (위임인)</td><td><span class="ok">✅ 포함</span></td></tr>
+            <tr><td>의장 위임 (수임인 미지정) — 위임인의 이름+회원번호가 명단에 있는 경우</td><td><span class="ok">✅ 포함</span></td></tr>
+            <tr><td>위 조건 중 둘 이상 동시 해당하는 동일인</td><td><span class="ok">✅ 1명으로 카운트</span></td></tr>
+            <tr><td>티켓을 구매했으나 회원번호가 기준인원 명단에 없는 경우</td><td><span class="no">❌ 제외</span></td></tr>
+            <tr><td>기준인원 명단에 있으나 티켓 미구매 + 위임 미제출</td><td><span class="no">❌ 제외</span></td></tr>
+            <tr><td>위임인의 이름+회원번호가 기준인원 명단에 없는 경우</td><td><span class="no">❌ 무효 위임</span></td></tr>
+            <tr><td>수임인의 이름+회원번호가 기준인원 명단에 없는 경우 (의장 위임 제외)</td><td><span class="no">❌ 무효 위임</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="margin-top:14px;"><strong>위임장 제출 시 처리 흐름:</strong></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>케이스</th><th>투표 행사</th><th>모수 포함</th></tr></thead>
+          <tbody>
+            <tr><td>수임인이 티켓 구매자 + 현장 출석</td><td><span class="ok">✅ 위임인 투표까지 함께 행사</span></td><td><span class="ok">위임인 + 수임인 모두 포함</span></td></tr>
+            <tr><td>수임인이 티켓 구매자이나 불참</td><td><span class="no">❌ 투표 불가</span></td><td>위임인 + 수임인 모두 포함, 미투표 처리</td></tr>
+            <tr><td>수임인이 티켓 미구매자 (기준인원 명단에 있어도)</td><td><span class="no">❌ 투표 시스템 접근 불가</span></td><td>위임인 + 수임인 모두 포함, 미투표 처리</td></tr>
+            <tr><td>의장 위임 (수임인 미지정)</td><td>의장(관리자)이 위임인 투표 행사</td><td>위임인 포함</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="margin-top:14px;"><strong>위임 취소 및 투표권 복귀:</strong> 위임장을 제출한 위임인의 티켓이 검표 처리되면 위임이 자동 취소되고, 투표권이 본인에게 복귀됩니다.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>상황</th><th>처리</th></tr></thead>
+          <tbody>
+            <tr><td>수임인이 아직 투표하지 않은 안건 (열림)</td><td>위임인 본인이 직접 투표</td></tr>
+            <tr><td>수임인이 이미 투표한 안건 (열림)</td><td>수임인 투표 데이터 유지. 위임인이 수정 가능</td></tr>
+            <tr><td>수임인이 이미 투표한 안건 (닫힘)</td><td>수임인 투표 내용으로 확정. 수정 불가</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="confirm-box">
+        <div class="confirm-title">⚠ 확인 필요</div>
+        <ul><li>위 모수 산정 기준 및 위임 처리 흐름이 운영 방침과 일치할까요?</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ──────────────────────────────────────── -->
+  <!-- 기준 사항 -->
+  <!-- ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">REFERENCE</span>
+      <span class="section-title">기준 사항</span>
+    </div>
+    <div class="card">
+      <div class="subsection-title">"기준인원 명단" 등록 기준</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>항목</th><th>내용</th></tr></thead>
+          <tbody>
+            <tr><td><strong>기준 시점</strong></td><td>해당 총회일 기준 <strong>1개월 전 날짜</strong></td></tr>
+            <tr><td><strong>대상</strong></td><td>해당 시점에 멘사코리아 정회원 자격을 유지하는 회원</td></tr>
+            <tr><td><strong>제공 방식</strong></td><td>총회 전 관리자가 Google 스프레드시트 파일의 기준인원 시트(회원명 / 회원번호 / 전화번호) 업데이트</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box">
+        이 명단은 <strong>자격 대상자 풀(pool)</strong>입니다. 명단 전체 인원이 아니라, <strong>이 명단에 있으면서 티켓을 구매했거나 위임장을 제출한 인원</strong>이 "총 유효 의결권 수"로 집계됩니다.<br>
+        <strong>적용 범위:</strong> 이미 종료된 총회는 제외. 개선 배포 이후 신규 등록 총회부터 적용.
+      </div>
+    </div>
+  </div>
+
+  <!-- ──────────────────────────────────────── -->
+  <!-- 항목 1 -->
+  <!-- ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">안건 상태 추가 — "준비중" · "제외"</span>
+    </div>
+    <div class="card">
+      <div class="subsection-title">현재 상황</div>
+      <p>현재 안건 상태는 <strong>열림 ↔ 닫힘</strong> 두 단계만 있습니다. 강제 제외 시 정상 마감과 구분이 불가하며, 제외 안건도 투표자 화면 카운트에 그대로 포함되어 혼란이 발생합니다. 또한 사전에 안건 등록 후 원하는 시점에 투표 시작이 불가능합니다.</p>
+
+      <div class="subsection-title">변경 내용</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>상태</th><th>의미</th><th>구분</th></tr></thead>
+          <tbody>
+            <tr><td><strong>준비중</strong></td><td>안건 등록 직후 기본 상태. 투표 미시작.</td><td><span class="tag-new">신규</span></td></tr>
+            <tr><td>열림</td><td>현재 투표 진행 중.</td><td><span class="tag-keep">현행 유지</span></td></tr>
+            <tr><td>닫힘</td><td>정상 마감. 결과 집계에 포함. 미투표자 자동 처리.</td><td><span class="tag-keep">현행 유지</span></td></tr>
+            <tr><td><strong>제외</strong></td><td>강제 제외. 결과 집계에서 제외.</td><td><span class="tag-new">신규</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="margin-top:14px;"><strong>상태 전환 흐름:</strong></p>
+      <div class="flow-diagram">
+        <div>
+          <span class="flow-node new">준비중</span>
+          <span class="flow-arr">→</span>
+          <span class="flow-node active">열림</span>
+          <span class="flow-arr">⇄</span>
+          <span class="flow-node">닫힘</span>
+        </div>
+        <div style="margin-top:8px; font-size:12px; color:#8a8680;">
+          준비중 → 제외 가능 &nbsp;|&nbsp; 열림 → 제외 가능 &nbsp;|&nbsp; 닫힘 이후 제외 불가
+        </div>
+      </div>
+
+      <p><strong>제외 처리 규칙:</strong> 준비중·열림 상태에서만 가능, 2단계 확인 팝업 필수, 제외 후 재포함 불가, 기존 투표 데이터는 내부 보존.</p>
+
+      <p style="margin-top:12px;"><strong>각 화면에서의 제외 안건 처리:</strong></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>화면</th><th>처리 방식</th></tr></thead>
+          <tbody>
+            <tr><td>관리자 총회 상세</td><td>안건 목록 최하단으로 이동, 순서 번호 제거, 회색 배경 + "제외" 배지, 기투표 건수만 표시 (비율 미표시), "부분 집계 (제외 처리됨)" 안내</td></tr>
+            <tr><td>투표자 투표 화면</td><td>목록에 표시하지 않음</td></tr>
+            <tr><td>결과 CSV</td><td>데이터에서 제외</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="dev-box">
+        <div class="dev-title">개발 적용 범위</div>
+        <div class="dev-meta">
+          <div class="dev-row"><span class="dev-label">규모</span><span class="dev-value"><span class="size-badge size-large">🔴 대</span> DB 구조 변경 + 5개 이상 파일 동시 수정</span></div>
+          <div class="dev-row"><span class="dev-label">수정 파일</span><span class="dev-value"><code>assembly-detail.php</code> / <code>assembly-detail_agenda_onoff.php</code> / <code>vote.php</code> / <code>result.php</code> / <code>vote-status.php</code></span></div>
+          <div class="dev-row"><span class="dev-label">DB</span><span class="dev-value"><code>vote_assembly_info_agenda</code> 테이블의 <code>agenda_off</code> 상태값 체계 변경</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 항목 2 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">투표자 화면 — 진행현황 카운터 기준 변경</span>
+    </div>
+    <div class="card">
+      <div class="subsection-title">현재 상황의 문제점</div>
+      <p>① 이미 마감된 안건에 투표를 못 한 경우 "미완료"로 표시되어 혼란이 발생합니다. ② 제외된 안건의 미투표자도 마찬가지로 "미완료"로 잘못 표시됩니다.</p>
+
+      <div class="subsection-title">변경 내용</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>항목</th><th>변경 후 기준</th></tr></thead>
+          <tbody>
+            <tr><td><strong>전체(N)</strong></td><td>준비중 + 열림 + 닫힘 안건 수. 제외 안건 미포함.</td></tr>
+            <tr><td><strong>완료(M)</strong></td><td>① 실제 투표한 안건 + ② 마감(닫힘) 안건 전체 (투표 여부 무관)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="margin-top:14px;"><strong>안건별 상태 표시:</strong></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>상황</th><th>표시</th></tr></thead>
+          <tbody>
+            <tr><td>투표 완료</td><td><span style="color:var(--green);font-weight:600;">● 완료 (초록)</span></td></tr>
+            <tr><td>마감됨 + 미투표</td><td><span style="color:var(--text-muted);font-weight:600;">● 마감 (회색)</span></td></tr>
+            <tr><td>진행 중 + 미투표</td><td><span style="color:var(--confirm);font-weight:600;">● 미투표 (주황)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note-box" style="margin-top:14px;">
+        <strong>안내 문구 (마감 안건 중 미투표 건이 있을 때):</strong><br>
+        "투표 마감 전 참여하지 못한 안건은 미투표 완료로 처리됩니다."
+      </div>
+
+      <div class="dev-box">
+        <div class="dev-title">개발 적용 범위</div>
+        <div class="dev-meta">
+          <div class="dev-row"><span class="dev-label">규모</span><span class="dev-value"><span class="size-badge size-medium">🟡 중</span> 항목 1 완료 후 진행 가능</span></div>
+          <div class="dev-row"><span class="dev-label">수정 파일</span><span class="dev-value"><code>vote.php</code></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 항목 3 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">투표자 화면 — 안건 새로고침 버튼 추가 <span class="badge-wip">작업중</span></span>
+    </div>
+    <div class="card">
+      <div class="subsection-title">현재 상황</div>
+      <p>총회 진행 중 관리자가 새 안건을 추가해도 투표자 화면에 자동 반영되지 않습니다. 투표자가 브라우저 새로고침을 직접 해야 합니다.</p>
+
+      <div class="subsection-title">변경 내용</div>
+      <p>투표자 화면 상단에 <strong>"안건 새로고침" 버튼</strong>이 추가됩니다. 미제출 선택 항목이 있을 경우 확인 팝업이 표시됩니다.</p>
+
+      <div class="dev-box">
+        <div class="dev-title">개발 적용 범위</div>
+        <div class="dev-meta">
+          <div class="dev-row"><span class="dev-label">규모</span><span class="dev-value"><span class="size-badge size-small">🟢 소</span></span></div>
+          <div class="dev-row"><span class="dev-label">수정 파일</span><span class="dev-value"><code>vote.php</code> (버튼 추가 + JS)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 항목 4 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">득표 비율 계산 기준 변경</span>
+    </div>
+    <div class="card">
+      <div class="note-box">이 항목은 <strong>결정 사항 1 · 결정 사항 2</strong>의 확인 후 진행됩니다.</div>
+
+      <div class="subsection-title" style="margin-top:16px;">변경 내용</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>항목</th><th>현재</th><th>변경 후</th></tr></thead>
+          <tbody>
+            <tr><td>선택지별 득표율 바</td><td>득표수 ÷ 실제 참여자 수</td><td>득표수 ÷ <strong>총 유효 의결권 수</strong></td></tr>
+            <tr><td>미투표율 바</td><td>미표시</td><td>미투표 수 ÷ <strong>총 유효 의결권 수</strong> <span class="tag-new">신규</span></td></tr>
+            <tr><td>투표 참여율 명칭</td><td>"투표율"</td><td><strong>"투표 참여율"</strong></td></tr>
+            <tr><td>stat card 구성</td><td>총 투표 수 / 투표 모수 / 투표율 (3개)</td><td><strong>모수 대비 실제 투표수 / 투표 참여율 (2개)</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="margin-top:14px;"><strong>화면 표시 예시 — result.php:</strong></p>
+      <div class="mockup-box">
+        <div class="mockup-title">결과 조회 화면 예시</div>
+        <div class="stat-cards">
+          <div class="stat-card">
+            <div class="sc-label">모수 대비 실제 투표수</div>
+            <div class="sc-value">54명 / 60명</div>
+          </div>
+          <div class="stat-card">
+            <div class="sc-label">투표 참여율</div>
+            <div class="sc-value">90.00%</div>
+          </div>
+        </div>
+        <div class="vote-bar">
+          <div class="bar-label"><span>찬성</span><span>75.00% (45명)</span></div>
+          <div class="bar-track"><div class="bar-fill bar-blue" style="width:75%"></div></div>
+        </div>
+        <div class="vote-bar">
+          <div class="bar-label"><span>반대</span><span>15.00% (9명)</span></div>
+          <div class="bar-track"><div class="bar-fill bar-red" style="width:15%"></div></div>
+        </div>
+        <div class="vote-bar">
+          <div class="bar-label"><span style="color:var(--text-muted);">미투표 <span class="tag-new">신규</span></span><span style="color:var(--text-muted);">10.00% (6명)</span></div>
+          <div class="bar-track"><div class="bar-fill bar-gray" style="width:10%"></div></div>
+        </div>
+      </div>
+
+      <div class="dev-box">
+        <div class="dev-title">개발 적용 범위</div>
+        <div class="dev-meta">
+          <div class="dev-row"><span class="dev-label">규모</span><span class="dev-value"><span class="size-badge size-small">🟢 소</span> (현행 모수 유지 시) / 결정 사항 1·2 적용 시 <span class="size-badge size-large">🔴 대</span></span></div>
+          <div class="dev-row"><span class="dev-label">수정 파일</span><span class="dev-value"><code>result.php</code> / <code>assembly-detail.php</code></span></div>
+          <div class="dev-row"><span class="dev-label">비고</span><span class="dev-value">현재 코드에 모수 변수가 이미 계산되어 있어 계산식 변경 + 미투표 바 UI 추가로 처리 가능. 결정 사항 1·2 적용 시 모수 계산 로직 전면 재작성 필요.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 항목 5 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">결과 CSV 다운로드 기능 추가 <span class="badge-wip">작업중</span></span>
+    </div>
+    <div class="card">
+      <div class="subsection-title">변경 내용</div>
+      <p>결과 조회 화면에 <strong>"결과 CSV 다운로드" 버튼</strong>이 추가됩니다. 파일명: <code>result_{총회명}_{다운로드일자}.csv</code>, Excel 한글 깨짐 없이 처리.</p>
+
+      <p><strong>파일 구성:</strong></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>항목</th><th>입력 방식</th></tr></thead>
+          <tbody>
+            <tr><td>총회명</td><td>시스템 자동</td></tr>
+            <tr><td>기준 회원수 / 기준일 / 개회정족수 / 공지일 / 개표·검산 / 참관</td><td>관리자가 Excel에서 직접 입력</td></tr>
+            <tr><td>총 유효 의결권 수</td><td>시스템 자동 (기준인원 중 티켓구매+위임장제출자 합산)</td></tr>
+            <tr><td>개표일</td><td>시스템 자동 (총회 종료일)</td></tr>
+            <tr><td>안건번호 / 안건명 / 선택지별 표수·% / 미투표 수·% / 결과</td><td>시스템 자동 (결과 열은 빈 셀 — 관리자 직접 입력)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="confirm-box">
+        <div class="confirm-title">⚠ 확인 필요 (체크리스트 항목 5)</div>
+        <ul><li>결과 CSV 메타 항목 구성이 맞는지 최종 확인 부탁드립니다.</li></ul>
+      </div>
+
+      <div class="dev-box">
+        <div class="dev-title">개발 적용 범위</div>
+        <div class="dev-meta">
+          <div class="dev-row"><span class="dev-label">규모</span><span class="dev-value"><span class="size-badge size-medium">🟡 중</span></span></div>
+          <div class="dev-row"><span class="dev-label">수정 파일</span><span class="dev-value"><code>result.php</code> (버튼 추가) / 신규 파일 <code>result_csv.php</code> 작성</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 항목 6 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">위임 관리 — 무효 위임 목록 표시</span>
+    </div>
+    <div class="card">
+      <div class="subsection-title">현재 상황</div>
+      <p>무효 처리된 위임장이 관리자 화면에 표시되지 않아, 위임장을 제출한 회원에게 "내 위임장이 없다"는 문의가 발생합니다.</p>
+
+      <div class="subsection-title">변경 내용</div>
+      <p>위임 관리 화면에서 유효 위임 목록 아래에 <strong>"무효 위임 목록" 섹션</strong>이 추가됩니다. 기본 접힘 상태, 클릭 시 펼침.</p>
+
+      <p><strong>무효 처리 사유 분류:</strong></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>사유</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>위임인 명단 불포함</td><td>위임인의 이름+회원번호가 기준인원 명단에 없음</td></tr>
+            <tr><td>수임인 명단 불포함</td><td>수임인의 이름+회원번호가 기준인원 명단에 없음 (의장 위임 제외)</td></tr>
+            <tr><td>위임인·수임인 동일인</td><td>본인에게 위임</td></tr>
+            <tr><td>중복 제출</td><td>동일 위임인이 두 번 이상 제출 — 마지막 행만 유효</td></tr>
+            <tr><td>위임 취소</td><td>위임인이 현장 출석 검표 완료 (위임 자동 취소)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="margin-top:14px;"><strong>화면 표시 예시:</strong></p>
+      <div class="mockup-box">
+        <div class="mockup-title">delegation.php 화면 예시</div>
+        <p style="font-size:13px; color:var(--text-primary); margin-bottom:8px;"><strong>[ 유효 위임 목록 ]</strong> — 총 NN건</p>
+        <div class="table-wrap" style="margin:0 0 14px;">
+          <table>
+            <thead><tr><th>위임인명</th><th>회원번호</th><th>수임인명</th><th>회원번호</th><th>위임유형</th></tr></thead>
+            <tbody>
+              <tr><td>홍길동</td><td>M1234</td><td>김철수</td><td>M5678</td><td>수임인지정</td></tr>
+              <tr><td>이영희</td><td>M2345</td><td>(의장)</td><td>—</td><td>의장귀속</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">▼ <strong>무효 위임 목록 (MM건)</strong> [클릭하여 펼치기]</p>
+        <div class="table-wrap" style="margin:0; opacity:0.7;">
+          <table>
+            <thead><tr><th>위임인명</th><th>회원번호</th><th>수임인명</th><th>회원번호</th><th>무효 사유</th><th>시트 행</th></tr></thead>
+            <tbody>
+              <tr><td>박민준</td><td>M9999</td><td>김철수</td><td>M5678</td><td>위임인 명단 불포함</td><td>14행</td></tr>
+              <tr><td>최지은</td><td>M1111</td><td>최지은</td><td>M1111</td><td>본인 위임</td><td>22행</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p style="margin-top:14px;"><strong>신규 DB 테이블 (vote_delegation_invalid):</strong></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>컬럼</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>assembly_info_idx</code></td><td>총회 ID</td></tr>
+            <tr><td><code>sheet_row</code></td><td>스프레드시트 행 번호 (문의 대응용)</td></tr>
+            <tr><td><code>vote_name</code> / <code>mb_mensa_id</code></td><td>위임인명 / 위임인 회원번호</td></tr>
+            <tr><td><code>vote_name_mandate</code> / <code>mb_mensa_id_mandate</code></td><td>수임인명 / 수임인 회원번호</td></tr>
+            <tr><td><code>invalid_reason</code></td><td>무효 사유 코드 (DELEGATOR_NOT_IN_LIST / DELEGATEE_NOT_IN_LIST / SELF_DELEGATION / DUPLICATE / CANCELLED)</td></tr>
+            <tr><td><code>wdate</code> / <code>mdate</code></td><td>등록·수정일시</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="confirm-box">
+        <div class="confirm-title">⚠ 확인 필요</div>
+        <ul>
+          <li>무효 사유 분류가 현재 운영 기준과 일치할까요?</li>
+          <li>중복 제출 시 "마지막 행을 유효 처리"하는 방식이 맞는지 확인 부탁드립니다.</li>
+        </ul>
+      </div>
+
+      <div class="dev-box">
+        <div class="dev-title">개발 적용 범위</div>
+        <div class="dev-meta">
+          <div class="dev-row"><span class="dev-label">규모</span><span class="dev-value"><span class="size-badge size-large">🔴 대</span> 무효 판정 및 저장 로직 신규 설계 필요 / 결정 사항 1·2 선행 필요</span></div>
+          <div class="dev-row"><span class="dev-label">수정 파일</span><span class="dev-value"><code>delegation_synchronization.php</code> / <code>delegation.php</code></span></div>
+          <div class="dev-row"><span class="dev-label">DB</span><span class="dev-value"><code>vote_delegation_invalid</code> 테이블 신규 생성</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 항목 7 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <span class="section-title">관리자 비밀번호 변경 — 보안 강화 <span class="badge-wip">작업중</span></span>
+    </div>
+    <div class="card">
+      <p><strong>현재 상황:</strong> 관리자 정보수정 화면이 없습니다.</p>
+      <p><strong>변경 내용:</strong> 비밀번호 변경 전용 화면이 분리됩니다. 모든 관리자 페이지 우측 상단(로그아웃 버튼 왼쪽)에 로그인정보 표기가 추가되며 클릭 시 화면으로 이동됩니다.</p>
+      <div class="dev-box">
+        <div class="dev-title">개발 적용 범위</div>
+        <div class="dev-meta">
+          <div class="dev-row"><span class="dev-label">규모</span><span class="dev-value"><span class="size-badge size-small">🟢 소</span></span></div>
+          <div class="dev-row"><span class="dev-label">수정 파일</span><span class="dev-value"><code>info_modify.php</code> / <code>info_modify_action.php</code> / <code>_inc/header.php</code></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 항목 8 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <span class="section-title">안건 순서 변경 기능 <span class="badge-wip">작업중</span></span>
+    </div>
+    <div class="card">
+      <p><strong>현재 상황:</strong> 안건 순서 변경 시 삭제 후 재등록해야 합니다.</p>
+      <p><strong>변경 내용:</strong> 총회 상세 화면의 각 안건 행에 <strong>▲ / ▼ 이동 버튼</strong>이 추가됩니다. 버튼 클릭 즉시 순서 저장. <strong>현재 진행 중(열림 상태)인 안건은 순서 변경 불가.</strong></p>
+      <div class="dev-box">
+        <div class="dev-title">개발 적용 범위</div>
+        <div class="dev-meta">
+          <div class="dev-row"><span class="dev-label">규모</span><span class="dev-value"><span class="size-badge size-medium">🟡 중</span></span></div>
+          <div class="dev-row"><span class="dev-label">수정 파일</span><span class="dev-value"><code>assembly-detail.php</code> / 신규 파일 <code>agenda_sort.php</code></span></div>
+          <div class="dev-row"><span class="dev-label">DB</span><span class="dev-value"><code>vote_assembly_info_agenda</code> 테이블에 <code>sort_order</code> 컬럼 추가</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 항목 9 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <span class="section-title">목록 컬럼 정렬 기능 추가 <span class="badge-wip">작업중</span></span>
+    </div>
+    <div class="card">
+      <p><strong>적용 화면:</strong> 출석 현황, 위임 관리</p>
+      <p><strong>변경 내용:</strong> 테이블 컬럼 헤더 클릭 시 오름차순/내림차순 전환, 정렬 방향 표시(▲/▼ 아이콘), 한 번에 하나의 컬럼만 정렬 기준 적용.</p>
+      <div class="dev-box">
+        <div class="dev-title">개발 적용 범위</div>
+        <div class="dev-meta">
+          <div class="dev-row"><span class="dev-label">규모</span><span class="dev-value"><span class="size-badge size-small">🟢 소</span></span></div>
+          <div class="dev-row"><span class="dev-label">수정 파일</span><span class="dev-value"><code>attendance.php</code> / <code>delegation.php</code> (JS 클라이언트 정렬)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 항목 10 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <span class="section-title">의장 일괄 투표 — 선택지별 분할 투표 행사</span>
+    </div>
+    <div class="card">
+      <div class="subsection-title">현재 상황</div>
+      <p>의장에게 귀속된 위임 건들을 투표 행사할 때, 안건당 <strong>하나의 선택지를 골라 전체 위임자에게 일괄 적용</strong>하는 방식입니다.</p>
+
+      <div class="subsection-title">변경 내용</div>
+      <p>각 선택지에 <strong>몇 %씩 분배</strong>할지 입력하여 위임 인원을 선택지별로 나눠 투표할 수 있게 합니다.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>모드</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>명수 직접 입력</td><td>각 선택지에 배분할 인원 수를 직접 숫자로 입력</td></tr>
+            <tr><td>% 입력</td><td>각 선택지에 배분할 비율(%)을 입력하면 자동으로 명수 계산</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style="margin-top:14px;"><strong>입력 규칙:</strong> 입력한 값의 합계가 의장 귀속 총 인원 수와 일치해야 제출 가능. % 모드에서 소수점 반올림 발생 시 차이 인원은 가장 높은 비율의 선택지에 자동 배분.</p>
+
+      <div class="mockup-box">
+        <div class="mockup-title">bulk-vote.php 화면 예시 (안건당)</div>
+        <p style="font-size:13px; font-weight:600; margin-bottom:10px;">[ 안건 1. 정관 개정안 승인의 건 ] — 의장 귀속: 10명</p>
+        <div class="table-wrap" style="margin:0;">
+          <table>
+            <thead><tr><th>선택지</th><th>비율 (%)</th><th>→ 명수</th></tr></thead>
+            <tbody>
+              <tr><td>찬성</td><td>60%</td><td>6명</td></tr>
+              <tr><td>반대</td><td>30%</td><td>3명</td></tr>
+              <tr><td>기권</td><td>10%</td><td>1명</td></tr>
+              <tr style="background:var(--green-light);"><td colspan="2"><strong>합계 100% ✅</strong></td><td><strong>10명</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="confirm-box">
+        <div class="confirm-title">⚠ 확인 필요</div>
+        <ul>
+          <li>의장 귀속 위임 인원을 선택지별로 나눌 때, 각 위임자를 어떤 선택지에 배정할지는 <strong>시스템이 임의로 결정</strong>합니다. (예: 찬성 6명 배정 시 명단 상위 6명 → 찬성으로 기록) 이 방식이 의결 효력상 문제가 없는지 확인 부탁드립니다.</li>
+        </ul>
+      </div>
+
+      <div class="dev-box">
+        <div class="dev-title">개발 적용 범위</div>
+        <div class="dev-meta">
+          <div class="dev-row"><span class="dev-label">규모</span><span class="dev-value"><span class="size-badge size-medium">🟡 중</span></span></div>
+          <div class="dev-row"><span class="dev-label">수정 파일</span><span class="dev-value"><code>bulk-vote.php</code> (선택지별 수량 입력 UI로 전면 변경) / <code>bulk-vote_action.php</code> (분배 로직 변경)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ──────────────────────────────────────── -->
+  <!-- 이번 작업에서 제외 -->
+  <!-- ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">EXCLUDED</span>
+      <span class="section-title">이번 작업에서 제외되는 항목</span>
+    </div>
+    <div class="card">
+      <div class="note-box">아래 항목은 <strong>결정 사항 1의 답변에 따라 범위가 달라집니다.</strong></div>
+      <div class="table-wrap" style="margin-top:14px;">
+        <table>
+          <thead><tr><th>항목</th><th>내용</th><th>현황</th></tr></thead>
+          <tbody>
+            <tr><td>정회원 로그인 인증 전환</td><td>주문번호 인증 → 정회원 사이트 로그인 인증으로 대체</td><td>정회원 사이트 개발 완료 후 진행 (내년 총회 목표)</td></tr>
+            <tr><td>스프레드시트 [불인정사유] 컬럼 추가</td><td>위임 시트에 불인정 사유를 수동 입력하고 시스템에서 반영</td><td>위 항목 완료 후 진행</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ──────────────────────────────────────── -->
+  <!-- 확인 체크리스트 -->
+  <!-- ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">CHECKLIST</span>
+      <span class="section-title">확인 요청 체크리스트</span>
+    </div>
+    <div class="checklist">
+      <div class="check-item">
+        <div class="check-icon done">✓</div>
+        <div class="check-label strikethrough"><strong>기준 확정</strong> — 총 유효 의결권 수 기준 확정 완료 (총회일 1개월 전 기준 정회원, Excel 업로드 / 신규 총회부터 적용)</div>
+      </div>
+      <div class="check-item">
+        <div class="check-icon pending">!</div>
+        <div class="check-label"><strong>결정 사항 1</strong> — 현행 주문번호 인증 유지 + 기준인원 명단 존재 여부 추가 확인 방식 동의 여부 / 향후 정회원 로그인 전환 로드맵 확인</div>
+      </div>
+      <div class="check-item">
+        <div class="check-icon pending">!</div>
+        <div class="check-label"><strong>결정 사항 2</strong> — 모수 산정 기준 확인 (기준인원 명단 중 티켓구매 + 위임장제출자, 중복 제외, 수임인 불참 시 미투표 처리)</div>
+      </div>
+      <div class="check-item">
+        <div class="check-icon pending">!</div>
+        <div class="check-label"><strong>항목 5</strong> — 결과 CSV 메타 항목 구성 최종 확인</div>
+      </div>
+      <div class="check-item">
+        <div class="check-icon pending">!</div>
+        <div class="check-label"><strong>항목 6</strong> — 무효 위임 사유 분류 기준 일치 여부 확인</div>
+      </div>
+      <div class="check-item">
+        <div class="check-icon pending">!</div>
+        <div class="check-label"><strong>항목 10</strong> — 의장 일괄 투표 분할 시 임의 배정 방식 동의 여부 확인</div>
+      </div>
+      <div class="check-item">
+        <div class="check-icon pending">!</div>
+        <div class="check-label">전체 개선 내용 중 추가하거나 변경하고 싶은 사항</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ──────────────────────────────────────── -->
+  <!-- 작업 규모 요약 -->
+  <!-- ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">SUMMARY</span>
+      <span class="section-title">항목별 작업 규모 요약</span>
+    </div>
+    <div class="note-box">🔴 대규모 항목은 이번 배포 범위에서 분리하여 추후 고도화 단계에서 진행하는 방안 검토 가능 (PM 내부 참고)</div>
+    <div class="summary-table-wrap">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>항목</th>
+            <th>규모</th>
+            <th>주요 수정 파일</th>
+            <th>비고</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>결정1</td><td>기준인원 명단 인증 연동</td><td><span class="size-badge size-large">🔴 대</span></td><td><code>index.php</code> / <code>login_action.php</code> + DB 신규</td><td>인증 흐름 전면 변경</td></tr>
+          <tr><td>결정2</td><td>모수 산정 기준 연동</td><td><span class="size-badge size-large">🔴 대</span></td><td><code>result.php</code> / <code>assembly-detail.php</code> 등</td><td>결정1 선행 필요</td></tr>
+          <tr><td>1</td><td>안건 상태 추가 (준비중·제외)</td><td><span class="size-badge size-large">🔴 대</span></td><td>5개+ 파일 + DB 구조 변경</td><td>—</td></tr>
+          <tr><td>2</td><td>진행현황 카운터 기준 변경</td><td><span class="size-badge size-medium">🟡 중</span></td><td><code>vote.php</code></td><td>항목 1 완료 후</td></tr>
+          <tr><td>3</td><td>안건 새로고침 버튼</td><td><span class="size-badge size-small">🟢 소</span></td><td><code>vote.php</code></td><td>—</td></tr>
+          <tr><td>4</td><td>득표 비율 계산 기준 변경</td><td><span class="size-badge size-small">🟢 소</span></td><td><code>result.php</code> / <code>assembly-detail.php</code></td><td>결정1·2 적용 시 🔴</td></tr>
+          <tr><td>5</td><td>결과 CSV 다운로드</td><td><span class="size-badge size-medium">🟡 중</span></td><td><code>result.php</code> / 신규 <code>result_csv.php</code></td><td>—</td></tr>
+          <tr><td>6</td><td>무효 위임 목록 표시</td><td><span class="size-badge size-large">🔴 대</span></td><td><code>delegation_synchronization.php</code> / <code>delegation.php</code> + DB</td><td>결정1·2 선행 필요</td></tr>
+          <tr><td>7</td><td>관리자 비밀번호 보안 강화</td><td><span class="size-badge size-small">🟢 소</span></td><td><code>info_modify.php</code> 등</td><td>—</td></tr>
+          <tr><td>8</td><td>안건 순서 변경</td><td><span class="size-badge size-medium">🟡 중</span></td><td><code>assembly-detail.php</code> / 신규 <code>agenda_sort.php</code> + DB</td><td>—</td></tr>
+          <tr><td>9</td><td>목록 컬럼 정렬</td><td><span class="size-badge size-small">🟢 소</span></td><td><code>attendance.php</code> / <code>delegation.php</code></td><td>—</td></tr>
+          <tr><td>10</td><td>의장 일괄 투표 분할</td><td><span class="size-badge size-medium">🟡 중</span></td><td><code>bulk-vote.php</code> / <code>bulk-vote_action.php</code></td><td>임의 배정 방식 고객 확인 필요</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <p style="font-size:14px; color:var(--text-secondary);">피드백 주시면 개발자 전달 스펙으로 정리하여 진행하겠습니다. 감사합니다.</p>
+
+  <div class="doc-footer">
+    <span>BN System 전자투표시스템 개선 확인 요청서 v1.0</span>
+    <span>2026-05-13</span>
+  </div>
+
+</div>
+</body>
+</html>
