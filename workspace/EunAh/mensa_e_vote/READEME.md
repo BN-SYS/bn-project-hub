@@ -7,6 +7,10 @@
 
 ---
 
+> 📋 **요청사항 원본:** [Google 스프레드시트 바로가기](https://docs.google.com/spreadsheets/d/1Ut4c-9TFle4Sb_XSbnt-HLXXmWxkbrpsL1iRMTcarVs/edit?gid=356987901#gid=356987901)
+
+---
+
 ## 안내 말씀
 
 이번 문서는 전달해주신 수정·개선 요청 내용을 제가 이해한 방식대로 정리한 것입니다.  
