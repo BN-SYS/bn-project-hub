@@ -1,720 +1,796 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>비엔시스템 견적서 생성기</title>
-<link rel="stylesheet" href="bns-tools-common.css">
-<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-<style>
-/* 견적서 도구 전용 스타일 */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>비엔시스템 견적서 생성기</title>
+  <link rel="stylesheet" href="bns-tools-common.css">
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <style>
+    /* 견적서 도구 전용 스타일 */
 
-/* textarea 높이 override */
-.field textarea { min-height: 72px; }
+    /* textarea 높이 override */
+    .field textarea {
+      min-height: 72px;
+    }
 
-/* 일수 입력 그리드 */
-.days-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
+    /* 일수 입력 그리드 */
+    .days-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
 
-.days-item label {
-  font-size: 11px;
-  color: rgba(255,255,255,0.45);
-  margin-bottom: 4px;
-  display: block;
-}
+    .days-item label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 4px;
+      display: block;
+    }
 
-.days-item input {
-  width: 100%;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 13px;
-  font-family: inherit;
-  color: white;
-  outline: none;
-  text-align: center;
-  transition: border-color .15s;
-}
+    .days-item input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      color: white;
+      outline: none;
+      text-align: center;
+      transition: border-color .15s;
+    }
 
-.days-item input:focus {
-  border-color: rgba(255,255,255,0.4);
-}
+    .days-item input:focus {
+      border-color: rgba(255, 255, 255, 0.4);
+    }
 
-/* 등급 선택 */
-.grade-select-wrap {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 4px;
-  margin-bottom: 10px;
-}
+    /* 등급 선택 */
+    .grade-select-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
 
-.grade-btn {
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.5);
-  font-size: 11.5px;
-  font-family: inherit;
-  font-weight: 500;
-  padding: 7px 4px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all .15s;
-  text-align: center;
-}
+    .grade-btn {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 11.5px;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 7px 4px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all .15s;
+      text-align: center;
+    }
 
-.grade-btn:hover {
-  background: rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.8);
-}
+    .grade-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.8);
+    }
 
-.grade-btn.active {
-  background: var(--blue);
-  border-color: var(--blue);
-  color: white;
-  font-weight: 600;
-}
+    .grade-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: white;
+      font-weight: 600;
+    }
 
-/* 인건비 소계 표시 */
-.labor-summary {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px;
-  padding: 10px 12px;
-  margin-bottom: 10px;
-}
+    /* 인건비 소계 표시 */
+    .labor-summary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
 
-.labor-summary-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
-  margin-bottom: 4px;
-}
+    .labor-summary-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 4px;
+    }
 
-.labor-summary-row:last-child {
-  margin-bottom: 0;
-  color: rgba(255,255,255,0.8);
-  font-weight: 600;
-  font-size: 13px;
-  padding-top: 6px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  margin-top: 4px;
-}
+    .labor-summary-row:last-child {
+      margin-bottom: 0;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 600;
+      font-size: 13px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 4px;
+    }
 
-.labor-summary-row span:last-child {
-  color: #93C5FD;
-}
+    .labor-summary-row span:last-child {
+      color: #93C5FD;
+    }
 
-.labor-summary-row:last-child span:last-child {
-  color: white;
-}
+    .labor-summary-row:last-child span:last-child {
+      color: white;
+    }
 
-/* ── 실제 견적서 ── */
-.estimate-doc {
-  background: white;
-  width: 100%;
-  max-width: 740px;
-  padding: 50px 56px;
-  box-shadow: 0 8px 40px rgba(27,58,107,.12);
-  border-radius: 4px;
-}
+    /* ── 실제 견적서 ── */
+    .estimate-doc {
+      background: white;
+      width: 100%;
+      max-width: 740px;
+      padding: 50px 56px;
+      box-shadow: 0 8px 40px rgba(27, 58, 107, .12);
+      border-radius: 4px;
+    }
 
-/* 로고/헤더 */
-.est-logo-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 32px;
-}
+    /* 로고/헤더 */
+    .est-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
 
-.est-logo-box {
-  background: var(--navy);
-  color: white;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: .06em;
-  padding: 6px 12px;
-  border-radius: 3px;
-}
+    .est-logo-box {
+      background: var(--navy);
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      padding: 6px 12px;
+      border-radius: 3px;
+    }
 
-.est-logo-sub {
-  font-size: 11px;
-  color: var(--gray4);
-  font-weight: 500;
-}
+    .est-logo-sub {
+      font-size: 11px;
+      color: var(--gray4);
+      font-weight: 500;
+    }
 
-.est-title {
-  text-align: center;
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: .35em;
-  color: var(--dark);
-  margin-bottom: 28px;
-  padding-bottom: 0;
-}
+    .est-title {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: .35em;
+      color: var(--dark);
+      margin-bottom: 28px;
+      padding-bottom: 0;
+    }
 
-/* 2단 메타 정보 */
-.est-meta-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  margin-bottom: 28px;
-  font-size: 12.5px;
-}
+    /* 2단 메타 정보 */
+    .est-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-bottom: 28px;
+      font-size: 12.5px;
+    }
 
-.est-meta-left, .est-meta-right {
-  padding: 14px 18px;
-  min-width: 0;
-  overflow: hidden;
-}
+    .est-meta-left,
+    .est-meta-right {
+      padding: 14px 18px;
+      min-width: 0;
+      overflow: hidden;
+    }
 
-.est-meta-right {
-  position: relative;
-  border-left: 1px solid #f5f5f5;
-  overflow: visible;
-}
+    .est-meta-right {
+      position: relative;
+      border-left: 1px solid #f5f5f5;
+      overflow: visible;
+    }
 
-.est-meta-row {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 5px;
-  line-height: 1.5;
-}
+    .est-meta-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 5px;
+      line-height: 1.5;
+    }
 
-.est-meta-row:last-child { margin-bottom: 0; }
+    .est-meta-row:last-child {
+      margin-bottom: 0;
+    }
 
-.meta-key {
-  font-weight: 600;
-  color: var(--dark);
-  white-space: nowrap;
-  min-width: 64px;
-}
+    .meta-key {
+      font-weight: 600;
+      color: var(--dark);
+      white-space: nowrap;
+      min-width: 64px;
+    }
 
-.meta-val {
-  color: var(--gray4);
-}
+    .meta-val {
+      color: var(--gray4);
+    }
 
-.meta-val.highlight {
-  font-weight: 700;
-  color: var(--navy);
-  font-size: 13px;
-}
+    .meta-val.highlight {
+      font-weight: 700;
+      color: var(--navy);
+      font-size: 13px;
+    }
 
-/* 견적 내역 테이블 */
-.sec-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--dark);
-  margin-bottom: 10px;
-  padding-left: 2px;
-}
+    /* 견적 내역 테이블 */
+    .sec-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 10px;
+      padding-left: 2px;
+    }
 
-.sec-num {
-  color: var(--navy);
-  margin-right: 6px;
-}
+    .sec-num {
+      color: var(--navy);
+      margin-right: 6px;
+    }
 
-.est-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 24px;
-  font-size: 12.5px;
-}
+    .est-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+      font-size: 12.5px;
+    }
 
-.est-table th {
-  background: var(--navy);
-  color: white;
-  padding: 9px 12px;
-  text-align: center;
-  font-weight: 600;
-  letter-spacing: .04em;
-  font-size: 12px;
-}
+    .est-table th {
+      background: var(--navy);
+      color: white;
+      padding: 9px 12px;
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: .04em;
+      font-size: 12px;
+    }
 
-.est-table td {
-  border: 1px solid #ddd;
-  padding: 8px 12px;
-  text-align: center;
-  vertical-align: middle;
-}
+    .est-table td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: center;
+      vertical-align: middle;
+    }
 
-.est-table .col-item { text-align: center; font-weight: 700; background: var(--gray1); }
-.est-table .col-name { text-align: left; padding-left: 16px; }
-.est-table .col-amount { text-align: right; font-weight: 700; color: var(--navy); padding-right: 14px; }
-.est-table .col-total-label { text-align: right; font-weight: 600; padding-right: 12px; background: var(--gray1); }
-.est-table .col-subtotal { text-align: right; font-weight: 700; padding-right: 14px; }
+    .est-table .col-item {
+      text-align: center;
+      font-weight: 700;
+      background: var(--gray1);
+    }
 
-.est-table .row-subtotal td { background: #F0F4FA; }
-.est-table .row-expense td { }
-.est-table .row-grand td {
-  background: var(--navy);
-  color: white;
-  font-weight: 700;
-  font-size: 13px;
-  padding: 11px 14px;
-}
+    .est-table .col-name {
+      text-align: left;
+      padding-left: 16px;
+    }
 
-.est-table .row-grand .col-amount {
-  color: white;
-  font-size: 14px;
-  letter-spacing: .02em;
-}
+    .est-table .col-amount {
+      text-align: right;
+      font-weight: 700;
+      color: var(--navy);
+      padding-right: 14px;
+    }
 
-.footnote {
-  font-size: 11.5px;
-  color: var(--gray3);
-  margin-top: -16px;
-  margin-bottom: 24px;
-  padding-left: 2px;
-}
+    .est-table .col-total-label {
+      text-align: right;
+      font-weight: 600;
+      padding-right: 12px;
+      background: var(--gray1);
+    }
 
-/* 기간 / 세부내역 섹션 */
-.est-section {
-  margin-bottom: 22px;
-}
+    .est-table .col-subtotal {
+      text-align: right;
+      font-weight: 700;
+      padding-right: 14px;
+    }
 
-.est-section-body {
-  font-size: 12.5px;
-  color: var(--gray4);
-  line-height: 1.9;
-  padding-left: 4px;
-}
+    .est-table .row-subtotal td {
+      background: #F0F4FA;
+    }
 
-.est-section-body b {
-  color: var(--dark);
-  font-weight: 600;
-}
-.est-section-body ul,
-.est-section-body ol {
-  padding-left: 18px;
-  margin: 0;
-}
-.est-section-body li { margin: 0; padding: 0; }
-.est-section-body p  { margin: 0; }
+    .est-table .row-expense td {}
 
-/* 견적조건 */
-.condition-list {
-  list-style: none;
-  font-size: 12px;
-  color: var(--gray4);
-  line-height: 2;
-  padding-left: 4px;
-}
+    .est-table .row-grand td {
+      background: var(--navy);
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 11px 14px;
+    }
 
-.condition-list li::before {
-  content: counter(item) ') ';
-  counter-increment: item;
-  font-weight: 600;
-  color: var(--dark);
-}
+    .est-table .row-grand .col-amount {
+      color: white;
+      font-size: 14px;
+      letter-spacing: .02em;
+    }
 
-.condition-list { counter-reset: item; }
+    .footnote {
+      font-size: 11.5px;
+      color: var(--gray3);
+      margin-top: -16px;
+      margin-bottom: 24px;
+      padding-left: 2px;
+    }
 
-/* 단가표 */
-.rate-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-  margin-top: 10px;
-}
+    /* 기간 / 세부내역 섹션 */
+    .est-section {
+      margin-bottom: 22px;
+    }
 
-.rate-table th {
-  background: var(--gray2);
-  color: var(--dark);
-  padding: 7px 10px;
-  text-align: center;
-  font-weight: 600;
-  border: 1px solid #ddd;
-}
+    .est-section-body {
+      font-size: 12.5px;
+      color: var(--gray4);
+      line-height: 1.9;
+      padding-left: 4px;
+    }
 
-.rate-table td {
-  border: 1px solid #ddd;
-  padding: 7px 10px;
-  text-align: center;
-  color: var(--gray4);
-}
+    .est-section-body b {
+      color: var(--dark);
+      font-weight: 600;
+    }
 
-.rate-note {
-  font-size: 11px;
-  color: var(--gray3);
-  margin-top: 4px;
-  text-align: right;
-}
+    .est-section-body ul,
+    .est-section-body ol {
+      padding-left: 18px;
+      margin: 0;
+    }
 
-/* 끝 */
-.est-end {
-  text-align: right;
-  font-size: 12.5px;
-  color: var(--gray3);
-  margin-top: 12px;
-}
+    .est-section-body li {
+      margin: 0;
+      padding: 0;
+    }
 
-/* 인쇄 로고 (평소 숨김) */
-.print-logo-header { display: none; }
+    .est-section-body p {
+      margin: 0;
+    }
 
-/* Quill 에디터 */
-.ql-container.ql-snow { border-radius: 0 0 6px 6px; border-color: rgba(255,255,255,0.2); font-family: 'Noto Sans KR', sans-serif; background: white; }
-.ql-toolbar.ql-snow { border-radius: 6px 6px 0 0; border-color: rgba(255,255,255,0.2); background: #f1f5f9; }
-.ql-editor { min-height: 120px; font-size: 13px; line-height: 1.7; background: white; color: #1e293b; }
-.ql-editor.ql-blank::before { font-style: normal; color: #94a3b8; }
+    /* 견적조건 */
+    .condition-list {
+      list-style: none;
+      font-size: 12px;
+      color: var(--gray4);
+      line-height: 2;
+      padding-left: 4px;
+    }
 
-/* ── 인쇄 (견적서 전용) ── */
-@media print {
-  .estimate-doc {
-    box-shadow: none;
-    padding: 65px 28px 20px;
-    max-width: 100%;
-    border-radius: 0;
-  }
-  .est-logo-row { display: none !important; }
-  .print-logo-header {
-    display: block;
-    position: fixed;
-    top: 14px;
-    left: 28px;
-  }
-  .est-table .row-grand td,
-  .est-table th,
-  .est-logo-box {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-}
-</style>
+    .condition-list li::before {
+      content: counter(item) ') ';
+      counter-increment: item;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .condition-list {
+      counter-reset: item;
+    }
+
+    /* 단가표 */
+    .rate-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .rate-table th {
+      background: var(--gray2);
+      color: var(--dark);
+      padding: 7px 10px;
+      text-align: center;
+      font-weight: 600;
+      border: 1px solid #ddd;
+    }
+
+    .rate-table td {
+      border: 1px solid #ddd;
+      padding: 7px 10px;
+      text-align: center;
+      color: var(--gray4);
+    }
+
+    .rate-note {
+      font-size: 11px;
+      color: var(--gray3);
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    /* 끝 */
+    .est-end {
+      text-align: right;
+      font-size: 12.5px;
+      color: var(--gray3);
+      margin-top: 12px;
+    }
+
+    /* 인쇄 로고 (평소 숨김) */
+    .print-logo-header {
+      display: none;
+    }
+
+    /* Quill 에디터 */
+    .ql-container.ql-snow {
+      border-radius: 0 0 6px 6px;
+      border-color: rgba(255, 255, 255, 0.2);
+      font-family: 'Noto Sans KR', sans-serif;
+      background: white;
+    }
+
+    .ql-toolbar.ql-snow {
+      border-radius: 6px 6px 0 0;
+      border-color: rgba(255, 255, 255, 0.2);
+      background: #f1f5f9;
+    }
+
+    .ql-editor {
+      min-height: 120px;
+      font-size: 13px;
+      line-height: 1.7;
+      background: white;
+      color: #1e293b;
+    }
+
+    .ql-editor.ql-blank::before {
+      font-style: normal;
+      color: #94a3b8;
+    }
+
+    /* ── 인쇄 (견적서 전용) ── */
+    @media print {
+      .estimate-doc {
+        box-shadow: none;
+        padding: 65px 28px 20px;
+        max-width: 100%;
+        border-radius: 0;
+      }
+
+      .est-logo-row {
+        display: none !important;
+      }
+
+      .print-logo-header {
+        display: block;
+        position: fixed;
+        top: 14px;
+        left: 28px;
+      }
+
+      .est-table .row-grand td,
+      .est-table th,
+      .est-logo-box {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="print-logo-header">
-  <img src="../_shared/etc/logo-removebg-preview.png" alt="비엔시스템 로고" style="height:40px; width:auto;">
-</div>
+  <div class="print-logo-header">
+    <img src="assets/img/logo.png" alt="비엔시스템 로고" style="height:40px; width:auto;">
+  </div>
 
-<div class="app-layout">
+  <div class="app-layout">
 
-  <!-- ── 입력 패널 ── -->
-  <div class="input-panel">
+    <!-- ── 입력 패널 ── -->
+    <div class="input-panel">
 
-    <div class="panel-logo">
-      <div class="logo-badge">BN</div>
-      <div class="panel-title">견적서 생성기</div>
-    </div>
-
-    <nav class="tool-nav">
-      <a href="../index.html?token=bn2026">홈</a>
-      <a href="bns_estimate_calculator.html">견적산정</a>
-      <a href="bns_estimate_generator.html" class="active">견적서</a>
-      <a href="bns_report_generator.html">완료보고서</a>
-    </nav>
-
-    <!-- 기본 정보 -->
-    <div class="section-group">
-      <div class="section-group-label">기본 정보</div>
-
-      <div class="field">
-        <label>문서번호</label>
-        <input type="text" id="docNo" placeholder="예: BN-260413-E03" oninput="render()">
+      <div class="panel-logo">
+        <div class="logo-badge">BN</div>
+        <div class="panel-title">견적서 생성기</div>
       </div>
 
-      <div class="field">
-        <label>수신 (고객사명)</label>
-        <input type="text" id="clientName" placeholder="예: 비엔회사" oninput="render()">
-      </div>
+      <nav class="tool-nav">
+        <a href="../index.html?token=bn2026">홈</a>
+        <a href="bns_estimate_calculator.html">견적산정</a>
+        <a href="bns_estimate_generator.html" class="active">견적서</a>
+        <a href="bns_report_generator.html">완료보고서</a>
+      </nav>
 
-      <div class="field">
-        <label>건명 (프로젝트명)</label>
-        <input type="text" id="projectName" placeholder="예: 홈페이지 내 오프라인 강의 신청 결제 기능" oninput="render()">
-      </div>
-    </div>
+      <!-- 기본 정보 -->
+      <div class="section-group">
+        <div class="section-group-label">기본 정보</div>
 
-    <!-- 계약 조건 -->
-    <div class="section-group">
-      <div class="section-group-label">계약 조건</div>
-
-      <div class="field">
-        <label>결제조건</label>
-        <input type="text" id="paymentTerm" value="계좌이체(계약금50%, 잔금50%)" oninput="render()">
-      </div>
-
-      <div class="field">
-        <label>기간</label>
-        <input type="text" id="period" placeholder="예: 협의  /  2026년 5월 ~ 6월" oninput="render()">
-      </div>
-    </div>
-
-    <!-- 인건비 단가 등급 -->
-    <div class="section-group">
-      <div class="section-group-label">SW기술자 단가 기준 (2018 KOSA)</div>
-
-      <div class="days-grid" style="margin-bottom:12px;">
-        <div class="days-item">
-          <label>기획·PM 단가</label>
-          <input type="text" id="pricepm" value="239,748" oninput="formatAndRender(this)">
-        </div>
-        <div class="days-item">
-          <label>디자인·퍼블 단가</label>
-          <input type="text" id="pricedesign" value="239,748" oninput="formatAndRender(this)">
-        </div>
-        <div class="days-item">
-          <label>개발 단가</label>
-          <input type="text" id="pricedev" value="305,433" oninput="formatAndRender(this)">
-        </div>
-        <div class="days-item">
-          <label>검수 단가</label>
-          <input type="text" id="priceqa" value="239,748" oninput="formatAndRender(this)">
-        </div>
-      </div>
-
-      <div class="section-group-label" style="margin-bottom:8px;">투입 일수</div>
-      <div class="days-grid">
-        <div class="days-item">
-          <label>기획·PM (일)</label>
-          <input type="number" id="dayspm" value="0" min="0" step="0.5" oninput="render()">
-        </div>
-        <div class="days-item">
-          <label>디자인·퍼블 (일)</label>
-          <input type="number" id="daysdesign" value="0" min="0" step="0.5" oninput="render()">
-        </div>
-        <div class="days-item">
-          <label>개발 (일)</label>
-          <input type="number" id="daysdev" value="0" min="0" step="0.5" oninput="render()">
-        </div>
-        <div class="days-item">
-          <label>검수 (일)</label>
-          <input type="number" id="daysqa" value="0" min="0" step="0.5" oninput="render()">
-        </div>
-      </div>
-    </div>
-
-    <!-- 인건비 소계 표시 -->
-    <div class="labor-summary" id="laborSummaryBox">
-      <div class="labor-summary-row"><span>기획·PM</span><span id="s-pm">0</span></div>
-      <div class="labor-summary-row"><span>디자인·퍼블</span><span id="s-design">0</span></div>
-      <div class="labor-summary-row"><span>개발</span><span id="s-dev">0</span></div>
-      <div class="labor-summary-row"><span>검수</span><span id="s-qa">0</span></div>
-      <div class="labor-summary-row"><span>인건비 소계</span><span id="s-labor">0 원</span></div>
-    </div>
-
-    <!-- 제경비 -->
-    <div class="section-group">
-      <div class="expense-toggle">
-        <label class="toggle-switch">
-          <input type="checkbox" id="expenseAuto" checked onchange="render()">
-          <span class="toggle-track"></span>
-        </label>
-        <span class="toggle-label">제경비 자동 (인건비 × 10%)</span>
-      </div>
-
-      <div class="field" id="expenseManualWrap" style="display:none;">
-        <label>제경비 직접 입력 (원)</label>
-        <input type="text" id="expenseManual" placeholder="0" oninput="formatAndRender(this)">
-      </div>
-    </div>
-
-    <!-- 특별할인 -->
-    <div class="section-group">
-      <div class="expense-toggle">
-        <label class="toggle-switch">
-          <input type="checkbox" id="discountOn" onchange="toggleDiscount()">
-          <span class="toggle-track"></span>
-        </label>
-        <span class="toggle-label">특별할인 적용</span>
-      </div>
-
-      <div id="discountWrap" style="display:none;">
         <div class="field">
-          <label>할인 항목명</label>
-          <input type="text" id="discountLabel" value="특별할인" oninput="render()">
+          <label>문서번호</label>
+          <input type="text" id="docNo" placeholder="예: BN-260413-E03" oninput="render()">
         </div>
+
         <div class="field">
-          <label>할인 금액 (원)</label>
-          <input type="text" id="discountAmount" placeholder="0" oninput="formatAndRender(this)">
+          <label>수신 (고객사명)</label>
+          <input type="text" id="clientName" placeholder="예: 비엔회사" oninput="render()">
+        </div>
+
+        <div class="field">
+          <label>건명 (프로젝트명)</label>
+          <input type="text" id="projectName" placeholder="예: 홈페이지 내 오프라인 강의 신청 결제 기능" oninput="render()">
         </div>
       </div>
-    </div>
 
-    <!-- 세부 내역 메모 -->
-    <div class="section-group">
-      <div class="section-group-label">세부 내역 (비고)</div>
-      <div class="field">
-        <div id="detailMemo-editor"></div>
+      <!-- 계약 조건 -->
+      <div class="section-group">
+        <div class="section-group-label">계약 조건</div>
+
+        <div class="field">
+          <label>결제조건</label>
+          <input type="text" id="paymentTerm" value="계좌이체(계약금50%, 잔금50%)" oninput="render()">
+        </div>
+
+        <div class="field">
+          <label>기간</label>
+          <input type="text" id="period" placeholder="예: 협의  /  2026년 5월 ~ 6월" oninput="render()">
+        </div>
       </div>
+
+      <!-- 인건비 단가 등급 -->
+      <div class="section-group">
+        <div class="section-group-label">SW기술자 단가 기준 (2018 KOSA)</div>
+
+        <div class="days-grid" style="margin-bottom:12px;">
+          <div class="days-item">
+            <label>기획·PM 단가</label>
+            <input type="text" id="pricepm" value="239,748" oninput="formatAndRender(this)">
+          </div>
+          <div class="days-item">
+            <label>디자인·퍼블 단가</label>
+            <input type="text" id="pricedesign" value="239,748" oninput="formatAndRender(this)">
+          </div>
+          <div class="days-item">
+            <label>개발 단가</label>
+            <input type="text" id="pricedev" value="305,433" oninput="formatAndRender(this)">
+          </div>
+          <div class="days-item">
+            <label>검수 단가</label>
+            <input type="text" id="priceqa" value="239,748" oninput="formatAndRender(this)">
+          </div>
+        </div>
+
+        <div class="section-group-label" style="margin-bottom:8px;">투입 일수</div>
+        <div class="days-grid">
+          <div class="days-item">
+            <label>기획·PM (일)</label>
+            <input type="number" id="dayspm" value="0" min="0" step="0.5" oninput="render()">
+          </div>
+          <div class="days-item">
+            <label>디자인·퍼블 (일)</label>
+            <input type="number" id="daysdesign" value="0" min="0" step="0.5" oninput="render()">
+          </div>
+          <div class="days-item">
+            <label>개발 (일)</label>
+            <input type="number" id="daysdev" value="0" min="0" step="0.5" oninput="render()">
+          </div>
+          <div class="days-item">
+            <label>검수 (일)</label>
+            <input type="number" id="daysqa" value="0" min="0" step="0.5" oninput="render()">
+          </div>
+        </div>
+      </div>
+
+      <!-- 인건비 소계 표시 -->
+      <div class="labor-summary" id="laborSummaryBox">
+        <div class="labor-summary-row"><span>기획·PM</span><span id="s-pm">0</span></div>
+        <div class="labor-summary-row"><span>디자인·퍼블</span><span id="s-design">0</span></div>
+        <div class="labor-summary-row"><span>개발</span><span id="s-dev">0</span></div>
+        <div class="labor-summary-row"><span>검수</span><span id="s-qa">0</span></div>
+        <div class="labor-summary-row"><span>인건비 소계</span><span id="s-labor">0 원</span></div>
+      </div>
+
+      <!-- 제경비 -->
+      <div class="section-group">
+        <div class="expense-toggle">
+          <label class="toggle-switch">
+            <input type="checkbox" id="expenseAuto" checked onchange="render()">
+            <span class="toggle-track"></span>
+          </label>
+          <span class="toggle-label">제경비 자동 (인건비 × 10%)</span>
+        </div>
+
+        <div class="field" id="expenseManualWrap" style="display:none;">
+          <label>제경비 직접 입력 (원)</label>
+          <input type="text" id="expenseManual" placeholder="0" oninput="formatAndRender(this)">
+        </div>
+      </div>
+
+      <!-- 특별할인 -->
+      <div class="section-group">
+        <div class="expense-toggle">
+          <label class="toggle-switch">
+            <input type="checkbox" id="discountOn" onchange="toggleDiscount()">
+            <span class="toggle-track"></span>
+          </label>
+          <span class="toggle-label">특별할인 적용</span>
+        </div>
+
+        <div id="discountWrap" style="display:none;">
+          <div class="field">
+            <label>할인 항목명</label>
+            <input type="text" id="discountLabel" value="특별할인" oninput="render()">
+          </div>
+          <div class="field">
+            <label>할인 금액 (원)</label>
+            <input type="text" id="discountAmount" placeholder="0" oninput="formatAndRender(this)">
+          </div>
+        </div>
+      </div>
+
+      <!-- 세부 내역 메모 -->
+      <div class="section-group">
+        <div class="section-group-label">세부 내역 (비고)</div>
+        <div class="field">
+          <div id="detailMemo-editor"></div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-reset" onclick="resetAll()">초기화</button>
+        <button class="btn btn-word" onclick="exportToWord()">Word 저장</button>
+        <button class="btn btn-print" onclick="printDoc()">🖨 PDF 저장</button>
+      </div>
+
     </div>
 
-    <div class="action-row">
-      <button class="btn btn-reset" onclick="resetAll()">초기화</button>
-      <button class="btn btn-word" onclick="exportToWord()">Word 저장</button>
-      <button class="btn btn-print" onclick="printDoc()">🖨 PDF 저장</button>
+    <!-- ── 리사이즈 핸들 ── -->
+    <div class="resize-handle" id="resizeHandle"></div>
+
+    <!-- ── 미리보기 ── -->
+    <div class="preview-area">
+      <div class="preview-label">미리보기 · 실시간 반영</div>
+      <div class="estimate-doc" id="estimateDoc">
+        <!-- JS로 렌더링 -->
+      </div>
     </div>
 
   </div>
 
-  <!-- ── 리사이즈 핸들 ── -->
-  <div class="resize-handle" id="resizeHandle"></div>
+  <script>
+    // 단가 데이터
+    const RATES = {
+      고급: { pm: 305433, design: 305433, dev: 305433, qa: 305433 },
+      중급: { pm: 239748, design: 239748, dev: 239748, qa: 239748 },
+      초급: { pm: 215681, design: 215681, dev: 215681, qa: 215681 },
+    };
 
-  <!-- ── 미리보기 ── -->
-  <div class="preview-area">
-    <div class="preview-label">미리보기 · 실시간 반영</div>
-    <div class="estimate-doc" id="estimateDoc">
-      <!-- JS로 렌더링 -->
-    </div>
-  </div>
-
-</div>
-
-<script>
-// 단가 데이터
-const RATES = {
-  고급: { pm: 305433, design: 305433, dev: 305433, qa: 305433 },
-  중급: { pm: 239748, design: 239748, dev: 239748, qa: 239748 },
-  초급: { pm: 215681, design: 215681, dev: 215681, qa: 215681 },
-};
-
-function fmt(n) {
-  if (!n && n !== 0) return '0';
-  return Math.round(n).toLocaleString('ko-KR');
-}
-
-function parseNum(val) {
-  return parseFloat((val || '').replace(/,/g, '')) || 0;
-}
-
-function formatAndRender(el) {
-  const raw = el.value.replace(/[^0-9]/g, '');
-  el.value = raw ? Number(raw).toLocaleString() : '';
-  render();
-}
-
-document.getElementById('expenseAuto').addEventListener('change', function() {
-  document.getElementById('expenseManualWrap').style.display = this.checked ? 'none' : 'block';
-  render();
-});
-
-function toggleDiscount() {
-  const on = document.getElementById('discountOn').checked;
-  document.getElementById('discountWrap').style.display = on ? 'block' : 'none';
-  render();
-}
-
-function getValues() {
-  const pricepm     = parseNum(document.getElementById('pricepm').value);
-  const pricedesign = parseNum(document.getElementById('pricedesign').value);
-  const pricedev    = parseNum(document.getElementById('pricedev').value);
-  const priceqa     = parseNum(document.getElementById('priceqa').value);
-
-  const dayspm     = parseFloat(document.getElementById('dayspm').value) || 0;
-  const daysdesign = parseFloat(document.getElementById('daysdesign').value) || 0;
-  const daysdev    = parseFloat(document.getElementById('daysdev').value) || 0;
-  const daysqa     = parseFloat(document.getElementById('daysqa').value) || 0;
-
-  const amtpm     = Math.round(pricepm * dayspm);
-  const amtdesign = Math.round(pricedesign * daysdesign);
-  const amtdev    = Math.round(pricedev * daysdev);
-  const amtqa     = Math.round(priceqa * daysqa);
-
-  const labor = amtpm + amtdesign + amtdev + amtqa;
-
-  const autoExpense = document.getElementById('expenseAuto').checked;
-  const expense = autoExpense
-    ? Math.round(labor * 0.1)
-    : parseNum(document.getElementById('expenseManual').value);
-
-  const discountOn = document.getElementById('discountOn').checked;
-  const discount = discountOn ? parseNum(document.getElementById('discountAmount').value) : 0;
-  const discountLabel = discountOn ? (document.getElementById('discountLabel').value || '특별할인') : '';
-
-  const total = labor + expense - discount;
-
-  return { pricepm, pricedesign, pricedev, priceqa,
-           dayspm, daysdesign, daysdev, daysqa,
-           amtpm, amtdesign, amtdev, amtqa,
-           labor, expense, discount, discountLabel, discountOn, total };
-}
-
-function todayStr() {
-  const d = new Date();
-  return `${d.getFullYear()}년 ${String(d.getMonth()+1).padStart(2,'0')}월 ${String(d.getDate()).padStart(2,'0')}일`;
-}
-
-function deltaToPreviewHtml(delta) {
-  if (!delta || !delta.ops) return '';
-  const szStyle = { small: 'font-size:11px', large: 'font-size:16px', huge: 'font-size:20px' };
-  const lines = [];
-  let curRuns = [];
-  for (const op of delta.ops) {
-    if (typeof op.insert !== 'string') continue;
-    const parts = op.insert.split('\n');
-    const isParaOp = op.insert.replace(/\n/g, '').length === 0;
-    parts.forEach((text, i) => {
-      if (text) {
-        const a = op.attributes || {};
-        let h = escHtml(text);
-        if (a.bold)      h = `<strong>${h}</strong>`;
-        if (a.italic)    h = `<em>${h}</em>`;
-        if (a.underline) h = `<u>${h}</u>`;
-        if (a.size && szStyle[a.size]) h = `<span style="${szStyle[a.size]}">${h}</span>`;
-        curRuns.push(h);
-      }
-      if (i < parts.length - 1) {
-        const pa = isParaOp ? (op.attributes || {}) : {};
-        lines.push({ html: curRuns.join(''), list: pa.list || null, indent: pa.indent || 0 });
-        curRuns = [];
-      }
-    });
-  }
-  if (curRuns.length) lines.push({ html: curRuns.join(''), list: null, indent: 0 });
-
-  const ordCnt = {};
-  let out = '';
-  for (const { html, list, indent } of lines) {
-    if (!list) {
-      Object.keys(ordCnt).forEach(k => delete ordCnt[k]);
-      out += `<div>${html || '&nbsp;'}</div>`;
-    } else if (list === 'bullet') {
-      const off = indent * 18;
-      out += `<div style="padding-left:${18+off}px;position:relative"><span style="position:absolute;left:${off}px">•</span>${html || '&nbsp;'}</div>`;
-    } else {
-      ordCnt[indent] = (ordCnt[indent] || 0) + 1;
-      Object.keys(ordCnt).forEach(k => { if (+k > indent) delete ordCnt[k]; });
-      const n = ordCnt[indent];
-      const label = indent === 0 ? n + '.'
-        : indent === 1 ? String.fromCharCode(96 + n) + '.'
-        : (['i','ii','iii','iv','v','vi','vii','viii','ix','x'][n-1] || n) + '.';
-      const off = indent * 18;
-      out += `<div style="padding-left:${22+off}px;position:relative"><span style="position:absolute;left:${off}px;min-width:18px;display:inline-block;text-align:right">${label}</span>${html || '&nbsp;'}</div>`;
+    function fmt(n) {
+      if (!n && n !== 0) return '0';
+      return Math.round(n).toLocaleString('ko-KR');
     }
-  }
-  return out;
-}
 
-function render() {
-  const v = getValues();
+    function parseNum(val) {
+      return parseFloat((val || '').replace(/,/g, '')) || 0;
+    }
 
-  // 패널 소계 업데이트
-  document.getElementById('s-pm').textContent     = fmt(v.amtpm);
-  document.getElementById('s-design').textContent = fmt(v.amtdesign);
-  document.getElementById('s-dev').textContent    = fmt(v.amtdev);
-  document.getElementById('s-qa').textContent     = fmt(v.amtqa);
-  document.getElementById('s-labor').textContent  = fmt(v.labor) + ' 원';
+    function formatAndRender(el) {
+      const raw = el.value.replace(/[^0-9]/g, '');
+      el.value = raw ? Number(raw).toLocaleString() : '';
+      render();
+    }
 
-  const docNo       = document.getElementById('docNo').value || 'BN-______-E__';
-  const client      = document.getElementById('clientName').value || '(고객사명)';
-  const project     = document.getElementById('projectName').value || '(건명)';
-  const payTerm     = document.getElementById('paymentTerm').value || '계좌이체(계약금50%, 잔금50%)';
-  const period      = document.getElementById('period').value || '협의';
-  const totalWon = `일금 ${Math.floor(v.total / 10000)}만원`;
+    document.getElementById('expenseAuto').addEventListener('change', function () {
+      document.getElementById('expenseManualWrap').style.display = this.checked ? 'none' : 'block';
+      render();
+    });
 
-  // 세부 내역 HTML (delta → inline 스타일 변환)
-  const _memoDelta = window.quillMemo ? window.quillMemo.getContents() : null;
-  const _memoBody  = deltaToPreviewHtml(_memoDelta);
-  const memoHtml   = _memoBody || '<div style="color:#aaa">입력된 세부 내역이 없습니다.</div>';
+    function toggleDiscount() {
+      const on = document.getElementById('discountOn').checked;
+      document.getElementById('discountWrap').style.display = on ? 'block' : 'none';
+      render();
+    }
 
-  document.getElementById('estimateDoc').innerHTML = `
+    function getValues() {
+      const pricepm = parseNum(document.getElementById('pricepm').value);
+      const pricedesign = parseNum(document.getElementById('pricedesign').value);
+      const pricedev = parseNum(document.getElementById('pricedev').value);
+      const priceqa = parseNum(document.getElementById('priceqa').value);
+
+      const dayspm = parseFloat(document.getElementById('dayspm').value) || 0;
+      const daysdesign = parseFloat(document.getElementById('daysdesign').value) || 0;
+      const daysdev = parseFloat(document.getElementById('daysdev').value) || 0;
+      const daysqa = parseFloat(document.getElementById('daysqa').value) || 0;
+
+      const amtpm = Math.round(pricepm * dayspm);
+      const amtdesign = Math.round(pricedesign * daysdesign);
+      const amtdev = Math.round(pricedev * daysdev);
+      const amtqa = Math.round(priceqa * daysqa);
+
+      const labor = amtpm + amtdesign + amtdev + amtqa;
+
+      const autoExpense = document.getElementById('expenseAuto').checked;
+      const expense = autoExpense
+        ? Math.round(labor * 0.1)
+        : parseNum(document.getElementById('expenseManual').value);
+
+      const discountOn = document.getElementById('discountOn').checked;
+      const discount = discountOn ? parseNum(document.getElementById('discountAmount').value) : 0;
+      const discountLabel = discountOn ? (document.getElementById('discountLabel').value || '특별할인') : '';
+
+      const total = labor + expense - discount;
+
+      return {
+        pricepm, pricedesign, pricedev, priceqa,
+        dayspm, daysdesign, daysdev, daysqa,
+        amtpm, amtdesign, amtdev, amtqa,
+        labor, expense, discount, discountLabel, discountOn, total
+      };
+    }
+
+    function todayStr() {
+      const d = new Date();
+      return `${d.getFullYear()}년 ${String(d.getMonth() + 1).padStart(2, '0')}월 ${String(d.getDate()).padStart(2, '0')}일`;
+    }
+
+    function deltaToPreviewHtml(delta) {
+      if (!delta || !delta.ops) return '';
+      const szStyle = { small: 'font-size:11px', large: 'font-size:16px', huge: 'font-size:20px' };
+      const lines = [];
+      let curRuns = [];
+      for (const op of delta.ops) {
+        if (typeof op.insert !== 'string') continue;
+        const parts = op.insert.split('\n');
+        const isParaOp = op.insert.replace(/\n/g, '').length === 0;
+        parts.forEach((text, i) => {
+          if (text) {
+            const a = op.attributes || {};
+            let h = escHtml(text);
+            if (a.bold) h = `<strong>${h}</strong>`;
+            if (a.italic) h = `<em>${h}</em>`;
+            if (a.underline) h = `<u>${h}</u>`;
+            if (a.size && szStyle[a.size]) h = `<span style="${szStyle[a.size]}">${h}</span>`;
+            curRuns.push(h);
+          }
+          if (i < parts.length - 1) {
+            const pa = isParaOp ? (op.attributes || {}) : {};
+            lines.push({ html: curRuns.join(''), list: pa.list || null, indent: pa.indent || 0 });
+            curRuns = [];
+          }
+        });
+      }
+      if (curRuns.length) lines.push({ html: curRuns.join(''), list: null, indent: 0 });
+
+      const ordCnt = {};
+      let out = '';
+      for (const { html, list, indent } of lines) {
+        if (!list) {
+          Object.keys(ordCnt).forEach(k => delete ordCnt[k]);
+          out += `<div>${html || '&nbsp;'}</div>`;
+        } else if (list === 'bullet') {
+          const off = indent * 18;
+          out += `<div style="padding-left:${18 + off}px;position:relative"><span style="position:absolute;left:${off}px">•</span>${html || '&nbsp;'}</div>`;
+        } else {
+          ordCnt[indent] = (ordCnt[indent] || 0) + 1;
+          Object.keys(ordCnt).forEach(k => { if (+k > indent) delete ordCnt[k]; });
+          const n = ordCnt[indent];
+          const label = indent === 0 ? n + '.'
+            : indent === 1 ? String.fromCharCode(96 + n) + '.'
+              : (['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'][n - 1] || n) + '.';
+          const off = indent * 18;
+          out += `<div style="padding-left:${22 + off}px;position:relative"><span style="position:absolute;left:${off}px;min-width:18px;display:inline-block;text-align:right">${label}</span>${html || '&nbsp;'}</div>`;
+        }
+      }
+      return out;
+    }
+
+    function render() {
+      const v = getValues();
+
+      // 패널 소계 업데이트
+      document.getElementById('s-pm').textContent = fmt(v.amtpm);
+      document.getElementById('s-design').textContent = fmt(v.amtdesign);
+      document.getElementById('s-dev').textContent = fmt(v.amtdev);
+      document.getElementById('s-qa').textContent = fmt(v.amtqa);
+      document.getElementById('s-labor').textContent = fmt(v.labor) + ' 원';
+
+      const docNo = document.getElementById('docNo').value || 'BN-______-E__';
+      const client = document.getElementById('clientName').value || '(고객사명)';
+      const project = document.getElementById('projectName').value || '(건명)';
+      const payTerm = document.getElementById('paymentTerm').value || '계좌이체(계약금50%, 잔금50%)';
+      const period = document.getElementById('period').value || '협의';
+      const totalWon = `일금 ${Math.floor(v.total / 10000)}만원`;
+
+      // 세부 내역 HTML (delta → inline 스타일 변환)
+      const _memoDelta = window.quillMemo ? window.quillMemo.getContents() : null;
+      const _memoBody = deltaToPreviewHtml(_memoDelta);
+      const memoHtml = _memoBody || '<div style="color:#aaa">입력된 세부 내역이 없습니다.</div>';
+
+      document.getElementById('estimateDoc').innerHTML = `
     <div class="est-logo-row">
-      <img src="../_shared/etc/logo-removebg-preview.png" alt="비엔시스템 로고" style="height:48px; width:auto; display:block;">
+      <img src="assets/img/logo-removebg-preview.png" alt="비엔시스템 로고" style="height:48px; width:auto; display:block;">
     </div>
 
     <div class="est-title">견 &nbsp; 적 &nbsp; 서</div>
@@ -731,7 +807,7 @@ function render() {
       </div>
       <div class="est-meta-right">
         <div class="est-meta-row"><span class="meta-key">사업자등록번호</span><span class="meta-val">787-87-01752</span></div>
-        <div class="est-meta-row"><span class="meta-key">상&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;호</span><span class="meta-val">&nbsp;&nbsp;주식회사 비엔시스템&nbsp;&nbsp;<b>대표&nbsp;</b>엄 요 한<span style="position:relative; display:inline-block; width:0; overflow:visible; vertical-align:middle;"><img src="../_shared/etc/stamp.png" alt="도장" style="position:absolute; left:-1px; top:50%; transform:translateY(-50%); height:40px; width:40px; object-fit:contain; pointer-events:none;"></span></span></div>
+        <div class="est-meta-row"><span class="meta-key">상&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;호</span><span class="meta-val">&nbsp;&nbsp;주식회사 비엔시스템&nbsp;&nbsp;<b>대표&nbsp;</b>엄 요 한<span style="position:relative; display:inline-block; width:0; overflow:visible; vertical-align:middle;"><img src="assets/img/stamp.png" alt="도장" style="position:absolute; left:-1px; top:50%; transform:translateY(-50%); height:40px; width:40px; object-fit:contain; pointer-events:none;"></span></span></div>
         <div class="est-meta-row"><span class="meta-key">업&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;태</span><span class="meta-val">&nbsp;&nbsp;정보통신업</span></div>
         <div class="est-meta-row"><span class="meta-key">주&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;소</span><span class="meta-val">&nbsp;&nbsp;서울 도봉구 마들로11가길 12, 401호</span></div>
         <div class="est-meta-row" style="margin-top:8px;"><span class="meta-key">담&nbsp;&nbsp;당&nbsp;&nbsp;자</span><span class="meta-val">&nbsp;&nbsp;엄 요 한</span></div>
@@ -841,399 +917,422 @@ function render() {
 
     <div class="est-end">(이상)</div>
   `;
-}
-
-// 인건비 항목 rowspan 계산
-function rowspan(v) {
-  let cnt = 0;
-  if (v.dayspm > 0) cnt++;
-  if (v.daysdesign > 0) cnt++;
-  if (v.daysdev > 0) cnt++;
-  if (v.daysqa > 0) cnt++;
-  return Math.max(cnt, 1);
-}
-
-function escHtml(str) {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function resetAll() {
-  if (!confirm('모든 입력값을 초기화 하시겠습니까?')) return;
-  document.getElementById('docNo').value = '';
-  document.getElementById('clientName').value = '';
-  document.getElementById('projectName').value = '';
-  document.getElementById('paymentTerm').value = '계좌이체(계약금50%, 잔금50%)';
-  document.getElementById('period').value = '';
-  document.getElementById('pricepm').value = '239,748';
-  document.getElementById('pricedesign').value = '239,748';
-  document.getElementById('pricedev').value = '305,433';
-  document.getElementById('priceqa').value = '239,748';
-  document.getElementById('dayspm').value = '0';
-  document.getElementById('daysdesign').value = '0';
-  document.getElementById('daysdev').value = '0';
-  document.getElementById('daysqa').value = '0';
-  document.getElementById('expenseAuto').checked = true;
-  document.getElementById('expenseManualWrap').style.display = 'none';
-  document.getElementById('expenseManual').value = '';
-  document.getElementById('discountOn').checked = false;
-  document.getElementById('discountWrap').style.display = 'none';
-  document.getElementById('discountLabel').value = '특별할인';
-  document.getElementById('discountAmount').value = '';
-  if (window.quillMemo) window.quillMemo.setText('');
-  render();
-}
-
-function printDoc() {
-  window.print();
-}
-
-async function exportToWord() {
-  const btn = document.querySelector('.btn-word');
-  const orig = btn.textContent;
-  btn.textContent = '생성 중...';
-  btn.disabled = true;
-  try {
-    if (!window.docx) {
-      await new Promise((res, rej) => {
-        const s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/docx@8.2.3/build/index.umd.js';
-        s.onload = res;
-        s.onerror = () => rej(new Error('docx 라이브러리 로드 실패 (네트워크 확인 필요)'));
-        document.head.appendChild(s);
-      });
     }
-    if (!window.docx) throw new Error('docx 라이브러리를 불러오지 못했습니다');
-    const { Document, Packer, Paragraph, Header, Table, TableRow, TableCell,
-            TextRun, ImageRun, AlignmentType, BorderStyle,
-            WidthType, VerticalAlign, ShadingType,
-            TextWrappingType, HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom } = window.docx;
 
-    const v = getValues();
-    const inp = {
-      docNo:   document.getElementById('docNo').value || 'BN-______-E__',
-      client:  document.getElementById('clientName').value || '(고객사명)',
-      project: document.getElementById('projectName').value || '(건명)',
-      payTerm: document.getElementById('paymentTerm').value || '계좌이체(계약금50%, 잔금50%)',
-      period:  document.getElementById('period').value || '협의',
-      memoDelta: window.quillMemo ? window.quillMemo.getContents() : null,
-    };
-    const totalLabel = `일금 ${Math.floor(v.total/10000)}만원 (${fmt(v.total)}원, 부가가치세 별도)`;
+    // 인건비 항목 rowspan 계산
+    function rowspan(v) {
+      let cnt = 0;
+      if (v.dayspm > 0) cnt++;
+      if (v.daysdesign > 0) cnt++;
+      if (v.daysdev > 0) cnt++;
+      if (v.daysqa > 0) cnt++;
+      return Math.max(cnt, 1);
+    }
 
-    let stampBuf = null, logoBuf = null;
-    try { stampBuf = await (await fetch('../_shared/etc/stamp.png')).arrayBuffer(); } catch(e){}
-    try { logoBuf  = await (await fetch('../_shared/etc/logo-removebg-preview.png')).arrayBuffer(); } catch(e){}
+    function escHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
 
-    const F = 'Malgun Gothic';
-    const C = { navy:'1B3A6B', dark:'1E293B', g4:'475569', g1:'F8FAFC', g2:'E9EEF5', white:'FFFFFF', red:'C0392B', g3:'94A3B8' };
-    const bdrLine = (c='CCCCCC') => ({ style: BorderStyle.SINGLE, size: 4, color: c });
-    const bdrAll  = (c='CCCCCC') => ({ top: bdrLine(c), bottom: bdrLine(c), left: bdrLine(c), right: bdrLine(c) });
-    const sh = (color) => ({ type: ShadingType.SOLID, color, fill: color });
-    const tx = (text, o={}) => new TextRun({ text: String(text??''), font: F, size: o.sz||22, bold:!!o.b, color: o.c||C.dark });
-    const pr = (content, align=AlignmentType.LEFT, bef=50, aft=50) => new Paragraph({
-      children: Array.isArray(content) ? content : [content],
-      alignment: align, spacing: { before: bef, after: aft }
-    });
-    const tc = (children, o={}) => {
-      const cell = {
-        children: Array.isArray(children) ? children : [children],
-        verticalAlign: o.va || VerticalAlign.CENTER,
-        margins: { top: 60, bottom: 60, left: 100, right: 100 },
-      };
-      if (o.cs) cell.columnSpan = o.cs;
-      if (o.rs) cell.rowSpan    = o.rs;
-      if (o.sh) cell.shading    = sh(o.sh);
-      if (o.w !== undefined) cell.width = { size: o.w, type: WidthType.PERCENTAGE };
-      return new TableCell(cell);
-    };
+    function resetAll() {
+      if (!confirm('모든 입력값을 초기화 하시겠습니까?')) return;
+      document.getElementById('docNo').value = '';
+      document.getElementById('clientName').value = '';
+      document.getElementById('projectName').value = '';
+      document.getElementById('paymentTerm').value = '계좌이체(계약금50%, 잔금50%)';
+      document.getElementById('period').value = '';
+      document.getElementById('pricepm').value = '239,748';
+      document.getElementById('pricedesign').value = '239,748';
+      document.getElementById('pricedev').value = '305,433';
+      document.getElementById('priceqa').value = '239,748';
+      document.getElementById('dayspm').value = '0';
+      document.getElementById('daysdesign').value = '0';
+      document.getElementById('daysdev').value = '0';
+      document.getElementById('daysqa').value = '0';
+      document.getElementById('expenseAuto').checked = true;
+      document.getElementById('expenseManualWrap').style.display = 'none';
+      document.getElementById('expenseManual').value = '';
+      document.getElementById('discountOn').checked = false;
+      document.getElementById('discountWrap').style.display = 'none';
+      document.getElementById('discountLabel').value = '특별할인';
+      document.getElementById('discountAmount').value = '';
+      if (window.quillMemo) window.quillMemo.setText('');
+      render();
+    }
 
-    const noBdr = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+    function printDoc() {
+      window.print();
+    }
 
-    // 로고
-    const logoPara = logoBuf
-      ? new Paragraph({ children: [new ImageRun({ data: logoBuf, transformation: { width: 130, height: 44 }, type: 'png' })], spacing: { before: 0, after: 300 } })
-      : pr([tx('주식회사 비엔시스템', { b: true, sz: 28, c: C.navy })], AlignmentType.LEFT, 0, 300);
-
-    // 제목
-    const titlePara = pr([tx('견    적    서', { b: true, sz: 64 })], AlignmentType.CENTER, 0, 300);
-
-    // 메타 테이블 (좌/우 2열)
-    const leftParas = [
-      ['문서번호', inp.docNo,   false],
-      ['작성일',   todayStr(),  false],
-      ['수    신',  inp.client + ' 귀중', false],
-      ['건    명',  inp.project, false],
-      ['공급가액', totalLabel,  true],
-      ['결제조건', inp.payTerm, false],
-      ['기    간',  inp.period,  false],
-    ].map(([k, val, hi]) => pr([tx(k, { b: true, sz: 20 }), tx('  '+val, { sz: 20, c: hi ? C.navy : C.g4, b: hi })], AlignmentType.LEFT, 30, 30));
-
-    const rightParas = [
-      pr([tx('사업자등록번호', { b: true, sz: 20 }), tx('  787-87-01752', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
-      new Paragraph({
-        children: [
-          tx('상    호', { b: true, sz: 20 }),
-          tx('  주식회사 비엔시스템 ', { sz: 20, c: C.g4 }),
-          tx(' 대표', { b: true, sz: 20, c: C.g4 }),
-          tx(' 엄 요 한', { sz: 20, c: C.g4 }),
-          ...(stampBuf ? [new ImageRun({
-            data: stampBuf,
-            transformation: { width: 40, height: 40 },
-            type: 'png',
-            floating: {
-              horizontalPosition: {
-                relative: HorizontalPositionRelativeFrom ? HorizontalPositionRelativeFrom.COLUMN : 'column',
-                align: 'right',
-              },
-              verticalPosition: {
-                relative: VerticalPositionRelativeFrom ? VerticalPositionRelativeFrom.PARAGRAPH : 'paragraph',
-                offset: -57300,
-              },
-              wrap: { type: TextWrappingType ? TextWrappingType.NONE : 'none' },
-              allowOverlap: true,
-              layoutInCell: true,
-            }
-          })] : [])
-        ], spacing: { before: 30, after: 30 }
-      }),
-      pr([tx('업    태', { b: true, sz: 20 }), tx('  정보통신업', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
-      pr([tx('주    소', { b: true, sz: 20 }), tx('  서울 노원구 화랑로 419-7 3층 전관', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
-      pr([tx('담 당 자', { b: true, sz: 20 }), tx('  엄 요 한', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 80, 30),
-      pr([tx('이 메 일', { b: true, sz: 20 }), tx('  best@bn-system.com', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
-      pr([tx('전    화', { b: true, sz: 20 }), tx('  050-7737-4560 / 010-2308-3853', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
-    ];
-
-    const metaTable = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      borders: { top: noBdr, bottom: noBdr, left: noBdr, right: noBdr, insideVertical: bdrLine('E8E8E8'), insideHorizontal: noBdr },
-      rows: [new TableRow({ children: [
-        tc(leftParas,  { va: VerticalAlign.TOP, w: 50 }),
-        tc(rightParas, { va: VerticalAlign.TOP, w: 50 }),
-      ]})]
-    });
-
-    // 견적 테이블
-    const jobs = [];
-    if (v.dayspm     > 0) jobs.push({ name: 'PM/기획',           days: v.dayspm,     price: v.pricepm,     amt: v.amtpm });
-    if (v.daysdesign > 0) jobs.push({ name: '디자인 및 퍼블리싱', days: v.daysdesign, price: v.pricedesign, amt: v.amtdesign });
-    if (v.daysdev    > 0) jobs.push({ name: '개발',               days: v.daysdev,    price: v.pricedev,    amt: v.amtdev });
-    if (v.daysqa     > 0) jobs.push({ name: '검수',               days: v.daysqa,     price: v.priceqa,     amt: v.amtqa });
-    const nJobs = Math.max(jobs.length, 1);
-
-    const hdrRow = new TableRow({ children:
-      ['항목','직무','인원(명)','기간(일)','투입률','일용가(원)','합계(원)'].map(h =>
-        tc(pr([tx(h, { b: true, sz: 20, c: C.white })], AlignmentType.CENTER, 50, 50), { sh: C.navy })
-      )
-    });
-
-    const jobRows = jobs.length === 0
-      ? [new TableRow({ children: [
-          tc(pr([tx('인건비',{b:true,sz:20})], AlignmentType.CENTER,50,50), { sh: C.g1 }),
-          tc(pr([tx('-')], AlignmentType.CENTER,50,50)),
-          tc(pr([tx('-')], AlignmentType.CENTER,50,50)),
-          tc(pr([tx('-')], AlignmentType.CENTER,50,50)),
-          tc(pr([tx('-')], AlignmentType.CENTER,50,50)),
-          tc(pr([tx('-')], AlignmentType.RIGHT, 50,50)),
-          tc(pr([tx('0')], AlignmentType.RIGHT, 50,50)),
-        ]})]
-      : jobs.map((job, i) => new TableRow({ children: [
-          ...(i===0 ? [tc(pr([tx('인건비',{b:true,sz:20})], AlignmentType.CENTER,50,50), { sh: C.g1, rs: nJobs, va: VerticalAlign.CENTER })] : []),
-          tc(pr([tx(job.name,{sz:20})],         AlignmentType.LEFT,   50, 50)),
-          tc(pr([tx('1',{sz:20})],              AlignmentType.CENTER, 50, 50)),
-          tc(pr([tx(String(job.days),{sz:20})], AlignmentType.CENTER, 50, 50)),
-          tc(pr([tx('100%',{sz:20})],           AlignmentType.CENTER, 50, 50)),
-          tc(pr([tx(fmt(job.price),{sz:20})],   AlignmentType.RIGHT,  50, 50)),
-          tc(pr([tx(fmt(job.amt),{b:true,sz:20,c:C.navy})], AlignmentType.RIGHT, 50, 50)),
-        ]}));
-
-    const subtotalRow = new TableRow({ children: [
-      tc(pr([tx('소계',{b:true,sz:20})],        AlignmentType.RIGHT,  50, 50), { cs:5, sh: C.g1 }),
-      tc(pr([tx('')],                            AlignmentType.CENTER, 50, 50)),
-      tc(pr([tx(fmt(v.labor),{b:true,sz:20})],  AlignmentType.RIGHT,  50, 50)),
-    ]});
-    const expenseRow = new TableRow({ children: [
-      tc(pr([tx('기타',{b:true,sz:20})],         AlignmentType.CENTER, 50, 50), { sh: C.g1 }),
-      tc(pr([tx('제경비',{sz:20})],              AlignmentType.LEFT,   50, 50), { cs:5 }),
-      tc(pr([tx(fmt(v.expense),{b:true,sz:20})], AlignmentType.RIGHT,  50, 50)),
-    ]});
-    const discountRows = (v.discountOn && v.discount > 0) ? [new TableRow({ children: [
-      tc(pr([tx('기타',{b:true,sz:20,c:C.red})],          AlignmentType.CENTER, 50, 50)),
-      tc(pr([tx(v.discountLabel,{b:true,sz:20,c:C.red})],  AlignmentType.LEFT,  50, 50), { cs:5 }),
-      tc(pr([tx('▼ '+fmt(v.discount),{b:true,sz:20,c:C.red})], AlignmentType.RIGHT, 50, 50)),
-    ]})] : [];
-    const grandRow = new TableRow({ children: [
-      tc(pr([tx('총 합계  (공급가액, 부가가치세 별도)',{b:true,sz:22,c:C.white})], AlignmentType.CENTER,80,80), { cs:6, sh: C.navy }),
-      tc(pr([tx(fmt(v.total)+' 원',{b:true,sz:24,c:C.white})], AlignmentType.RIGHT,80,80), { sh: C.navy }),
-    ]});
-    const estTable = new Table({ width: { size:100, type: WidthType.PERCENTAGE },
-      rows: [hdrRow, ...jobRows, subtotalRow, expenseRow, ...discountRows, grandRow] });
-
-    const secTitle = (num, title) => pr([tx(num+'. ',{b:true,sz:26,c:C.navy}), tx(title,{b:true,sz:26})], AlignmentType.LEFT, 200, 100);
-
-    // Quill delta → docx 단락 변환 (list 지원)
-    const sizeMap = { small: 18, large: 28, huge: 36 };
-    const memoParas = (() => {
-      const delta = inp.memoDelta;
-      if (!delta || !delta.ops) return [pr([tx('(없음)',{sz:22,c:C.g3})], AlignmentType.LEFT, 0, 30)];
-      const paras = [];
-      let runs = [];
-      const ordByLvl = {};
-      const flush = (listType, indent) => {
-        const lvl = indent || 0;
-        let prefix = [];
-        if (listType === 'bullet') {
-          Object.keys(ordByLvl).forEach(k => delete ordByLvl[k]);
-          prefix = [new TextRun({ text: '• ', font: F, size: 22, color: C.g4 })];
-        } else if (listType === 'ordered') {
-          ordByLvl[lvl] = (ordByLvl[lvl] || 0) + 1;
-          Object.keys(ordByLvl).forEach(k => { if (+k > lvl) delete ordByLvl[k]; });
-          const n = ordByLvl[lvl];
-          const label = lvl === 0 ? `${n}. `
-            : lvl === 1 ? `${String.fromCharCode(96+n)}. `
-            : `${(['i','ii','iii','iv','v','vi','vii','viii','ix','x'][n-1]||n)}. `;
-          prefix = [new TextRun({ text: label, font: F, size: 22, color: C.g4 })];
-        } else {
-          Object.keys(ordByLvl).forEach(k => delete ordByLvl[k]);
+    async function exportToWord() {
+      const btn = document.querySelector('.btn-word');
+      const orig = btn.textContent;
+      btn.textContent = '생성 중...';
+      btn.disabled = true;
+      try {
+        if (!window.docx) {
+          await new Promise((res, rej) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/docx@8.2.3/build/index.umd.js';
+            s.onload = res;
+            s.onerror = () => rej(new Error('docx 라이브러리 로드 실패 (네트워크 확인 필요)'));
+            document.head.appendChild(s);
+          });
         }
-        const children = [...prefix, ...(runs.length ? runs : [new TextRun({ text: ' ', font: F, size: 22 })])];
-        paras.push(new Paragraph({ children, alignment: AlignmentType.LEFT, spacing: { before: 0, after: 30 }, indent: listType ? { left: 220 + lvl * 220 } : undefined }));
-        runs = [];
-      };
-      for (const op of delta.ops) {
-        if (typeof op.insert !== 'string') continue;
-        const isParaOp = op.insert.replace(/\n/g, '').length === 0;
-        const opListType = isParaOp ? (op.attributes && op.attributes.list) : null;
-        const opIndent  = isParaOp ? ((op.attributes && op.attributes.indent) || 0) : 0;
-        const parts = op.insert.split('\n');
-        parts.forEach((text, i) => {
-          if (text) {
-            const a = op.attributes || {};
-            runs.push(new TextRun({ text, font: F, size: sizeMap[a.size] || 22, bold: !!a.bold, italics: !!a.italic, underline: a.underline ? {} : undefined, color: C.g4 }));
-          }
-          if (i < parts.length - 1) flush(opListType, opIndent);
+        if (!window.docx) throw new Error('docx 라이브러리를 불러오지 못했습니다');
+        const { Document, Packer, Paragraph, Header, Table, TableRow, TableCell,
+          TextRun, ImageRun, AlignmentType, BorderStyle,
+          WidthType, VerticalAlign, ShadingType,
+          TextWrappingType, HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom } = window.docx;
+
+        const v = getValues();
+        const inp = {
+          docNo: document.getElementById('docNo').value || 'BN-______-E__',
+          client: document.getElementById('clientName').value || '(고객사명)',
+          project: document.getElementById('projectName').value || '(건명)',
+          payTerm: document.getElementById('paymentTerm').value || '계좌이체(계약금50%, 잔금50%)',
+          period: document.getElementById('period').value || '협의',
+          memoDelta: window.quillMemo ? window.quillMemo.getContents() : null,
+        };
+        const totalLabel = `일금 ${Math.floor(v.total / 10000)}만원 (${fmt(v.total)}원, 부가가치세 별도)`;
+
+        let stampBuf = null, logoBuf = null;
+        try { stampBuf = await (await fetch('assets/img/stamp.png')).arrayBuffer(); } catch (e) { }
+        try { logoBuf = await (await fetch('assets/img/logo-removebg-preview.png')).arrayBuffer(); } catch (e) { }
+
+        const F = 'Malgun Gothic';
+        const C = { navy: '1B3A6B', dark: '1E293B', g4: '475569', g1: 'F8FAFC', g2: 'E9EEF5', white: 'FFFFFF', red: 'C0392B', g3: '94A3B8' };
+        const bdrLine = (c = 'CCCCCC') => ({ style: BorderStyle.SINGLE, size: 4, color: c });
+        const bdrAll = (c = 'CCCCCC') => ({ top: bdrLine(c), bottom: bdrLine(c), left: bdrLine(c), right: bdrLine(c) });
+        const sh = (color) => ({ type: ShadingType.SOLID, color, fill: color });
+        const tx = (text, o = {}) => new TextRun({ text: String(text ?? ''), font: F, size: o.sz || 22, bold: !!o.b, color: o.c || C.dark });
+        const pr = (content, align = AlignmentType.LEFT, bef = 50, aft = 50) => new Paragraph({
+          children: Array.isArray(content) ? content : [content],
+          alignment: align, spacing: { before: bef, after: aft }
         });
+        const tc = (children, o = {}) => {
+          const cell = {
+            children: Array.isArray(children) ? children : [children],
+            verticalAlign: o.va || VerticalAlign.CENTER,
+            margins: { top: 60, bottom: 60, left: 100, right: 100 },
+          };
+          if (o.cs) cell.columnSpan = o.cs;
+          if (o.rs) cell.rowSpan = o.rs;
+          if (o.sh) cell.shading = sh(o.sh);
+          if (o.w !== undefined) cell.width = { size: o.w, type: WidthType.PERCENTAGE };
+          return new TableCell(cell);
+        };
+
+        const noBdr = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+
+        // 로고
+        const logoPara = logoBuf
+          ? new Paragraph({ children: [new ImageRun({ data: logoBuf, transformation: { width: 130, height: 44 }, type: 'png' })], spacing: { before: 0, after: 300 } })
+          : pr([tx('주식회사 비엔시스템', { b: true, sz: 28, c: C.navy })], AlignmentType.LEFT, 0, 300);
+
+        // 제목
+        const titlePara = pr([tx('견    적    서', { b: true, sz: 64 })], AlignmentType.CENTER, 0, 300);
+
+        // 메타 테이블 (좌/우 2열)
+        const leftParas = [
+          ['문서번호', inp.docNo, false],
+          ['작성일', todayStr(), false],
+          ['수    신', inp.client + ' 귀중', false],
+          ['건    명', inp.project, false],
+          ['공급가액', totalLabel, true],
+          ['결제조건', inp.payTerm, false],
+          ['기    간', inp.period, false],
+        ].map(([k, val, hi]) => pr([tx(k, { b: true, sz: 20 }), tx('  ' + val, { sz: 20, c: hi ? C.navy : C.g4, b: hi })], AlignmentType.LEFT, 30, 30));
+
+        const rightParas = [
+          pr([tx('사업자등록번호', { b: true, sz: 20 }), tx('  787-87-01752', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
+          new Paragraph({
+            children: [
+              tx('상    호', { b: true, sz: 20 }),
+              tx('  주식회사 비엔시스템 ', { sz: 20, c: C.g4 }),
+              tx(' 대표', { b: true, sz: 20, c: C.g4 }),
+              tx(' 엄 요 한', { sz: 20, c: C.g4 }),
+              ...(stampBuf ? [new ImageRun({
+                data: stampBuf,
+                transformation: { width: 40, height: 40 },
+                type: 'png',
+                floating: {
+                  horizontalPosition: {
+                    relative: HorizontalPositionRelativeFrom ? HorizontalPositionRelativeFrom.COLUMN : 'column',
+                    align: 'right',
+                  },
+                  verticalPosition: {
+                    relative: VerticalPositionRelativeFrom ? VerticalPositionRelativeFrom.PARAGRAPH : 'paragraph',
+                    offset: -57300,
+                  },
+                  wrap: { type: TextWrappingType ? TextWrappingType.NONE : 'none' },
+                  allowOverlap: true,
+                  layoutInCell: true,
+                }
+              })] : [])
+            ], spacing: { before: 30, after: 30 }
+          }),
+          pr([tx('업    태', { b: true, sz: 20 }), tx('  정보통신업', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
+          pr([tx('주    소', { b: true, sz: 20 }), tx('  서울 노원구 화랑로 419-7 3층 전관', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
+          pr([tx('담 당 자', { b: true, sz: 20 }), tx('  엄 요 한', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 80, 30),
+          pr([tx('이 메 일', { b: true, sz: 20 }), tx('  best@bn-system.com', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
+          pr([tx('전    화', { b: true, sz: 20 }), tx('  050-7737-4560 / 010-2308-3853', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 30, 30),
+        ];
+
+        const metaTable = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          borders: { top: noBdr, bottom: noBdr, left: noBdr, right: noBdr, insideVertical: bdrLine('E8E8E8'), insideHorizontal: noBdr },
+          rows: [new TableRow({
+            children: [
+              tc(leftParas, { va: VerticalAlign.TOP, w: 50 }),
+              tc(rightParas, { va: VerticalAlign.TOP, w: 50 }),
+            ]
+          })]
+        });
+
+        // 견적 테이블
+        const jobs = [];
+        if (v.dayspm > 0) jobs.push({ name: 'PM/기획', days: v.dayspm, price: v.pricepm, amt: v.amtpm });
+        if (v.daysdesign > 0) jobs.push({ name: '디자인 및 퍼블리싱', days: v.daysdesign, price: v.pricedesign, amt: v.amtdesign });
+        if (v.daysdev > 0) jobs.push({ name: '개발', days: v.daysdev, price: v.pricedev, amt: v.amtdev });
+        if (v.daysqa > 0) jobs.push({ name: '검수', days: v.daysqa, price: v.priceqa, amt: v.amtqa });
+        const nJobs = Math.max(jobs.length, 1);
+
+        const hdrRow = new TableRow({
+          children:
+            ['항목', '직무', '인원(명)', '기간(일)', '투입률', '일용가(원)', '합계(원)'].map(h =>
+              tc(pr([tx(h, { b: true, sz: 20, c: C.white })], AlignmentType.CENTER, 50, 50), { sh: C.navy })
+            )
+        });
+
+        const jobRows = jobs.length === 0
+          ? [new TableRow({
+            children: [
+              tc(pr([tx('인건비', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g1 }),
+              tc(pr([tx('-')], AlignmentType.CENTER, 50, 50)),
+              tc(pr([tx('-')], AlignmentType.CENTER, 50, 50)),
+              tc(pr([tx('-')], AlignmentType.CENTER, 50, 50)),
+              tc(pr([tx('-')], AlignmentType.CENTER, 50, 50)),
+              tc(pr([tx('-')], AlignmentType.RIGHT, 50, 50)),
+              tc(pr([tx('0')], AlignmentType.RIGHT, 50, 50)),
+            ]
+          })]
+          : jobs.map((job, i) => new TableRow({
+            children: [
+              ...(i === 0 ? [tc(pr([tx('인건비', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g1, rs: nJobs, va: VerticalAlign.CENTER })] : []),
+              tc(pr([tx(job.name, { sz: 20 })], AlignmentType.LEFT, 50, 50)),
+              tc(pr([tx('1', { sz: 20 })], AlignmentType.CENTER, 50, 50)),
+              tc(pr([tx(String(job.days), { sz: 20 })], AlignmentType.CENTER, 50, 50)),
+              tc(pr([tx('100%', { sz: 20 })], AlignmentType.CENTER, 50, 50)),
+              tc(pr([tx(fmt(job.price), { sz: 20 })], AlignmentType.RIGHT, 50, 50)),
+              tc(pr([tx(fmt(job.amt), { b: true, sz: 20, c: C.navy })], AlignmentType.RIGHT, 50, 50)),
+            ]
+          }));
+
+        const subtotalRow = new TableRow({
+          children: [
+            tc(pr([tx('소계', { b: true, sz: 20 })], AlignmentType.RIGHT, 50, 50), { cs: 5, sh: C.g1 }),
+            tc(pr([tx('')], AlignmentType.CENTER, 50, 50)),
+            tc(pr([tx(fmt(v.labor), { b: true, sz: 20 })], AlignmentType.RIGHT, 50, 50)),
+          ]
+        });
+        const expenseRow = new TableRow({
+          children: [
+            tc(pr([tx('기타', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g1 }),
+            tc(pr([tx('제경비', { sz: 20 })], AlignmentType.LEFT, 50, 50), { cs: 5 }),
+            tc(pr([tx(fmt(v.expense), { b: true, sz: 20 })], AlignmentType.RIGHT, 50, 50)),
+          ]
+        });
+        const discountRows = (v.discountOn && v.discount > 0) ? [new TableRow({
+          children: [
+            tc(pr([tx('기타', { b: true, sz: 20, c: C.red })], AlignmentType.CENTER, 50, 50)),
+            tc(pr([tx(v.discountLabel, { b: true, sz: 20, c: C.red })], AlignmentType.LEFT, 50, 50), { cs: 5 }),
+            tc(pr([tx('▼ ' + fmt(v.discount), { b: true, sz: 20, c: C.red })], AlignmentType.RIGHT, 50, 50)),
+          ]
+        })] : [];
+        const grandRow = new TableRow({
+          children: [
+            tc(pr([tx('총 합계  (공급가액, 부가가치세 별도)', { b: true, sz: 22, c: C.white })], AlignmentType.CENTER, 80, 80), { cs: 6, sh: C.navy }),
+            tc(pr([tx(fmt(v.total) + ' 원', { b: true, sz: 24, c: C.white })], AlignmentType.RIGHT, 80, 80), { sh: C.navy }),
+          ]
+        });
+        const estTable = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [hdrRow, ...jobRows, subtotalRow, expenseRow, ...discountRows, grandRow]
+        });
+
+        const secTitle = (num, title) => pr([tx(num + '. ', { b: true, sz: 26, c: C.navy }), tx(title, { b: true, sz: 26 })], AlignmentType.LEFT, 200, 100);
+
+        // Quill delta → docx 단락 변환 (list 지원)
+        const sizeMap = { small: 18, large: 28, huge: 36 };
+        const memoParas = (() => {
+          const delta = inp.memoDelta;
+          if (!delta || !delta.ops) return [pr([tx('(없음)', { sz: 22, c: C.g3 })], AlignmentType.LEFT, 0, 30)];
+          const paras = [];
+          let runs = [];
+          const ordByLvl = {};
+          const flush = (listType, indent) => {
+            const lvl = indent || 0;
+            let prefix = [];
+            if (listType === 'bullet') {
+              Object.keys(ordByLvl).forEach(k => delete ordByLvl[k]);
+              prefix = [new TextRun({ text: '• ', font: F, size: 22, color: C.g4 })];
+            } else if (listType === 'ordered') {
+              ordByLvl[lvl] = (ordByLvl[lvl] || 0) + 1;
+              Object.keys(ordByLvl).forEach(k => { if (+k > lvl) delete ordByLvl[k]; });
+              const n = ordByLvl[lvl];
+              const label = lvl === 0 ? `${n}. `
+                : lvl === 1 ? `${String.fromCharCode(96 + n)}. `
+                  : `${(['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'][n - 1] || n)}. `;
+              prefix = [new TextRun({ text: label, font: F, size: 22, color: C.g4 })];
+            } else {
+              Object.keys(ordByLvl).forEach(k => delete ordByLvl[k]);
+            }
+            const children = [...prefix, ...(runs.length ? runs : [new TextRun({ text: ' ', font: F, size: 22 })])];
+            paras.push(new Paragraph({ children, alignment: AlignmentType.LEFT, spacing: { before: 0, after: 30 }, indent: listType ? { left: 220 + lvl * 220 } : undefined }));
+            runs = [];
+          };
+          for (const op of delta.ops) {
+            if (typeof op.insert !== 'string') continue;
+            const isParaOp = op.insert.replace(/\n/g, '').length === 0;
+            const opListType = isParaOp ? (op.attributes && op.attributes.list) : null;
+            const opIndent = isParaOp ? ((op.attributes && op.attributes.indent) || 0) : 0;
+            const parts = op.insert.split('\n');
+            parts.forEach((text, i) => {
+              if (text) {
+                const a = op.attributes || {};
+                runs.push(new TextRun({ text, font: F, size: sizeMap[a.size] || 22, bold: !!a.bold, italics: !!a.italic, underline: a.underline ? {} : undefined, color: C.g4 }));
+              }
+              if (i < parts.length - 1) flush(opListType, opIndent);
+            });
+          }
+          if (runs.length) flush(null, 0);
+          return paras.length ? paras : [pr([tx('(없음)', { sz: 22, c: C.g3 })], AlignmentType.LEFT, 0, 30)];
+        })();
+
+        const condParas = [
+          '본 견적은 작성일자로부터 20일 간 유효함',
+          '본 견적은 요구사항을 기준으로 했음, 요구사항이 변경될 경우 변동될 수 있음',
+          '본 견적은 2018년 한국소프트웨어산업협회 단가를 기준으로 산정함',
+        ].map((c, i) => pr([tx(`${i + 1}) ${c}`, { sz: 22, c: C.g4 })], AlignmentType.LEFT, 0, 30));
+
+        const rateTable = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              children: ['구분', '일평균임금 (M/D)', '월평균임금 (M/M)', '시간평균임금 (M/H)'].map(h =>
+                tc(pr([tx(h, { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2 })
+              )
+            }),
+            ...[['고급기술자', '305,433', '6,353,006', '38,179'],
+            ['중급기술자', '239,748', '4,986,758', '29,969'],
+            ['초급기술자', '215,681', '4,486,165', '26,960'],
+            ].map(row => new TableRow({
+              children: row.map(val =>
+                tc(pr([tx(val, { sz: 20, c: C.g4 })], AlignmentType.CENTER, 50, 50))
+              )
+            }))
+          ]
+        });
+
+        const logoHeaderPara = logoBuf
+          ? new Paragraph({ children: [new ImageRun({ data: logoBuf, transformation: { width: 110, height: 37 }, type: 'png' })], spacing: { before: 0, after: 0 } })
+          : new Paragraph({ children: [tx('주식회사 비엔시스템', { b: true, sz: 24, c: C.navy })], spacing: { before: 0, after: 0 } });
+
+        const wordDoc = new Document({
+          sections: [{
+            headers: { default: new Header({ children: [logoHeaderPara] }) },
+            properties: { page: { margin: { top: 1000, bottom: 1000, left: 1200, right: 1200 } } },
+            children: [
+              titlePara, metaTable,
+              pr([tx('')], AlignmentType.LEFT, 0, 0),
+              secTitle('1', '견적내역'),
+              estTable,
+              pr([tx('* 휴일 제외 업무일(월20일) 기준', { sz: 18, c: C.g3 })], AlignmentType.LEFT, 60, 200),
+              secTitle('2', '기간'),
+              pr([tx('◦ 기간: ', { sz: 22 }), tx(inp.period, { b: true, sz: 22 })], AlignmentType.LEFT, 0, 200),
+              secTitle('3', '세부내역'),
+              ...memoParas,
+              pr([tx('')], AlignmentType.LEFT, 100, 0),
+              secTitle('4', '견적조건'),
+              ...condParas,
+              pr([tx('※ 2018년 SW기술자 평균임금 – 등급별  (단위: 원)', { sz: 20, c: C.g4 })], AlignmentType.CENTER, 200, 80),
+              rateTable,
+              pr([tx('* 한국소프트웨어산업협회', { sz: 18, c: C.g3 })], AlignmentType.RIGHT, 60, 200),
+              pr([tx('(이상)', { sz: 22, c: C.g3 })], AlignmentType.RIGHT, 0, 0),
+            ]
+          }]
+        });
+
+        const blob = await Packer.toBlob(wordDoc);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `견적서_${inp.docNo}.docx`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+      } catch (e) {
+        console.error('Word 변환 오류:', e);
+        alert('Word 변환 중 오류가 발생했습니다:\n' + (e?.message || String(e)));
+      } finally {
+        btn.textContent = orig;
+        btn.disabled = false;
       }
-      if (runs.length) flush(null, 0);
-      return paras.length ? paras : [pr([tx('(없음)',{sz:22,c:C.g3})], AlignmentType.LEFT, 0, 30)];
-    })();
+    }
 
-    const condParas = [
-      '본 견적은 작성일자로부터 20일 간 유효함',
-      '본 견적은 요구사항을 기준으로 했음, 요구사항이 변경될 경우 변동될 수 있음',
-      '본 견적은 2018년 한국소프트웨어산업협회 단가를 기준으로 산정함',
-    ].map((c, i) => pr([tx(`${i+1}) ${c}`,{sz:22,c:C.g4})], AlignmentType.LEFT, 0, 30));
-
-    const rateTable = new Table({ width: { size:100, type: WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({ children: ['구분','일평균임금 (M/D)','월평균임금 (M/M)','시간평균임금 (M/H)'].map(h =>
-          tc(pr([tx(h,{b:true,sz:20})], AlignmentType.CENTER,50,50), { sh: C.g2 })
-        )}),
-        ...[ ['고급기술자','305,433','6,353,006','38,179'],
-             ['중급기술자','239,748','4,986,758','29,969'],
-             ['초급기술자','215,681','4,486,165','26,960'],
-        ].map(row => new TableRow({ children: row.map(val =>
-          tc(pr([tx(val,{sz:20,c:C.g4})], AlignmentType.CENTER,50,50))
-        )}))
-      ]
-    });
-
-    const logoHeaderPara = logoBuf
-      ? new Paragraph({ children: [new ImageRun({ data: logoBuf, transformation: { width: 110, height: 37 }, type: 'png' })], spacing: { before: 0, after: 0 } })
-      : new Paragraph({ children: [tx('주식회사 비엔시스템', { b: true, sz: 24, c: C.navy })], spacing: { before: 0, after: 0 } });
-
-    const wordDoc = new Document({
-      sections: [{
-        headers: { default: new Header({ children: [logoHeaderPara] }) },
-        properties: { page: { margin: { top:1000, bottom:1000, left:1200, right:1200 } } },
-        children: [
-          titlePara, metaTable,
-          pr([tx('')], AlignmentType.LEFT, 0, 0),
-          secTitle('1','견적내역'),
-          estTable,
-          pr([tx('* 휴일 제외 업무일(월20일) 기준',{sz:18,c:C.g3})], AlignmentType.LEFT, 60, 200),
-          secTitle('2','기간'),
-          pr([tx('◦ 기간: ',{sz:22}), tx(inp.period,{b:true,sz:22})], AlignmentType.LEFT, 0, 200),
-          secTitle('3','세부내역'),
-          ...memoParas,
-          pr([tx('')], AlignmentType.LEFT, 100, 0),
-          secTitle('4','견적조건'),
-          ...condParas,
-          pr([tx('※ 2018년 SW기술자 평균임금 – 등급별  (단위: 원)',{sz:20,c:C.g4})], AlignmentType.CENTER, 200, 80),
-          rateTable,
-          pr([tx('* 한국소프트웨어산업협회',{sz:18,c:C.g3})], AlignmentType.RIGHT, 60, 200),
-          pr([tx('(이상)',{sz:22,c:C.g3})], AlignmentType.RIGHT, 0, 0),
+    // Quill 에디터 초기화
+    window.quillMemo = new Quill('#detailMemo-editor', {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline'],
+          [{ size: ['small', false, 'large', 'huge'] }],
+          [{ list: 'bullet' }],
+          ['clean']
         ]
-      }]
+      },
+      placeholder: '세부 작업 내용을 입력하세요\n예: ◦ KG이니시스 일반결제 연동\n◦ 강의사이트 상단메뉴 추가',
     });
+    window.quillMemo.on('text-change', render);
 
-    const blob = await Packer.toBlob(wordDoc);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `견적서_${inp.docNo}.docx`;
-    a.click();
-    URL.revokeObjectURL(url);
+    // 초기 렌더
+    render();
 
-  } catch(e) {
-    console.error('Word 변환 오류:', e);
-    alert('Word 변환 중 오류가 발생했습니다:\n' + (e?.message || String(e)));
-  } finally {
-    btn.textContent = orig;
-    btn.disabled = false;
-  }
-}
+    // ── 패널 리사이즈 ──
+    (function () {
+      const handle = document.getElementById('resizeHandle');
+      const layout = document.querySelector('.app-layout');
+      let dragging = false, startX = 0, startW = 0;
 
-// Quill 에디터 초기화
-window.quillMemo = new Quill('#detailMemo-editor', {
-  theme: 'snow',
-  modules: {
-    toolbar: [
-      ['bold', 'italic', 'underline'],
-      [{ size: ['small', false, 'large', 'huge'] }],
-      [{ list: 'bullet' }],
-      ['clean']
-    ]
-  },
-  placeholder: '세부 작업 내용을 입력하세요\n예: ◦ KG이니시스 일반결제 연동\n◦ 강의사이트 상단메뉴 추가',
-});
-window.quillMemo.on('text-change', render);
+      handle.addEventListener('mousedown', e => {
+        dragging = true;
+        startX = e.clientX;
+        startW = document.querySelector('.input-panel').offsetWidth;
+        handle.classList.add('dragging');
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
+      });
 
-// 초기 렌더
-render();
+      document.addEventListener('mousemove', e => {
+        if (!dragging) return;
+        const w = Math.min(Math.max(startW + e.clientX - startX, 260), 680);
+        layout.style.gridTemplateColumns = `${w}px 6px 1fr`;
+      });
 
-// ── 패널 리사이즈 ──
-(function() {
-  const handle = document.getElementById('resizeHandle');
-  const layout = document.querySelector('.app-layout');
-  let dragging = false, startX = 0, startW = 0;
-
-  handle.addEventListener('mousedown', e => {
-    dragging = true;
-    startX = e.clientX;
-    startW = document.querySelector('.input-panel').offsetWidth;
-    handle.classList.add('dragging');
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-    e.preventDefault();
-  });
-
-  document.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const w = Math.min(Math.max(startW + e.clientX - startX, 260), 680);
-    layout.style.gridTemplateColumns = `${w}px 6px 1fr`;
-  });
-
-  document.addEventListener('mouseup', () => {
-    if (!dragging) return;
-    dragging = false;
-    handle.classList.remove('dragging');
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-  });
-})();
-</script>
+      document.addEventListener('mouseup', () => {
+        if (!dragging) return;
+        dragging = false;
+        handle.classList.remove('dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      });
+    })();
+  </script>
 </body>
+
 </html>

@@ -1,466 +1,503 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>비엔시스템 완료보고서 생성기</title>
-<link rel="stylesheet" href="bns-tools-common.css">
-<style>
-/* 다크 패널 내 date picker 아이콘 색상 보정 */
-.input-panel input[type="date"]::-webkit-calendar-picker-indicator,
-.ms-date-item input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) opacity(0.6);
-  cursor: pointer;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>비엔시스템 완료보고서 생성기</title>
+  <link rel="stylesheet" href="bns-tools-common.css">
+  <style>
+    /* 다크 패널 내 date picker 아이콘 색상 보정 */
+    .input-panel input[type="date"]::-webkit-calendar-picker-indicator,
+    .ms-date-item input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1) opacity(0.6);
+      cursor: pointer;
+    }
 
-/* ── 보고서 문서 ── */
-.report-doc {
-  background: white;
-  width: 100%;
-  max-width: 740px;
-  padding: 40px 52px 50px;
-  box-shadow: 0 8px 40px rgba(27,58,107,.12);
-  border-radius: 4px;
-}
+    /* ── 보고서 문서 ── */
+    .report-doc {
+      background: white;
+      width: 100%;
+      max-width: 740px;
+      padding: 40px 52px 50px;
+      box-shadow: 0 8px 40px rgba(27, 58, 107, .12);
+      border-radius: 4px;
+    }
 
-/* 페이지 헤더 */
-.rpt-page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 30px;
-}
+    /* 페이지 헤더 */
+    .rpt-page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 30px;
+    }
 
-.rpt-header-left {
-  font-size: 11.5px;
-  color: var(--gray4);
-  line-height: 1.8;
-}
+    .rpt-header-left {
+      font-size: 11.5px;
+      color: var(--gray4);
+      line-height: 1.8;
+    }
 
-.rpt-header-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
+    .rpt-header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
 
-.rpt-header-logo { height: 46px; width: auto; }
+    .rpt-header-logo {
+      height: 46px;
+      width: auto;
+    }
 
-/* 제목 */
-.rpt-title {
-  text-align: center;
-  font-size: 27px;
-  font-weight: 800;
-  letter-spacing: .25em;
-  color: var(--dark);
-  margin-bottom: 6px;
-}
+    /* 제목 */
+    .rpt-title {
+      text-align: center;
+      font-size: 27px;
+      font-weight: 800;
+      letter-spacing: .25em;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
 
-.rpt-date-row {
-  text-align: right;
-  font-size: 12.5px;
-  color: var(--gray4);
-  margin-bottom: 26px;
-}
+    .rpt-date-row {
+      text-align: right;
+      font-size: 12.5px;
+      color: var(--gray4);
+      margin-bottom: 26px;
+    }
 
-/* 섹션 헤더 박스 */
-.rpt-sec-header {
-  background: var(--slate);
-  color: white;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: .02em;
-}
+    /* 섹션 헤더 박스 */
+    .rpt-sec-header {
+      background: var(--slate);
+      color: white;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .02em;
+    }
 
-/* 보고서 테이블 */
-.rpt-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12.5px;
-  margin-bottom: 22px;
-}
+    /* 보고서 테이블 */
+    .rpt-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin-bottom: 22px;
+    }
 
-.rpt-table td,
-.rpt-table th {
-  border: 1px solid var(--border);
-  padding: 8px 14px;
-  vertical-align: top;
-  line-height: 1.75;
-}
+    .rpt-table td,
+    .rpt-table th {
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      vertical-align: top;
+      line-height: 1.75;
+    }
 
-.rpt-table th {
-  background: #eef1f5;
-  font-weight: 600;
-  color: var(--gray4);
-  text-align: center;
-  border-color: #b8c4d4;
-}
+    .rpt-table th {
+      background: #eef1f5;
+      font-weight: 600;
+      color: var(--gray4);
+      text-align: center;
+      border-color: #b8c4d4;
+    }
 
-.rpt-table .col-head {
-  background: var(--gray1);
-  font-weight: 600;
-  color: var(--dark);
-  text-align: left;
-  white-space: pre-line;
-}
+    .rpt-table .col-head {
+      background: var(--gray1);
+      font-weight: 600;
+      color: var(--dark);
+      text-align: left;
+      white-space: pre-line;
+    }
 
-.rpt-table .col-head-center {
-  background: var(--gray1);
-  font-weight: 600;
-  color: var(--dark);
-  text-align: center;
-  vertical-align: middle;
-  white-space: nowrap;
-}
+    .rpt-table .col-head-center {
+      background: var(--gray1);
+      font-weight: 600;
+      color: var(--dark);
+      text-align: center;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
 
-.rpt-table-joined { margin-top: 0; border-top: none; }
-.rpt-sec-header + .rpt-table { margin-top: 0; }
-.rpt-sec-header + .rpt-table-joined { border-top: none; }
+    .rpt-table-joined {
+      margin-top: 0;
+      border-top: none;
+    }
 
-/* 참여 인력 */
-.rpt-staff-block {
-  border: 1px solid var(--border);
-  border-top: none;
-  padding: 12px 18px 14px;
-  font-size: 12.5px;
-  color: var(--gray4);
-  line-height: 2.2;
-  margin-bottom: 22px;
-}
+    .rpt-sec-header+.rpt-table {
+      margin-top: 0;
+    }
 
-.rpt-staff-block b { color: var(--dark); font-weight: 600; }
+    .rpt-sec-header+.rpt-table-joined {
+      border-top: none;
+    }
 
-/* 요약 블록 */
-.rpt-summary-block {
-  border: 1px solid var(--border);
-  border-top: none;
-  padding: 12px 18px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--dark);
-  margin-bottom: 22px;
-  white-space: pre-line;
-  line-height: 1.8;
-}
+    /* 참여 인력 */
+    .rpt-staff-block {
+      border: 1px solid var(--border);
+      border-top: none;
+      padding: 12px 18px 14px;
+      font-size: 12.5px;
+      color: var(--gray4);
+      line-height: 2.2;
+      margin-bottom: 22px;
+    }
 
-/* 도메인 섹션 타이틀 */
-.rpt-subsec-title {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--dark);
-  margin-bottom: 4px;
-}
+    .rpt-staff-block b {
+      color: var(--dark);
+      font-weight: 600;
+    }
 
-.rpt-subsec-meta {
-  text-align: right;
-  font-size: 12px;
-  color: var(--gray4);
-  margin-bottom: 8px;
-}
+    /* 요약 블록 */
+    .rpt-summary-block {
+      border: 1px solid var(--border);
+      border-top: none;
+      padding: 12px 18px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 22px;
+      white-space: pre-line;
+      line-height: 1.8;
+    }
 
-.rpt-end {
-  text-align: right;
-  font-size: 12.5px;
-  color: var(--gray3);
-  margin-top: 14px;
-}
+    /* 도메인 섹션 타이틀 */
+    .rpt-subsec-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 4px;
+    }
 
-/* 인쇄 반복 헤더 래퍼 — 화면에서는 요소를 투명하게 처리 (display:contents) */
-.rpt-print-wrap,
-.rpt-print-wrap > thead,
-.rpt-print-wrap > tbody,
-.rpt-print-wrap > thead > tr,
-.rpt-print-wrap > tbody > tr,
-.rpt-print-hd,
-.rpt-print-bd { display: contents; }
+    .rpt-subsec-meta {
+      text-align: right;
+      font-size: 12px;
+      color: var(--gray4);
+      margin-bottom: 8px;
+    }
 
-/* ── 인쇄 ── */
-@media print {
-  .report-doc {
-    box-shadow: none;
-    padding: 0 44px 20px;
-    max-width: 100%;
-    border-radius: 0;
-  }
+    .rpt-end {
+      text-align: right;
+      font-size: 12.5px;
+      color: var(--gray3);
+      margin-top: 14px;
+    }
 
-  /* thead 자동 반복 방식: 전체 문서를 table로 감싸고 헤더를 thead에 배치.
+    /* 인쇄 반복 헤더 래퍼 — 화면에서는 요소를 투명하게 처리 (display:contents) */
+    .rpt-print-wrap,
+    .rpt-print-wrap>thead,
+    .rpt-print-wrap>tbody,
+    .rpt-print-wrap>thead>tr,
+    .rpt-print-wrap>tbody>tr,
+    .rpt-print-hd,
+    .rpt-print-bd {
+      display: contents;
+    }
+
+    /* ── 인쇄 ── */
+    @media print {
+      .report-doc {
+        box-shadow: none;
+        padding: 0 44px 20px;
+        max-width: 100%;
+        border-radius: 0;
+      }
+
+      /* thead 자동 반복 방식: 전체 문서를 table로 감싸고 헤더를 thead에 배치.
      Chrome은 table이 여러 페이지에 걸칠 때 thead를 매 페이지 상단에 자동 반복. */
-  .rpt-print-wrap {
-    display: table;
-    width: 100%;
-    border-collapse: collapse;
-  }
-  .rpt-print-wrap thead { display: table-header-group; }
-  .rpt-print-wrap tbody { display: table-row-group; }
-  .rpt-print-wrap > thead > tr,
-  .rpt-print-wrap > tbody > tr { display: table-row; }
-  .rpt-print-hd,
-  .rpt-print-bd {
-    display: table-cell;
-    border: none !important;
-    padding: 0 !important;
-    vertical-align: top;
-    width: 100%;
-  }
+      .rpt-print-wrap {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+      }
 
-  /* 헤더 인쇄 스타일 — thead 안에서 표시 */
-  .rpt-page-header {
-    display: flex !important;
-    padding-bottom: 8px;
-    margin-bottom: 10px;
-    border-bottom: 1.5px solid #e2e8f0;
-  }
+      .rpt-print-wrap thead {
+        display: table-header-group;
+      }
 
-  .rpt-sec-header,
-  .rpt-table th,
-  .rpt-table .col-head,
-  .rpt-table .col-head-center {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
+      .rpt-print-wrap tbody {
+        display: table-row-group;
+      }
 
-  @page { margin: 18mm; }
-}
-</style>
+      .rpt-print-wrap>thead>tr,
+      .rpt-print-wrap>tbody>tr {
+        display: table-row;
+      }
+
+      .rpt-print-hd,
+      .rpt-print-bd {
+        display: table-cell;
+        border: none !important;
+        padding: 0 !important;
+        vertical-align: top;
+        width: 100%;
+      }
+
+      /* 헤더 인쇄 스타일 — thead 안에서 표시 */
+      .rpt-page-header {
+        display: flex !important;
+        padding-bottom: 8px;
+        margin-bottom: 10px;
+        border-bottom: 1.5px solid #e2e8f0;
+      }
+
+      .rpt-sec-header,
+      .rpt-table th,
+      .rpt-table .col-head,
+      .rpt-table .col-head-center {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      @page {
+        margin: 18mm;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="app-layout">
+  <div class="app-layout">
 
-  <!-- ── 입력 패널 ── -->
-  <div class="input-panel">
+    <!-- ── 입력 패널 ── -->
+    <div class="input-panel">
 
-    <div class="panel-logo">
-      <div class="logo-badge">BN</div>
-      <div class="panel-title">완료보고서 생성기</div>
-    </div>
-
-    <nav class="tool-nav">
-      <a href="../index.html?token=bn2026">홈</a>
-      <a href="bns_estimate_calculator.html">견적산정</a>
-      <a href="bns_estimate_generator.html">견적서</a>
-      <a href="bns_report_generator.html" class="active">완료보고서</a>
-    </nav>
-
-    <!-- 기본 정보 -->
-    <div class="section-group">
-      <div class="section-group-label">기본 정보</div>
-      <div class="field">
-        <label>프로젝트명</label>
-        <input type="text" id="projectName" placeholder="예: 비엔시스템 홈페이지 리뉴얼" oninput="render()">
+      <div class="panel-logo">
+        <div class="logo-badge">BN</div>
+        <div class="panel-title">완료보고서 생성기</div>
       </div>
-      <div class="field">
-        <label>고객사명</label>
-        <input type="text" id="clientName" placeholder="예: 비엔시스템" oninput="render()">
-      </div>
-      <div class="two-col">
+
+      <nav class="tool-nav">
+        <a href="../index.html?token=bn2026">홈</a>
+        <a href="bns_estimate_calculator.html">견적산정</a>
+        <a href="bns_estimate_generator.html">견적서</a>
+        <a href="bns_report_generator.html" class="active">완료보고서</a>
+      </nav>
+
+      <!-- 기본 정보 -->
+      <div class="section-group">
+        <div class="section-group-label">기본 정보</div>
         <div class="field">
-          <label>작성일</label>
-          <input type="date" id="reportDate" oninput="render()">
+          <label>프로젝트명</label>
+          <input type="text" id="projectName" placeholder="예: 비엔시스템 홈페이지 리뉴얼" oninput="render()">
         </div>
         <div class="field">
-          <label>작성자</label>
-          <input type="text" id="author" placeholder="예: 배은아" oninput="render()">
+          <label>고객사명</label>
+          <input type="text" id="clientName" placeholder="예: 비엔시스템" oninput="render()">
         </div>
-      </div>
-    </div>
-
-    <!-- 일정 및 규모 -->
-    <div class="section-group">
-      <div class="section-group-label">프로젝트 일정 및 규모</div>
-      <div class="two-col">
-        <div class="field">
-          <label>시작일</label>
-          <input type="date" id="dateStart" oninput="render()">
-        </div>
-        <div class="field">
-          <label>종료일</label>
-          <input type="date" id="dateEnd" oninput="render()">
-        </div>
-      </div>
-      <div class="field">
-        <label>프로젝트 규모 (원)</label>
-        <input type="text" id="projectScale" placeholder="4,625,000" oninput="formatAndRender(this)">
-      </div>
-      <div class="field">
-        <label>금액 상세 (선택, 예: 4,100,000+525,000)</label>
-        <input type="text" id="scaleDetail" placeholder="(4,100,000+525,000)" oninput="render()">
-      </div>
-    </div>
-
-    <!-- 프로젝트 요약 -->
-    <div class="section-group">
-      <div class="section-group-label">프로젝트 요약</div>
-      <div class="field">
-        <textarea id="projectSummary" placeholder="예: 국문/영문 홈페이지 리뉴얼" rows="2" oninput="render()"></textarea>
-      </div>
-    </div>
-
-    <!-- 마일스톤 -->
-    <div class="section-group">
-      <div class="section-group-label">마일스톤 진행 내역</div>
-      <div class="milestone-cards" id="milestoneCards"></div>
-      <button class="btn-add-row" onclick="addMilestone()">+ 마일스톤 행 추가</button>
-    </div>
-
-    <!-- 참여 인력 -->
-    <div class="section-group">
-      <div class="section-group-label">프로젝트 참여 인력</div>
-      <div class="milestone-cards" id="staffCards"></div>
-      <button class="btn-add-row" onclick="addStaff()">+ 인력 행 추가</button>
-    </div>
-
-    <!-- 성과 분석 -->
-    <div class="section-group">
-      <div class="section-group-label">프로젝트 성과 분석 (줄바꿈 = 항목 구분)</div>
-      <div class="field">
-        <label>납기 지연 사유</label>
-        <textarea id="analysisDel" rows="3" oninput="render()" placeholder="디자인 확정 지연으로 인해 전체 일정 순차 지연 발생&#10;확정 이후 변경 요청으로 재작업 반복"></textarea>
-      </div>
-      <div class="field">
-        <label>성과 및 잘된 점</label>
-        <textarea id="analysisGood" rows="3" oninput="render()" placeholder="고객사의 추가 요구사항 반영하여 최종 결과물 완성도 향상&#10;범위 외 작업에 대한 비용 및 업무 범위 명확화"></textarea>
-      </div>
-      <div class="field">
-        <label>문제점 및 장애요소</label>
-        <textarea id="analysisBad" rows="3" oninput="render()" placeholder="디자인 확정 기준 및 변경 허용 범위에 대한 사전 정의 미흡&#10;변경 요청 발생 시 영향도(일정/비용) 관리 및 통제 미흡"></textarea>
-      </div>
-      <div class="field">
-        <label>향후 개선 및 대응방안</label>
-        <textarea id="analysisFix" rows="3" oninput="render()" placeholder="디자인 확정 단계에서 승인 프로세스 강화&#10;변경 요청 발생 시 영향도 사전 공유 및 승인 후 반영"></textarea>
-      </div>
-    </div>
-
-    <!-- 도메인/서버/계정 -->
-    <div class="section-group">
-      <div class="section-group-label">도메인 / 서버 / 계정 정보</div>
-      <div class="field">
-        <label>도메인 주소</label>
-        <input type="text" id="domainUrl" placeholder="http://example.com/" oninput="render()">
-      </div>
-      <div class="field">
-        <label>구입자 및 구입처</label>
-        <input type="text" id="domainBuyer" placeholder="예: 고객사 / 가비아" oninput="render()">
-      </div>
-      <div class="field">
-        <label>구입처 계정 정보</label>
-        <input type="text" id="domainAccount" placeholder="예: 고객사" oninput="render()">
-      </div>
-      <div class="field">
-        <label>관리자 페이지 URL</label>
-        <input type="text" id="adminUrl" placeholder="http://example.com/master" oninput="render()">
-      </div>
-      <div class="field">
-        <label>관리자 계정 정보</label>
-        <input type="text" id="adminAccount" placeholder="- (없으면 '-')" oninput="render()">
-      </div>
-      <div class="field">
-        <label>홈페이지 테스트 계정</label>
-        <input type="text" id="testAccount" value="해당없음" oninput="render()">
-      </div>
-      <div class="field">
-        <label>운영서버 정보 (설명)</label>
-        <textarea id="serverDesc" rows="2" oninput="render()" placeholder="예: 고객사에서 제공한 FTP / 서버 계정 정보를 그대로 사용"></textarea>
-      </div>
-      <div class="two-col">
-        <div class="field">
-          <label>서버 IP</label>
-          <input type="text" id="serverIp" oninput="render()">
-        </div>
-        <div class="field">
-          <label>서버 User</label>
-          <input type="text" id="serverUser" oninput="render()">
-        </div>
-      </div>
-      <div class="field">
-        <label>서버 추가 정보 (줄바꿈 구분)</label>
-        <textarea id="serverExtra" rows="2" oninput="render()"></textarea>
-      </div>
-
-      <div class="toggle-wrap">
-        <label class="toggle-switch">
-          <input type="checkbox" id="appNone" checked onchange="toggleApp()">
-          <span class="toggle-track"></span>
-        </label>
-        <span class="toggle-label">[앱패키징] 해당없음</span>
-      </div>
-      <div id="appWrap" style="display:none">
-        <div class="field">
-          <textarea id="appInfo" rows="2" oninput="render()" placeholder="스토어(AOS/iOS) 계정 및 key store PW"></textarea>
+        <div class="two-col">
+          <div class="field">
+            <label>작성일</label>
+            <input type="date" id="reportDate" oninput="render()">
+          </div>
+          <div class="field">
+            <label>작성자</label>
+            <input type="text" id="author" placeholder="예: 배은아" oninput="render()">
+          </div>
         </div>
       </div>
 
-      <div class="field">
-        <label>백업 (줄바꿈으로 항목 구분)</label>
-        <textarea id="backupInfo" rows="3" oninput="render()" placeholder="NAS 백업: 완료&#10;캡처 백업: 완료&#10;포트폴리오 업데이트: 예정"></textarea>
+      <!-- 일정 및 규모 -->
+      <div class="section-group">
+        <div class="section-group-label">프로젝트 일정 및 규모</div>
+        <div class="two-col">
+          <div class="field">
+            <label>시작일</label>
+            <input type="date" id="dateStart" oninput="render()">
+          </div>
+          <div class="field">
+            <label>종료일</label>
+            <input type="date" id="dateEnd" oninput="render()">
+          </div>
+        </div>
+        <div class="field">
+          <label>프로젝트 규모 (원)</label>
+          <input type="text" id="projectScale" placeholder="4,625,000" oninput="formatAndRender(this)">
+        </div>
+        <div class="field">
+          <label>금액 상세 (선택, 예: 4,100,000+525,000)</label>
+          <input type="text" id="scaleDetail" placeholder="(4,100,000+525,000)" oninput="render()">
+        </div>
       </div>
+
+      <!-- 프로젝트 요약 -->
+      <div class="section-group">
+        <div class="section-group-label">프로젝트 요약</div>
+        <div class="field">
+          <textarea id="projectSummary" placeholder="예: 국문/영문 홈페이지 리뉴얼" rows="2" oninput="render()"></textarea>
+        </div>
+      </div>
+
+      <!-- 마일스톤 -->
+      <div class="section-group">
+        <div class="section-group-label">마일스톤 진행 내역</div>
+        <div class="milestone-cards" id="milestoneCards"></div>
+        <button class="btn-add-row" onclick="addMilestone()">+ 마일스톤 행 추가</button>
+      </div>
+
+      <!-- 참여 인력 -->
+      <div class="section-group">
+        <div class="section-group-label">프로젝트 참여 인력</div>
+        <div class="milestone-cards" id="staffCards"></div>
+        <button class="btn-add-row" onclick="addStaff()">+ 인력 행 추가</button>
+      </div>
+
+      <!-- 성과 분석 -->
+      <div class="section-group">
+        <div class="section-group-label">프로젝트 성과 분석 (줄바꿈 = 항목 구분)</div>
+        <div class="field">
+          <label>납기 지연 사유</label>
+          <textarea id="analysisDel" rows="3" oninput="render()"
+            placeholder="디자인 확정 지연으로 인해 전체 일정 순차 지연 발생&#10;확정 이후 변경 요청으로 재작업 반복"></textarea>
+        </div>
+        <div class="field">
+          <label>성과 및 잘된 점</label>
+          <textarea id="analysisGood" rows="3" oninput="render()"
+            placeholder="고객사의 추가 요구사항 반영하여 최종 결과물 완성도 향상&#10;범위 외 작업에 대한 비용 및 업무 범위 명확화"></textarea>
+        </div>
+        <div class="field">
+          <label>문제점 및 장애요소</label>
+          <textarea id="analysisBad" rows="3" oninput="render()"
+            placeholder="디자인 확정 기준 및 변경 허용 범위에 대한 사전 정의 미흡&#10;변경 요청 발생 시 영향도(일정/비용) 관리 및 통제 미흡"></textarea>
+        </div>
+        <div class="field">
+          <label>향후 개선 및 대응방안</label>
+          <textarea id="analysisFix" rows="3" oninput="render()"
+            placeholder="디자인 확정 단계에서 승인 프로세스 강화&#10;변경 요청 발생 시 영향도 사전 공유 및 승인 후 반영"></textarea>
+        </div>
+      </div>
+
+      <!-- 도메인/서버/계정 -->
+      <div class="section-group">
+        <div class="section-group-label">도메인 / 서버 / 계정 정보</div>
+        <div class="field">
+          <label>도메인 주소</label>
+          <input type="text" id="domainUrl" placeholder="http://example.com/" oninput="render()">
+        </div>
+        <div class="field">
+          <label>구입자 및 구입처</label>
+          <input type="text" id="domainBuyer" placeholder="예: 고객사 / 가비아" oninput="render()">
+        </div>
+        <div class="field">
+          <label>구입처 계정 정보</label>
+          <input type="text" id="domainAccount" placeholder="예: 고객사" oninput="render()">
+        </div>
+        <div class="field">
+          <label>관리자 페이지 URL</label>
+          <input type="text" id="adminUrl" placeholder="http://example.com/master" oninput="render()">
+        </div>
+        <div class="field">
+          <label>관리자 계정 정보</label>
+          <input type="text" id="adminAccount" placeholder="- (없으면 '-')" oninput="render()">
+        </div>
+        <div class="field">
+          <label>홈페이지 테스트 계정</label>
+          <input type="text" id="testAccount" value="해당없음" oninput="render()">
+        </div>
+        <div class="field">
+          <label>운영서버 정보 (설명)</label>
+          <textarea id="serverDesc" rows="2" oninput="render()"
+            placeholder="예: 고객사에서 제공한 FTP / 서버 계정 정보를 그대로 사용"></textarea>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label>서버 IP</label>
+            <input type="text" id="serverIp" oninput="render()">
+          </div>
+          <div class="field">
+            <label>서버 User</label>
+            <input type="text" id="serverUser" oninput="render()">
+          </div>
+        </div>
+        <div class="field">
+          <label>서버 추가 정보 (줄바꿈 구분)</label>
+          <textarea id="serverExtra" rows="2" oninput="render()"></textarea>
+        </div>
+
+        <div class="toggle-wrap">
+          <label class="toggle-switch">
+            <input type="checkbox" id="appNone" checked onchange="toggleApp()">
+            <span class="toggle-track"></span>
+          </label>
+          <span class="toggle-label">[앱패키징] 해당없음</span>
+        </div>
+        <div id="appWrap" style="display:none">
+          <div class="field">
+            <textarea id="appInfo" rows="2" oninput="render()" placeholder="스토어(AOS/iOS) 계정 및 key store PW"></textarea>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>백업 (줄바꿈으로 항목 구분)</label>
+          <textarea id="backupInfo" rows="3" oninput="render()"
+            placeholder="NAS 백업: 완료&#10;캡처 백업: 완료&#10;포트폴리오 업데이트: 예정"></textarea>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-reset" onclick="resetAll()">초기화</button>
+        <button class="btn btn-word" onclick="exportToWord()">Word 저장</button>
+        <button class="btn btn-print" onclick="printDoc()">🖨 PDF 저장</button>
+      </div>
+
     </div>
 
-    <div class="action-row">
-      <button class="btn btn-reset" onclick="resetAll()">초기화</button>
-      <button class="btn btn-word" onclick="exportToWord()">Word 저장</button>
-      <button class="btn btn-print" onclick="printDoc()">🖨 PDF 저장</button>
+    <!-- ── 리사이즈 핸들 ── -->
+    <div class="resize-handle" id="resizeHandle"></div>
+
+    <!-- ── 미리보기 ── -->
+    <div class="preview-area">
+      <div class="preview-label">미리보기 · 실시간 반영</div>
+      <div class="report-doc" id="reportDoc"></div>
     </div>
 
   </div>
 
-  <!-- ── 리사이즈 핸들 ── -->
-  <div class="resize-handle" id="resizeHandle"></div>
+  <script>
+    let milestones = [
+      { task: '기획', rate: '100%', planned: '', actual: '', note: '' },
+      { task: '디자인', rate: '100%', planned: '', actual: '', note: '' },
+      { task: '퍼블리싱', rate: '100%', planned: '', actual: '', note: '' },
+      { task: '개발', rate: '100%', planned: '', actual: '', note: '' },
+      { task: '검수', rate: '100%', planned: '', actual: '', note: '' },
+    ];
 
-  <!-- ── 미리보기 ── -->
-  <div class="preview-area">
-    <div class="preview-label">미리보기 · 실시간 반영</div>
-    <div class="report-doc" id="reportDoc"></div>
-  </div>
+    let staff = [
+      { role: 'PM / 기획', name: '' },
+      { role: '디자인', name: '' },
+      { role: '퍼블리싱 또는 프론트엔드', name: '' },
+      { role: '개발 전체 또는 백엔드', name: '' },
+    ];
 
-</div>
+    function esc(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
-<script>
-let milestones = [
-  { task: '기획',     rate: '100%', planned: '', actual: '', note: '' },
-  { task: '디자인',   rate: '100%', planned: '', actual: '', note: '' },
-  { task: '퍼블리싱', rate: '100%', planned: '', actual: '', note: '' },
-  { task: '개발',     rate: '100%', planned: '', actual: '', note: '' },
-  { task: '검수',     rate: '100%', planned: '', actual: '', note: '' },
-];
+    function todayStr() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
 
-let staff = [
-  { role: 'PM / 기획',                name: '' },
-  { role: '디자인',                   name: '' },
-  { role: '퍼블리싱 또는 프론트엔드', name: '' },
-  { role: '개발 전체 또는 백엔드',    name: '' },
-];
+    function fmtDate(s) {
+      if (!s) return '';
+      const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      return m ? `${m[1]}.${m[2]}.${m[3]}` : s;
+    }
 
-function esc(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+    function formatAndRender(el) {
+      const raw = el.value.replace(/[^0-9]/g, '');
+      el.value = raw ? Number(raw).toLocaleString() : '';
+      render();
+    }
 
-function todayStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
+    function toggleApp() {
+      document.getElementById('appWrap').style.display =
+        document.getElementById('appNone').checked ? 'none' : 'block';
+      render();
+    }
 
-function fmtDate(s) {
-  if (!s) return '';
-  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  return m ? `${m[1]}.${m[2]}.${m[3]}` : s;
-}
-
-function formatAndRender(el) {
-  const raw = el.value.replace(/[^0-9]/g, '');
-  el.value = raw ? Number(raw).toLocaleString() : '';
-  render();
-}
-
-function toggleApp() {
-  document.getElementById('appWrap').style.display =
-    document.getElementById('appNone').checked ? 'none' : 'block';
-  render();
-}
-
-/* ── 마일스톤 카드 ── */
-function renderMilestoneCards() {
-  document.getElementById('milestoneCards').innerHTML = milestones.map((ms, i) => `
+    /* ── 마일스톤 카드 ── */
+    function renderMilestoneCards() {
+      document.getElementById('milestoneCards').innerHTML = milestones.map((ms, i) => `
     <div class="milestone-card">
       <div class="ms-card-header">
         <input class="ms-task-input" value="${esc(ms.task)}" placeholder="작업명"
@@ -485,24 +522,24 @@ function renderMilestoneCards() {
         oninput="milestones[${i}].note=this.value;render()">${esc(ms.note)}</textarea>
     </div>
   `).join('');
-}
+    }
 
-function addMilestone() {
-  milestones.push({ task:'', rate:'100%', planned:'', actual:'', note:'' });
-  renderMilestoneCards();
-  render();
-}
+    function addMilestone() {
+      milestones.push({ task: '', rate: '100%', planned: '', actual: '', note: '' });
+      renderMilestoneCards();
+      render();
+    }
 
-function removeMilestone(i) {
-  if (milestones.length <= 1) return;
-  milestones.splice(i, 1);
-  renderMilestoneCards();
-  render();
-}
+    function removeMilestone(i) {
+      if (milestones.length <= 1) return;
+      milestones.splice(i, 1);
+      renderMilestoneCards();
+      render();
+    }
 
-/* ── 참여 인력 카드 ── */
-function renderStaffCards() {
-  document.getElementById('staffCards').innerHTML = staff.map((s, i) => `
+    /* ── 참여 인력 카드 ── */
+    function renderStaffCards() {
+      document.getElementById('staffCards').innerHTML = staff.map((s, i) => `
     <div class="milestone-card">
       <div class="ms-card-header">
         <input class="ms-task-input" value="${esc(s.role)}" placeholder="직무 / 역할"
@@ -514,114 +551,114 @@ function renderStaffCards() {
         oninput="staff[${i}].name=this.value;render()">
     </div>
   `).join('');
-}
+    }
 
-function addStaff() {
-  staff.push({ role: '', name: '' });
-  renderStaffCards();
-  render();
-}
+    function addStaff() {
+      staff.push({ role: '', name: '' });
+      renderStaffCards();
+      render();
+    }
 
-function removeStaff(i) {
-  if (staff.length <= 1) return;
-  staff.splice(i, 1);
-  renderStaffCards();
-  render();
-}
+    function removeStaff(i) {
+      if (staff.length <= 1) return;
+      staff.splice(i, 1);
+      renderStaffCards();
+      render();
+    }
 
-/* ── 헬퍼 ── */
-function analysisToHtml(text) {
-  const lines = (text||'').split('\n').filter(l=>l.trim());
-  if (!lines.length) return '<span style="color:#aaa">-</span>';
-  return lines.map((l,i) => `<div style="margin-bottom:3px">${i+1}. ${esc(l.trim())}</div>`).join('');
-}
+    /* ── 헬퍼 ── */
+    function analysisToHtml(text) {
+      const lines = (text || '').split('\n').filter(l => l.trim());
+      if (!lines.length) return '<span style="color:#aaa">-</span>';
+      return lines.map((l, i) => `<div style="margin-bottom:3px">${i + 1}. ${esc(l.trim())}</div>`).join('');
+    }
 
-function backupToHtml(text) {
-  const lines = (text||'').split('\n').filter(l=>l.trim());
-  if (!lines.length) return '-';
-  return lines.map((l,i) => `<div>${i+1}. ${esc(l.trim())}</div>`).join('');
-}
+    function backupToHtml(text) {
+      const lines = (text || '').split('\n').filter(l => l.trim());
+      if (!lines.length) return '-';
+      return lines.map((l, i) => `<div>${i + 1}. ${esc(l.trim())}</div>`).join('');
+    }
 
-function domainInfoHtml(url, buyer, account) {
-  const lines = []; let idx = 1;
-  if (url)     lines.push(`${idx++}. 도메인 주소: ${esc(url)}`);
-  if (buyer)   lines.push(`${idx++}. 구입자 및 구입처: ${esc(buyer)}`);
-  if (account) lines.push(`${idx++}. 구입처 계정 정보: ${esc(account)}`);
-  return lines.length ? lines.map(l=>`<div>${l}</div>`).join('') : '-';
-}
+    function domainInfoHtml(url, buyer, account) {
+      const lines = []; let idx = 1;
+      if (url) lines.push(`${idx++}. 도메인 주소: ${esc(url)}`);
+      if (buyer) lines.push(`${idx++}. 구입자 및 구입처: ${esc(buyer)}`);
+      if (account) lines.push(`${idx++}. 구입처 계정 정보: ${esc(account)}`);
+      return lines.length ? lines.map(l => `<div>${l}</div>`).join('') : '-';
+    }
 
-function serverInfoHtml(desc, ip, user, extra) {
-  const parts = [];
-  if (desc) parts.push(`<div>${esc(desc)}</div>`);
-  if (ip)   parts.push(`<div>IP: ${esc(ip)}</div>`);
-  if (user) parts.push(`<div>User: ${esc(user)}</div>`);
-  if (extra) extra.split('\n').filter(l=>l.trim()).forEach(l => parts.push(`<div>${esc(l)}</div>`));
-  return parts.length ? parts.join('') : '-';
-}
+    function serverInfoHtml(desc, ip, user, extra) {
+      const parts = [];
+      if (desc) parts.push(`<div>${esc(desc)}</div>`);
+      if (ip) parts.push(`<div>IP: ${esc(ip)}</div>`);
+      if (user) parts.push(`<div>User: ${esc(user)}</div>`);
+      if (extra) extra.split('\n').filter(l => l.trim()).forEach(l => parts.push(`<div>${esc(l)}</div>`));
+      return parts.length ? parts.join('') : '-';
+    }
 
-function milestoneTableHtml() {
-  return milestones.map(ms => {
-    const noteHtml = (ms.note||'').split('\n').filter(l=>l.trim())
-      .map(l=>`<div>- ${esc(l)}</div>`).join('') || '-';
-    return `<tr>
-      <td style="text-align:center;font-weight:500">${esc(ms.task)||'-'}</td>
+    function milestoneTableHtml() {
+      return milestones.map(ms => {
+        const noteHtml = (ms.note || '').split('\n').filter(l => l.trim())
+          .map(l => `<div>- ${esc(l)}</div>`).join('') || '-';
+        return `<tr>
+      <td style="text-align:center;font-weight:500">${esc(ms.task) || '-'}</td>
       <td style="text-align:center">${esc(ms.rate)}</td>
-      <td style="text-align:center">${esc(fmtDate(ms.planned))||'-'}</td>
-      <td style="text-align:center">${esc(fmtDate(ms.actual))||'-'}</td>
+      <td style="text-align:center">${esc(fmtDate(ms.planned)) || '-'}</td>
+      <td style="text-align:center">${esc(fmtDate(ms.actual)) || '-'}</td>
       <td style="font-size:12px;color:var(--gray4);white-space:pre-line">${noteHtml}</td>
     </tr>`;
-  }).join('');
-}
+      }).join('');
+    }
 
-function staffHtml() {
-  const entries = staff.filter(s => s.role.trim() || s.name.trim());
+    function staffHtml() {
+      const entries = staff.filter(s => s.role.trim() || s.name.trim());
 
-  if (!entries.length) return '<div style="color:#aaa;font-size:12.5px">참여 인력을 입력하세요</div>';
-  return entries.map((s, i) =>
-    `<div>${i+1}. &nbsp;&nbsp;<b>${esc(s.role)}:</b> ${esc(s.name)}</div>`
-  ).join('');
-}
+      if (!entries.length) return '<div style="color:#aaa;font-size:12.5px">참여 인력을 입력하세요</div>';
+      return entries.map((s, i) =>
+        `<div>${i + 1}. &nbsp;&nbsp;<b>${esc(s.role)}:</b> ${esc(s.name)}</div>`
+      ).join('');
+    }
 
-/* ── 메인 렌더 ── */
-function render() {
-  const v = {
-    projectName:  document.getElementById('projectName').value  || '(프로젝트명)',
-    clientName:   document.getElementById('clientName').value   || '(고객사명)',
-    reportDate:   fmtDate(document.getElementById('reportDate').value || todayStr()),
-    author:       document.getElementById('author').value       || '',
-    dateStart:    fmtDate(document.getElementById('dateStart').value),
-    dateEnd:      fmtDate(document.getElementById('dateEnd').value),
-    scale:        document.getElementById('projectScale').value || '-',
-    scaleDetail:  document.getElementById('scaleDetail').value  || '',
-    summary:      document.getElementById('projectSummary').value || '',
-    analysisDel:  document.getElementById('analysisDel').value  || '',
-    analysisGood: document.getElementById('analysisGood').value || '',
-    analysisBad:  document.getElementById('analysisBad').value  || '',
-    analysisFix:  document.getElementById('analysisFix').value  || '',
-    domainUrl:    document.getElementById('domainUrl').value    || '',
-    domainBuyer:  document.getElementById('domainBuyer').value  || '',
-    domainAccount:document.getElementById('domainAccount').value|| '',
-    adminUrl:     document.getElementById('adminUrl').value     || '-',
-    adminAccount: document.getElementById('adminAccount').value || '-',
-    testAccount:  document.getElementById('testAccount').value  || '해당없음',
-    serverDesc:   document.getElementById('serverDesc').value   || '',
-    serverIp:     document.getElementById('serverIp').value     || '',
-    serverUser:   document.getElementById('serverUser').value   || '',
-    serverExtra:  document.getElementById('serverExtra').value  || '',
-    appNone:      document.getElementById('appNone').checked,
-    appInfo:      document.getElementById('appInfo') ? document.getElementById('appInfo').value : '',
-    backupInfo:   document.getElementById('backupInfo').value   || '',
-  };
+    /* ── 메인 렌더 ── */
+    function render() {
+      const v = {
+        projectName: document.getElementById('projectName').value || '(프로젝트명)',
+        clientName: document.getElementById('clientName').value || '(고객사명)',
+        reportDate: fmtDate(document.getElementById('reportDate').value || todayStr()),
+        author: document.getElementById('author').value || '',
+        dateStart: fmtDate(document.getElementById('dateStart').value),
+        dateEnd: fmtDate(document.getElementById('dateEnd').value),
+        scale: document.getElementById('projectScale').value || '-',
+        scaleDetail: document.getElementById('scaleDetail').value || '',
+        summary: document.getElementById('projectSummary').value || '',
+        analysisDel: document.getElementById('analysisDel').value || '',
+        analysisGood: document.getElementById('analysisGood').value || '',
+        analysisBad: document.getElementById('analysisBad').value || '',
+        analysisFix: document.getElementById('analysisFix').value || '',
+        domainUrl: document.getElementById('domainUrl').value || '',
+        domainBuyer: document.getElementById('domainBuyer').value || '',
+        domainAccount: document.getElementById('domainAccount').value || '',
+        adminUrl: document.getElementById('adminUrl').value || '-',
+        adminAccount: document.getElementById('adminAccount').value || '-',
+        testAccount: document.getElementById('testAccount').value || '해당없음',
+        serverDesc: document.getElementById('serverDesc').value || '',
+        serverIp: document.getElementById('serverIp').value || '',
+        serverUser: document.getElementById('serverUser').value || '',
+        serverExtra: document.getElementById('serverExtra').value || '',
+        appNone: document.getElementById('appNone').checked,
+        appInfo: document.getElementById('appInfo') ? document.getElementById('appInfo').value : '',
+        backupInfo: document.getElementById('backupInfo').value || '',
+      };
 
-  const dateRange = v.dateStart && v.dateEnd
-    ? `${v.dateStart} - ${v.dateEnd}`
-    : (v.dateStart || v.dateEnd || '-');
+      const dateRange = v.dateStart && v.dateEnd
+        ? `${v.dateStart} - ${v.dateEnd}`
+        : (v.dateStart || v.dateEnd || '-');
 
-  const scaleDisplay = v.scale !== '-'
-    ? `${v.scale}${v.scaleDetail ? '\n' + v.scaleDetail : ''}`
-    : '-';
+      const scaleDisplay = v.scale !== '-'
+        ? `${v.scale}${v.scaleDetail ? '\n' + v.scaleDetail : ''}`
+        : '-';
 
-  document.getElementById('reportDoc').innerHTML = `
+      document.getElementById('reportDoc').innerHTML = `
   <table class="rpt-print-wrap"><thead><tr><td class="rpt-print-hd">
     <div class="rpt-page-header">
       <div class="rpt-header-left">
@@ -629,7 +666,7 @@ function render() {
         <div>서울시 도봉구 마들로11가길 12, 401호</div>
       </div>
       <div class="rpt-header-right">
-        <img src="../_shared/etc/logo-removebg-preview.png" alt="BNSYSTEM" class="rpt-header-logo">
+        <img src="assets/img/logo-removebg-preview.png" alt="BNSYSTEM" class="rpt-header-logo">
       </div>
     </div>
   </td></tr></thead><tbody><tr><td class="rpt-print-bd">
@@ -719,10 +756,10 @@ function render() {
         <tr><td class="col-head">고객사명</td><td>${esc(v.clientName)}</td></tr>
         <tr><td class="col-head">도메인 및 관련 정보</td><td>${domainInfoHtml(v.domainUrl, v.domainBuyer, v.domainAccount)}</td></tr>
         <tr><td class="col-head">관리자 페이지 URL</td><td>${esc(v.adminUrl)}</td></tr>
-        <tr><td class="col-head">관리자 계정 정보</td><td>${esc(v.adminAccount)||'-'}</td></tr>
+        <tr><td class="col-head">관리자 계정 정보</td><td>${esc(v.adminAccount) || '-'}</td></tr>
         <tr><td class="col-head">홈페이지\n테스트 계정정보</td><td>${esc(v.testAccount)}</td></tr>
         <tr><td class="col-head">운영서버 정보</td><td>${serverInfoHtml(v.serverDesc, v.serverIp, v.serverUser, v.serverExtra)}</td></tr>
-        <tr><td class="col-head">[앱패키징]\n스토어(AOS iOS) 계정\n및 key store PW</td><td>${v.appNone ? '해당없음' : (esc(v.appInfo)||'-')}</td></tr>
+        <tr><td class="col-head">[앱패키징]\n스토어(AOS iOS) 계정\n및 key store PW</td><td>${v.appNone ? '해당없음' : (esc(v.appInfo) || '-')}</td></tr>
         <tr><td class="col-head">백업</td><td>${backupToHtml(v.backupInfo)}</td></tr>
       </tbody>
     </table>
@@ -730,380 +767,403 @@ function render() {
     <div class="rpt-end">(이상)</div>
   </td></tr></tbody></table>
   `;
-}
+    }
 
-/* ── 초기화 ── */
-function resetAll() {
-  if (!confirm('모든 입력값을 초기화 하시겠습니까?')) return;
-  ['projectName','clientName','author','dateStart','dateEnd','projectScale','scaleDetail',
-   'projectSummary',
-   'analysisDel','analysisGood','analysisBad','analysisFix',
-   'domainUrl','domainBuyer','domainAccount','adminUrl','adminAccount',
-   'serverDesc','serverIp','serverUser','serverExtra','appInfo','backupInfo'
-  ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  document.getElementById('reportDate').value = todayStr();
-  document.getElementById('testAccount').value = '해당없음';
-  document.getElementById('appNone').checked = true;
-  document.getElementById('appWrap').style.display = 'none';
-  milestones = [
-    { task:'기획',     rate:'100%', planned:'', actual:'', note:'' },
-    { task:'디자인',   rate:'100%', planned:'', actual:'', note:'' },
-    { task:'퍼블리싱', rate:'100%', planned:'', actual:'', note:'' },
-    { task:'개발',     rate:'100%', planned:'', actual:'', note:'' },
-    { task:'검수',     rate:'100%', planned:'', actual:'', note:'' },
-  ];
-  staff = [
-    { role: 'PM / 기획',                name: '' },
-    { role: '디자인',                   name: '' },
-    { role: '퍼블리싱 또는 프론트엔드', name: '' },
-    { role: '개발 전체 또는 백엔드',    name: '' },
-  ];
-  renderMilestoneCards();
-  renderStaffCards();
-  render();
-}
+    /* ── 초기화 ── */
+    function resetAll() {
+      if (!confirm('모든 입력값을 초기화 하시겠습니까?')) return;
+      ['projectName', 'clientName', 'author', 'dateStart', 'dateEnd', 'projectScale', 'scaleDetail',
+        'projectSummary',
+        'analysisDel', 'analysisGood', 'analysisBad', 'analysisFix',
+        'domainUrl', 'domainBuyer', 'domainAccount', 'adminUrl', 'adminAccount',
+        'serverDesc', 'serverIp', 'serverUser', 'serverExtra', 'appInfo', 'backupInfo'
+      ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      document.getElementById('reportDate').value = todayStr();
+      document.getElementById('testAccount').value = '해당없음';
+      document.getElementById('appNone').checked = true;
+      document.getElementById('appWrap').style.display = 'none';
+      milestones = [
+        { task: '기획', rate: '100%', planned: '', actual: '', note: '' },
+        { task: '디자인', rate: '100%', planned: '', actual: '', note: '' },
+        { task: '퍼블리싱', rate: '100%', planned: '', actual: '', note: '' },
+        { task: '개발', rate: '100%', planned: '', actual: '', note: '' },
+        { task: '검수', rate: '100%', planned: '', actual: '', note: '' },
+      ];
+      staff = [
+        { role: 'PM / 기획', name: '' },
+        { role: '디자인', name: '' },
+        { role: '퍼블리싱 또는 프론트엔드', name: '' },
+        { role: '개발 전체 또는 백엔드', name: '' },
+      ];
+      renderMilestoneCards();
+      renderStaffCards();
+      render();
+    }
 
-function printDoc() { window.print(); }
+    function printDoc() { window.print(); }
 
-/* ── Word 내보내기 ── */
-async function exportToWord() {
-  const btn = document.querySelector('.btn-word');
-  const orig = btn.textContent;
-  btn.textContent = '생성 중...';
-  btn.disabled = true;
+    /* ── Word 내보내기 ── */
+    async function exportToWord() {
+      const btn = document.querySelector('.btn-word');
+      const orig = btn.textContent;
+      btn.textContent = '생성 중...';
+      btn.disabled = true;
 
-  try {
-    if (!window.docx) {
-      await new Promise((res, rej) => {
-        const s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/docx@8.2.3/build/index.umd.js';
-        s.onload = res;
-        s.onerror = () => rej(new Error('docx 라이브러리 로드 실패'));
-        document.head.appendChild(s);
+      try {
+        if (!window.docx) {
+          await new Promise((res, rej) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/docx@8.2.3/build/index.umd.js';
+            s.onload = res;
+            s.onerror = () => rej(new Error('docx 라이브러리 로드 실패'));
+            document.head.appendChild(s);
+          });
+        }
+
+        const { Document, Packer, Paragraph, Header, Table, TableRow, TableCell,
+          TextRun, ImageRun, AlignmentType, BorderStyle,
+          WidthType, VerticalAlign, ShadingType } = window.docx;
+
+        const v = {
+          projectName: document.getElementById('projectName').value || '(프로젝트명)',
+          clientName: document.getElementById('clientName').value || '(고객사명)',
+          reportDate: fmtDate(document.getElementById('reportDate').value || todayStr()),
+          author: document.getElementById('author').value || '',
+          dateStart: fmtDate(document.getElementById('dateStart').value),
+          dateEnd: fmtDate(document.getElementById('dateEnd').value),
+          scale: document.getElementById('projectScale').value || '-',
+          scaleDetail: document.getElementById('scaleDetail').value || '',
+          summary: document.getElementById('projectSummary').value || '',
+          analysisDel: document.getElementById('analysisDel').value || '',
+          analysisGood: document.getElementById('analysisGood').value || '',
+          analysisBad: document.getElementById('analysisBad').value || '',
+          analysisFix: document.getElementById('analysisFix').value || '',
+          domainUrl: document.getElementById('domainUrl').value || '',
+          domainBuyer: document.getElementById('domainBuyer').value || '',
+          domainAccount: document.getElementById('domainAccount').value || '',
+          adminUrl: document.getElementById('adminUrl').value || '-',
+          adminAccount: document.getElementById('adminAccount').value || '-',
+          testAccount: document.getElementById('testAccount').value || '해당없음',
+          serverDesc: document.getElementById('serverDesc').value || '',
+          serverIp: document.getElementById('serverIp').value || '',
+          serverUser: document.getElementById('serverUser').value || '',
+          serverExtra: document.getElementById('serverExtra').value || '',
+          appNone: document.getElementById('appNone').checked,
+          appInfo: document.getElementById('appInfo') ? document.getElementById('appInfo').value : '',
+          backupInfo: document.getElementById('backupInfo').value || '',
+        };
+
+        const dateRange = v.dateStart && v.dateEnd
+          ? `${v.dateStart} - ${v.dateEnd}` : (v.dateStart || v.dateEnd || '-');
+
+        let logoBuf = null;
+        try { logoBuf = await (await fetch('assets/img/logo-removebg-preview.png')).arrayBuffer(); } catch (e) { }
+
+        const F = 'Malgun Gothic';
+        const C = { slate: '5B6A80', dark: '1E293B', g1: 'F8FAFC', g2: 'EEF1F5', g3: '94A3B8', g4: '475569', white: 'FFFFFF' };
+        const bdrLine = (c = 'C8D0DC') => ({ style: BorderStyle.SINGLE, size: 4, color: c });
+        const noBdr = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+        const sh = color => ({ type: ShadingType.SOLID, color, fill: color });
+        const tx = (text, o = {}) => new TextRun({ text: String(text ?? ''), font: F, size: o.sz || 22, bold: !!o.b, color: o.c || C.dark });
+        const pr = (content, align = AlignmentType.LEFT, bef = 40, aft = 40) => new Paragraph({
+          children: Array.isArray(content) ? content : [content],
+          alignment: align, spacing: { before: bef, after: aft }
+        });
+        const tc = (children, o = {}) => {
+          const cell = {
+            children: Array.isArray(children) ? children : [children],
+            verticalAlign: o.va || VerticalAlign.CENTER,
+            margins: { top: 60, bottom: 60, left: 100, right: 100 },
+          };
+          if (o.cs) cell.columnSpan = o.cs;
+          if (o.rs) cell.rowSpan = o.rs;
+          if (o.sh) cell.shading = sh(o.sh);
+          if (o.w !== undefined) cell.width = { size: o.w, type: WidthType.PERCENTAGE };
+          return new TableCell(cell);
+        };
+
+        const secHdr = (title, cs) => new TableRow({
+          children: [
+            tc(pr([tx(title, { b: true, sz: 22, c: C.white })], AlignmentType.LEFT, 70, 70), { cs, sh: C.slate }),
+          ]
+        });
+
+        const anaParas = text => {
+          const lines = (text || '').split('\n').filter(l => l.trim());
+          return lines.length
+            ? lines.map((l, i) => pr([tx(`${i + 1}. ${l.trim()}`, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 0, 30))
+            : [pr([tx('-', { sz: 20, c: C.g3 })], AlignmentType.LEFT, 0, 0)];
+        };
+
+        const serverParas = () => {
+          const parts = [];
+          if (v.serverDesc) parts.push(pr([tx(v.serverDesc, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 0, 20));
+          if (v.serverIp) parts.push(pr([tx(`IP: ${v.serverIp}`, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 0, 20));
+          if (v.serverUser) parts.push(pr([tx(`User: ${v.serverUser}`, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 0, 20));
+          if (v.serverExtra) v.serverExtra.split('\n').filter(l => l.trim())
+            .forEach(l => parts.push(pr([tx(l, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 0, 20)));
+          return parts.length ? parts : [pr([tx('-', { sz: 20, c: C.g3 })], AlignmentType.LEFT, 0, 0)];
+        };
+
+        const domainParas = () => {
+          const parts = []; let idx = 1;
+          if (v.domainUrl) parts.push(pr([tx(`${idx++}. 도메인 주소: ${v.domainUrl}`, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 0, 20));
+          if (v.domainBuyer) parts.push(pr([tx(`${idx++}. 구입자 및 구입처: ${v.domainBuyer}`, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 0, 20));
+          if (v.domainAccount) parts.push(pr([tx(`${idx++}. 구입처 계정 정보: ${v.domainAccount}`, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 0, 20));
+          return parts.length ? parts : [pr([tx('-', { sz: 20, c: C.g3 })], AlignmentType.LEFT, 0, 0)];
+        };
+
+        const backupParas = () => {
+          const lines = (v.backupInfo || '').split('\n').filter(l => l.trim());
+          return lines.length
+            ? lines.map((l, i) => pr([tx(`${i + 1}. ${l.trim()}`, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 0, 20))
+            : [pr([tx('-', { sz: 20, c: C.g3 })], AlignmentType.LEFT, 0, 0)];
+        };
+
+        /* 헤더 */
+        const headerChildren = [];
+        if (logoBuf) {
+          headerChildren.push(new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            borders: { top: noBdr, bottom: noBdr, left: noBdr, right: noBdr, insideVertical: noBdr, insideHorizontal: noBdr },
+            rows: [new TableRow({
+              children: [
+                tc([
+                  pr([tx('(주)비엔시스템 AI혁신팀 (PM팀)', { sz: 18, c: C.g4 })], AlignmentType.LEFT, 0, 20),
+                  pr([tx('서울시 도봉구 마들로11가길 12, 401호', { sz: 18, c: C.g4 })], AlignmentType.LEFT, 0, 0),
+                ], { w: 60, va: VerticalAlign.CENTER }),
+                tc([
+                  new Paragraph({ children: [new ImageRun({ data: logoBuf, transformation: { width: 110, height: 37 }, type: 'png' })], spacing: { before: 0, after: 0 }, alignment: AlignmentType.RIGHT }),
+                ], { w: 40, va: VerticalAlign.CENTER }),
+              ]
+            })]
+          }));
+        } else {
+          headerChildren.push(pr([tx('(주)비엔시스템 AI혁신팀 (PM팀)', { sz: 18, c: C.g4 })], AlignmentType.LEFT, 0, 20));
+          headerChildren.push(pr([tx('서울시 도봉구 마들로11가길 12, 401호', { sz: 18, c: C.g4 })], AlignmentType.LEFT, 0, 0));
+        }
+
+        /* 1. 일정 및 규모 */
+        const scheduleTable = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            secHdr('프로젝트 일정 및 규모', 3),
+            new TableRow({
+              children: [
+                tc(pr([tx('날짜', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2, w: 34 }),
+                tc(pr([tx('프로젝트명', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2, w: 38 }),
+                tc(pr([tx('프로젝트 규모', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2, w: 28 }),
+              ]
+            }),
+            new TableRow({
+              children: [
+                tc(pr([tx(dateRange, { sz: 20, c: C.g4 })], AlignmentType.CENTER, 60, 60)),
+                tc(pr([tx(v.projectName, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 60, 60)),
+                tc([
+                  pr([tx(v.scale, { sz: 20, c: C.g4 })], AlignmentType.RIGHT, 60, v.scaleDetail ? 10 : 60),
+                  ...(v.scaleDetail ? [pr([tx(v.scaleDetail, { sz: 18, c: C.g4 })], AlignmentType.RIGHT, 0, 60)] : []),
+                ], { va: VerticalAlign.CENTER }),
+              ]
+            }),
+          ]
+        });
+
+        /* 2. 요약 */
+        const summaryTable = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            secHdr('프로젝트 요약', 1),
+            new TableRow({ children: [tc(pr([tx(v.summary || '-', { sz: 24, b: true, c: C.dark })], AlignmentType.LEFT, 80, 80))] }),
+          ]
+        });
+
+        /* 3. 마일스톤 */
+        const msTable = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            secHdr('마일스톤 진행 내역', 5),
+            new TableRow({
+              children: [
+                tc(pr([tx('작업', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2, w: 12 }),
+                tc(pr([tx('완료율', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2, w: 10 }),
+                tc(pr([tx('예상 날짜', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2, w: 15 }),
+                tc(pr([tx('실제 완료일', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2, w: 15 }),
+                tc(pr([tx('비고 및 일정변경 사유', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2, w: 48 }),
+              ]
+            }),
+            ...milestones.map(ms => {
+              const noteLines = (ms.note || '').split('\n').filter(l => l.trim());
+              const noteParas = noteLines.length
+                ? noteLines.map(l => pr([tx('- ' + l, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 0, 20))
+                : [pr([tx('-', { sz: 20, c: C.g3 })], AlignmentType.LEFT, 0, 0)];
+              return new TableRow({
+                children: [
+                  tc(pr([tx(ms.task || '-', { sz: 20, b: true })], AlignmentType.CENTER, 60, 60)),
+                  tc(pr([tx(ms.rate || '-', { sz: 20 })], AlignmentType.CENTER, 60, 60)),
+                  tc(pr([tx(fmtDate(ms.planned) || '-', { sz: 20, c: C.g4 })], AlignmentType.CENTER, 60, 60)),
+                  tc(pr([tx(fmtDate(ms.actual) || '-', { sz: 20, c: C.g4 })], AlignmentType.CENTER, 60, 60)),
+                  tc(noteParas, { va: VerticalAlign.TOP }),
+                ]
+              });
+            }),
+          ]
+        });
+
+        /* 4. 참여 인력 */
+        const staffEntries = staff.filter(s => s.role.trim() || s.name.trim());
+
+        const staffTable = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            secHdr('프로젝트 참여 인력', 1),
+            new TableRow({
+              children: [tc(
+                staffEntries.length
+                  ? staffEntries.map((s, i) => pr(
+                    [tx(`${i + 1}. `, { sz: 22, b: true }), tx(`${s.role}: `, { sz: 22, b: true }), tx(s.name, { sz: 22, c: C.g4 })],
+                    AlignmentType.LEFT, 60, 40
+                  ))
+                  : [pr([tx('(입력 없음)', { sz: 22, c: C.g3 })], AlignmentType.LEFT, 60, 60)],
+                { va: VerticalAlign.TOP }
+              )]
+            }),
+          ]
+        });
+
+        /* 5. 성과 분析 */
+        const anaTable = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            secHdr('프로젝트 성과 분析', 2),
+            new TableRow({
+              children: [
+                tc(pr([tx('항목', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2, w: 18 }),
+                tc(pr([tx('내용', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2, w: 82 }),
+              ]
+            }),
+            ...([
+              ['납기 지연 사유', v.analysisDel],
+              ['성과 및 잘된 점', v.analysisGood],
+              ['문제점 및 장애요소', v.analysisBad],
+              ['향후 개선 및 대응방안', v.analysisFix],
+            ].map(([label, text]) => new TableRow({
+              children: [
+                tc(pr([tx(label, { sz: 20, b: true })], AlignmentType.CENTER, 60, 60), { va: VerticalAlign.CENTER }),
+                tc(anaParas(text), { va: VerticalAlign.TOP }),
+              ]
+            }))),
+          ]
+        });
+
+        /* 6. 도메인/서버/계정 */
+        const domainTable = new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              children: [
+                tc(pr([tx('구분', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2, w: 22 }),
+                tc(pr([tx('세부 내용', { b: true, sz: 20 })], AlignmentType.CENTER, 50, 50), { sh: C.g2, w: 78 }),
+              ]
+            }),
+            ...[
+              ['프로젝트명', [pr([tx(v.projectName, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 60, 60)]],
+              ['고객사명', [pr([tx(v.clientName, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 60, 60)]],
+              ['도메인 및 관련 정보', domainParas()],
+              ['관리자 페이지 URL', [pr([tx(v.adminUrl, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 60, 60)]],
+              ['관리자 계정 정보', [pr([tx(v.adminAccount || '-', { sz: 20, c: C.g4 })], AlignmentType.LEFT, 60, 60)]],
+              ['홈페이지\n테스트 계정정보', [pr([tx(v.testAccount, { sz: 20, c: C.g4 })], AlignmentType.LEFT, 60, 60)]],
+              ['운영서버 정보', serverParas()],
+              ['[앱패키징]\n스토어(AOS iOS) 계정\n및 key store PW',
+                [pr([tx(v.appNone ? '해당없음' : (v.appInfo || '-'), { sz: 20, c: C.g4 })], AlignmentType.LEFT, 60, 60)]],
+              ['백업', backupParas()],
+            ].map(([label, cellParas]) => new TableRow({
+              children: [
+                tc(pr([tx(label, { sz: 20, b: true })], AlignmentType.LEFT, 60, 60), { sh: C.g1, va: VerticalAlign.TOP }),
+                tc(cellParas, { va: VerticalAlign.TOP }),
+              ]
+            })),
+          ]
+        });
+
+        const wordDoc = new Document({
+          sections: [{
+            headers: { default: new Header({ children: headerChildren }) },
+            properties: { page: { margin: { top: 1000, bottom: 1000, left: 1200, right: 1200 } } },
+            children: [
+              pr([tx('프로젝트 완료 보고서', { b: true, sz: 56, c: C.dark })], AlignmentType.CENTER, 0, 200),
+              pr([tx(`작성일: ${v.reportDate}`, { sz: 22, c: C.g4 })], AlignmentType.RIGHT, 0, 300),
+              scheduleTable,
+              pr([tx('')], AlignmentType.LEFT, 100, 0),
+              summaryTable,
+              pr([tx('')], AlignmentType.LEFT, 100, 0),
+              msTable,
+              pr([tx('')], AlignmentType.LEFT, 100, 0),
+              staffTable,
+              pr([tx('')], AlignmentType.LEFT, 100, 0),
+              anaTable,
+              pr([tx('')], AlignmentType.LEFT, 200, 0),
+              pr([tx('■도메인/서버/계정 정보 기록', { b: true, sz: 26, c: C.dark })], AlignmentType.LEFT, 0, 60),
+              pr([tx(`작성일: ${v.reportDate}${v.author ? '   작성자: ' + v.author : ''}`, { sz: 20, c: C.g4 })], AlignmentType.RIGHT, 0, 100),
+              domainTable,
+              pr([tx('(이상)', { sz: 22, c: C.g3 })], AlignmentType.RIGHT, 200, 0),
+            ]
+          }]
+        });
+
+        const blob = await Packer.toBlob(wordDoc);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `완료보고서_${v.projectName}.docx`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+      } catch (e) {
+        console.error('Word 변환 오류:', e);
+        alert('Word 변환 중 오류가 발생했습니다:\n' + (e?.message || String(e)));
+      } finally {
+        btn.textContent = orig;
+        btn.disabled = false;
+      }
+    }
+
+    /* ── 초기 실행 ── */
+    document.getElementById('reportDate').value = todayStr();
+    renderMilestoneCards();
+    renderStaffCards();
+    render();
+
+    // ── 패널 리사이즈 ──
+    (function () {
+      const handle = document.getElementById('resizeHandle');
+      const layout = document.querySelector('.app-layout');
+      let dragging = false, startX = 0, startW = 0;
+
+      handle.addEventListener('mousedown', e => {
+        dragging = true;
+        startX = e.clientX;
+        startW = document.querySelector('.input-panel').offsetWidth;
+        handle.classList.add('dragging');
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
       });
-    }
 
-    const { Document, Packer, Paragraph, Header, Table, TableRow, TableCell,
-            TextRun, ImageRun, AlignmentType, BorderStyle,
-            WidthType, VerticalAlign, ShadingType } = window.docx;
+      document.addEventListener('mousemove', e => {
+        if (!dragging) return;
+        const w = Math.min(Math.max(startW + e.clientX - startX, 260), 680);
+        layout.style.gridTemplateColumns = `${w}px 6px 1fr`;
+      });
 
-    const v = {
-      projectName:  document.getElementById('projectName').value  || '(프로젝트명)',
-      clientName:   document.getElementById('clientName').value   || '(고객사명)',
-      reportDate:   fmtDate(document.getElementById('reportDate').value || todayStr()),
-      author:       document.getElementById('author').value       || '',
-      dateStart:    fmtDate(document.getElementById('dateStart').value),
-      dateEnd:      fmtDate(document.getElementById('dateEnd').value),
-      scale:        document.getElementById('projectScale').value || '-',
-      scaleDetail:  document.getElementById('scaleDetail').value  || '',
-      summary:      document.getElementById('projectSummary').value || '',
-      analysisDel:  document.getElementById('analysisDel').value  || '',
-      analysisGood: document.getElementById('analysisGood').value || '',
-      analysisBad:  document.getElementById('analysisBad').value  || '',
-      analysisFix:  document.getElementById('analysisFix').value  || '',
-      domainUrl:    document.getElementById('domainUrl').value    || '',
-      domainBuyer:  document.getElementById('domainBuyer').value  || '',
-      domainAccount:document.getElementById('domainAccount').value|| '',
-      adminUrl:     document.getElementById('adminUrl').value     || '-',
-      adminAccount: document.getElementById('adminAccount').value || '-',
-      testAccount:  document.getElementById('testAccount').value  || '해당없음',
-      serverDesc:   document.getElementById('serverDesc').value   || '',
-      serverIp:     document.getElementById('serverIp').value     || '',
-      serverUser:   document.getElementById('serverUser').value   || '',
-      serverExtra:  document.getElementById('serverExtra').value  || '',
-      appNone:      document.getElementById('appNone').checked,
-      appInfo:      document.getElementById('appInfo') ? document.getElementById('appInfo').value : '',
-      backupInfo:   document.getElementById('backupInfo').value   || '',
-    };
-
-    const dateRange = v.dateStart && v.dateEnd
-      ? `${v.dateStart} - ${v.dateEnd}` : (v.dateStart || v.dateEnd || '-');
-
-    let logoBuf = null;
-    try { logoBuf = await (await fetch('../_shared/etc/logo-removebg-preview.png')).arrayBuffer(); } catch(e) {}
-
-    const F = 'Malgun Gothic';
-    const C = { slate:'5B6A80', dark:'1E293B', g1:'F8FAFC', g2:'EEF1F5', g3:'94A3B8', g4:'475569', white:'FFFFFF' };
-    const bdrLine = (c='C8D0DC') => ({ style: BorderStyle.SINGLE, size: 4, color: c });
-    const noBdr   = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
-    const sh      = color => ({ type: ShadingType.SOLID, color, fill: color });
-    const tx = (text, o={}) => new TextRun({ text: String(text??''), font: F, size: o.sz||22, bold:!!o.b, color: o.c||C.dark });
-    const pr = (content, align=AlignmentType.LEFT, bef=40, aft=40) => new Paragraph({
-      children: Array.isArray(content) ? content : [content],
-      alignment: align, spacing: { before: bef, after: aft }
-    });
-    const tc = (children, o={}) => {
-      const cell = {
-        children: Array.isArray(children) ? children : [children],
-        verticalAlign: o.va || VerticalAlign.CENTER,
-        margins: { top: 60, bottom: 60, left: 100, right: 100 },
-      };
-      if (o.cs) cell.columnSpan = o.cs;
-      if (o.rs) cell.rowSpan    = o.rs;
-      if (o.sh) cell.shading    = sh(o.sh);
-      if (o.w !== undefined) cell.width = { size: o.w, type: WidthType.PERCENTAGE };
-      return new TableCell(cell);
-    };
-
-    const secHdr = (title, cs) => new TableRow({ children: [
-      tc(pr([tx(title, { b:true, sz:22, c:C.white })], AlignmentType.LEFT, 70, 70), { cs, sh: C.slate }),
-    ]});
-
-    const anaParas = text => {
-      const lines = (text||'').split('\n').filter(l=>l.trim());
-      return lines.length
-        ? lines.map((l,i) => pr([tx(`${i+1}. ${l.trim()}`, { sz:20, c:C.g4 })], AlignmentType.LEFT, 0, 30))
-        : [pr([tx('-', { sz:20, c:C.g3 })], AlignmentType.LEFT, 0, 0)];
-    };
-
-    const serverParas = () => {
-      const parts = [];
-      if (v.serverDesc) parts.push(pr([tx(v.serverDesc, { sz:20, c:C.g4 })], AlignmentType.LEFT, 0, 20));
-      if (v.serverIp)   parts.push(pr([tx(`IP: ${v.serverIp}`, { sz:20, c:C.g4 })], AlignmentType.LEFT, 0, 20));
-      if (v.serverUser) parts.push(pr([tx(`User: ${v.serverUser}`, { sz:20, c:C.g4 })], AlignmentType.LEFT, 0, 20));
-      if (v.serverExtra) v.serverExtra.split('\n').filter(l=>l.trim())
-        .forEach(l => parts.push(pr([tx(l, { sz:20, c:C.g4 })], AlignmentType.LEFT, 0, 20)));
-      return parts.length ? parts : [pr([tx('-', { sz:20, c:C.g3 })], AlignmentType.LEFT, 0, 0)];
-    };
-
-    const domainParas = () => {
-      const parts = []; let idx = 1;
-      if (v.domainUrl)     parts.push(pr([tx(`${idx++}. 도메인 주소: ${v.domainUrl}`, { sz:20, c:C.g4 })], AlignmentType.LEFT, 0, 20));
-      if (v.domainBuyer)   parts.push(pr([tx(`${idx++}. 구입자 및 구입처: ${v.domainBuyer}`, { sz:20, c:C.g4 })], AlignmentType.LEFT, 0, 20));
-      if (v.domainAccount) parts.push(pr([tx(`${idx++}. 구입처 계정 정보: ${v.domainAccount}`, { sz:20, c:C.g4 })], AlignmentType.LEFT, 0, 20));
-      return parts.length ? parts : [pr([tx('-', { sz:20, c:C.g3 })], AlignmentType.LEFT, 0, 0)];
-    };
-
-    const backupParas = () => {
-      const lines = (v.backupInfo||'').split('\n').filter(l=>l.trim());
-      return lines.length
-        ? lines.map((l,i) => pr([tx(`${i+1}. ${l.trim()}`, { sz:20, c:C.g4 })], AlignmentType.LEFT, 0, 20))
-        : [pr([tx('-', { sz:20, c:C.g3 })], AlignmentType.LEFT, 0, 0)];
-    };
-
-    /* 헤더 */
-    const headerChildren = [];
-    if (logoBuf) {
-      headerChildren.push(new Table({
-        width: { size:100, type:WidthType.PERCENTAGE },
-        borders: { top:noBdr, bottom:noBdr, left:noBdr, right:noBdr, insideVertical:noBdr, insideHorizontal:noBdr },
-        rows: [new TableRow({ children: [
-          tc([
-            pr([tx('(주)비엔시스템 AI혁신팀 (PM팀)', { sz:18, c:C.g4 })], AlignmentType.LEFT, 0, 20),
-            pr([tx('서울시 도봉구 마들로11가길 12, 401호', { sz:18, c:C.g4 })], AlignmentType.LEFT, 0, 0),
-          ], { w:60, va:VerticalAlign.CENTER }),
-          tc([
-            new Paragraph({ children: [new ImageRun({ data:logoBuf, transformation:{width:110,height:37}, type:'png' })], spacing:{before:0,after:0}, alignment:AlignmentType.RIGHT }),
-          ], { w:40, va:VerticalAlign.CENTER }),
-        ]})]
-      }));
-    } else {
-      headerChildren.push(pr([tx('(주)비엔시스템 AI혁신팀 (PM팀)', { sz:18, c:C.g4 })], AlignmentType.LEFT, 0, 20));
-      headerChildren.push(pr([tx('서울시 도봉구 마들로11가길 12, 401호', { sz:18, c:C.g4 })], AlignmentType.LEFT, 0, 0));
-    }
-
-    /* 1. 일정 및 규모 */
-    const scheduleTable = new Table({
-      width: { size:100, type:WidthType.PERCENTAGE },
-      rows: [
-        secHdr('프로젝트 일정 및 규모', 3),
-        new TableRow({ children: [
-          tc(pr([tx('날짜',       { b:true, sz:20 })], AlignmentType.CENTER, 50, 50), { sh:C.g2, w:34 }),
-          tc(pr([tx('프로젝트명', { b:true, sz:20 })], AlignmentType.CENTER, 50, 50), { sh:C.g2, w:38 }),
-          tc(pr([tx('프로젝트 규모', { b:true, sz:20 })], AlignmentType.CENTER, 50, 50), { sh:C.g2, w:28 }),
-        ]}),
-        new TableRow({ children: [
-          tc(pr([tx(dateRange, { sz:20, c:C.g4 })], AlignmentType.CENTER, 60, 60)),
-          tc(pr([tx(v.projectName, { sz:20, c:C.g4 })], AlignmentType.LEFT, 60, 60)),
-          tc([
-            pr([tx(v.scale, { sz:20, c:C.g4 })], AlignmentType.RIGHT, 60, v.scaleDetail ? 10 : 60),
-            ...(v.scaleDetail ? [pr([tx(v.scaleDetail, { sz:18, c:C.g4 })], AlignmentType.RIGHT, 0, 60)] : []),
-          ], { va:VerticalAlign.CENTER }),
-        ]}),
-      ]
-    });
-
-    /* 2. 요약 */
-    const summaryTable = new Table({
-      width: { size:100, type:WidthType.PERCENTAGE },
-      rows: [
-        secHdr('프로젝트 요약', 1),
-        new TableRow({ children: [tc(pr([tx(v.summary||'-', { sz:24, b:true, c:C.dark })], AlignmentType.LEFT, 80, 80)) ] }),
-      ]
-    });
-
-    /* 3. 마일스톤 */
-    const msTable = new Table({
-      width: { size:100, type:WidthType.PERCENTAGE },
-      rows: [
-        secHdr('마일스톤 진행 내역', 5),
-        new TableRow({ children: [
-          tc(pr([tx('작업',             { b:true, sz:20 })], AlignmentType.CENTER, 50, 50), { sh:C.g2, w:12 }),
-          tc(pr([tx('완료율',           { b:true, sz:20 })], AlignmentType.CENTER, 50, 50), { sh:C.g2, w:10 }),
-          tc(pr([tx('예상 날짜',        { b:true, sz:20 })], AlignmentType.CENTER, 50, 50), { sh:C.g2, w:15 }),
-          tc(pr([tx('실제 완료일',      { b:true, sz:20 })], AlignmentType.CENTER, 50, 50), { sh:C.g2, w:15 }),
-          tc(pr([tx('비고 및 일정변경 사유', { b:true, sz:20 })], AlignmentType.CENTER, 50, 50), { sh:C.g2, w:48 }),
-        ]}),
-        ...milestones.map(ms => {
-          const noteLines = (ms.note||'').split('\n').filter(l=>l.trim());
-          const noteParas = noteLines.length
-            ? noteLines.map(l => pr([tx('- '+l, { sz:20, c:C.g4 })], AlignmentType.LEFT, 0, 20))
-            : [pr([tx('-', { sz:20, c:C.g3 })], AlignmentType.LEFT, 0, 0)];
-          return new TableRow({ children: [
-            tc(pr([tx(ms.task||'-', { sz:20, b:true })], AlignmentType.CENTER, 60, 60)),
-            tc(pr([tx(ms.rate||'-', { sz:20 })],         AlignmentType.CENTER, 60, 60)),
-            tc(pr([tx(fmtDate(ms.planned)||'-', { sz:20, c:C.g4 })], AlignmentType.CENTER, 60, 60)),
-            tc(pr([tx(fmtDate(ms.actual)||'-',  { sz:20, c:C.g4 })], AlignmentType.CENTER, 60, 60)),
-            tc(noteParas, { va:VerticalAlign.TOP }),
-          ]});
-        }),
-      ]
-    });
-
-    /* 4. 참여 인력 */
-    const staffEntries = staff.filter(s => s.role.trim() || s.name.trim());
-
-    const staffTable = new Table({
-      width: { size:100, type:WidthType.PERCENTAGE },
-      rows: [
-        secHdr('프로젝트 참여 인력', 1),
-        new TableRow({ children: [tc(
-          staffEntries.length
-            ? staffEntries.map((s, i) => pr(
-                [tx(`${i+1}. `,{sz:22,b:true}), tx(`${s.role}: `,{sz:22,b:true}), tx(s.name,{sz:22,c:C.g4})],
-                AlignmentType.LEFT, 60, 40
-              ))
-            : [pr([tx('(입력 없음)', { sz:22, c:C.g3 })], AlignmentType.LEFT, 60, 60)],
-          { va:VerticalAlign.TOP }
-        )] }),
-      ]
-    });
-
-    /* 5. 성과 분析 */
-    const anaTable = new Table({
-      width: { size:100, type:WidthType.PERCENTAGE },
-      rows: [
-        secHdr('프로젝트 성과 분析', 2),
-        new TableRow({ children: [
-          tc(pr([tx('항목', { b:true, sz:20 })], AlignmentType.CENTER, 50, 50), { sh:C.g2, w:18 }),
-          tc(pr([tx('내용', { b:true, sz:20 })], AlignmentType.CENTER, 50, 50), { sh:C.g2, w:82 }),
-        ]}),
-        ...([
-          ['납기 지연 사유',      v.analysisDel],
-          ['성과 및 잘된 점',     v.analysisGood],
-          ['문제점 및 장애요소',  v.analysisBad],
-          ['향후 개선 및 대응방안', v.analysisFix],
-        ].map(([label, text]) => new TableRow({ children: [
-          tc(pr([tx(label, { sz:20, b:true })], AlignmentType.CENTER, 60, 60), { va:VerticalAlign.CENTER }),
-          tc(anaParas(text), { va:VerticalAlign.TOP }),
-        ]}))),
-      ]
-    });
-
-    /* 6. 도메인/서버/계정 */
-    const domainTable = new Table({
-      width: { size:100, type:WidthType.PERCENTAGE },
-      rows: [
-        new TableRow({ children: [
-          tc(pr([tx('구분',     { b:true, sz:20 })], AlignmentType.CENTER, 50, 50), { sh:C.g2, w:22 }),
-          tc(pr([tx('세부 내용',{ b:true, sz:20 })], AlignmentType.CENTER, 50, 50), { sh:C.g2, w:78 }),
-        ]}),
-        ...[
-          ['프로젝트명',  [pr([tx(v.projectName,  { sz:20, c:C.g4 })], AlignmentType.LEFT, 60, 60)]],
-          ['고객사명',    [pr([tx(v.clientName,    { sz:20, c:C.g4 })], AlignmentType.LEFT, 60, 60)]],
-          ['도메인 및 관련 정보', domainParas()],
-          ['관리자 페이지 URL',   [pr([tx(v.adminUrl,    { sz:20, c:C.g4 })], AlignmentType.LEFT, 60, 60)]],
-          ['관리자 계정 정보',    [pr([tx(v.adminAccount||'-', { sz:20, c:C.g4 })], AlignmentType.LEFT, 60, 60)]],
-          ['홈페이지\n테스트 계정정보', [pr([tx(v.testAccount, { sz:20, c:C.g4 })], AlignmentType.LEFT, 60, 60)]],
-          ['운영서버 정보',       serverParas()],
-          ['[앱패키징]\n스토어(AOS iOS) 계정\n및 key store PW',
-            [pr([tx(v.appNone ? '해당없음' : (v.appInfo||'-'), { sz:20, c:C.g4 })], AlignmentType.LEFT, 60, 60)]],
-          ['백업', backupParas()],
-        ].map(([label, cellParas]) => new TableRow({ children: [
-          tc(pr([tx(label, { sz:20, b:true })], AlignmentType.LEFT, 60, 60), { sh:C.g1, va:VerticalAlign.TOP }),
-          tc(cellParas, { va:VerticalAlign.TOP }),
-        ]})),
-      ]
-    });
-
-    const wordDoc = new Document({
-      sections: [{
-        headers: { default: new Header({ children: headerChildren }) },
-        properties: { page: { margin: { top:1000, bottom:1000, left:1200, right:1200 } } },
-        children: [
-          pr([tx('프로젝트 완료 보고서', { b:true, sz:56, c:C.dark })], AlignmentType.CENTER, 0, 200),
-          pr([tx(`작성일: ${v.reportDate}`, { sz:22, c:C.g4 })], AlignmentType.RIGHT, 0, 300),
-          scheduleTable,
-          pr([tx('')], AlignmentType.LEFT, 100, 0),
-          summaryTable,
-          pr([tx('')], AlignmentType.LEFT, 100, 0),
-          msTable,
-          pr([tx('')], AlignmentType.LEFT, 100, 0),
-          staffTable,
-          pr([tx('')], AlignmentType.LEFT, 100, 0),
-          anaTable,
-          pr([tx('')], AlignmentType.LEFT, 200, 0),
-          pr([tx('■도메인/서버/계정 정보 기록', { b:true, sz:26, c:C.dark })], AlignmentType.LEFT, 0, 60),
-          pr([tx(`작성일: ${v.reportDate}${v.author ? '   작성자: '+v.author : ''}`, { sz:20, c:C.g4 })], AlignmentType.RIGHT, 0, 100),
-          domainTable,
-          pr([tx('(이상)', { sz:22, c:C.g3 })], AlignmentType.RIGHT, 200, 0),
-        ]
-      }]
-    });
-
-    const blob = await Packer.toBlob(wordDoc);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `완료보고서_${v.projectName}.docx`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-  } catch(e) {
-    console.error('Word 변환 오류:', e);
-    alert('Word 변환 중 오류가 발생했습니다:\n' + (e?.message || String(e)));
-  } finally {
-    btn.textContent = orig;
-    btn.disabled = false;
-  }
-}
-
-/* ── 초기 실행 ── */
-document.getElementById('reportDate').value = todayStr();
-renderMilestoneCards();
-renderStaffCards();
-render();
-
-// ── 패널 리사이즈 ──
-(function() {
-  const handle = document.getElementById('resizeHandle');
-  const layout = document.querySelector('.app-layout');
-  let dragging = false, startX = 0, startW = 0;
-
-  handle.addEventListener('mousedown', e => {
-    dragging = true;
-    startX = e.clientX;
-    startW = document.querySelector('.input-panel').offsetWidth;
-    handle.classList.add('dragging');
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-    e.preventDefault();
-  });
-
-  document.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const w = Math.min(Math.max(startW + e.clientX - startX, 260), 680);
-    layout.style.gridTemplateColumns = `${w}px 6px 1fr`;
-  });
-
-  document.addEventListener('mouseup', () => {
-    if (!dragging) return;
-    dragging = false;
-    handle.classList.remove('dragging');
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-  });
-})();
-</script>
+      document.addEventListener('mouseup', () => {
+        if (!dragging) return;
+        dragging = false;
+        handle.classList.remove('dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      });
+    })();
+  </script>
 </body>
+
 </html>
