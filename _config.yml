@@ -1,0 +1,16 @@
+title: BN Project Hub
+description: BN 프로젝트 문서 허브
+theme: minima
+
+# Markdown 파일 렌더링 활성화
+markdown: kramdown
+
+# _shared 등 Velzon 라이브러리 폴더 Jekyll 처리 제외
+exclude:
+  - _shared/
+  - _agents/
+  - _sb_template/
+  - _tools/
+  - "**/*.php"
+  - "**/*.json"
+  - node_modules/
