@@ -1,0 +1,273 @@
+{
+  "screens": [
+    {
+      "id": "U-00",
+      "name": "투표 목록 (인증 후 포털)",
+      "path": "/vote",
+      "group": "user",
+      "section": "user",
+      "desc": "이니시스 인증 완료 후 본인이 참여 가능한 투표 목록 표시. 진행중/예정/마감 투표 카드 표시. 카드 클릭 시 U-07로 진입.",
+      "apis": ["GET /api/votes?memberId={id}"],
+      "storyboard": "done"
+    },
+    {
+      "id": "U-01",
+      "name": "투표 진입 (특정 링크 접속)",
+      "path": "/vote/{voteId}",
+      "group": "user",
+      "section": "user",
+      "desc": "특정 투표 링크로 직접 접속 시 투표 소개 + 인증하기 버튼. 투표 상태(pending/open/closed)에 따라 분기. 세션 있으면 인증 생략 후 U-07 바로 이동.",
+      "apis": ["GET /api/vote/{voteId}/info"],
+      "storyboard": "done"
+    },
+    {
+      "id": "U-03",
+      "name": "회원번호 입력",
+      "path": "/vote/{voteId}/auth",
+      "group": "user",
+      "section": "user",
+      "desc": "이니시스 인증 후 회원번호 추가 입력 화면. 인증된 이름 마스킹 표시. 회원번호 입력 후 명단 매칭. 성공 시 U-07, 실패 시 U-04.",
+      "apis": ["POST /api/vote/{voteId}/auth/match"],
+      "validationFields": ["memberNumber"],
+      "storyboard": "done"
+    },
+    {
+      "id": "U-04",
+      "name": "매칭 실패 안내",
+      "path": "/vote/{voteId}/auth-fail",
+      "group": "user",
+      "section": "user",
+      "desc": "이니시스 인증 통과 후 회원번호 매칭 실패. 예외 요청 폼(U-05) 이동 버튼 제공.",
+      "apis": [],
+      "storyboard": "done"
+    },
+    {
+      "id": "U-05",
+      "name": "예외 요청 폼 (매칭 실패)",
+      "path": "/vote/{voteId}/exception-request",
+      "group": "user",
+      "section": "user",
+      "desc": "이니시스 인증 데이터 포함 예외 요청 접수. 문제 원인 체크박스(전화번호 변경/회원번호 오입력/개명/기타), 기타 선택 시 텍스트 입력. 이전 휴대폰번호 선택 입력.",
+      "apis": ["POST /api/vote/{voteId}/exception-request"],
+      "validationFields": ["issueType"],
+      "storyboard": "done"
+    },
+    {
+      "id": "U-07",
+      "name": "투표 메인 (1화면 1안건)",
+      "path": "/vote/{voteId}/ballot",
+      "group": "user",
+      "section": "user",
+      "desc": "핵심 투표 화면. 1화면에 1개 안건 표시. 이전/다음 버튼 + 드롭다운 안건 이동. 본인 투표 카드 + 위임받은 카드(위임인별 1장) 동시 표시. 카드별 독립 제출. 상단 진행현황 바.",
+      "apis": ["GET /api/vote/{voteId}/ballot", "POST /api/vote/{voteId}/ballot/{agendaId}/submit"],
+      "storyboard": "done"
+    },
+    {
+      "id": "U-08",
+      "name": "후보자 소개 모달",
+      "path": "U-07 내 모달",
+      "group": "user",
+      "section": "user",
+      "desc": "후보선택형 안건에서 '소개 보기' 버튼 클릭 시 표시. 직책/사진/이름/소개/공약. 팀 출마 시 팀 포스터 + 팀원별 직책·이름·사진.",
+      "apis": ["GET /api/vote/{voteId}/agenda/{agendaId}/candidate/{candidateId}"],
+      "storyboard": "done"
+    },
+    {
+      "id": "U-09",
+      "name": "투표 완료",
+      "path": "/vote/{voteId}/done",
+      "group": "user",
+      "section": "user",
+      "desc": "투표 완료 안내 화면. 투표 일시 표시. 투표 기간 내 수정 안내. 결과 공지 예정 안내. 투표확인증 발급 버튼(활성화 시).",
+      "apis": [],
+      "storyboard": "done"
+    },
+    {
+      "id": "U-10",
+      "name": "투표 종료 후 재접속 안내",
+      "path": "/vote/{voteId}/already-done",
+      "group": "user",
+      "section": "user",
+      "desc": "투표 종료 후 재접속 시 표시. '투표가 종료되었습니다.' 안내. 수정 불가.",
+      "apis": [],
+      "storyboard": "done"
+    },
+    {
+      "id": "U-16",
+      "name": "위임 신청 / 확인",
+      "path": "/vote/{voteId}/delegate",
+      "group": "user",
+      "section": "user",
+      "desc": "위임 신청·수정·취소 + 나에게 위임된 건 확인. 상단: 내 위임 현황(미신청/신청완료/취소완료). 하단: 나에게 위임된 위임인 목록. 수임인 이름+회원번호 검증 후 신청. 참석신청 충돌 시 확인 모달.",
+      "apis": ["GET /api/vote/{voteId}/delegate", "POST /api/vote/{voteId}/delegate", "PUT /api/vote/{voteId}/delegate", "DELETE /api/vote/{voteId}/delegate", "POST /api/vote/{voteId}/delegate/validate"],
+      "validationFields": ["delegateeType", "delegateeName", "delegateeMemberNumber"],
+      "storyboard": "done"
+    },
+    {
+      "id": "U-18",
+      "name": "참석 신청",
+      "path": "/vote/{voteId}/attend",
+      "group": "user",
+      "section": "user",
+      "desc": "현장 포함 투표에서만 노출. 참석 신청/취소. 위임 신청 충돌 시 확인 모달.",
+      "apis": ["GET /api/vote/{voteId}/attend", "POST /api/vote/{voteId}/attend", "DELETE /api/vote/{voteId}/attend"],
+      "storyboard": "done"
+    },
+    {
+      "id": "U-19",
+      "name": "인증 불가 문의 폼",
+      "path": "/vote/{voteId}/auth-inquiry",
+      "group": "user",
+      "section": "user",
+      "desc": "이니시스 인증 자체 불가 회원이 문의 접수. 이름/회원번호/연락처/문의내용 입력. 이니시스 데이터 수집 없음. 제출 후 U-20.",
+      "apis": ["POST /api/vote/{voteId}/auth-inquiry"],
+      "validationFields": ["memberName", "memberNumber", "contact", "inquiryContent"],
+      "storyboard": "done"
+    },
+    {
+      "id": "U-20",
+      "name": "인증 불가 문의 접수 완료",
+      "path": "/vote/{voteId}/auth-inquiry/done",
+      "group": "user",
+      "section": "user",
+      "desc": "문의 접수 완료 안내. 처리 결과는 입력한 연락처로 안내 예정 안내문.",
+      "apis": [],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-01",
+      "name": "관리자 로그인",
+      "path": "/manage/login",
+      "group": "admin",
+      "section": "admin",
+      "desc": "관리자 ID/비밀번호 로그인. 비밀번호 정책: 8자 이상 영문+숫자+특수문자.",
+      "apis": ["POST /api/admin/login"],
+      "validationFields": ["adminId", "password"],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-02",
+      "name": "대시보드",
+      "path": "/manage/dashboard",
+      "group": "admin",
+      "section": "admin",
+      "desc": "진행 중인 투표 현황 요약(투표 수, 참여율). 미처리 예외 요청 건수 알림. 최근 관리자 활동 로그(10건). 빠른 링크: 투표 생성, 예외 요청 처리.",
+      "apis": ["GET /api/admin/dashboard"],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-03",
+      "name": "투표 목록",
+      "path": "/manage/votes",
+      "group": "admin",
+      "section": "admin",
+      "desc": "전체 투표 목록. 상태 필터(진행중/예정/종료). 검색. 투표 생성 버튼. 투표 클릭 시 A-05.",
+      "apis": ["GET /api/admin/votes"],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-04",
+      "name": "투표 생성/수정",
+      "path": "/manage/votes/form",
+      "group": "admin",
+      "section": "admin",
+      "desc": "투표 기본정보(투표명/유형/기간/설명). 기준인원 시트명 입력+연결 확인. 진행방식(온라인/현장/현장+온라인). 참석신청기간(현장 포함 시). 위임신청기간 설정. 운영설정(시작방식/결과공표/투표확인증/기명무기명/기권처리/당선증).",
+      "apis": ["POST /api/admin/votes", "PUT /api/admin/votes/{id}", "GET /api/admin/votes/{id}/sheet-validate"],
+      "validationFields": ["voteName", "voteType", "startAt", "endAt", "sheetName"],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-05",
+      "name": "투표 상세 (안건 관리)",
+      "path": "/manage/votes/{voteId}",
+      "group": "admin",
+      "section": "admin",
+      "desc": "투표 기본정보 + 안건 목록. 안건 추가/수정/삭제. 안건별 열림/닫힘 토글. 안건 순서 변경(드래그). 투표 링크 복사. 투표 시작/일시정지/종료 버튼.",
+      "apis": ["GET /api/admin/votes/{voteId}", "PATCH /api/admin/votes/{voteId}/agendas/{agendaId}/toggle", "POST /api/admin/votes/{voteId}/start", "POST /api/admin/votes/{voteId}/pause"],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-08",
+      "name": "회원 명단 관리 (스냅샷)",
+      "path": "/manage/votes/{voteId}/members",
+      "group": "admin",
+      "section": "admin",
+      "desc": "구글 스프레드시트 시트명 지정 + 동기화. 회원 목록 조회(이름/회원번호/전화번호/이메일). 개별 수정(2단계 확인+사유+감사로그). 명부 업로드 실패 목록. CSV 다운로드.",
+      "apis": ["GET /api/admin/votes/{voteId}/members", "POST /api/admin/votes/{voteId}/members/sync", "PUT /api/admin/votes/{voteId}/members/{memberId}"],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-10",
+      "name": "출석 현황 (현장 포함 투표)",
+      "path": "/manage/votes/{voteId}/attendance",
+      "group": "admin",
+      "section": "admin",
+      "desc": "참석 신청자 목록. 현장 체크인 처리. 수임인 불참 처리(위임 무효 처리). 모수 현황 실시간 표시(출석확정/위임/의장귀속).",
+      "apis": ["GET /api/admin/votes/{voteId}/attendance", "POST /api/admin/votes/{voteId}/attendance/{memberId}/checkin", "POST /api/admin/votes/{voteId}/attendance/{memberId}/absent"],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-11",
+      "name": "투표 현황 (실시간)",
+      "path": "/manage/votes/{voteId}/status",
+      "group": "admin",
+      "section": "admin",
+      "desc": "실시간 투표율. 시간대별 투표율 차트(Chart.js). 안건별 현황. 새로고침 / 자동 갱신 토글.",
+      "apis": ["GET /api/admin/votes/{voteId}/status", "GET /api/admin/votes/{voteId}/hourly-stats"],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-12",
+      "name": "결과 조회",
+      "path": "/manage/votes/{voteId}/result",
+      "group": "admin",
+      "section": "admin",
+      "desc": "안건별 결과(선택지별 표수/%). 결과 공표 버튼(수동 공표 설정 시). CSV 다운로드. 차트(Chart.js 파이/막대).",
+      "apis": ["GET /api/admin/votes/{voteId}/result", "POST /api/admin/votes/{voteId}/result/publish"],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-13",
+      "name": "예외 요청 관리",
+      "path": "/manage/votes/{voteId}/exceptions",
+      "group": "admin",
+      "section": "admin",
+      "desc": "탭①: 매칭 실패 요청 목록(이름/전화/회원번호/사유/상태). 처리옵션: 스냅샷 수정/1회용링크발급/재확인/거부. 탭②: 인증불가 문의(이름/회원번호/연락처/문의내용). 처리옵션: 링크발급/재확인/처리불가.",
+      "apis": ["GET /api/admin/votes/{voteId}/exceptions", "POST /api/admin/votes/{voteId}/exceptions/{id}/process", "POST /api/admin/votes/{voteId}/exception-tokens"],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-14",
+      "name": "의장 위임 투표 행사 (최고관리자 전용)",
+      "path": "/manage/votes/{voteId}/bulk-vote",
+      "group": "admin",
+      "section": "admin",
+      "desc": "의장 귀속 위임 건 % 배분 입력. 소수점 2자리까지 입력. 명수 자동계산(소수점1자리 반올림, 최대% 선택지에 자동보정). 합계 100% 검증. 확인 모달 후 제출. 개별 표 랜덤 배정.",
+      "apis": ["GET /api/admin/votes/{voteId}/bulk-vote", "POST /api/admin/votes/{voteId}/bulk-vote"],
+      "validationFields": ["percentages"],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-15",
+      "name": "관리자 계정 관리 (최고관리자 전용)",
+      "path": "/manage/admins",
+      "group": "admin",
+      "section": "admin",
+      "desc": "관리자 계정 목록(ID/이름/권한/최근로그인/상태). 계정 추가/수정/비활성화. 권한 구분: 최고관리자(superadmin) / 일반관리자(admin). 비밀번호 초기화 처리. 최고관리자 계정은 삭제 불가.",
+      "apis": ["GET /api/admin/admins", "POST /api/admin/admins", "PUT /api/admin/admins/{adminId}", "DELETE /api/admin/admins/{adminId}", "POST /api/admin/admins/{adminId}/reset-password"],
+      "validationFields": ["adminId", "adminName", "role", "password"],
+      "storyboard": "done"
+    },
+    {
+      "id": "A-16",
+      "name": "비밀번호 변경",
+      "path": "/manage/my/password",
+      "group": "admin",
+      "section": "admin",
+      "desc": "로그인한 관리자 본인 비밀번호 변경. 현재 비밀번호 확인 후 새 비밀번호 설정. 비밀번호 정책: 8자 이상 영문+숫자+특수문자. 변경 완료 시 재로그인 유도.",
+      "apis": ["POST /api/admin/my/password"],
+      "validationFields": ["currentPassword", "newPassword", "confirmPassword"],
+      "storyboard": "done"
+    }
+  ]
+}

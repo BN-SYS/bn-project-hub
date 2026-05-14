@@ -1,0 +1,17 @@
+{
+  "project": "mensa_e_vote",
+  "manager": "EunAh",
+  "bnRoot": "C:/Users/BN659/Desktop/BN_SYS",
+  "projectRoot": "C:/Users/BN659/Desktop/BN_SYS/workspace/EunAh/mensa_e_vote",
+  "currentPhase": "storyboard",
+  "lastUpdated": "2026-05-14",
+  "prototypeIterations": 0,
+  "build_state": {
+    "step": "pending",
+    "failCount": 0
+  },
+  "overview": {
+    "planning": "멘사코리아 전자투표 시스템 신규 구축. 이니시스 간편인증 기반, 구글 스프레드시트 시트명 지정 방식 명단 관리, 위임/참석신청/예외인증 플로우 포함. 사용자 21화면(U-00~U-20), 관리자 20화면(A-01~A-20).",
+    "storyboard": ""
+  }
+}
