@@ -3,6 +3,7 @@ name: storyboard-agent
 description: 프로토타입 HTML 생성, 스토리보드 스펙 작성, 검수, 고객 피드백 반영 시 사용
 model: sonnet
 tools: Read, Write, Edit, Bash
+skills: caveman
 ---
 
 # Storyboard Agent — 프로토타입·스토리보드 (모듈 4)

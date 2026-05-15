@@ -57,4 +57,43 @@ BN_SYSTEM/
 ## 프로세스
 프로토타입 우선 제작 → 고객과 함께 보며 디자인/레이아웃 반복 조정
 
+
+## Custom Skill Aliases
+
+### grill
+사용 시:
+- `.claude/skills/grill-me` 를 읽고 적용한다.
+
+동작 규칙:
+- 가차없는 리뷰
+- 구조 문제 지적
+- 유지보수 리스크 분석
+- 중복 로직 탐지
+- 과한 추상화 비판
+- 실제 운영 리스크 중심 검토
+- 문제 발견 시 개선안 반드시 제시
+
+예시:
+- "grill this md"
+- "grill this repository"
+- "grill vote system architecture"
+
+---
+
+### cave
+사용 시:
+- `.claude/skills/caveman` 를 읽고 적용한다.
+
+동작 규칙:
+- 단순한 구현 우선
+- 불필요 abstraction 제거
+- PHP/JS 실무 유지보수 기준 최적화
+- 이해하기 쉬운 구조 선호
+- 지나친 패턴 적용 금지
+
+예시:
+- "cave this code"
+- "cave admin architecture"
+- "simplify with cave"
+
 ## 버전: PM 자동화 v2.1

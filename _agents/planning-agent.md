@@ -3,6 +3,7 @@ name: planning-agent
 description: RFP 분석, 기획서·WBS 작성, 요구사항 정의서 생성, pages_draft.json 초안 생성 시 사용
 model: sonnet
 tools: Read, Write, Edit
+skills: caveman
 ---
 
 # Planning Agent — 기획 전 과정 (모듈 1·2·3)

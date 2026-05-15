@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>멘사코리아 전자투표 시스템 기획서 v1.4</title>
+<style>
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --accent: #7c3aed;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --gray: #6b7280;
+  --gray-light: #f3f4f6;
+  --gray-border: #e5e7eb;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --sidebar-w: 260px;
+  --header-h: 72px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Pretendard', 'Apple SD Gothic Neo', -apple-system, sans-serif; color: var(--text); background: #f9fafb; font-size: 14px; line-height: 1.6; }
+
+/* Sidebar */
+#sidebar {
+  position: fixed; top: 0; left: 0; width: var(--sidebar-w);
+  height: 100vh; overflow-y: auto; background: #1e293b; color: #cbd5e1;
+  z-index: 100; padding-bottom: 40px;
+}
+#sidebar .sb-header {
+  padding: 20px 16px 12px; border-bottom: 1px solid #334155;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #64748b; text-transform: uppercase;
+}
+#sidebar .sb-title { padding: 12px 16px 4px; font-size: 13px; font-weight: 700; color: #f1f5f9; }
+#sidebar ul { list-style: none; }
+#sidebar ul li a {
+  display: block; padding: 6px 16px 6px 24px; color: #94a3b8; text-decoration: none;
+  font-size: 12.5px; border-left: 3px solid transparent; transition: all 0.15s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#sidebar ul li a:hover { color: #f1f5f9; background: #334155; }
+#sidebar ul li a.active { color: #93c5fd; border-left-color: #3b82f6; background: #1e3a5f; }
+#sidebar ul.sub li a { padding-left: 36px; font-size: 11.5px; color: #64748b; }
+#sidebar ul.sub li a:hover { color: #94a3b8; }
+
+/* Main */
+#main { margin-left: var(--sidebar-w); min-height: 100vh; }
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #7c3aed 100%);
+  color: white; padding: 48px 48px 40px;
+}
+.hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+.hero .meta { font-size: 13px; opacity: 0.85; margin-bottom: 20px; }
+.hero .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+}
+.badge-in { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); }
+.badge-out { background: rgba(0,0,0,0.25); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.15); }
+.badge-confirm { background: #dcfce7; color: #15803d; }
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-blue { background: #dbeafe; color: #1d4ed8; }
+.badge-gray { background: #f3f4f6; color: #6b7280; }
+.badge-red { background: #fee2e2; color: #dc2626; }
+.badge-green { background: #dcfce7; color: #15803d; }
+.badge-purple { background: #ede9fe; color: #6d28d9; }
+.badge-orange { background: #ffedd5; color: #c2410c; }
+
+/* Content */
+.content { padding: 40px 48px; max-width: 1040px; }
+
+/* Sections */
+.section { margin-bottom: 56px; }
+h2.sec-title {
+  font-size: 20px; font-weight: 800; color: var(--text);
+  padding-bottom: 10px; border-bottom: 2px solid var(--primary);
+  margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
+}
+h2.sec-title .sec-num {
+  background: var(--primary); color: white;
+  width: 28px; height: 28px; border-radius: 6px; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+h3.sub-title { font-size: 15px; font-weight: 700; color: #1e40af; margin: 24px 0 10px; padding-left: 10px; border-left: 3px solid #3b82f6; }
+h4.sub2-title { font-size: 13px; font-weight: 700; color: var(--text); margin: 16px 0 8px; }
+
+/* Tables */
+.tbl-wrap { overflow-x: auto; margin: 12px 0; border-radius: 8px; border: 1px solid var(--gray-border); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: #f8fafc; font-weight: 700; color: #374151; padding: 10px 14px; border-bottom: 2px solid var(--gray-border); text-align: left; white-space: nowrap; }
+tbody td { padding: 9px 14px; border-bottom: 1px solid var(--gray-border); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #f8fafc; }
+.tbl-sm tbody td { padding: 7px 12px; font-size: 12.5px; }
+
+/* Info box */
+.info-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px 16px; margin: 12px 0; font-size: 13px; color: #1e40af; }
+.warn-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 16px; margin: 12px 0; font-size: 13px; color: #92400e; }
+.warn-box strong, .info-box strong { display: block; margin-bottom: 4px; }
+
+/* Code / Pre */
+pre, code {
+  background: #1e293b; color: #e2e8f0; border-radius: 6px;
+  font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 12px;
+}
+pre { padding: 14px 16px; margin: 10px 0; overflow-x: auto; line-height: 1.55; }
+code { padding: 2px 5px; font-size: 11.5px; }
+p code, td code, li code { background: #f1f5f9; color: #dc2626; border-radius: 3px; }
+
+p { margin: 8px 0; font-size: 13.5px; }
+ul.doc-list { padding-left: 20px; margin: 8px 0; }
+ul.doc-list li { margin-bottom: 4px; font-size: 13px; }
+
+/* ─── VISUAL DIAGRAMS ─── */
+
+/* Flow diagram */
+.flow-wrap { margin: 20px 0; }
+.flow-row { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin-bottom: 8px; }
+.flow-box {
+  background: white; border: 2px solid var(--primary); border-radius: 8px;
+  padding: 10px 16px; font-size: 12.5px; font-weight: 600; color: var(--primary);
+  text-align: center; min-width: 110px; position: relative;
+}
+.flow-box.start { border-color: #16a34a; color: #16a34a; }
+.flow-box.decision { border-color: var(--warning); color: var(--warning); background: #fffbeb; transform: rotate(0deg); border-radius: 4px; }
+.flow-box.end { border-color: #16a34a; color: #16a34a; background: #f0fdf4; }
+.flow-box.error { border-color: var(--danger); color: var(--danger); background: #fff1f2; }
+.flow-box.gray { border-color: var(--gray); color: var(--gray); background: #f9fafb; }
+.flow-arrow { font-size: 18px; color: #94a3b8; padding: 0 4px; }
+.flow-label { font-size: 11px; color: var(--text-muted); padding: 0 4px; }
+.flow-branch { display: flex; flex-direction: column; gap: 4px; margin-left: 8px; }
+.flow-branch-item { display: flex; align-items: center; gap: 6px; }
+.flow-branch-label { font-size: 11px; color: var(--text-muted); }
+
+/* Auth flow diagram */
+.auth-flow {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 0; margin: 20px 0; position: relative;
+}
+.auth-step {
+  background: white; border: 2px solid var(--primary); border-radius: 10px;
+  padding: 14px 12px; text-align: center; position: relative;
+}
+.auth-step .step-num {
+  background: var(--primary); color: white; border-radius: 50%;
+  width: 24px; height: 24px; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;
+}
+.auth-step .step-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.auth-step .step-sub { font-size: 11px; color: var(--text-muted); }
+.auth-connector {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: #94a3b8; padding: 0 4px; align-self: center;
+}
+.auth-fail {
+  margin-top: 8px; padding: 6px 10px; background: #fff1f2;
+  border: 1px solid #fecaca; border-radius: 6px; font-size: 11px; color: var(--danger); text-align: center;
+}
+
+/* Two-path flow */
+.two-path { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 20px 0; }
+.path-card {
+  background: white; border: 1px solid var(--gray-border); border-radius: 10px; padding: 20px;
+  border-top: 3px solid var(--primary);
+}
+.path-card.path-b { border-top-color: var(--accent); }
+.path-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 14px; color: var(--text); }
+.path-step {
+  display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px;
+}
+.path-step .ps-dot {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--primary);
+  color: white; font-size: 10px; font-weight: 700; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.path-b .path-step .ps-dot { background: var(--accent); }
+.path-step .ps-text { font-size: 12.5px; }
+.path-step .ps-text strong { display: block; }
+.path-step .ps-text span { color: var(--text-muted); font-size: 11.5px; }
+.path-connector { text-align: center; color: #94a3b8; font-size: 16px; margin: 3px 0; }
+
+/* Vote type cards */
+.vote-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+.vote-type-card {
+  background: white; border: 1px solid var(--gray-border); border-radius: 10px;
+  padding: 16px; border-top: 3px solid var(--primary); transition: box-shadow 0.15s;
+}
+.vote-type-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.vote-type-card.excluded { border-top-color: var(--gray); opacity: 0.65; }
+.vote-type-card .vt-icon { font-size: 22px; margin-bottom: 8px; }
+.vote-type-card .vt-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.vote-type-card .vt-code { font-size: 11px; color: var(--text-muted); font-family: monospace; }
+.vote-type-card .vt-desc { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+.vote-type-card .vt-choices { font-size: 11.5px; color: #374151; margin-top: 8px; background: var(--gray-light); padding: 6px 8px; border-radius: 5px; }
+
+/* State machine */
+.state-machine { margin: 20px 0; background: white; border: 1px solid var(--gray-border); border-radius: 10px; padding: 24px; }
+.sm-row { display: flex; align-items: center; justify-content: center; gap: 0; }
+.sm-state {
+  border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 700;
+  text-align: center; min-width: 90px;
+}
+.sm-state.preparing { background: #f3f4f6; color: #6b7280; border: 2px solid #d1d5db; }
+.sm-state.open { background: #dbeafe; color: #1d4ed8; border: 2px solid #93c5fd; }
+.sm-state.closed { background: #e0e7ff; color: #4338ca; border: 2px solid #a5b4fc; }
+.sm-state.excluded { background: #f3f4f6; color: #9ca3af; border: 2px dashed #d1d5db; }
+.sm-arrow { font-size: 18px; color: #94a3b8; padding: 0 6px; }
+.sm-arrow.bi { padding: 0; display: flex; flex-direction: column; align-items: center; font-size: 13px; color: #64748b; }
+.sm-bottom { display: flex; justify-content: center; gap: 80px; margin-top: 16px; }
+.sm-down { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.sm-down-arrow { color: #94a3b8; font-size: 14px; }
+.sm-transitions { margin-top: 16px; }
+
+/* Phase cards */
+.phase-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 20px 0; }
+.phase-card { background: white; border-radius: 10px; padding: 20px; border: 1px solid var(--gray-border); }
+.phase-card.p1 { border-top: 4px solid #dc2626; }
+.phase-card.p2 { border-top: 4px solid #d97706; }
+.phase-card.p3 { border-top: 4px solid #2563eb; }
+.phase-card.p4 { border-top: 4px solid #7c3aed; }
+.phase-card .ph-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.phase-card .ph-num { font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px; }
+.p1 .ph-num { background: #fee2e2; color: #dc2626; }
+.p2 .ph-num { background: #ffedd5; color: #c2410c; }
+.p3 .ph-num { background: #dbeafe; color: #1d4ed8; }
+.p4 .ph-num { background: #ede9fe; color: #7c3aed; }
+.phase-card .ph-title { font-size: 14px; font-weight: 700; }
+.phase-card ul { padding-left: 16px; }
+.phase-card ul li { font-size: 12.5px; margin-bottom: 3px; color: #374151; }
+
+/* Confirm items */
+.confirm-item { display: flex; gap: 12px; padding: 10px 14px; border-radius: 6px; margin-bottom: 6px; border: 1px solid var(--gray-border); background: white; align-items: flex-start; }
+.confirm-item.confirmed { background: #f0fdf4; border-color: #bbf7d0; }
+.confirm-item.pending { background: #fffbeb; border-color: #fde68a; }
+.confirm-item .ci-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.confirm-item .ci-content {}
+.confirm-item .ci-num { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+.confirm-item .ci-q { font-size: 13px; font-weight: 600; margin: 2px 0; }
+.confirm-item .ci-ans { font-size: 12px; color: #374151; }
+
+/* Screen ID cards */
+.screen-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0; }
+.screen-item { background: white; border: 1px solid var(--gray-border); border-radius: 6px; padding: 10px 14px; font-size: 12.5px; }
+.screen-item .si-id { font-weight: 700; color: var(--primary); font-family: monospace; font-size: 12px; }
+.screen-item .si-name { font-weight: 600; margin: 2px 0; }
+.screen-item .si-path { font-size: 11px; color: var(--text-muted); font-family: monospace; }
+.screen-item.excluded { background: #f9fafb; opacity: 0.7; }
+.screen-item.excluded .si-id { color: var(--gray); }
+
+/* Exception table */
+.exc-row-future { background: #f9fafb; color: var(--text-muted); font-style: italic; }
+
+/* Result mockup */
+.result-mock { background: #1e293b; color: #e2e8f0; border-radius: 8px; padding: 20px; margin: 12px 0; font-family: monospace; font-size: 12px; }
+.result-bar { margin: 8px 0; }
+.result-bar-label { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.result-bar-track { background: #334155; height: 18px; border-radius: 4px; overflow: hidden; }
+.result-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; color: white; font-weight: 700; }
+.rb-yes { background: #16a34a; }
+.rb-no { background: #dc2626; }
+.rb-abs { background: #6b7280; }
+
+/* Stat cards */
+.stat-row { display: flex; gap: 16px; margin: 16px 0; }
+.stat-card { flex: 1; background: white; border: 1px solid var(--gray-border); border-radius: 8px; padding: 16px; text-align: center; }
+.stat-card .sc-num { font-size: 26px; font-weight: 800; color: var(--primary); }
+.stat-card .sc-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* Layout mockup */
+.layout-mock { border: 2px solid var(--gray-border); border-radius: 8px; overflow: hidden; margin: 12px 0; font-size: 12px; }
+.lm-header { background: #1e293b; color: white; padding: 8px 14px; font-size: 11.5px; font-family: monospace; }
+.lm-body { padding: 14px; background: #f9fafb; }
+.lm-card { background: white; border: 1px solid var(--gray-border); border-radius: 6px; padding: 12px; margin-bottom: 8px; }
+.lm-card:last-child { margin-bottom: 0; }
+.lm-progress { height: 6px; background: #e5e7eb; border-radius: 3px; margin: 6px 0; overflow: hidden; }
+.lm-progress-fill { height: 100%; background: var(--primary); border-radius: 3px; }
+.lm-radio-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--gray-border); }
+.lm-radio-row:last-of-type { border-bottom: none; }
+.lm-radio { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--gray); flex-shrink: 0; }
+.lm-radio.checked { border-color: var(--primary); background: var(--primary); }
+.lm-btn { display: inline-block; padding: 7px 18px; border-radius: 5px; font-size: 12px; font-weight: 600; background: var(--primary); color: white; margin-top: 10px; }
+
+hr { border: none; border-top: 1px solid var(--gray-border); margin: 32px 0; }
+
+/* Sticky scroll highlight */
+.scroll-target { scroll-margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-header">멘사코리아 전자투표 시스템</div>
+  <div class="sb-title">기획서 v1.4</div>
+  <ul>
+    <li><a href="#sec1">1. 프로젝트 개요</a></li>
+    <li><a href="#sec2">2. 기존 시스템 분석</a></li>
+    <li><a href="#sec3">3. 신규 시스템 방향성</a></li>
+    <li><a href="#sec4">4. 사용자 유형 정의</a></li>
+    <li><a href="#sec5">5. 사용자 투표 플로우</a></li>
+    <li><a href="#sec6">6. 인증 및 권한 정책</a></li>
+    <li><a href="#sec7">7. 투표 유형 설계</a></li>
+  </ul>
+  <ul class="sub">
+    <li><a href="#sec7-types">안건 유형별 설계</a></li>
+    <li><a href="#sec7-state">안건 상태 전환</a></li>
+    <li><a href="#sec7-criteria">의결 기준</a></li>
+    <li><a href="#sec7-schedule">임원선출 일정 샘플</a></li>
+  </ul>
+  <ul>
+    <li><a href="#sec8">8. 사용자 화면 구조</a></li>
+    <li><a href="#sec9">9. 관리자 시스템 구조</a></li>
+    <li><a href="#sec10">10. 관리자 권한 정책</a></li>
+    <li><a href="#sec11">11. 예외처리 및 오류 대응</a></li>
+    <li><a href="#sec12">12. 보안 고려사항</a></li>
+    <li><a href="#sec13">13. 프론트엔드 구조</a></li>
+    <li><a href="#sec14">14. PHP 백엔드 연동</a></li>
+    <li><a href="#sec15">15. 개발 우선순위</a></li>
+    <li><a href="#sec16">16. 고객사 확인사항</a></li>
+    <li><a href="#appendix">Appendix. 2단계 확장 목록</a></li>
+  </ul>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+
+<!-- HERO -->
+<div class="hero">
+  <h1>멘사코리아 전자투표 시스템 신규 구축 기획서</h1>
+  <div class="meta">v1.4 &nbsp;|&nbsp; 작성일 2026-05-14 &nbsp;|&nbsp; 최종 수정 2026-05-15 &nbsp;|&nbsp; 작성자 배은아</div>
+  <div class="badges">
+    <span class="badge badge-in">✅ 임원 선출</span>
+    <span class="badge badge-in">✅ 헌장 개정</span>
+    <span class="badge badge-in">✅ 긴급 안건</span>
+    <span class="badge badge-in">✅ 설문/의견 수렴</span>
+    <span class="badge badge-out">❌ 정기총회 의결 (2단계 확장)</span>
+    <span class="badge badge-out">❌ 무기명 투표 (미지원)</span>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ───────────────────────── SEC 1 ───────────────────────── -->
+<div class="section scroll-target" id="sec1">
+  <h2 class="sec-title"><span class="sec-num">1</span>프로젝트 개요</h2>
+
+  <h3 class="sub-title">1-1. 프로젝트 목적</h3>
+  <p>멘사코리아 정회원을 대상으로 운영 가능한 전자투표 시스템을 신규 구축한다. 기존 시스템이 쇼핑몰 회원 티켓 구매 기반으로 제한적으로 운영되는 구조를 탈피하여, <strong>멘사코리아 정회원이라면 누구나 참여할 수 있는 독립형 전자투표 플랫폼</strong>을 목표로 한다.</p>
+
+  <h3 class="sub-title">1-2. 기존 시스템 한계</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>한계 항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>투표 자격 제한</td><td>쇼핑몰 회원가입 + 티켓 구매자만 직접 투표 가능</td></tr>
+      <tr><td>인증 방식 종속</td><td>주문번호(끝 5자리) 기반 인증 → 쇼핑몰 의존</td></tr>
+      <tr><td>투표 유형 단일화</td><td>총회 의결 중심의 단일 유형만 운영 가능</td></tr>
+      <tr><td>안건 상태 단순</td><td>열림/닫힘 2단계만 존재, 준비중·제외 없음</td></tr>
+      <tr><td>모수 산정 불명확</td><td>안건별 실제 투표 참여자 수를 모수로 계산 → 득표율 항상 100%</td></tr>
+      <tr><td>확장성 부재</td><td>총회 외 임원 선출, 헌장 개정 등 다양한 투표 운영 불가</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="sub-title">1-3. 신규 구축 목적</h3>
+  <ul class="doc-list">
+    <li>쇼핑몰 의존 없이 <strong>정회원 자격 기준</strong>으로 투표권 부여</li>
+    <li><strong>이니시스 간편인증</strong> 기반의 강력한 본인확인 체계 도입</li>
+    <li><strong>다양한 투표 유형</strong>(임원 선출, 헌장 개정, 총회 의결, 커스텀)을 하나의 플랫폼에서 운영</li>
+    <li><strong>구글 스프레드시트</strong> 연동을 통한 회원 명단 관리 효율화</li>
+    <li>감사 로그, 예외 처리 프로세스 등 운영 신뢰성 확보</li>
+  </ul>
+
+  <h3 class="sub-title">1-4. 운영 대상</h3>
+  <p>유권자: 관리자가 구글 스프레드시트에 등록한 기준인원 명단에 포함된 회원. 명단 마감일은 선관위가 유동적으로 설정. 운영자: 멘사코리아 임원 및 지정 관리자.</p>
+
+  <h3 class="sub-title">1-5. 예상 사용 시나리오</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>시나리오</th><th>설명</th><th>이번 범위</th></tr></thead>
+    <tbody>
+      <tr><td>임원 선출</td><td>후보자 등록 후 전체 정회원 대상 선거</td><td><span class="badge badge-green">✅ 포함</span></td></tr>
+      <tr><td>헌장 개정</td><td>개정안에 대한 찬반 투표</td><td><span class="badge badge-green">✅ 포함</span></td></tr>
+      <tr><td>긴급 안건</td><td>총회 외 온라인 긴급 의결</td><td><span class="badge badge-green">✅ 포함</span></td></tr>
+      <tr><td>설문/의견 수렴</td><td>커스텀 유형으로 운영</td><td><span class="badge badge-green">✅ 포함</span></td></tr>
+      <tr><td>정기총회 의결</td><td>위임 및 정족수 관리 포함</td><td><span class="badge badge-gray">❌ 2단계 확장</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="warn-box">
+    <strong>정기총회 범위 제외 사유</strong>
+    위임 시스템(신청·수임·의장 귀속 위임)과 현장 출석 체크인이 복합 연동되는 고도화 영역. 이번 단계에서는 온라인 단독 투표를 우선 완성하고 정기총회(위임 포함)는 2단계로 확장.
+  </div>
+</div>
+
+<!-- ───────────────────────── SEC 2 ───────────────────────── -->
+<div class="section scroll-target" id="sec2">
+  <h2 class="sec-title"><span class="sec-num">2</span>기존 시스템 분석</h2>
+
+  <h3 class="sub-title">2-1. 기존 시스템 구조</h3>
+  <pre>vote/
+├── index.php              ← 투표자 로그인 (주문번호 인증)
+├── vote.php               ← 투표 진행 화면
+├── vote_action.php        ← 투표 제출 처리
+└── manage/
+    ├── assemblies.php     ← 총회 목록
+    ├── assembly-detail.php← 총회 상세 (안건 관리)
+    ├── result.php         ← 결과 조회
+    ├── attendance.php     ← 출석 현황
+    ├── delegation.php     ← 위임 관리
+    └── delegation_synchronization.php ← 구글 시트 동기화</pre>
+
+  <h3 class="sub-title">2-2. 기존 인증 방식</h3>
+  <p>이름 + 전화번호 + 주문번호 끝 5자리 → 3개 조합이 구매 기록과 일치하면 로그인. <strong>쇼핑몰 티켓 구매자만 인증 가능</strong>.</p>
+
+  <h3 class="sub-title">2-4. 기존 문제점</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>문제</th><th>구체 내용</th></tr></thead>
+    <tbody>
+      <tr><td>자격 제한</td><td>쇼핑몰 비구매 정회원은 직접 투표 불가</td></tr>
+      <tr><td>안건 상태 단순</td><td>준비중/제외 없음, 제외 안건이 "미완료"로 잘못 집계</td></tr>
+      <tr><td>득표율 버그</td><td>assembly-detail.php에서 항상 100% 표시</td></tr>
+      <tr><td>모수 기준 불명확</td><td>실제 투표자 vs 총 유효 의결권 수 혼용</td></tr>
+      <tr><td>관리자 기능 부족</td><td>비밀번호 변경 화면 없음, 안건 순서 변경 불가</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ───────────────────────── SEC 3 ───────────────────────── -->
+<div class="section scroll-target" id="sec3">
+  <h2 class="sec-title"><span class="sec-num">3</span>신규 시스템 방향성</h2>
+
+  <h3 class="sub-title">3-1. 시스템 구조 개편</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>항목</th><th>기존</th><th>신규</th></tr></thead>
+    <tbody>
+      <tr><td>투표 자격</td><td>쇼핑몰 티켓 구매자</td><td>멘사코리아 정회원 전체</td></tr>
+      <tr><td>인증 수단</td><td>주문번호 끝 5자리</td><td>이니시스 간편인증 (본인 명의 휴대폰)</td></tr>
+      <tr><td>회원 데이터</td><td>쇼핑몰 주문 DB</td><td>구글 스프레드시트 (정회원 명단)</td></tr>
+      <tr><td>투표 유형</td><td>총회 의결 단일</td><td>임원 선출 / 헌장 개정 / 총회 의결 / 커스텀</td></tr>
+      <tr><td>안건 상태</td><td>열림/닫힘</td><td>준비중 / 열림 / 닫힘 / 제외</td></tr>
+      <tr><td>결과 모수</td><td>안건별 실제 참여자 수 (항상 100%)</td><td>안건별 실제 참여자 수 + 기준인원 대비 참여율 별도 표기</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="sub-title">3-2. 회원 체계 — 하이브리드 방식</h3>
+  <div class="info-box">
+    <strong>실시간 매칭 + 투표 종료 시 모수 확정</strong>
+    인증 시 구글 시트 실시간 조회(서버 캐시 5~10분). DB 스냅샷 불필요.<br>
+    <strong>모수 확정:</strong> 투표 전체 종료 시 단 1회 시트 조회 → 최종 대상자 수 확정·저장 → 각 안건별 미참여자를 미투표로 일괄 처리.
+  </div>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>케이스</th><th>매칭 영향</th><th>모수 영향</th></tr></thead>
+    <tbody>
+      <tr><td>회원 추가</td><td>캐시 갱신 후 즉시 인증 가능</td><td>투표 종료 시 시트에 있으면 포함 ✅</td></tr>
+      <tr><td>이미 투표한 회원 삭제</td><td>무관 (완료)</td><td>시트에 없으면 모수 제외, vote_logs 보존 ⚠️</td></tr>
+      <tr><td>아직 투표 안 한 회원 삭제</td><td>캐시 갱신 후 매칭 실패</td><td>시트에 없으면 모수 제외 ✅</td></tr>
+      <tr><td>회원 수정 (회원번호 동일)</td><td>갱신 후 수정된 정보로 인증</td><td>회원번호 동일 시 모수 포함 ✅</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="sub-title" id="sec3-auth">3-3. 인증 체계 — 4단계 플로우</h3>
+
+  <!-- Auth flow visual -->
+  <div style="display:grid;grid-template-columns:repeat(7,auto);align-items:center;gap:0;margin:20px 0;overflow-x:auto;">
+    <div class="auth-step" style="min-width:130px">
+      <div class="step-num">1</div>
+      <div class="step-title">이니시스 간편인증</div>
+      <div class="step-sub">본인 명의 휴대폰<br>이름·번호·생년월일 수집</div>
+      <div class="auth-fail">실패 → 재시도</div>
+    </div>
+    <div class="auth-connector">→</div>
+    <div class="auth-step" style="min-width:120px">
+      <div class="step-num">2</div>
+      <div class="step-title">회원번호 입력</div>
+      <div class="step-sub">사용자 직접 입력</div>
+    </div>
+    <div class="auth-connector">→</div>
+    <div class="auth-step" style="min-width:150px">
+      <div class="step-num">3</div>
+      <div class="step-title">회원 매칭</div>
+      <div class="step-sub">
+        1차: 이름+전화+회원번호<br>
+        2차: 이름+생년월일+회원번호
+      </div>
+      <div class="auth-fail">실패 → 예외 요청</div>
+    </div>
+    <div class="auth-connector">→</div>
+    <div class="auth-step" style="border-color:#16a34a;min-width:110px">
+      <div class="step-num" style="background:#16a34a">4</div>
+      <div class="step-title" style="color:#15803d">투표 입장</div>
+      <div class="step-sub">세션 생성<br>투표 종료일시까지 유효</div>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────────────────── SEC 4 ───────────────────────── -->
+<div class="section scroll-target" id="sec4">
+  <h2 class="sec-title"><span class="sec-num">4</span>사용자 유형 정의</h2>
+
+  <pre>시스템 접근자
+├── 투표자 (일반 사용자)
+│   ├── 정회원 (정상 인증)
+│   └── 정회원 (예외 인증 — 관리자 승인 링크)
+└── 관리자 (admin) — 다중 계정 생성 가능, 모든 계정 동일 권한</pre>
+
+  <h3 class="sub-title">4-2. 투표자 유형</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th></th><th>일반 정회원</th><th>예외 인증 정회원</th></tr></thead>
+    <tbody>
+      <tr><td>인증 방법</td><td>이니시스 + 회원번호 매칭</td><td>관리자 승인 1회용 링크 (이니시스 불가 시만)</td></tr>
+      <tr><td>접근 범위</td><td>본인 해당 투표</td><td>해당 투표 1회만</td></tr>
+      <tr><td>로그</td><td>일반 투표 로그</td><td>"관리자 예외 승인" 별도 표시</td></tr>
+      <tr><td>링크 만료</td><td>—</td><td>투표 종료일시까지 / 1회 사용 후 즉시 만료</td></tr>
+      <tr><td>본인 확인</td><td>—</td><td>링크 진입 후 이름+회원번호 입력 필수</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="sub-title">4-3. 접근 범위 매트릭스</h3>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>기능</th><th>정회원</th><th>예외회원</th><th>관리자</th></tr></thead>
+    <tbody>
+      <tr><td>투표 참여</td><td>✅</td><td>✅</td><td>—</td></tr>
+      <tr><td>투표 생성/수정</td><td>—</td><td>—</td><td>✅</td></tr>
+      <tr><td>예외 요청 처리</td><td>—</td><td>—</td><td>✅</td></tr>
+      <tr><td>감사 로그 조회</td><td>—</td><td>—</td><td>✅</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ───────────────────────── SEC 5 ───────────────────────── -->
+<div class="section scroll-target" id="sec5">
+  <h2 class="sec-title"><span class="sec-num">5</span>사용자 투표 플로우</h2>
+
+  <p>진입 경로에 따라 두 가지 플로우로 나뉘나, <strong>모든 접근 시 인증이 최우선으로 선행</strong>된다. 인증 전에는 어떠한 투표 정보도 노출되지 않는다.</p>
+
+  <div class="two-path">
+    <div class="path-card">
+      <h4>A. 포털 접속 플로우</h4>
+      <div class="path-step"><div class="ps-dot">1</div><div class="ps-text"><strong>포털 접속</strong><span>/evote</span></div></div>
+      <div class="path-connector">↓</div>
+      <div class="path-step"><div class="ps-dot">2</div><div class="ps-text"><strong>이니시스 간편인증</strong><span>실패 → 재시도 안내</span></div></div>
+      <div class="path-connector">↓</div>
+      <div class="path-step"><div class="ps-dot">3</div><div class="ps-text"><strong>회원번호 입력 및 매칭</strong><span>실패 → 예외 요청 (U-05)</span></div></div>
+      <div class="path-connector">↓</div>
+      <div class="path-step"><div class="ps-dot">4</div><div class="ps-text"><strong>투표 목록 (U-00)</strong><span>본인 해당 투표만 표시</span></div></div>
+      <div class="path-connector">↓</div>
+      <div class="path-step"><div class="ps-dot">5</div><div class="ps-text"><strong>특정 투표 선택</strong></div></div>
+      <div class="path-connector">↓</div>
+      <div class="path-step"><div class="ps-dot">6</div><div class="ps-text"><strong>기투표 여부 확인</strong><span>완료 → U-09 / 미투표 → U-07</span></div></div>
+    </div>
+    <div class="path-card path-b">
+      <h4>B. 개별 투표 링크 접속 플로우</h4>
+      <div class="path-step"><div class="ps-dot">1</div><div class="ps-text"><strong>개별 링크 접속</strong><span>/evote/{voteId}</span></div></div>
+      <div class="path-connector">↓</div>
+      <div class="path-step"><div class="ps-dot">2</div><div class="ps-text"><strong>이니시스 간편인증</strong><span>실패 → 재시도 안내</span></div></div>
+      <div class="path-connector">↓</div>
+      <div class="path-step"><div class="ps-dot">3</div><div class="ps-text"><strong>회원번호 입력 및 매칭</strong><span>실패 → 예외 요청 (U-05)</span></div></div>
+      <div class="path-connector">↓</div>
+      <div class="path-step"><div class="ps-dot">4</div><div class="ps-text"><strong>투표 접근 유효성 확인</strong><span>대상자 아님→U-12 / 종료→U-13 / 대기중→U-14</span></div></div>
+      <div class="path-connector">↓</div>
+      <div class="path-step"><div class="ps-dot">5</div><div class="ps-text"><strong>기투표 여부 확인</strong><span>완료 → U-09 / 미투표 → U-07</span></div></div>
+    </div>
+  </div>
+
+  <h3 class="sub-title">5-2. STEP별 주요 정책</h3>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>STEP</th><th>내용</th><th>핵심 정책</th></tr></thead>
+    <tbody>
+      <tr><td>STEP 2</td><td>이니시스 간편인증</td><td>30초 이내 완료 요구. 이름·전화번호·생년월일 수집</td></tr>
+      <tr><td>STEP 3</td><td>회원번호 입력</td><td>이니시스 인증 성공 직후 노출. 인증된 이름 표시</td></tr>
+      <tr><td>STEP 4</td><td>1차 매칭</td><td>이름+전화번호+회원번호. 전화번호·회원번호 정규화 후 비교</td></tr>
+      <tr><td>STEP 5</td><td>2차 매칭</td><td>이름+생년월일+회원번호 (전화번호 변경 대비)</td></tr>
+      <tr><td>STEP 7</td><td>투표 진행</td><td>1화면 1안건. 이전/다음+드롭다운. 제출 후 열림 안건은 수정 가능</td></tr>
+      <tr><td>STEP 10</td><td>세션 만료 처리</td><td>2시간 비활성 시 이름+회원번호+생년월일 3단계 확인 팝업 (이니시스 재호출 없음)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="sub-title">투표 화면 레이아웃 (U-07)</h3>
+  <div class="layout-mock">
+    <div class="lm-header">U-07 투표 메인 (1화면 1안건)</div>
+    <div class="lm-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:12px;">
+        <span>안건 2 / 5</span>
+        <div class="lm-progress" style="width:200px;flex-shrink:0"><div class="lm-progress-fill" style="width:40%"></div></div>
+        <span>2/5 완료</span>
+      </div>
+      <div class="lm-card">
+        <div style="margin-bottom:8px"><span class="badge badge-blue" style="font-size:11px">진행중</span></div>
+        <div style="font-weight:700;margin-bottom:4px">제1호 안건: 헌장 개정안</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:12px">2025년 정관 제3조 개정에 관한 건</div>
+        <div style="border:1px solid #e5e7eb;border-radius:6px;padding:12px;">
+          <div style="font-weight:700;font-size:12px;margin-bottom:8px;display:flex;justify-content:space-between"><span>내 투표</span><span style="color:#16a34a;font-size:11px">완료 ✓</span></div>
+          <div class="lm-radio-row"><div class="lm-radio checked"></div><span>찬성</span></div>
+          <div class="lm-radio-row"><div class="lm-radio"></div><span>반대</span></div>
+          <div class="lm-radio-row"><div class="lm-radio"></div><span>기권</span></div>
+          <div class="lm-btn">수정</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:12px;">
+        <span style="color:#6b7280">← 이전 안건</span>
+        <span style="color:#6b7280">다음 안건 →</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────────────────── SEC 6 ───────────────────────── -->
+<div class="section scroll-target" id="sec6">
+  <h2 class="sec-title"><span class="sec-num">6</span>인증 및 권한 정책</h2>
+
+  <h3 class="sub-title">6-1. 세션 정책</h3>
+  <div class="warn-box">
+    <strong>⚠️ 이니시스 인증 비용 이슈</strong>
+    간편인증은 호출 1회당 비용 발생. 세션을 투표 종료일시까지 유지하여 재인증 최소화.<br>
+    장기 권장: 정회원 로그인 시스템 도입 → 이니시스는 최초 1회 신원 확인 용도로만 사용 (Phase 4).
+  </div>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>세션 유효기간</td><td>투표 종료일시까지</td></tr>
+      <tr><td>비활성 만료</td><td>2시간 비활성 시 세션 만료 → 이름+회원번호+생년월일 3단계 입력으로 세션 재개</td></tr>
+      <tr><td>쿠키 설정</td><td>Secure + HttpOnly + SameSite=Strict</td></tr>
+      <tr><td>중복 로그인</td><td>기존 세션 무효화 후 새 세션 생성</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="sub-title">6-3. 예외 인증 정책 (1회용 링크)</h3>
+  <div class="warn-box"><strong>적용 대상</strong>이니시스 본인인증 자체가 불가한 경우에 한함 (타인 명의 기기, 해외 번호 등). 단순 명단 데이터 오류는 관리자가 구글 시트 직접 수정으로 처리.</div>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>발급 조건</td><td>관리자 승인 (회원 명단에서 대상 회원 직접 선택 후 발급)</td></tr>
+      <tr><td>링크 유효기간</td><td>해당 투표 종료일시까지</td></tr>
+      <tr><td>사용 횟수</td><td>1회 (이름+회원번호 확인 완료 및 세션 생성 시 즉시 만료)</td></tr>
+      <tr><td>토큰 길이</td><td>64자 (crypto.randomBytes(32).toString('hex'))</td></tr>
+      <tr><td>로그</td><td>"관리자 예외 승인" 타입으로 별도 표시</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ───────────────────────── SEC 7 ───────────────────────── -->
+<div class="section scroll-target" id="sec7">
+  <h2 class="sec-title"><span class="sec-num">7</span>투표 유형 설계</h2>
+
+  <div class="info-box"><strong>투표 구조</strong> 투표(Vote) → 템플릿 선택(임원선출/헌장개정/총회의결/커스텀) → 안건(Agenda) 1..N → 안건 유형 선택 → 선택지(Choice) 1..N</div>
+
+  <h3 class="sub-title" id="sec7-types">7-2. 안건 유형별 설계</h3>
+
+  <div class="vote-type-grid">
+    <div class="vote-type-card">
+      <div class="vt-icon">⚖️</div>
+      <div class="vt-name">① 찬반형</div>
+      <div class="vt-code">binary</div>
+      <div class="vt-desc">헌장 개정, 총회 의결, 긴급 안건</div>
+      <div class="vt-choices">선택지: 찬성 / 반대 / 기권 (고정)</div>
+    </div>
+    <div class="vote-type-card">
+      <div class="vt-icon">📋</div>
+      <div class="vt-name">② 단일선택형</div>
+      <div class="vt-code">single_choice</div>
+      <div class="vt-desc">장소 선정, 일정 투표</div>
+      <div class="vt-choices">선택지: 관리자 자유 구성 (2개 이상)</div>
+    </div>
+    <div class="vote-type-card">
+      <div class="vt-icon">☑️</div>
+      <div class="vt-name">③ 복수선택형</div>
+      <div class="vt-code">multi_choice</div>
+      <div class="vt-desc">위원 선출 (복수 선발)</div>
+      <div class="vt-choices">최소/최대 선택 수 관리자 지정</div>
+    </div>
+    <div class="vote-type-card">
+      <div class="vt-icon">🏆</div>
+      <div class="vt-name">④ 후보선택형</div>
+      <div class="vt-code">candidate</div>
+      <div class="vt-desc">임원 선출, 회장/부회장 선거</div>
+      <div class="vt-choices">개인·팀 후보 카드 / 단독 시 찬반 방식</div>
+    </div>
+    <div class="vote-type-card">
+      <div class="vt-icon">📝</div>
+      <div class="vt-name">⑤ 서술형</div>
+      <div class="vt-code">essay</div>
+      <div class="vt-desc">의견 수렴, 건의사항</div>
+      <div class="vt-choices">자유 텍스트 (글자 수 제한 설정 가능)</div>
+    </div>
+    <div class="vote-type-card excluded">
+      <div class="vt-icon">🏢</div>
+      <div class="vt-name">⑥ 참석형</div>
+      <div class="vt-code">attendance</div>
+      <div class="vt-desc" style="color:#dc2626">⚠️ 이번 구축 범위 제외</div>
+      <div class="vt-choices">정기총회 2단계 확장 시 구현</div>
+    </div>
+  </div>
+
+  <div class="warn-box" style="margin-top:4px">
+    <strong>단독 후보 등록 시 필수 처리 정책</strong>
+    후보가 1인(또는 1팀)만 등록된 경우 투표 화면은 <strong>찬반 방식</strong>으로 표시. 이 경우에도 사진·직책·소개·공약 등 후보 정보를 반드시 등록해야 하며, 미등록 시 안건 저장 불가.
+  </div>
+
+  <h3 class="sub-title" id="sec7-state">7-3. 안건 상태 전환 규칙</h3>
+  <div class="state-machine">
+    <div class="sm-row" style="gap:12px">
+      <div class="sm-state preparing">준비중</div>
+      <div class="sm-arrow">→</div>
+      <div class="sm-state open">열림</div>
+      <div class="sm-arrow bi"><span>→</span><span>←</span></div>
+      <div class="sm-state closed">닫힘</div>
+    </div>
+    <div class="sm-bottom">
+      <div class="sm-down">
+        <div style="font-size:12px;color:#6b7280">준비중/열림에서만</div>
+        <div class="sm-down-arrow">↓</div>
+        <div class="sm-state excluded">제외</div>
+        <div style="font-size:11px;color:#dc2626;margin-top:4px">복구 불가</div>
+      </div>
+    </div>
+    <div class="sm-transitions">
+      <div class="tbl-wrap" style="margin-top:16px"><table class="tbl-sm">
+        <thead><tr><th>전환</th><th>처리 내용</th></tr></thead>
+        <tbody>
+          <tr><td>준비중 → 열림</td><td>투표 시작</td></tr>
+          <tr><td>열림 → 닫힘</td><td>미투표자 자동 미투표 처리</td></tr>
+          <tr><td>닫힘 → 열림</td><td>미투표 처리 초기화, 재투표 가능</td></tr>
+          <tr><td>준비중/열림 → 제외</td><td>2단계 확인 팝업, 기투표 데이터 내부 보존</td></tr>
+          <tr><td>닫힘 → 제외</td><td><span style="color:#dc2626;font-weight:700">불가</span></td></tr>
+          <tr><td>제외 → 재포함</td><td><span style="color:#dc2626;font-weight:700">불가</span> (신규 등록 필요)</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <h3 class="sub-title" id="sec7-criteria">7-4. 의결 기준</h3>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>방식</th><th>적용 대상</th><th>가결 기준</th></tr></thead>
+    <tbody>
+      <tr><td>다수결</td><td>임원 선출(복수 후보), 단일선택형, 복수선택형</td><td>실제 참여자 기준 최다 득표</td></tr>
+      <tr><td>찬반 의결</td><td>찬반형 안건, 단독 후보 찬반</td><td>찬성 수 > 유효표(찬성+반대)의 50% 초과</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- Result mockup -->
+  <div class="result-mock">
+    <div style="margin-bottom:8px;font-weight:700">예시: 찬반형 안건 결과</div>
+    <div style="font-size:11px;color:#94a3b8;margin-bottom:4px">대상자: 100명 &nbsp;|&nbsp; 실제 참여자: 70명 &nbsp;|&nbsp; 참여율: 70%</div>
+    <div style="font-size:11px;color:#60a5fa;margin-bottom:10px">※ 아래 % 수치 및 그래프는 모두 실제 참여자(70명) 기준 — 찬성+반대+기권 합계 100%</div>
+    <div class="result-bar">
+      <div class="result-bar-label"><span>찬성</span><span>40명 &nbsp;<strong>57.1%</strong>&nbsp; (= 40 / 70)</span></div>
+      <div class="result-bar-track"><div class="result-bar-fill rb-yes" style="width:57.1%">57.1%</div></div>
+    </div>
+    <div class="result-bar">
+      <div class="result-bar-label"><span>반대</span><span>20명 &nbsp;<strong>28.6%</strong>&nbsp; (= 20 / 70)</span></div>
+      <div class="result-bar-track"><div class="result-bar-fill rb-no" style="width:28.6%">28.6%</div></div>
+    </div>
+    <div class="result-bar">
+      <div class="result-bar-label"><span>기권 <span style="color:#94a3b8;font-size:10px">(유효표 제외)</span></span><span>10명 &nbsp;<strong>14.3%</strong>&nbsp; (= 10 / 70)</span></div>
+      <div class="result-bar-track"><div class="result-bar-fill rb-abs" style="width:14.3%">14.3%</div></div>
+    </div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid #334155;font-size:11px">
+      유효표(찬성+반대): 60표 &nbsp;|&nbsp; 가결 기준: 유효표의 50% 초과 = 31표<br>
+      찬성 40표 = 유효표 기준 <strong>66.7%</strong> → <span style="color:#4ade80;font-weight:700">✅ 가결</span>
+    </div>
+  </div>
+
+  <h3 class="sub-title" id="sec7-schedule">7-5. 임원선출 표준 일정 샘플</h3>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>단계</th><th>일정 예시</th><th>처리 주체</th><th>시스템 관여</th></tr></thead>
+    <tbody>
+      <tr><td>1~5</td><td>선관위 기준일 확정 ~ 선거운동 마감</td><td>선관위/홈페이지</td><td>❌</td></tr>
+      <tr style="background:#eff6ff"><td><strong>6</strong></td><td><strong>2025.02.05 09:00 ~ 2025.02.07 18:00</strong></td><td><strong>전자투표 시스템</strong></td><td>✅ 투표 기간</td></tr>
+      <tr style="background:#eff6ff"><td><strong>7</strong></td><td><strong>2025.02.07 18:00 이후</strong></td><td><strong>전자투표 시스템 + 선관위</strong></td><td>✅ 개표·결과 공고</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ───────────────────────── SEC 8 ───────────────────────── -->
+<div class="section scroll-target" id="sec8">
+  <h2 class="sec-title"><span class="sec-num">8</span>사용자 화면 구조</h2>
+
+  <h4 class="sub2-title">이번 구축 포함 화면</h4>
+  <div class="screen-grid">
+    <div class="screen-item"><div class="si-id">U-00</div><div class="si-name">투표 목록 (인증 후 포털)</div><div class="si-path">/evote</div></div>
+    <div class="screen-item"><div class="si-id">U-01</div><div class="si-name">투표 진입 (링크 접속 인증 중계)</div><div class="si-path">/evote/{voteId}</div></div>
+    <div class="screen-item"><div class="si-id">U-02</div><div class="si-name">이니시스 간편인증</div><div class="si-path">팝업 (외부 SDK)</div></div>
+    <div class="screen-item"><div class="si-id">U-03</div><div class="si-name">회원번호 입력</div><div class="si-path">/evote/{voteId}/auth</div></div>
+    <div class="screen-item"><div class="si-id">U-04</div><div class="si-name">매칭 실패 안내</div><div class="si-path">/evote/{voteId}/auth-fail</div></div>
+    <div class="screen-item"><div class="si-id">U-05</div><div class="si-name">예외 요청 폼</div><div class="si-path">/evote/{voteId}/exception-request</div></div>
+    <div class="screen-item"><div class="si-id">U-07</div><div class="si-name">투표 메인 (안건 목록)</div><div class="si-path">/evote/{voteId}/ballot</div></div>
+    <div class="screen-item"><div class="si-id">U-08</div><div class="si-name">후보자 소개 모달</div><div class="si-path">U-07 내 모달</div></div>
+    <div class="screen-item"><div class="si-id">U-09</div><div class="si-name">투표 완료</div><div class="si-path">/evote/{voteId}/done</div></div>
+    <div class="screen-item"><div class="si-id">U-10</div><div class="si-name">투표 종료 후 재접속 안내</div><div class="si-path">/evote/{voteId}/already-done</div></div>
+    <div class="screen-item"><div class="si-id">U-19</div><div class="si-name">인증 불가 문의 폼</div><div class="si-path">/evote/{voteId}/auth-inquiry</div></div>
+    <div class="screen-item"><div class="si-id">U-20</div><div class="si-name">인증 불가 문의 완료</div><div class="si-path">/evote/{voteId}/auth-inquiry/done</div></div>
+  </div>
+
+  <h4 class="sub2-title">2단계 확장 화면</h4>
+  <div class="screen-grid">
+    <div class="screen-item excluded"><div class="si-id">U-15</div><div class="si-name">투표확인증 발급</div><div class="si-path">추후 확장</div></div>
+    <div class="screen-item excluded"><div class="si-id">U-16</div><div class="si-name">위임 신청</div><div class="si-path">추후 확장</div></div>
+    <div class="screen-item excluded"><div class="si-id">U-17</div><div class="si-name">위임 신청 완료</div><div class="si-path">추후 확장</div></div>
+    <div class="screen-item excluded"><div class="si-id">U-18</div><div class="si-name">참석 신청</div><div class="si-path">추후 확장</div></div>
+  </div>
+
+  <h3 class="sub-title">안건 상태 배지 규칙</h3>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>안건 상태</th><th>배지</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>열림 + 투표 완료</td><td><span class="badge badge-green">완료</span></td><td>투표 기간 내 수정 가능</td></tr>
+      <tr><td>열림 + 미투표</td><td><span class="badge badge-blue">진행중</span></td><td>지금 투표 가능</td></tr>
+      <tr><td>닫힘 + 투표 완료</td><td><span class="badge badge-gray">마감</span></td><td>종료됨, 투표 참여함</td></tr>
+      <tr><td>닫힘 + 미투표</td><td><span class="badge badge-red">미참여</span></td><td>종료됨, 미투표 자동 처리</td></tr>
+      <tr><td>준비중</td><td><span class="badge badge-gray">대기중</span></td><td>선택 불가</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ───────────────────────── SEC 9 ───────────────────────── -->
+<div class="section scroll-target" id="sec9">
+  <h2 class="sec-title"><span class="sec-num">9</span>관리자 시스템 구조</h2>
+
+  <h4 class="sub2-title">이번 구축 포함 화면</h4>
+  <div class="screen-grid">
+    <div class="screen-item"><div class="si-id">A-01</div><div class="si-name">관리자 로그인</div><div class="si-path">/manage/</div></div>
+    <div class="screen-item"><div class="si-id">A-02</div><div class="si-name">대시보드</div><div class="si-path">/manage/dashboard</div></div>
+    <div class="screen-item"><div class="si-id">A-03</div><div class="si-name">투표 목록</div><div class="si-path">/manage/evotes</div></div>
+    <div class="screen-item"><div class="si-id">A-04</div><div class="si-name">투표 생성/수정</div><div class="si-path">/manage/evotes/form</div></div>
+    <div class="screen-item"><div class="si-id">A-05</div><div class="si-name">투표 상세 (안건 관리)</div><div class="si-path">/manage/evotes/{voteId}</div></div>
+    <div class="screen-item"><div class="si-id">A-06</div><div class="si-name">안건 등록/수정 폼</div><div class="si-path">/manage/evotes/{voteId}/agenda/form</div></div>
+    <div class="screen-item"><div class="si-id">A-07</div><div class="si-name">후보자 관리</div><div class="si-path">/manage/evotes/{voteId}/candidates</div></div>
+    <div class="screen-item"><div class="si-id">A-08</div><div class="si-name">회원 명단 관리</div><div class="si-path">/manage/evotes/{voteId}/members</div></div>
+    <div class="screen-item"><div class="si-id">A-11</div><div class="si-name">투표 현황 (실시간)</div><div class="si-path">/manage/evotes/{voteId}/status</div></div>
+    <div class="screen-item"><div class="si-id">A-12</div><div class="si-name">결과 조회</div><div class="si-path">/manage/evotes/{voteId}/result</div></div>
+    <div class="screen-item"><div class="si-id">A-13</div><div class="si-name">예외 요청 관리</div><div class="si-path">/manage/evotes/{voteId}/exceptions</div></div>
+    <div class="screen-item"><div class="si-id">A-15</div><div class="si-name">감사 로그</div><div class="si-path">/manage/logs</div></div>
+    <div class="screen-item"><div class="si-id">A-16</div><div class="si-name">관리자 계정 관리</div><div class="si-path">/manage/admins</div></div>
+    <div class="screen-item"><div class="si-id">A-17</div><div class="si-name">내 정보 / 비밀번호 변경</div><div class="si-path">/manage/my-info</div></div>
+    <div class="screen-item"><div class="si-id">A-19</div><div class="si-name">안내 메시지 관리</div><div class="si-path">/manage/evotes/{voteId}/messages</div></div>
+    <div class="screen-item"><div class="si-id">A-20</div><div class="si-name">당선증 관리</div><div class="si-path">/manage/evotes/{voteId}/certificates</div></div>
+  </div>
+
+  <h4 class="sub2-title">2단계 확장 화면</h4>
+  <div class="screen-grid">
+    <div class="screen-item excluded"><div class="si-id">A-09</div><div class="si-name">위임 관리</div></div>
+    <div class="screen-item excluded"><div class="si-id">A-10</div><div class="si-name">참석자 관리</div></div>
+    <div class="screen-item excluded"><div class="si-id">A-14</div><div class="si-name">의장 위임 투표 행사</div></div>
+    <div class="screen-item excluded"><div class="si-id">A-18</div><div class="si-name">테스트 투표 모드</div></div>
+  </div>
+
+  <h3 class="sub-title">A-12. 결과 조회 — Stat Cards</h3>
+  <div class="stat-row">
+    <div class="stat-card"><div class="sc-num">60명</div><div class="sc-label">대상자 수<br><small>투표 종료 시 확정</small></div></div>
+    <div class="stat-card"><div class="sc-num" style="color:#16a34a">54명</div><div class="sc-label">실제 참여자 수</div></div>
+    <div class="stat-card"><div class="sc-num" style="color:#7c3aed">90.00%</div><div class="sc-label">참여율<br><small>참여자 수 / 대상자 수</small></div></div>
+  </div>
+
+  <h3 class="sub-title">A-08. 회원 명단 — 조회 전용 + 삭제 정책</h3>
+  <div class="warn-box">
+    <strong>⚠️ 회원 명단 수정·추가·삭제는 구글 스프레드시트에서 직접 처리</strong>
+    A-08 화면은 조회·동기화 전용이며 시스템에서 수정을 강제하거나 감사 로그를 기록할 수 없습니다.<br>
+    정보 오류 정정은 <strong>시트에서 해당 행을 직접 수정</strong>하고, 변경 시 시트 내 메모 또는 별도 컬럼에 사유를 기록하세요.<br>
+    이미 투표를 완료한 회원을 삭제해도 투표 결과(vote_logs)는 보존되지만, 투표 종료 시 모수에서 제외됩니다.
+  </div>
+
+  <h3 class="sub-title">A-13. 예외 요청 관리 — 처리 옵션</h3>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>탭</th><th>접수 경로</th><th>처리 옵션</th></tr></thead>
+    <tbody>
+      <tr><td>탭 ① 매칭 실패</td><td>이니시스 통과 + 회원 매칭 실패 → U-05</td><td>A. 시트 수정 / B. 1회용 링크 발급 / C. 재확인 요청 / D. 거부</td></tr>
+      <tr><td>탭 ② 인증 불가</td><td>이니시스 인증 자체 불가 → U-19</td><td>A. 1회용 링크 발급 / B. 재확인 요청 / C. 처리 불가</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ───────────────────────── SEC 10 ───────────────────────── -->
+<div class="section scroll-target" id="sec10">
+  <h2 class="sec-title"><span class="sec-num">10</span>관리자 권한 정책</h2>
+
+  <h3 class="sub-title">10-2. 절대 불가 액션</h3>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>행위</th><th>이유</th></tr></thead>
+    <tbody>
+      <tr><td>대리 투표 행사</td><td>유권자 의사 왜곡</td></tr>
+      <tr><td>투표 결과 직접 수정 (vote_logs)</td><td>선거 공정성 훼손</td></tr>
+      <tr><td>회원 명단 수정을 통한 모수 인위 조작</td><td>오류 정정 목적의 수정은 허용하되 시트 내 사유 기록 필수 권고</td></tr>
+      <tr><td>무단 일괄 예외 승인</td><td>비정상 접근 허용</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ───────────────────────── SEC 11 ───────────────────────── -->
+<div class="section scroll-target" id="sec11">
+  <h2 class="sec-title"><span class="sec-num">11</span>예외처리 및 오류 대응</h2>
+
+  <h3 class="sub-title">11-1. 투표자 측 예외 상황</h3>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>#</th><th>예외 상황</th><th>사용자 메시지</th><th>처리</th></tr></thead>
+    <tbody>
+      <tr><td>E01</td><td>투표 기간 내 재접속 (기투표)</td><td>기존 선택값 채워진 투표 화면 → 수정 가능</td><td>수정 허용</td></tr>
+      <tr><td>E02</td><td>이니시스 인증 실패</td><td>"본인인증에 실패했습니다."</td><td>재시도 버튼</td></tr>
+      <tr><td>E05</td><td>1차·2차 매칭 실패</td><td>"본인인증 정보가 회원 데이터와 일치하지 않습니다."</td><td>예외 요청 폼</td></tr>
+      <tr><td>E10</td><td>세션 만료 (2시간)</td><td>"오랫동안 사용하지 않아 연결이 끊겼습니다."</td><td>이름+회원번호+생년월일 재확인 팝업</td></tr>
+      <tr><td>E11</td><td>안건이 이미 닫힘 (제출 시)</td><td>"해당 안건이 마감되었습니다."</td><td>미투표 처리 안내</td></tr>
+      <tr><td>E12</td><td>예외 링크 만료</td><td>"링크가 만료되었습니다."</td><td>오류 페이지</td></tr>
+      <tr><td>E29</td><td>투표 일시정지 중</td><td>"현재 투표가 일시 중단되었습니다."</td><td>재시도 버튼 (세션 유지)</td></tr>
+      <tr class="exc-row-future"><td>E18~E26</td><td colspan="3">위임 관련 예외 — 추후 확장 (정기총회 2단계)</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ───────────────────────── SEC 12 ───────────────────────── -->
+<div class="section scroll-target" id="sec12">
+  <h2 class="sec-title"><span class="sec-num">12</span>보안 고려사항</h2>
+
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>영역</th><th>항목</th><th>적용 방안</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="3">인증·접근</td><td>중복 투표 방지</td><td>vote_logs에 member_number + vote_id + agenda_id UNIQUE 제약</td></tr>
+      <tr><td>Rate Limiting</td><td>동일 IP 분당 10회 이상 인증 요청 차단</td></tr>
+      <tr><td>세션 고정 공격</td><td>로그인 후 session_regenerate_id 처리</td></tr>
+      <tr><td rowspan="4">데이터 보호</td><td>민감 정보 암호화</td><td>생년월일, 휴대폰번호 → AES-256</td></tr>
+      <tr><td>비밀번호</td><td>bcrypt (cost factor 12 이상)</td></tr>
+      <tr><td>SQL Injection</td><td>PDO Prepared Statement</td></tr>
+      <tr><td>XSS 방지</td><td>htmlspecialchars + CSP 헤더</td></tr>
+      <tr><td rowspan="2">투표 무결성</td><td>결과 조작 방지</td><td>vote_logs 직접 수정 불가 (관리자 포함)</td></tr>
+      <tr><td>감사 로그</td><td>모든 투표·관리자 행위 기록 (삭제 불가)</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ───────────────────────── SEC 13 ───────────────────────── -->
+<div class="section scroll-target" id="sec13">
+  <h2 class="sec-title"><span class="sec-num">13</span>프론트엔드 구조 제안</h2>
+
+  <pre>new_vote/
+├── user/                   ← 투표자 화면 (U-xx)
+│   ├── list.html           ← U-00 투표 목록
+│   ├── ballot.html         ← U-07 투표 메인
+│   └── ...
+├── admin/                  ← 관리자 화면 (A-xx)
+│   ├── dashboard.html      ← A-02
+│   └── votes/detail/
+│       ├── result.html     ← A-12
+│       └── ...
+├── assets/
+│   ├── css/
+│   │   ├── common.css      ← 공통 변수·컴포넌트
+│   │   ├── user.css        ← 투표자 전용
+│   │   └── admin.css       ← 관리자 전용
+│   └── js/
+│       ├── common.js       ← 공통 유틸
+│       ├── api.js          ← fetch 래퍼
+│       ├── user/auth.js    ← 이니시스 연동
+│       └── admin/result.js ← 결과 차트 (Chart.js)
+├── components/             ← 재사용 스니펫
+└── mock-data/              ← 프로토타입용 JSON</pre>
+
+  <h3 class="sub-title">13-2. 공통 컴포넌트</h3>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>컴포넌트</th><th>설명</th><th>사용 위치</th></tr></thead>
+    <tbody>
+      <tr><td>모달</td><td>확인/취소 팝업, 후보자 상세</td><td>전체</td></tr>
+      <tr><td>진행 바</td><td>결과 시각화 (찬성/반대/기권/미투표)</td><td>결과 화면</td></tr>
+      <tr><td>상태 배지</td><td>준비중/열림/닫힘/제외/완료</td><td>안건 목록</td></tr>
+      <tr><td>토스트</td><td>처리 완료 간단 알림</td><td>관리자 화면만</td></tr>
+      <tr><td>인라인 에러</td><td>폼 검증 메시지 (필드 아래)</td><td>폼 화면</td></tr>
+    </tbody>
+  </table></div>
+  <p>상태 관리: <strong>Vanilla JS (프레임워크 없음)</strong>. 페이지 단위 JS 객체로 상태 관리.</p>
+</div>
+
+<!-- ───────────────────────── SEC 14 ───────────────────────── -->
+<div class="section scroll-target" id="sec14">
+  <h2 class="sec-title"><span class="sec-num">14</span>PHP 백엔드 연동 고려사항</h2>
+  <div class="warn-box">14-1 ~ 14-5 세부 항목은 추후 작성 예정.</div>
+
+  <h3 class="sub-title">14-6. 페이징 구조</h3>
+  <pre>GET /api/admin/evotes/{id}/members?page=1&per_page=50&search=홍길동
+
+응답:
+{
+  "success": true,
+  "data": {
+    "items": [ ... ],
+    "pagination": {
+      "page": 1,
+      "per_page": 50,
+      "total": 320,
+      "total_pages": 7
+    }
+  }
+}</pre>
+</div>
+
+<!-- ───────────────────────── SEC 15 ───────────────────────── -->
+<div class="section scroll-target" id="sec15">
+  <h2 class="sec-title"><span class="sec-num">15</span>개발 우선순위 제안</h2>
+
+  <div class="phase-grid">
+    <div class="phase-card p1">
+      <div class="ph-header"><span class="ph-num">PHASE 1</span><span class="ph-title">핵심 기능 (투표 운영 최소 요건)</span></div>
+      <ul>
+        <li>관리자 로그인 / 투표 생성 / 안건 등록 (찬반형, 단일선택형 우선)</li>
+        <li>Google Sheets API 연동 + CSV 방식 회원 명단</li>
+        <li>이니시스 간편인증 연동</li>
+        <li>회원 매칭 (1차/2차) + 중복 투표 방지 (DB UNIQUE 제약)</li>
+        <li>투표 진행 화면 / 안건 상태 관리 (준비중/열림/닫힘/제외)</li>
+        <li>기본 결과 조회 / 예외 요청 접수</li>
+        <li><strong>회원 명단 삭제 경고 로직 (A-08)</strong></li>
+      </ul>
+    </div>
+    <div class="phase-card p2">
+      <div class="ph-header"><span class="ph-num">PHASE 2</span><span class="ph-title">운영 편의 기능</span></div>
+      <ul>
+        <li>예외 요청 처리 + 1회용 링크 발급</li>
+        <li>결과 CSV 다운로드 / 개표 상황표 인쇄</li>
+        <li>투표 현황 실시간 + 시간대별 차트 (Chart.js)</li>
+        <li>후보자 관리 / 안건 순서 변경</li>
+        <li>안내 메시지 발송 (A-19) / 투표 일시정지·재개</li>
+        <li>자동/수동 시작·결과 공표 설정</li>
+        <li>명부 업로드 실패 목록</li>
+      </ul>
+    </div>
+    <div class="phase-card p3">
+      <div class="ph-header"><span class="ph-num">PHASE 3</span><span class="ph-title">고도화 기능</span></div>
+      <ul>
+        <li>감사 로그 전체 / 복수선택형·서술형 안건</li>
+        <li>투표 복제 / 미투표자 목록</li>
+        <li>당선증 관리 (A-20)</li>
+        <li>목록 컬럼 정렬</li>
+      </ul>
+    </div>
+    <div class="phase-card p4">
+      <div class="ph-header"><span class="ph-num">PHASE 4</span><span class="ph-title">권장 장기 개선 (정회원 로그인)</span></div>
+      <ul>
+        <li>이니시스로 신원 확인 후 ID/PW 계정 생성</li>
+        <li>이후 이니시스 재호출 없이 로그인 (비용 최소화)</li>
+        <li>비밀번호 찾기 / 소셜 로그인 검토</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────────────────── SEC 16 ───────────────────────── -->
+<div class="section scroll-target" id="sec16">
+  <h2 class="sec-title"><span class="sec-num">16</span>고객사 확인 필요사항</h2>
+
+  <h3 class="sub-title">16-1. 인증 관련</h3>
+  <div class="confirm-item pending">
+    <div class="ci-icon">⚠️</div>
+    <div class="ci-content">
+      <div class="ci-num">① 이니시스 간편인증</div>
+      <div class="ci-q">계약 및 테스트 환경 제공 가능 여부</div>
+      <div class="ci-ans">연동 전제로 설계됨. 현재 쇼핑몰에 연동된 이니시스 활용 방안 검토 필요.</div>
+    </div>
+  </div>
+  <div class="confirm-item pending">
+    <div class="ci-icon">⚠️</div>
+    <div class="ci-content">
+      <div class="ci-num">② 이니시스 인증 실패 시 대체 인증</div>
+      <div class="ci-q">대체 인증 수단 허용 여부</div>
+      <div class="ci-ans">현재 예외 요청(관리자 처리)만 허용.</div>
+    </div>
+  </div>
+
+  <h3 class="sub-title">16-3. 투표 운영 정책</h3>
+  <div class="confirm-item pending"><div class="ci-icon">⚠️</div><div class="ci-content"><div class="ci-num">⑨</div><div class="ci-q">재투표(수정) 허용 범위</div><div class="ci-ans">닫힘 전 수정 가능으로 설계.</div></div></div>
+  <div class="confirm-item confirmed"><div class="ci-icon">✅</div><div class="ci-content"><div class="ci-num">⑪ 확정 완료</div><div class="ci-q">투표 결과 공개 시점</div><div class="ci-ans">수동 공표로 고정.</div></div></div>
+  <div class="confirm-item confirmed"><div class="ci-icon">✅</div><div class="ci-content"><div class="ci-num">㉑ 확정 완료</div><div class="ci-q">결과 공표 방식</div><div class="ci-ans">수동 공표로 고정.</div></div></div>
+  <div class="confirm-item confirmed"><div class="ci-icon">✅</div><div class="ci-content"><div class="ci-num">㉓ 확정 완료</div><div class="ci-q">무기명 투표 허용 여부</div><div class="ci-ans">기명 투표로 고정. 무기명 미지원.</div></div></div>
+
+  <h3 class="sub-title">16-4. 시스템 환경</h3>
+  <div class="confirm-item confirmed"><div class="ci-icon">✅</div><div class="ci-content"><div class="ci-num">⑬ 확정 완료</div><div class="ci-q">구글 스프레드시트 API 서비스 계정</div><div class="ci-ans">구글 계정 제공 확인됨 — Google Sheets API 연동으로 진행.</div></div></div>
+  <div class="confirm-item pending"><div class="ci-icon">⚠️</div><div class="ci-content"><div class="ci-num">⑭</div><div class="ci-q">배포 경로</div><div class="ci-ans">동일 서버 /evote/ 경로로 계획.</div></div></div>
+  <div class="confirm-item confirmed"><div class="ci-icon">✅</div><div class="ci-content"><div class="ci-num">⑮⑳ 확정 완료</div><div class="ci-q">이메일/문자 발송 서비스</div><div class="ci-ans">이메일: Gmail SMTP + 앱 비밀번호 / 알림톡: 알리고(Aligo) 연동 가능 여부 확인 필요.</div></div></div>
+  <div class="confirm-item pending"><div class="ci-icon">⚠️</div><div class="ci-content"><div class="ci-num">⑯</div><div class="ci-q">로그/감사 데이터 보존 기간</div><div class="ci-ans">⚠️ 미정.</div></div></div>
+
+  <h3 class="sub-title">전체 확인사항 요약</h3>
+  <div class="tbl-wrap"><table class="tbl-sm">
+    <thead><tr><th>#</th><th>항목</th><th>상태</th></tr></thead>
+    <tbody>
+      <tr><td>①②</td><td>이니시스 인증 계약·대체 수단</td><td><span class="badge badge-orange">확인 필요</span></td></tr>
+      <tr><td>④</td><td>기준인원 명단 마감일 기준</td><td><span class="badge badge-orange">확인 필요</span></td></tr>
+      <tr><td>⑨⑩</td><td>재투표 허용, 닫힘→열림 재오픈 방식</td><td><span class="badge badge-orange">확인 필요</span></td></tr>
+      <tr><td>⑪㉑</td><td>결과 공표 방식</td><td><span class="badge badge-confirm">확정 완료</span></td></tr>
+      <tr><td>⑬</td><td>구글 스프레드시트 API 계정</td><td><span class="badge badge-confirm">확정 완료</span></td></tr>
+      <tr><td>⑮⑳</td><td>이메일/알림톡 발송 서비스</td><td><span class="badge badge-confirm">Gmail 확정, 알리고 확인 필요</span></td></tr>
+      <tr><td>⑯</td><td>로그 보존 기간</td><td><span class="badge badge-red">미정</span></td></tr>
+      <tr><td>㉓</td><td>기명/무기명</td><td><span class="badge badge-confirm">확정 완료</span></td></tr>
+      <tr><td>㉗㉘㉙</td><td>의결 기준 / 정족수 / 동점 처리</td><td><span class="badge badge-orange">확인 필요</span></td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ───────────────────────── APPENDIX ───────────────────────── -->
+<div class="section scroll-target" id="appendix">
+  <h2 class="sec-title"><span class="sec-num" style="background:#7c3aed">A</span>Appendix. 2단계 확장 항목 목록</h2>
+  <p>이번 구축 범위에서 제외된 항목. 정기총회 2단계 확장 시 별도 기획서 수립.</p>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>항목</th><th>설명</th><th>대상 단계</th></tr></thead>
+    <tbody>
+      <tr><td>U-15 투표확인증 발급</td><td>투표 참여 증명 PDF 발급</td><td rowspan="3">Phase 3</td></tr>
+      <tr><td>A-20 당선증 관리</td><td>선출 임원 당선증 PDF 발급</td></tr>
+      <tr><td>A-18 테스트 투표 모드</td><td>운영 전 전체 플로우 격리 테스트</td></tr>
+      <tr><td>U-16 위임 신청</td><td>회원 간 투표 위임 신청</td><td rowspan="5">정기총회 2단계</td></tr>
+      <tr><td>U-17 위임 신청 완료</td><td>위임 신청 완료 화면</td></tr>
+      <tr><td>U-18 참석 신청</td><td>현장 총회 참석 신청</td></tr>
+      <tr><td>A-09 위임 관리</td><td>관리자 위임 현황 조회 및 처리</td></tr>
+      <tr><td>A-10 참석자 관리</td><td>현장 체크인 처리</td></tr>
+      <tr><td>A-14 의장 위임 투표 행사</td><td>의장 귀속 위임 일괄 투표 처리</td><td>정기총회 2단계</td></tr>
+      <tr><td>⑥ 참석형 안건 유형</td><td>현장 참석 여부 조사 안건</td><td>정기총회 2단계</td></tr>
+      <tr><td>위임 관련 예외처리 (E18~E19, E21~E26)</td><td>위임 플로우 예외 처리</td><td>정기총회 2단계</td></tr>
+    </tbody>
+  </table></div>
+
+  <div style="margin-top:48px;padding-top:24px;border-top:1px solid var(--gray-border);text-align:center;color:var(--text-muted);font-size:12px;">
+    BN System · 멘사코리아 전자투표 시스템 신규 구축 기획서 v1.4 · 2026-05-15
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+const sections = document.querySelectorAll('.scroll-target');
+const links = document.querySelectorAll('#sidebar a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      links.forEach(l => {
+        l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

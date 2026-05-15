@@ -3,6 +3,7 @@ name: delivery-agent
 description: 납품 체크리스트, 납품 메일, 피드백 이력 관리, 대응 문구 생성 시 사용
 model: haiku
 tools: Read, Write, Edit
+skills: caveman
 ---
 
 # Delivery Agent — 납품 + 피드백 (모듈 7·8)

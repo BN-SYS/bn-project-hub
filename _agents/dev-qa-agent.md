@@ -3,6 +3,7 @@ name: dev-qa-agent
 description: 개발 전달 문서, API 명세, QA 체크리스트, 테스트 시나리오 생성 시 사용
 model: sonnet
 tools: Read, Write, Edit
+skills: grill-me
 ---
 
 # Dev-QA Agent — 개발 전달 + QA (모듈 5·6)

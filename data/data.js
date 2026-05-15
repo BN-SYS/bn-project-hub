@@ -61,6 +61,19 @@ const PROJECTS = [
     ],
   },
   */
+ {
+    manager:    'EunAh',
+    id:         '-',
+    client:     '-',
+    title:      '멘사코리아_NEW전자투표시스템',
+    type:       '링크연결',
+    status:     ['planning'],
+    updated:    '2026-05-15',
+    prototypes: [],
+    docs: [
+      { name: '링크', url: 'https://bn-sys.github.io/pm-workspace/EunAh/mensa_e_vote/new_vote/기획서_전자투표시스템_v1.4.html' },
+    ],
+  },
   {
     manager:    'EunAh',
     id:         '-',
