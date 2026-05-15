@@ -71,7 +71,7 @@ const PROJECTS = [
     updated:    '2026-05-15',
     prototypes: [],
     docs: [
-      { name: '링크', url: 'https://bn-sys.github.io/pm-workspace/EunAh/mensa_e_vote/new_vote/기획서_전자투표시스템_v1.4.html' },
+      { name: '링크', url: 'https://bn-sys.github.io/bn-project-hub/workspace/EunAh/mensa_e_vote/new_vote/기획서_전자투표시스템_v1.4.html' },
     ],
   },
   {
