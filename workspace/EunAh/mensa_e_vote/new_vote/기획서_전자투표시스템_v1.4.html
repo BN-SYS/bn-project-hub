@@ -444,19 +444,21 @@ hr { border: none; border-top: 1px solid var(--gray-border); margin: 32px 0; }
     </tbody>
   </table></div>
 
-  <h3 class="sub-title">3-2. 회원 체계 — 하이브리드 방식</h3>
+  <h3 class="sub-title">3-2. 회원 체계 — 동기화 후 로컬 관리 방식</h3>
   <div class="info-box">
-    <strong>실시간 매칭 + 투표 종료 시 모수 확정</strong>
-    인증 시 구글 시트 실시간 조회(서버 캐시 5~10분). DB 스냅샷 불필요.<br>
-    <strong>모수 확정:</strong> 투표 전체 종료 시 단 1회 시트 조회 → 최종 대상자 수 확정·저장 → 각 안건별 미참여자를 미투표로 일괄 처리.
+    <strong>동기화 버튼 1회 가져오기 → 이후 관리자 페이지(A-08)에서 직접 관리</strong>
+    구글 시트는 초기 데이터 공급원. 동기화 후 시스템 DB 기준으로 인증·매칭 처리.<br>
+    관리자 페이지 변경 내용은 구글 시트에 자동 반영되지 않으므로, 변경 후 수동 반영 권고.<br>
+    <strong>재동기화:</strong> 2단계 확인 후 진행 — 구글 시트 데이터가 관리자 페이지 변경 내용을 덮어씀.<br>
+    <strong>모수 확정:</strong> 투표 전체 종료 시 단 1회 시스템 DB 기준으로 최종 대상자 수 확정·저장.
   </div>
   <div class="tbl-wrap"><table class="tbl-sm">
-    <thead><tr><th>케이스</th><th>매칭 영향</th><th>모수 영향</th></tr></thead>
+    <thead><tr><th>케이스 (관리자 페이지 기준)</th><th>매칭 영향</th><th>모수 영향</th></tr></thead>
     <tbody>
-      <tr><td>회원 추가</td><td>캐시 갱신 후 즉시 인증 가능</td><td>투표 종료 시 시트에 있으면 포함 ✅</td></tr>
-      <tr><td>이미 투표한 회원 삭제</td><td>무관 (완료)</td><td>시트에 없으면 모수 제외, vote_logs 보존 ⚠️</td></tr>
-      <tr><td>아직 투표 안 한 회원 삭제</td><td>캐시 갱신 후 매칭 실패</td><td>시트에 없으면 모수 제외 ✅</td></tr>
-      <tr><td>회원 수정 (회원번호 동일)</td><td>갱신 후 수정된 정보로 인증</td><td>회원번호 동일 시 모수 포함 ✅</td></tr>
+      <tr><td>회원 추가 (A-08)</td><td>즉시 인증 가능</td><td>투표 종료 시 DB에 있으면 포함 ✅</td></tr>
+      <tr><td>이미 투표한 회원 삭제</td><td>무관 (완료)</td><td>DB에 없으면 모수 제외, vote_logs 보존 ⚠️</td></tr>
+      <tr><td>아직 투표 안 한 회원 삭제</td><td>즉시 매칭 실패</td><td>DB에 없으면 모수 제외 ✅</td></tr>
+      <tr><td>회원 수정 (회원번호 동일)</td><td>수정된 정보로 인증</td><td>회원번호 동일 시 모수 포함 ✅</td></tr>
     </tbody>
   </table></div>
 
@@ -509,10 +511,10 @@ hr { border: none; border-top: 1px solid var(--gray-border); margin: 32px 0; }
   <div class="tbl-wrap"><table>
     <thead><tr><th></th><th>일반 정회원</th><th>예외 인증 정회원</th></tr></thead>
     <tbody>
-      <tr><td>인증 방법</td><td>이니시스 + 회원번호 매칭</td><td>관리자 승인 1회용 링크 (이니시스 불가 시만)</td></tr>
+      <tr><td>인증 방법</td><td>이니시스 + 회원번호 매칭</td><td>이메일 인증코드 입력 (이니시스 불가 시만)</td></tr>
       <tr><td>접근 범위</td><td>본인 해당 투표</td><td>해당 투표 1회만</td></tr>
-      <tr><td>로그</td><td>일반 투표 로그</td><td>"관리자 예외 승인" 별도 표시</td></tr>
-      <tr><td>링크 만료</td><td>—</td><td>투표 종료일시까지 / 1회 사용 후 즉시 만료</td></tr>
+      <tr><td>로그</td><td>일반 투표 로그</td><td>"관리자 예외 승인 (인증코드)" 별도 표시</td></tr>
+      <tr><td>코드 만료</td><td>—</td><td>발송 후 24시간 또는 투표 종료일시 중 먼저 도래 / 1회 사용 후 즉시 만료</td></tr>
       <tr><td>본인 확인</td><td>—</td><td>링크 진입 후 이름+회원번호 입력 필수</td></tr>
     </tbody>
   </table></div>
@@ -626,16 +628,20 @@ hr { border: none; border-top: 1px solid var(--gray-border); margin: 32px 0; }
     </tbody>
   </table></div>
 
-  <h3 class="sub-title">6-3. 예외 인증 정책 (1회용 링크)</h3>
-  <div class="warn-box"><strong>적용 대상</strong>이니시스 본인인증 자체가 불가한 경우에 한함 (타인 명의 기기, 해외 번호 등). 단순 명단 데이터 오류는 관리자가 구글 시트 직접 수정으로 처리.</div>
+  <h3 class="sub-title">6-3. 예외 인증 정책 (이메일 인증코드)</h3>
+  <div class="warn-box"><strong>적용 대상</strong> 이니시스 본인인증 자체가 불가한 경우에 한함 (타인 명의 기기, 해외 번호 등). 단순 명단 데이터 오류는 관리자가 A-08에서 직접 수정 후 일반 인증 플로우로 처리.</div>
+  <div class="info-box" style="margin:8px 0">
+    <strong>처리 흐름:</strong> ① 회원 U-19 문의 접수 → ② 관리자 A-13에서 확인 + A-08 명단 존재 여부 수동 검증 → ③ 관리자 인증코드 발송 버튼 → ④ 시스템이 등록 이메일로 6자리 코드 자동 발송 → ⑤ 회원 U-21에서 코드 입력 + 이름·회원번호 일치 시 입장
+  </div>
   <div class="tbl-wrap"><table class="tbl-sm">
     <thead><tr><th>항목</th><th>내용</th></tr></thead>
     <tbody>
-      <tr><td>발급 조건</td><td>관리자 승인 (회원 명단에서 대상 회원 직접 선택 후 발급)</td></tr>
-      <tr><td>링크 유효기간</td><td>해당 투표 종료일시까지</td></tr>
-      <tr><td>사용 횟수</td><td>1회 (이름+회원번호 확인 완료 및 세션 생성 시 즉시 만료)</td></tr>
-      <tr><td>토큰 길이</td><td>64자 (crypto.randomBytes(32).toString('hex'))</td></tr>
-      <tr><td>로그</td><td>"관리자 예외 승인" 타입으로 별도 표시</td></tr>
+      <tr><td>발송 조건</td><td>관리자 수동 확인 후 발송 (A-08 명단에 존재하는 회원에 한함)</td></tr>
+      <tr><td>인증코드</td><td>6자리 숫자, 유효기간: 발송 후 24시간 또는 투표 종료일시 중 먼저 도래</td></tr>
+      <tr><td>사용 횟수</td><td>1회 (입력 성공 시 즉시 만료)</td></tr>
+      <tr><td>본인 확인</td><td>인증코드 + 이름 + 회원번호 모두 일치 시에만 통과</td></tr>
+      <tr><td>회원 명단 표시</td><td>A-08 목록에서 "인증코드 발송" 상태 배지 표시</td></tr>
+      <tr><td>로그</td><td>"관리자 예외 승인 (인증코드)" 타입으로 별도 표시</td></tr>
     </tbody>
   </table></div>
 </div>
@@ -791,6 +797,7 @@ hr { border: none; border-top: 1px solid var(--gray-border); margin: 32px 0; }
     <div class="screen-item"><div class="si-id">U-10</div><div class="si-name">투표 종료 후 재접속 안내</div><div class="si-path">/evote/{voteId}/already-done</div></div>
     <div class="screen-item"><div class="si-id">U-19</div><div class="si-name">인증 불가 문의 폼</div><div class="si-path">/evote/{voteId}/auth-inquiry</div></div>
     <div class="screen-item"><div class="si-id">U-20</div><div class="si-name">인증 불가 문의 완료</div><div class="si-path">/evote/{voteId}/auth-inquiry/done</div></div>
+    <div class="screen-item"><div class="si-id">U-21</div><div class="si-name">인증코드 입력 (예외 인증)</div><div class="si-path">/evote/{voteId}/auth-code</div></div>
   </div>
 
   <h4 class="sub2-title">2단계 확장 화면</h4>
@@ -805,7 +812,8 @@ hr { border: none; border-top: 1px solid var(--gray-border); margin: 32px 0; }
   <div class="tbl-wrap"><table class="tbl-sm">
     <thead><tr><th>안건 상태</th><th>배지</th><th>설명</th></tr></thead>
     <tbody>
-      <tr><td>열림 + 투표 완료</td><td><span class="badge badge-green">완료</span></td><td>투표 기간 내 수정 가능</td></tr>
+      <tr><td>열림 + 투표 완료 (전체 제출 완료 전)</td><td><span class="badge badge-green">완료</span></td><td>전체 제출 완료 전 — 재제출로 수정 가능</td></tr>
+      <tr><td>열림 + 투표 완료 (전체 제출 완료 후)</td><td><span class="badge" style="background:#166534;color:#fff">최종완료</span></td><td>전체 제출 완료 후 — 수정 불가 (잠금)</td></tr>
       <tr><td>열림 + 미투표</td><td><span class="badge badge-blue">진행중</span></td><td>지금 투표 가능</td></tr>
       <tr><td>닫힘 + 투표 완료</td><td><span class="badge badge-gray">마감</span></td><td>종료됨, 투표 참여함</td></tr>
       <tr><td>닫힘 + 미투표</td><td><span class="badge badge-red">미참여</span></td><td>종료됨, 미투표 자동 처리</td></tr>
@@ -853,11 +861,11 @@ hr { border: none; border-top: 1px solid var(--gray-border); margin: 32px 0; }
     <div class="stat-card"><div class="sc-num" style="color:#7c3aed">90.00%</div><div class="sc-label">참여율<br><small>참여자 수 / 대상자 수</small></div></div>
   </div>
 
-  <h3 class="sub-title">A-08. 회원 명단 — 조회 전용 + 삭제 정책</h3>
+  <h3 class="sub-title">A-08. 회원 명단 관리 — 동기화 및 직접 관리</h3>
   <div class="warn-box">
-    <strong>⚠️ 회원 명단 수정·추가·삭제는 구글 스프레드시트에서 직접 처리</strong>
-    A-08 화면은 조회·동기화 전용이며 시스템에서 수정을 강제하거나 감사 로그를 기록할 수 없습니다.<br>
-    정보 오류 정정은 <strong>시트에서 해당 행을 직접 수정</strong>하고, 변경 시 시트 내 메모 또는 별도 컬럼에 사유를 기록하세요.<br>
+    <strong>⚠️ 관리자 페이지 변경 내용은 구글 시트에 자동 반영되지 않음</strong>
+    A-08에서 추가·수정·삭제 후 구글 시트에도 동일하게 수동으로 반영해 주세요.<br>
+    <strong>재동기화</strong> 시 구글 시트 데이터가 관리자 페이지 변경 내용을 덮어씁니다 — 2단계 확인 팝업 후 진행.<br>
     이미 투표를 완료한 회원을 삭제해도 투표 결과(vote_logs)는 보존되지만, 투표 종료 시 모수에서 제외됩니다.
   </div>
 
@@ -865,8 +873,8 @@ hr { border: none; border-top: 1px solid var(--gray-border); margin: 32px 0; }
   <div class="tbl-wrap"><table class="tbl-sm">
     <thead><tr><th>탭</th><th>접수 경로</th><th>처리 옵션</th></tr></thead>
     <tbody>
-      <tr><td>탭 ① 매칭 실패</td><td>이니시스 통과 + 회원 매칭 실패 → U-05</td><td>A. 시트 수정 / B. 1회용 링크 발급 / C. 재확인 요청 / D. 거부</td></tr>
-      <tr><td>탭 ② 인증 불가</td><td>이니시스 인증 자체 불가 → U-19</td><td>A. 1회용 링크 발급 / B. 재확인 요청 / C. 처리 불가</td></tr>
+      <tr><td>탭 ① 매칭 실패</td><td>이니시스 통과 + 회원 매칭 실패 → U-05</td><td>A. A-08에서 명단 수정 / B. 재확인 요청 / C. 거부</td></tr>
+      <tr><td>탭 ② 인증 불가</td><td>이니시스 인증 자체 불가 → U-19 접수</td><td>A. 이메일 인증코드 발송 (A-08 존재 확인 후) / B. 재확인 요청 / C. 처리 불가</td></tr>
     </tbody>
   </table></div>
 </div>
@@ -900,7 +908,7 @@ hr { border: none; border-top: 1px solid var(--gray-border); margin: 32px 0; }
       <tr><td>E05</td><td>1차·2차 매칭 실패</td><td>"본인인증 정보가 회원 데이터와 일치하지 않습니다."</td><td>예외 요청 폼</td></tr>
       <tr><td>E10</td><td>세션 만료 (2시간)</td><td>"오랫동안 사용하지 않아 연결이 끊겼습니다."</td><td>이름+회원번호+생년월일 재확인 팝업</td></tr>
       <tr><td>E11</td><td>안건이 이미 닫힘 (제출 시)</td><td>"해당 안건이 마감되었습니다."</td><td>미투표 처리 안내</td></tr>
-      <tr><td>E12</td><td>예외 링크 만료</td><td>"링크가 만료되었습니다."</td><td>오류 페이지</td></tr>
+      <tr><td>E12</td><td>인증코드 만료</td><td>"인증코드가 만료되었습니다. 관리자에게 재발송 요청해 주세요."</td><td>U-19 재접수 안내</td></tr>
       <tr><td>E29</td><td>투표 일시정지 중</td><td>"현재 투표가 일시 중단되었습니다."</td><td>재시도 버튼 (세션 유지)</td></tr>
       <tr class="exc-row-future"><td>E18~E26</td><td colspan="3">위임 관련 예외 — 추후 확장 (정기총회 2단계)</td></tr>
     </tbody>
@@ -1011,7 +1019,7 @@ hr { border: none; border-top: 1px solid var(--gray-border); margin: 32px 0; }
     <div class="phase-card p2">
       <div class="ph-header"><span class="ph-num">PHASE 2</span><span class="ph-title">운영 편의 기능</span></div>
       <ul>
-        <li>예외 요청 처리 + 1회용 링크 발급</li>
+        <li>예외 요청 처리 + 이메일 인증코드 발송</li>
         <li>결과 CSV 다운로드 / 개표 상황표 인쇄</li>
         <li>투표 현황 실시간 + 시간대별 차트 (Chart.js)</li>
         <li>후보자 관리 / 안건 순서 변경</li>
